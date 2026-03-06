@@ -1,0 +1,40 @@
+<!-- users/templates/users/student_dashboard.html -->
+
+{% extends 'users/base.html' %}
+
+{% block title %}Student Dashboard - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body text-center p-5">
+            <h1 class="display-4">🎓 Welcome, {{ user.full_name }}!</h1>
+            <p class="lead text-muted">Student Dashboard</p>
+            <hr class="my-4">
+
+            <div class="row text-start">
+                <div class="col-md-6 mb-3">
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Student ID:</strong> {{ user.student_id }}</p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <p><strong>Department:</strong> {{ user.get_department_display_full }}</p>
+                    <p><strong>Role:</strong> {{ user.role }}</p>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+                <strong>🚧 Dashboard Under Construction</strong><br>
+                This page will be built in the next phase with all dashboard features including:
+                <ul class="text-start mt-2 mb-0">
+                    <li>Submit course feedback</li>
+                    <li>File complaints</li>
+                    <li>Track submission status</li>
+                    <li>View notifications</li>
+                    <li>Book appointments</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,222 @@
+<!-- users/templates/users/register.html -->
+
+{% extends 'users/base.html' %}
+
+{% block title %}Register - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-card { max-width: 600px; }
+    .password-requirements {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    .password-requirements ul {
+        margin-bottom: 0;
+        padding-left: 1.5rem;
+    }
+    .password-requirements li {
+        margin-bottom: 0.25rem;
+    }
+    .requirement-met { color: #10b981; }
+    .requirement-not-met { color: #6b7280; }
+    .form-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card auth-card">
+        <div class="card-body p-5">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Create Your Account</h2>
+                <p class="text-muted">Join FeedbackFlow as a Student</p>
+            </div>
+
+            <form method="post" id="registrationForm">
+                {% csrf_token %}
+
+                <!-- Full Name -->
+                <div class="mb-3">
+                    <label for="{{ form.full_name.id_for_label }}" class="form-label">
+                        Full Name <span class="text-danger">*</span>
+                    </label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                        <div class="text-danger small mt-1">{{ form.full_name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Student ID -->
+                <div class="mb-3">
+                    <label for="{{ form.student_id.id_for_label }}" class="form-label">
+                        Student ID <span class="text-danger">*</span>
+                    </label>
+                    {{ form.student_id }}
+                    <div class="form-text">{{ form.student_id.help_text }}</div>
+                    {% if form.student_id.errors %}
+                        <div class="text-danger small mt-1">{{ form.student_id.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                        Email Address <span class="text-danger">*</span>
+                    </label>
+                    {{ form.email }}
+                    <div class="form-text">{{ form.email.help_text }}</div>
+                    {% if form.email.errors %}
+                        <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Department -->
+                <div class="mb-3">
+                    <label for="{{ form.department.id_for_label }}" class="form-label">
+                        Department <span class="text-danger">*</span>
+                    </label>
+                    {{ form.department }}
+                    {% if form.department.errors %}
+                        <div class="text-danger small mt-1">{{ form.department.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">
+                        Password <span class="text-danger">*</span>
+                    </label>
+                    {{ form.password }}
+
+                    <!-- Password Requirements -->
+                    <div class="password-requirements mt-2">
+                        <strong>Password must contain:</strong>
+                        <ul id="password-checklist">
+                            <li id="length-check" class="requirement-not-met">
+                                <span id="length-icon">○</span> At least 8 characters
+                            </li>
+                            <li id="uppercase-check" class="requirement-not-met">
+                                <span id="uppercase-icon">○</span> One uppercase letter (A-Z)
+                            </li>
+                            <li id="lowercase-check" class="requirement-not-met">
+                                <span id="lowercase-icon">○</span> One lowercase letter (a-z)
+                            </li>
+                            <li id="number-check" class="requirement-not-met">
+                                <span id="number-icon">○</span> One number (0-9)
+                            </li>
+                            <li id="special-check" class="requirement-not-met">
+                                <span id="special-icon">○</span> One special character (!@#$%^&*)
+                            </li>
+                        </ul>
+                    </div>
+
+                    {% if form.password.errors %}
+                        <div class="text-danger small mt-1">{{ form.password.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-3">
+                    <label for="{{ form.confirm_password.id_for_label }}" class="form-label">
+                        Confirm Password <span class="text-danger">*</span>
+                    </label>
+                    {{ form.confirm_password }}
+                    <div id="password-match-message" class="small mt-1"></div>
+                    {% if form.confirm_password.errors %}
+                        <div class="text-danger small mt-1">{{ form.confirm_password.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                    Register
+                </button>
+
+                <!-- Login Link -->
+                <div class="text-center">
+                    <p class="mb-0">Already have an account?
+                        <a href="{% url 'login' %}" class="text-decoration-none">Login</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const passwordInput = document.getElementById('{{ form.password.id_for_label }}');
+    const confirmPasswordInput = document.getElementById('{{ form.confirm_password.id_for_label }}');
+
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        checkRequirement('length', password.length >= 8);
+        checkRequirement('uppercase', /[A-Z]/.test(password));
+        checkRequirement('lowercase', /[a-z]/.test(password));
+        checkRequirement('number', /\d/.test(password));
+        checkRequirement('special', /[!@#$%^&*(),.?":{}|<>]/.test(password));
+        if (confirmPasswordInput.value) checkPasswordMatch();
+    });
+
+    confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+
+    function checkRequirement(id, isMet) {
+        const element = document.getElementById(id + '-check');
+        const icon = document.getElementById(id + '-icon');
+        if (isMet) {
+            element.classList.remove('requirement-not-met');
+            element.classList.add('requirement-met');
+            icon.textContent = '✓';
+        } else {
+            element.classList.remove('requirement-met');
+            element.classList.add('requirement-not-met');
+            icon.textContent = '○';
+        }
+    }
+
+    function checkPasswordMatch() {
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        const messageDiv = document.getElementById('password-match-message');
+        if (confirmPassword === '') {
+            messageDiv.textContent = '';
+            return;
+        }
+        if (password === confirmPassword) {
+            messageDiv.textContent = '✓ Passwords match';
+            messageDiv.className = 'small mt-1 text-success';
+        } else {
+            messageDiv.textContent = '✗ Passwords do not match';
+            messageDiv.className = 'small mt-1 text-danger';
+        }
+    }
+
+    const emailInput = document.getElementById('{{ form.email.id_for_label }}');
+    emailInput.addEventListener('blur', function() {
+        const email = this.value.trim();
+        if (email && !email.endsWith('@uap-bd.edu')) {
+            const parent = this.parentElement;
+            let warning = parent.querySelector('.email-warning');
+            if (!warning) {
+                warning = document.createElement('div');
+                warning.className = 'text-warning small mt-1 email-warning';
+                warning.textContent = '⚠ Email should end with @uap-bd.edu';
+                parent.appendChild(warning);
+            }
+        } else {
+            const warning = this.parentElement.querySelector('.email-warning');
+            if (warning) warning.remove();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,107 @@
+<!-- users/templates/users/login.html -->
+
+{% extends 'users/base.html' %}
+
+{% block title %}Login - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card auth-card">
+        <div class="card-body p-5">
+            <div class="text-center mb-4">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🎓</div>
+                <h2 class="fw-bold">Welcome Back</h2>
+                <p class="text-muted">Login to your FeedbackFlow account</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Email Field -->
+                <div class="mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                        Email Address
+                    </label>
+                    {{ form.email }}
+                    <div class="form-text">Use your UAP email (@uap-bd.edu)</div>
+                    {% if form.email.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.email.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">
+                        Password
+                    </label>
+                    <div class="input-group">
+                        {{ form.password }}
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                            👁️
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.password.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Remember Me -->
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me">
+                    <label class="form-check-label" for="rememberMe">
+                        Remember me
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                    <strong>Login</strong>
+                </button>
+
+                <!-- Forgot Password Link -->
+                <div class="text-center mb-3">
+                    <a href="{% url 'password_reset_request' %}" class="text-decoration-none small">
+                        Forgot Password?
+                    </a>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Register Link -->
+                <div class="text-center">
+                    <p class="mb-2"><strong>Are you a student?</strong></p>
+                    <a href="{% url 'register' %}" class="btn btn-outline-primary w-100">
+                        📝 Register Here
+                    </a>
+                </div>
+            </form>
+
+            <!-- Info Box -->
+            <div class="alert alert-info mt-4 mb-0">
+                <small>
+                    <strong>Note:</strong> Faculty and Staff accounts are created by the Admin.
+                    Please contact IT support if you need access.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('{{ form.password.id_for_label }}');
+
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.textContent = type === 'password' ? '👁️' : '🙈';
+    });
+</script>
+{% endblock %}
