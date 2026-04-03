@@ -224,7 +224,7 @@ class LogoutViewTest(TestCase):
 
     def test_logout_redirects_to_login(self):
         """Test that logout redirects to login page"""
-        # Login first
+
         self.client.login(username='student@uap-bd.edu', password='Student@123')
 
         # Logout
@@ -233,17 +233,17 @@ class LogoutViewTest(TestCase):
 
     def test_logout_clears_session(self):
         """Test that logout clears the session"""
-        # Login first
+
         self.client.login(username='student@uap-bd.edu', password='Student@123')
 
-        # Verify user is logged in
+
         response = self.client.get(reverse('student_dashboard'))
         self.assertEqual(response.status_code, 200)
 
-        # Logout
+
         self.client.get(self.logout_url)
 
-        # Verify user is logged out (should redirect to login)
+
         response = self.client.get(reverse('student_dashboard'))
         self.assertEqual(response.status_code, 302)  # Redirect to login
 
@@ -279,10 +279,6 @@ class PasswordResetTest(TestCase):
         self.assertContains(response, '<form')
         self.assertContains(response, 'email')
 
-
-# ============================================
-# DASHBOARD ACCESS TESTS
-# ============================================
 
 class DashboardAccessTest(TestCase):
     """Test dashboard access control"""
