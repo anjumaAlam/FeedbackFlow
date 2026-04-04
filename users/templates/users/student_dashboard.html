@@ -1,40 +1,231 @@
-<!-- users/templates/users/student_dashboard.html -->
 
-{% extends 'users/base.html' %}
+
+{% extends 'users/dashboard_base.html' %}
 
 {% block title %}Student Dashboard - FeedbackFlow{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="card">
-        <div class="card-body text-center p-5">
-            <h1 class="display-4">🎓 Welcome, {{ user.full_name }}!</h1>
-            <p class="lead text-muted">Student Dashboard</p>
-            <hr class="my-4">
+<div class="container mt-4">
 
-            <div class="row text-start">
-                <div class="col-md-6 mb-3">
-                    <p><strong>Email:</strong> {{ user.email }}</p>
-                    <p><strong>Student ID:</strong> {{ user.student_id }}</p>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <p><strong>Department:</strong> {{ user.get_department_display_full }}</p>
-                    <p><strong>Role:</strong> {{ user.role }}</p>
-                </div>
+
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>👋 Welcome back, {{ user.get_short_name }}!</h1>
+                <p class="mb-0 opacity-75">
+                    <strong>{{ user.get_department_display_full }}</strong> | Student ID: {{ user.student_id }}
+                </p>
             </div>
-
-            <div class="alert alert-info mt-4">
-                <strong>🚧 Dashboard Under Construction</strong><br>
-                This page will be built in the next phase with all dashboard features including:
-                <ul class="text-start mt-2 mb-0">
-                    <li>Submit course feedback</li>
-                    <li>File complaints</li>
-                    <li>Track submission status</li>
-                    <li>View notifications</li>
-                    <li>Book appointments</li>
-                </ul>
+            <div class="col-md-4 text-end">
+                <div class="text-white">
+                    <small class="opacity-75">Last login</small><br>
+                    <strong>
+                        {{ user.last_login|date:"M d, Y - h:i A"|default:"First time login" }}
+                    </strong>
+                </div>
             </div>
         </div>
     </div>
+
+
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card blue">
+                <span class="stat-icon">📊</span>
+                <h2 class="stat-number">{{ total_submissions }}</h2>
+                <p class="stat-label">Total Submissions</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card green">
+                <span class="stat-icon">✅</span>
+                <h2 class="stat-number">{{ reviewed_count }}</h2>
+                <p class="stat-label">Reviewed</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card yellow">
+                <span class="stat-icon">⏳</span>
+                <h2 class="stat-number">{{ pending_count }}</h2>
+                <p class="stat-label">Pending Review</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card red">
+                <span class="stat-icon">🔔</span>
+                <h2 class="stat-number">{{ active_complaints }}</h2>
+                <p class="stat-label">Active Complaints</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="stat-card purple">
+                <span class="stat-icon">📝</span>
+                <h2 class="stat-number">{{ total_feedback }}</h2>
+                <p class="stat-label">Course Feedback Submitted</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="stat-card indigo">
+                <span class="stat-icon">📢</span>
+                <h2 class="stat-number">{{ total_complaints }}</h2>
+                <p class="stat-label">Complaints Filed</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Quick Actions</h3>
+            <div>
+                <a href="{% url 'submit_feedback' %}" class="btn btn-primary quick-action-btn">
+                    <i class="bi bi-pencil"></i> Submit Feedback
+                </a>
+                <a href="{% url 'submit_complaint' %}" class="btn btn-danger quick-action-btn">
+                    <i class="bi bi-megaphone"></i> File Complaint
+                </a>
+                <a href="{% url 'my_feedback' %}" class="btn btn-outline-primary quick-action-btn">
+                    <i class="bi bi-list-check"></i> View My Feedback
+                </a>
+                <a href="{% url 'my_complaints' %}" class="btn btn-outline-danger quick-action-btn">
+                    <i class="bi bi-file-text"></i> View My Complaints
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Recent Submissions</h3>
+
+            {% if has_submissions %}
+                <div class="modern-table">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Course</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for feedback in recent_submissions %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">Feedback</span>
+                                    </td>
+
+                                    <td>
+                                        <strong>{{ feedback.course.course_code }}</strong><br>
+                                        <small class="text-muted">
+                                            {{ feedback.course.course_name|truncatewords:4 }}
+                                        </small>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge bg-warning text-dark">
+                                            ⭐ {{ feedback.get_average_rating }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge
+                                            {% if feedback.status == 'Pending' %}badge-pending
+                                            {% elif feedback.status == 'Reviewed' %}badge-reviewed
+                                            {% elif feedback.status == 'Responded' %}badge-resolved
+                                            {% endif %}">
+                                            {{ feedback.status }}
+                                        </span>
+                                    </td>
+
+                                    <td>{{ feedback.submitted_at|date:"M d, Y" }}</td>
+
+                                    <td>
+                                        <a href="{% url 'feedback_detail' feedback.id %}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% else %}
+
+                <div class="card info-card">
+                    <div class="card-body">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <h4>No submissions yet</h4>
+
+                            <p class="text-muted mb-3">
+                                Start by submitting feedback for your courses or filing a complaint
+                                about any issues you're facing
+                            </p>
+
+                            <a href="{% url 'submit_feedback' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Submit Your First Feedback
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">💡 Getting Started</h5>
+                </div>
+
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">Submit anonymous or named feedback for your courses</li>
+                        <li class="mb-2">File complaints about faculty, facilities, or other issues</li>
+                        <li class="mb-2">Track the status of all your submissions in real-time</li>
+                        <li class="mb-2">Receive notifications when faculty or HOD responds</li>
+                        <li class="mb-0">Book appointments for behavioral issue discussions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">👤 Your Profile</h5>
+                </div>
+
+                <div class="card-body">
+                    <p class="mb-2"><strong>Name:</strong> {{ user.full_name }}</p>
+                    <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+                    <p class="mb-2"><strong>Student ID:</strong> {{ user.student_id }}</p>
+                    <p class="mb-2"><strong>Department:</strong> {{ user.get_department_display_full }}</p>
+                    <p class="mb-0">
+                        <strong>Account Created:</strong> {{ user.created_at|date:"M d, Y" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
