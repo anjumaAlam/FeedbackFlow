@@ -1,0 +1,246 @@
+
+{% extends 'users/dashboard_base.html' %}
+
+{% block title %}Admin Dashboard - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>⚙️ Welcome, {{ user.full_name }}!</h1>
+                <p class="mb-0 opacity-75">
+                    <strong>System Administrator - FeedbackFlow</strong>
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="text-white">
+                    <small class="opacity-75">Last login</small><br>
+                    <strong>{{ user.last_login|date:"M d, Y - h:i A"|default:"First time login" }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card blue">
+                <span class="stat-icon">👥</span>
+                <h2 class="stat-number">{{ total_users }}</h2>
+                <p class="stat-label">Total Users</p>
+            </div>
+        </div>
+
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card purple">
+                <span class="stat-icon">🎓</span>
+                <h2 class="stat-number">{{ student_count }}</h2>
+                <p class="stat-label">Students</p>
+            </div>
+        </div>
+
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card green">
+                <span class="stat-icon">👨‍🏫</span>
+                <h2 class="stat-number">{{ faculty_count }}</h2>
+                <p class="stat-label">Faculty</p>
+            </div>
+        </div>
+
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card yellow">
+                <span class="stat-icon">👔</span>
+                <h2 class="stat-number">{{ hod_count }}</h2>
+                <p class="stat-label">HODs</p>
+            </div>
+        </div>
+
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card indigo">
+                <span class="stat-icon">🔧</span>
+                <h2 class="stat-number">{{ staff_count }}</h2>
+                <p class="stat-label">Staff</p>
+            </div>
+        </div>
+
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card red">
+                <span class="stat-icon">⚙️</span>
+                <h2 class="stat-number">{{ admin_count }}</h2>
+                <p class="stat-label">Admins</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Statistics -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card green">
+                <span class="stat-icon">✅</span>
+                <h2 class="stat-number">{{ active_users }}</h2>
+                <p class="stat-label">Active Accounts</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card yellow">
+                <span class="stat-icon">❌</span>
+                <h2 class="stat-number">{{ inactive_users }}</h2>
+                <p class="stat-label">Inactive Accounts</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card blue">
+                <span class="stat-icon">📝</span>
+                <h2 class="stat-number">{{ total_feedback }}</h2>
+                <p class="stat-label">Total Feedback</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card purple">
+                <span class="stat-icon">📢</span>
+                <h2 class="stat-number">{{ total_complaints }}</h2>
+                <p class="stat-label">Total Complaints</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Quick Actions</h3>
+            <div>
+                <a href="{% url 'admin_complaints_list' %}" class="btn btn-primary quick-action-btn">
+                    <i class="bi bi-file-earmark-text"></i> All Complaints
+                </a>
+                <a href="#" class="btn btn-success quick-action-btn disabled">
+                    <i class="bi bi-people"></i> Manage Users
+                </a>
+                <a href="{% url 'admin_complaints_list' %}" class="btn btn-warning quick-action-btn">
+                    <i class="bi bi-exclamation-triangle"></i> Handle Complaints
+                </a>
+                <a href="#" class="btn btn-info quick-action-btn disabled">
+                    <i class="bi bi-bar-chart"></i> System Reports
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Users -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Recently Registered Users</h3>
+
+            <div class="modern-table">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Registered</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for recent_user in recent_users %}
+                    <tr>
+                        <td><strong>{{ recent_user.full_name }}</strong></td>
+                        <td>{{ recent_user.email }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ recent_user.role }}</span>
+                        </td>
+                        <td>{{ recent_user.get_department_display|default:"-" }}</td>
+                        <td>
+                            {% if recent_user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ recent_user.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-outline-primary disabled">Manage</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No users registered yet</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Department Overview</h3>
+
+            <div class="row">
+                {% for dept_stat in department_stats %}
+                <div class="col-md-3 mb-3">
+                    <div class="card info-card">
+                        <div class="card-body text-center">
+                            <h3 class="mb-1">{{ dept_stat.count }}</h3>
+                            <p class="text-muted mb-0">{{ dept_stat.department }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        No department statistics available yet
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Information Cards -->
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">💡 Admin Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">Manage all system users (add, edit, deactivate)</li>
+                        <li class="mb-2">Handle escalated and behavioral complaints</li>
+                        <li class="mb-2">Monitor system-wide feedback and complaint trends</li>
+                        <li class="mb-2">Generate reports for higher management</li>
+                        <li class="mb-0">Configure system settings and policies</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">👤 Your Profile</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Name:</strong> {{ user.full_name }}</p>
+                    <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+                    <p class="mb-2"><strong>Role:</strong> System Administrator</p>
+                    <p class="mb-0"><strong>Access Level:</strong> Full System Access</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
