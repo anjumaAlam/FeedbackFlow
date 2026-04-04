@@ -1,4 +1,4 @@
-<!-- feedback/templates/feedback/submit_feedback.html -->
+
 
 {% extends 'users/base.html' %}
 
@@ -62,14 +62,14 @@
 {% block content %}
 <div class="container mt-4">
 
-    <!-- Back Button -->
+
     <div class="mb-3">
         <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">
             ← Back to Dashboard
         </a>
     </div>
 
-    <!-- Form Card -->
+
     <div class="card feedback-form-card">
         <div class="card-header bg-primary text-white">
             <h3 class="mb-0">📝 Submit Course Feedback</h3>
@@ -84,7 +84,7 @@
             <form method="post">
                 {% csrf_token %}
 
-                <!-- Course Selection -->
+
                 <div class="form-section">
                     <h5 class="section-title">Select Course</h5>
 
@@ -102,12 +102,12 @@
                     </div>
                 </div>
 
-                <!-- Ratings Section -->
+
                 <div class="form-section">
                     <h5 class="section-title">Rate Your Experience</h5>
 
                     <div class="rating-container">
-                        <!-- Teaching Rating -->
+
                         <div class="mb-4">
                             <label for="{{ form.teaching_rating.id_for_label }}" class="form-label">
                                 <strong>Teaching Quality</strong> <span class="text-danger">*</span>
@@ -122,7 +122,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- Content Rating -->
+
                         <div class="mb-4">
                             <label for="{{ form.content_rating.id_for_label }}" class="form-label">
                                 <strong>Course Content</strong> <span class="text-danger">*</span>
@@ -137,7 +137,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- Communication Rating -->
+
                         <div class="mb-0">
                             <label for="{{ form.communication_rating.id_for_label }}" class="form-label">
                                 <strong>Communication</strong> <span class="text-danger">*</span>
@@ -154,7 +154,7 @@
                     </div>
                 </div>
 
-                <!-- Comments Section -->
+
                 <div class="form-section">
                     <h5 class="section-title">Additional Comments (Optional)</h5>
 
@@ -172,7 +172,7 @@
                     </div>
                 </div>
 
-                <!-- Privacy Section -->
+
                 <div class="form-section">
                     <h5 class="section-title">Privacy Options</h5>
 
@@ -187,7 +187,7 @@
                     </div>
                 </div>
 
-                <!-- Non-field errors -->
+
                 {% if form.non_field_errors %}
                     <div class="alert alert-danger">
                         {{ form.non_field_errors }}
