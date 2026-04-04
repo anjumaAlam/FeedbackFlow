@@ -1,4 +1,5 @@
-<!-- users/templates/users/register.html -->
+
+
 
 {% extends 'users/base.html' %}
 
@@ -39,7 +40,8 @@
             <form method="post" id="registrationForm">
                 {% csrf_token %}
 
-                <!-- Full Name -->
+
+
                 <div class="mb-3">
                     <label for="{{ form.full_name.id_for_label }}" class="form-label">
                         Full Name <span class="text-danger">*</span>
@@ -50,7 +52,8 @@
                     {% endif %}
                 </div>
 
-                <!-- Student ID -->
+
+
                 <div class="mb-3">
                     <label for="{{ form.student_id.id_for_label }}" class="form-label">
                         Student ID <span class="text-danger">*</span>
@@ -62,7 +65,8 @@
                     {% endif %}
                 </div>
 
-                <!-- Email -->
+
+
                 <div class="mb-3">
                     <label for="{{ form.email.id_for_label }}" class="form-label">
                         Email Address <span class="text-danger">*</span>
@@ -74,7 +78,8 @@
                     {% endif %}
                 </div>
 
-                <!-- Department -->
+
+
                 <div class="mb-3">
                     <label for="{{ form.department.id_for_label }}" class="form-label">
                         Department <span class="text-danger">*</span>
@@ -85,14 +90,16 @@
                     {% endif %}
                 </div>
 
-                <!-- Password -->
+
+
                 <div class="mb-3">
                     <label for="{{ form.password.id_for_label }}" class="form-label">
                         Password <span class="text-danger">*</span>
                     </label>
                     {{ form.password }}
 
-                    <!-- Password Requirements -->
+
+
                     <div class="password-requirements mt-2">
                         <strong>Password must contain:</strong>
                         <ul id="password-checklist">
@@ -119,7 +126,8 @@
                     {% endif %}
                 </div>
 
-                <!-- Confirm Password -->
+
+
                 <div class="mb-3">
                     <label for="{{ form.confirm_password.id_for_label }}" class="form-label">
                         Confirm Password <span class="text-danger">*</span>
@@ -131,12 +139,14 @@
                     {% endif %}
                 </div>
 
-                <!-- Non-field errors -->
+
+
                 {% if form.non_field_errors %}
                     <div class="alert alert-danger">{{ form.non_field_errors }}</div>
                 {% endif %}
 
-                <!-- Submit Button -->
+
+
                 <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
                     Register
                 </button>
