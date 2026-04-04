@@ -1,0 +1,217 @@
+
+{% extends 'users/base.html' %}
+
+{% block title %}Complaint Details - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-card {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e5e7eb;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -24px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #3b82f6;
+        border: 2px solid white;
+        box-shadow: 0 0 0 2px #3b82f6;
+    }
+
+    .update-card {
+        background: #f9fafb;
+        border-left: 3px solid #3b82f6;
+        padding: 1rem;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="mb-3">
+        {% if request.user.role == 'Student' %}
+            <a href="{% url 'my_complaints' %}" class="btn btn-outline-secondary">
+                ← Back to My Complaints
+            </a>
+        {% elif request.user.role == 'HOD' %}
+            <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">
+                ← Back to Complaints List
+            </a>
+        {% elif request.user.role == 'Staff' %}
+            <a href="{% url 'staff_complaints_list' %}" class="btn btn-outline-secondary">
+                ← Back to Complaints List
+            </a>
+        {% elif request.user.role == 'Admin' %}
+            <a href="{% url 'admin_complaints_list' %}" class="btn btn-outline-secondary">
+                ← Back to Complaints List
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="card detail-card mb-4">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">📋 Complaint Details - {{ complaint.tracking_id }}</h4>
+        </div>
+        <div class="card-body p-4">
+
+            <div class="mb-4">
+                <h5 class="text-danger">Complaint Information</h5>
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
+                        <p><strong>Type:</strong> {{ complaint.get_complaint_type_display }}</p>
+                        <p><strong>Subject:</strong> {{ complaint.subject }}</p>
+                        <p><strong>Status:</strong>
+                            <span class="badge
+                                {% if complaint.status == 'Pending' %}bg-warning text-dark
+                                {% elif complaint.status == 'Under Investigation' %}bg-info
+                                {% elif complaint.status == 'Resolved' %}bg-success
+                                {% elif complaint.status == 'Escalated' %}bg-danger
+                                {% endif %}">
+                                {{ complaint.status }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Priority:</strong>
+                            <span class="badge
+                                {% if complaint.priority == 'Low' %}bg-secondary
+                                {% elif complaint.priority == 'Medium' %}bg-primary
+                                {% elif complaint.priority == 'High' %}bg-warning text-dark
+                                {% elif complaint.priority == 'Urgent' %}bg-danger
+                                {% endif %}">
+                                {{ complaint.priority }}
+                            </span>
+                        </p>
+                        <p><strong>Submitted By:</strong>
+                            {% if complaint.is_anonymous and request.user.role == 'Student' %}
+                                Anonymous Student
+                            {% elif complaint.is_anonymous and request.user.role != 'Admin' %}
+                                Anonymous Student
+                            {% else %}
+                                {{ complaint.student.full_name }} ({{ complaint.student.student_id }})
+                            {% endif %}
+                        </p>
+                        <p><strong>Submitted On:</strong> {{ complaint.submitted_at|date:"M d, Y - h:i A" }}</p>
+                        <p><strong>Assigned To:</strong> {{ complaint.assigned_to.full_name }} ({{ complaint.assigned_to.role }})</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+                <h5 class="text-danger">Description</h5>
+                <hr>
+                <div class="alert alert-light">
+                    <p class="mb-0">{{ complaint.description }}</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="text-danger">Additional Details</h5>
+                <hr>
+                <div class="row">
+                    {% if complaint.faculty_concerned %}
+                    <div class="col-md-6">
+                        <p><strong>Faculty/Staff Concerned:</strong> {{ complaint.faculty_concerned.full_name }}</p>
+                    </div>
+                    {% endif %}
+                    {% if complaint.location %}
+                    <div class="col-md-6">
+                        <p><strong>Location:</strong> {{ complaint.location }}</p>
+                    </div>
+                    {% endif %}
+                    {% if complaint.resolved_at %}
+                    <div class="col-md-6">
+                        <p><strong>Resolved On:</strong> {{ complaint.resolved_at|date:"M d, Y - h:i A" }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mb-0">
+                <h5 class="text-danger">Updates & Timeline</h5>
+                <hr>
+
+                {% if updates %}
+                <div class="timeline">
+                    {% for update in updates %}
+                    <div class="timeline-item">
+                        <div class="update-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <strong>{{ update.updated_by.full_name }}</strong>
+                                    <span class="badge bg-secondary ms-2">{{ update.updated_by.role }}</span>
+                                </div>
+                                <small class="text-muted">{{ update.created_at|date:"M d, Y - h:i A" }}</small>
+                            </div>
+
+                            {% if update.status_changed_to %}
+                            <div class="mb-2">
+                                <span class="badge bg-primary">Status Changed to: {{ update.status_changed_to }}</span>
+                            </div>
+                            {% endif %}
+
+                            <p class="mb-0">{{ update.comment }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <strong>ℹ️ No updates yet</strong>
+                    <p class="mb-0">The assigned authority will provide updates on your complaint soon.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons for Handlers -->
+            {% if request.user == complaint.assigned_to or request.user.role == 'Admin' %}
+            <div class="mt-4">
+                <hr>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-primary">
+                        ✏️ Add Update
+                    </a>
+                    {% if complaint.status != 'Resolved' %}
+                    <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-success">
+                        ✅ Resolve Complaint
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
