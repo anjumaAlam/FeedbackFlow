@@ -1,0 +1,178 @@
+
+
+{% extends 'users/base.html' %}
+
+{% block title %}All Complaints - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+
+    <div class="mb-4">
+        <h2>⚙️ All System Complaints</h2>
+        <p class="text-muted mb-0">Manage all complaints across the system</p>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-lg-2 col-md-4 mb-3">
+            <div class="card border-danger">
+                <div class="card-body text-center p-2">
+                    <h4 class="mb-1">{{ total_complaints }}</h4>
+                    <p class="text-muted mb-0 small">Total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 mb-3">
+            <div class="card border-warning">
+                <div class="card-body text-center p-2">
+                    <h4 class="mb-1">{{ pending }}</h4>
+                    <p class="text-muted mb-0 small">Pending</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 mb-3">
+            <div class="card border-info">
+                <div class="card-body text-center p-2">
+                    <h4 class="mb-1">{{ investigating }}</h4>
+                    <p class="text-muted mb-0 small">Investigating</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 mb-3">
+            <div class="card border-success">
+                <div class="card-body text-center p-2">
+                    <h4 class="mb-1">{{ resolved }}</h4>
+                    <p class="text-muted mb-0 small">Resolved</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 mb-3">
+            <div class="card border-primary">
+                <div class="card-body text-center p-2">
+                    <h4 class="mb-1">{{ escalated }}</h4>
+                    <p class="text-muted mb-0 small">Escalated</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Complaints by Type</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col">
+                            <h5>{{ faculty_complaints }}</h5>
+                            <small class="text-muted">Faculty</small>
+                        </div>
+                        <div class="col">
+                            <h5>{{ hod_complaints }}</h5>
+                            <small class="text-muted">HOD</small>
+                        </div>
+                        <div class="col">
+                            <h5>{{ staff_complaints }}</h5>
+                            <small class="text-muted">Staff</small>
+                        </div>
+                        <div class="col">
+                            <h5>{{ facility_complaints }}</h5>
+                            <small class="text-muted">Facility</small>
+                        </div>
+                        <div class="col">
+                            <h5>{{ behavioral_complaints }}</h5>
+                            <small class="text-muted">Behavioral</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% if complaints_list %}
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">All Complaints</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Subject</th>
+                                <th>Student</th>
+                                <th>Assigned To</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for complaint in complaints_list %}
+                            <tr>
+                                <td><strong>{{ complaint.tracking_id }}</strong></td>
+                                <td><span class="badge bg-secondary">{{ complaint.complaint_type }}</span></td>
+                                <td>{{ complaint.subject|truncatewords:4 }}</td>
+                                <td>
+                                    {% if complaint.is_anonymous %}
+                                        <span class="badge bg-secondary">Anonymous</span>
+                                    {% else %}
+                                        {{ complaint.student.full_name }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ complaint.assigned_to.full_name }}</td>
+                                <td>
+                                    <span class="badge
+                                        {% if complaint.status == 'Pending' %}bg-warning text-dark
+                                        {% elif complaint.status == 'Under Investigation' %}bg-info
+                                        {% elif complaint.status == 'Resolved' %}bg-success
+                                        {% elif complaint.status == 'Escalated' %}bg-danger
+                                        {% endif %}">
+                                        {{ complaint.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge
+                                        {% if complaint.priority == 'Low' %}bg-secondary
+                                        {% elif complaint.priority == 'Medium' %}bg-primary
+                                        {% elif complaint.priority == 'High' %}bg-warning text-dark
+                                        {% elif complaint.priority == 'Urgent' %}bg-danger
+                                        {% endif %}">
+                                        {{ complaint.priority }}
+                                    </span>
+                                </td>
+                                <td><small>{{ complaint.submitted_at|date:"M d, Y" }}</small></td>
+                                <td>
+                                    <a href="{% url 'complaint_detail' complaint.id %}" class="btn btn-sm btn-outline-primary">
+                                        View
+                                    </a>
+                                    <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-sm btn-primary">
+                                        Handle
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div style="font-size: 4rem; opacity: 0.3;">📭</div>
+                <h4 class="mt-3">No Complaints Yet</h4>
+                <p class="text-muted mb-0">Complaints will appear here once students start submitting them</p>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
