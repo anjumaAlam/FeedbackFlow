@@ -1,24 +1,198 @@
-<!-- users/templates/users/faculty_dashboard.html -->
 
-{% extends 'users/base.html' %}
+
+{% extends 'users/dashboard_base.html' %}
 
 {% block title %}Faculty Dashboard - FeedbackFlow{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="card">
-        <div class="card-body text-center p-5">
-            <h1 class="display-4">👨‍🏫 Welcome, {{ user.full_name }}!</h1>
-            <p class="lead text-muted">Faculty Dashboard</p>
-            <hr class="my-4">
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p><strong>Department:</strong> {{ user.get_department_display_full }}</p>
-            <p><strong>Role:</strong> {{ user.role }}</p>
+<div class="container mt-4">
 
-            <div class="alert alert-info mt-4">
-                <strong>🚧 Dashboard Under Construction</strong>
+
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>👨‍🏫 Welcome, Dr. {{ user.get_short_name }}!</h1>
+                <p class="mb-0 opacity-75">
+                    <strong>{{ user.get_department_display_full }}</strong> | Faculty Member
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="text-white">
+                    <small class="opacity-75">Last login</small><br>
+                    <strong>{{ user.last_login|date:"M d, Y - h:i A"|default:"First time login" }}</strong>
+                </div>
             </div>
         </div>
     </div>
+
+
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card blue">
+                <span class="stat-icon">📊</span>
+                <h2 class="stat-number">{{ total_feedback }}</h2>
+                <p class="stat-label">Total Feedback</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card yellow">
+                <span class="stat-icon">⏳</span>
+                <h2 class="stat-number">{{ pending_response }}</h2>
+                <p class="stat-label">Pending Response</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card green">
+                <span class="stat-icon">⭐</span>
+                <h2 class="stat-number">{{ average_rating|floatformat:1|default:"-" }}</h2>
+                <p class="stat-label">Average Rating</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card purple">
+                <span class="stat-icon">📚</span>
+                <h2 class="stat-number">{{ courses_count }}</h2>
+                <p class="stat-label">Active Courses</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card info-card border-primary">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-1">📈 This Week</h5>
+                            <p class="text-muted mb-0">You received <strong>{{ this_week_feedback }}</strong> new feedback submissions</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-primary disabled">View All Feedback</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Quick Actions</h3>
+            <div>
+                <a href="{% url 'faculty_feedback_list' %}" class="btn btn-primary quick-action-btn">
+                    <i class="bi bi-list"></i> View All Feedback
+                </a>
+                <a href="#" class="btn btn-success quick-action-btn disabled">
+                    <i class="bi bi-reply"></i> Respond to Feedback
+                </a>
+                <a href="#" class="btn btn-outline-primary quick-action-btn disabled">
+                    <i class="bi bi-bar-chart"></i> View Reports
+                </a>
+                <a href="#" class="btn btn-outline-secondary quick-action-btn disabled">
+                    <i class="bi bi-download"></i> Export Data
+                </a>
+            </div>
+            <small class="text-muted d-block mt-2">
+                <em>💡 These features will be enabled in the Feedback Module</em>
+            </small>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Recent Feedback</h3>
+
+            {% if has_feedback %}
+            <div class="modern-table">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Rating</th>
+                            <th>Comments</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for feedback in recent_feedback %}
+                        <tr>
+                            <td><strong>{{ feedback.course }}</strong></td>
+                            <td>
+                                <span class="text-warning">★</span> {{ feedback.rating }}/5
+                            </td>
+                            <td>{{ feedback.comments|truncatewords:10 }}</td>
+                            <td>{{ feedback.date|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge-{{ feedback.status_class }}">
+                                    {{ feedback.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+
+            <div class="card info-card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h4>No feedback yet</h4>
+                        <p class="text-muted mb-0">
+                            You'll see student feedback here once they start submitting reviews for your courses
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">💡 Faculty Guidelines</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">Review student feedback regularly</li>
+                        <li class="mb-2">Respond to feedback within 7 days</li>
+                        <li class="mb-2">Mark feedback as "Noted" if no response needed</li>
+                        <li class="mb-2">Use insights to improve teaching methods</li>
+                        <li class="mb-0">Anonymous feedback helps identify blind spots</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">👤 Your Profile</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Name:</strong> {{ user.full_name }}</p>
+                    <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+                    <p class="mb-2"><strong>Role:</strong> {{ user.get_role_display }}</p>
+                    <p class="mb-0"><strong>Department:</strong> {{ user.get_department_display_full }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
