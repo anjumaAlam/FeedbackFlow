@@ -1,0 +1,209 @@
+<!-- feedback/templates/feedback/feedback_detail.html -->
+
+{% extends 'users/base.html' %}
+
+{% block title %}Feedback Detail - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-card {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .rating-display {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+
+    .rating-item {
+        margin-bottom: 1rem;
+    }
+
+    .rating-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .stars-large {
+        font-size: 1.5rem;
+        color: #fbbf24;
+    }
+
+    .response-card {
+        background: #eff6ff;
+        border-left: 4px solid #2563eb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        {% if request.user.role == 'Student' %}
+            <a href="{% url 'my_feedback' %}" class="btn btn-outline-secondary">
+                ← Back to My Feedback
+            </a>
+        {% else %}
+            <a href="{% url 'faculty_feedback_list' %}" class="btn btn-outline-secondary">
+                ← Back to Feedback List
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Main Detail Card -->
+    <div class="card detail-card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">📊 Feedback Details</h4>
+        </div>
+        <div class="card-body p-4">
+
+            <!-- Course Information -->
+            <div class="mb-4">
+                <h5 class="text-primary">Course Information</h5>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Course Code:</strong> {{ feedback.course.course_code }}</p>
+                        <p><strong>Course Name:</strong> {{ feedback.course.course_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Faculty:</strong> {{ feedback.course.faculty.full_name }}</p>
+                        <p><strong>Department:</strong> {{ feedback.course.department }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ratings -->
+            <div class="mb-4">
+                <h5 class="text-primary">Ratings</h5>
+                <hr>
+
+                <div class="rating-display">
+                    <div class="rating-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>Teaching Quality</strong></span>
+                            <span class="stars-large">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= feedback.teaching_rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="rating-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>Course Content</strong></span>
+                            <span class="stars-large">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= feedback.content_rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="rating-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>Communication</strong></span>
+                            <span class="stars-large">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= feedback.communication_rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><strong>Overall Average</strong></span>
+                        <span class="badge bg-warning text-dark" style="font-size: 1.2rem;">
+                            ⭐ {{ feedback.get_average_rating }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments -->
+            {% if feedback.comments %}
+            <div class="mb-4">
+                <h5 class="text-primary">Comments</h5>
+                <hr>
+                <div class="alert alert-light">
+                    <p class="mb-0">{{ feedback.comments }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Submission Details -->
+            <div class="mb-4">
+                <h5 class="text-primary">Submission Details</h5>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        {% if request.user.role == 'Student' or not feedback.is_anonymous %}
+                            <p><strong>Submitted By:</strong>
+                                {% if feedback.is_anonymous %}
+                                    Anonymous Student
+                                {% else %}
+                                    {{ feedback.student.full_name }}
+                                {% endif %}
+                            </p>
+                        {% else %}
+                            <p><strong>Submitted By:</strong> Anonymous Student</p>
+                        {% endif %}
+                        <p><strong>Submitted On:</strong> {{ feedback.submitted_at|date:"M d, Y - h:i A" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong>
+                            <span class="badge
+                                {% if feedback.status == 'Pending' %}bg-warning text-dark
+                                {% elif feedback.status == 'Reviewed' %}bg-success
+                                {% elif feedback.status == 'Responded' %}bg-primary
+                                {% endif %}">
+                                {{ feedback.status }}
+                            </span>
+                        </p>
+                        {% if feedback.reviewed_at %}
+                            <p><strong>Reviewed On:</strong> {{ feedback.reviewed_at|date:"M d, Y - h:i A" }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty Response -->
+            {% if feedback.response %}
+            <div class="mb-0">
+                <h5 class="text-primary">Faculty Response</h5>
+                <hr>
+                <div class="card response-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <strong>{{ feedback.response.faculty.full_name }}</strong>
+                            <small class="text-muted">{{ feedback.response.responded_at|date:"M d, Y - h:i A" }}</small>
+                        </div>
+                        <p class="mb-0">{{ feedback.response.response_text }}</p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+                {% if request.user.role in 'Faculty,HOD' and feedback.course.faculty == request.user %}
+                <div class="alert alert-warning">
+                    <strong>⚠️ No response yet</strong>
+                    <p class="mb-2">You haven't responded to this feedback.</p>
+                    <a href="{% url 'respond_to_feedback' feedback.id %}" class="btn btn-sm btn-primary">
+                        Write Response
+                    </a>
+                    <a href="{% url 'mark_feedback_reviewed' feedback.id %}" class="btn btn-sm btn-outline-secondary">
+                        Mark as Reviewed
+                    </a>
+                </div>
+                {% endif %}
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
