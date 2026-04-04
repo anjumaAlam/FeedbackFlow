@@ -1,10 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<!-- feedback/templates/feedback/respond_to_feedback.html -->
+
+{% extends 'users/base.html' %}
+
+{% block title %}Respond to Feedback - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .response-form-card {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .feedback-preview {
+        background: #f9fafb;
+        border-left: 4px solid #2563eb;
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'faculty_feedback_list' %}" class="btn btn-outline-secondary">
+            ← Back to Feedback List
+        </a>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card response-form-card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">✍️ Respond to Student Feedback</h4>
+        </div>
+        <div class="card-body p-4">
+
+            <!-- Feedback Preview -->
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">Original Feedback</h5>
+
+                <div class="feedback-preview">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Course:</strong> {{ feedback.course.course_code }} - {{ feedback.course.course_name }}</p>
+                            <p class="mb-1"><strong>Student:</strong>
+                                {% if feedback.is_anonymous %}
+                                    Anonymous
+                                {% else %}
+                                    {{ feedback.student.full_name }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Submitted:</strong> {{ feedback.submitted_at|date:"M d, Y - h:i A" }}</p>
+                            <p class="mb-1"><strong>Average Rating:</strong>
+                                <span class="badge bg-warning text-dark">⭐ {{ feedback.get_average_rating }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <strong>Ratings:</strong><br>
+                        <small>
+                            Teaching: <span class="text-warning">{% for i in "12345" %}{% if forloop.counter <= feedback.teaching_rating %}★{% else %}☆{% endif %}{% endfor %}</span> ({{ feedback.teaching_rating }}/5)<br>
+                            Content: <span class="text-warning">{% for i in "12345" %}{% if forloop.counter <= feedback.content_rating %}★{% else %}☆{% endif %}{% endfor %}</span> ({{ feedback.content_rating }}/5)<br>
+                            Communication: <span class="text-warning">{% for i in "12345" %}{% if forloop.counter <= feedback.communication_rating %}★{% else %}☆{% endif %}{% endfor %}</span> ({{ feedback.communication_rating }}/5)
+                        </small>
+                    </div>
+
+                    {% if feedback.comments %}
+                    <div>
+                        <strong>Comments:</strong>
+                        <p class="mb-0 mt-2">"{{ feedback.comments }}"</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Response Form -->
+            <div class="alert alert-info">
+                <strong>💡 Tips for writing a good response:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Thank the student for their feedback</li>
+                    <li>Address specific points they raised</li>
+                    <li>Explain any actions you'll take based on their feedback</li>
+                    <li>Keep it professional and constructive</li>
+                </ul>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label for="{{ form.response_text.id_for_label }}" class="form-label">
+                        <strong>Your Response</strong> <span class="text-danger">*</span>
+                    </label>
+                    {{ form.response_text }}
+                    {% if form.response_text.errors %}
+                        <div class="text-danger small mt-1">{{ form.response_text.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        📤 Submit Response
+                    </button>
+                    <a href="{% url 'faculty_feedback_list' %}" class="btn btn-outline-secondary btn-lg">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

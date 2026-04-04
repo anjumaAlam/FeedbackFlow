@@ -1,0 +1,238 @@
+<!-- feedback/templates/feedback/submit_feedback.html -->
+
+{% extends 'users/base.html' %}
+
+{% block title %}Submit Feedback - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feedback-form-card {
+        max-width: 800px;
+        margin: 2rem auto;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .rating-container {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .star-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .star-rating input[type="number"] {
+        max-width: 100px;
+    }
+
+    .stars {
+        font-size: 1.5rem;
+        color: #fbbf24;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title::before {
+        content: '';
+        width: 4px;
+        height: 20px;
+        background: #2563eb;
+        margin-right: 0.5rem;
+        border-radius: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card feedback-form-card">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">📝 Submit Course Feedback</h3>
+        </div>
+        <div class="card-body p-4">
+
+            <div class="alert alert-info mb-4">
+                <strong>ℹ️ Note:</strong> Your honest feedback helps improve the quality of education.
+                You can submit feedback anonymously if you prefer.
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Course Selection -->
+                <div class="form-section">
+                    <h5 class="section-title">Select Course</h5>
+
+                    <div class="mb-3">
+                        <label for="{{ form.course.id_for_label }}" class="form-label">
+                            Course <span class="text-danger">*</span>
+                        </label>
+                        {{ form.course }}
+                        {% if form.course.errors %}
+                            <div class="text-danger small mt-1">{{ form.course.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">
+                            Select the course you want to provide feedback for
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Ratings Section -->
+                <div class="form-section">
+                    <h5 class="section-title">Rate Your Experience</h5>
+
+                    <div class="rating-container">
+                        <!-- Teaching Rating -->
+                        <div class="mb-4">
+                            <label for="{{ form.teaching_rating.id_for_label }}" class="form-label">
+                                <strong>Teaching Quality</strong> <span class="text-danger">*</span>
+                            </label>
+                            <div class="star-rating">
+                                {{ form.teaching_rating }}
+                                <span class="stars" id="teaching-stars">☆☆☆☆☆</span>
+                            </div>
+                            <small class="form-text text-muted">{{ form.teaching_rating.help_text }}</small>
+                            {% if form.teaching_rating.errors %}
+                                <div class="text-danger small mt-1">{{ form.teaching_rating.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Content Rating -->
+                        <div class="mb-4">
+                            <label for="{{ form.content_rating.id_for_label }}" class="form-label">
+                                <strong>Course Content</strong> <span class="text-danger">*</span>
+                            </label>
+                            <div class="star-rating">
+                                {{ form.content_rating }}
+                                <span class="stars" id="content-stars">☆☆☆☆☆</span>
+                            </div>
+                            <small class="form-text text-muted">{{ form.content_rating.help_text }}</small>
+                            {% if form.content_rating.errors %}
+                                <div class="text-danger small mt-1">{{ form.content_rating.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Communication Rating -->
+                        <div class="mb-0">
+                            <label for="{{ form.communication_rating.id_for_label }}" class="form-label">
+                                <strong>Communication</strong> <span class="text-danger">*</span>
+                            </label>
+                            <div class="star-rating">
+                                {{ form.communication_rating }}
+                                <span class="stars" id="communication-stars">☆☆☆☆☆</span>
+                            </div>
+                            <small class="form-text text-muted">{{ form.communication_rating.help_text }}</small>
+                            {% if form.communication_rating.errors %}
+                                <div class="text-danger small mt-1">{{ form.communication_rating.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="form-section">
+                    <h5 class="section-title">Additional Comments (Optional)</h5>
+
+                    <div class="mb-3">
+                        <label for="{{ form.comments.id_for_label }}" class="form-label">
+                            Share your thoughts
+                        </label>
+                        {{ form.comments }}
+                        <small class="form-text text-muted">
+                            Provide specific feedback to help faculty improve
+                        </small>
+                        {% if form.comments.errors %}
+                            <div class="text-danger small mt-1">{{ form.comments.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Privacy Section -->
+                <div class="form-section">
+                    <h5 class="section-title">Privacy Options</h5>
+
+                    <div class="form-check">
+                        {{ form.is_anonymous }}
+                        <label class="form-check-label" for="{{ form.is_anonymous.id_for_label }}">
+                            {{ form.is_anonymous.label }}
+                        </label>
+                        <small class="form-text text-muted d-block mt-1">
+                            {{ form.is_anonymous.help_text }}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <!-- Submit Buttons -->
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        📤 Submit Feedback
+                    </button>
+                    <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary btn-lg">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Star rating visualization
+    function updateStars(inputId, starsId) {
+        const input = document.getElementById(inputId);
+        const stars = document.getElementById(starsId);
+
+        input.addEventListener('input', function() {
+            const rating = parseInt(this.value) || 0;
+            let starsHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                starsHTML += i <= rating ? '★' : '☆';
+            }
+            stars.textContent = starsHTML;
+        });
+
+        // Trigger on page load if value exists
+        input.dispatchEvent(new Event('input'));
+    }
+
+    updateStars('{{ form.teaching_rating.id_for_label }}', 'teaching-stars');
+    updateStars('{{ form.content_rating.id_for_label }}', 'content-stars');
+    updateStars('{{ form.communication_rating.id_for_label }}', 'communication-stars');
+</script>
+{% endblock %}
