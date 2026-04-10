@@ -1,4 +1,4 @@
-<!-- complaints/templates/complaints/handle_complaint.html -->
+
 
 {% extends 'users/base.html' %}
 
@@ -64,7 +64,7 @@
 {% block content %}
 <div class="container mt-4">
 
-    <!-- Back Button -->
+
     <div class="mb-3">
         {% if request.user.role == 'HOD' %}
             <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">
@@ -81,14 +81,14 @@
         {% endif %}
     </div>
 
-    <!-- Form Card -->
+
     <div class="card handle-form-card">
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0">✏️ Handle Complaint - {{ complaint.tracking_id }}</h4>
         </div>
         <div class="card-body p-4">
 
-            <!-- Complaint Preview -->
+
             <div class="mb-4">
                 <h5 class="text-primary mb-3">Complaint Details</h5>
 
@@ -154,7 +154,7 @@
                 </div>
             </div>
 
-            <!-- Previous Updates -->
+
             {% if updates %}
             <div class="mb-4">
                 <h5 class="text-primary mb-3">Previous Updates</h5>
@@ -185,7 +185,7 @@
             </div>
             {% endif %}
 
-            <!-- Add Update Form -->
+
             <div class="alert alert-info">
                 <strong>💡 Guidelines:</strong>
                 <ul class="mb-0 mt-2">
