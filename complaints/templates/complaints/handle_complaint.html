@@ -1,0 +1,275 @@
+<!-- complaints/templates/complaints/handle_complaint.html -->
+
+{% extends 'users/base.html' %}
+
+{% block title %}Handle Complaint - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .handle-form-card {
+        max-width: 1000px;
+        margin: 2rem auto;
+    }
+
+    .complaint-preview {
+        background: #f9fafb;
+        border-left: 4px solid #ef4444;
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+        margin-top: 2rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e5e7eb;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -24px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #3b82f6;
+        border: 2px solid white;
+        box-shadow: 0 0 0 2px #3b82f6;
+    }
+
+    .update-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        padding: 1rem;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        {% if request.user.role == 'HOD' %}
+            <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">
+                ← Back to Complaints List
+            </a>
+        {% elif request.user.role == 'Staff' %}
+            <a href="{% url 'staff_complaints_list' %}" class="btn btn-outline-secondary">
+                ← Back to Complaints List
+            </a>
+        {% elif request.user.role == 'Admin' %}
+            <a href="{% url 'admin_complaints_list' %}" class="btn btn-outline-secondary">
+                ← Back to Complaints List
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Form Card -->
+    <div class="card handle-form-card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">✏️ Handle Complaint - {{ complaint.tracking_id }}</h4>
+        </div>
+        <div class="card-body p-4">
+
+            <!-- Complaint Preview -->
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">Complaint Details</h5>
+
+                <div class="complaint-preview">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
+                            <p class="mb-1"><strong>Type:</strong> {{ complaint.get_complaint_type_display }}</p>
+                            <p class="mb-1"><strong>Subject:</strong> {{ complaint.subject }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Status:</strong>
+                                <span class="badge
+                                    {% if complaint.status == 'Pending' %}bg-warning text-dark
+                                    {% elif complaint.status == 'Under Investigation' %}bg-info
+                                    {% elif complaint.status == 'Resolved' %}bg-success
+                                    {% elif complaint.status == 'Escalated' %}bg-danger
+                                    {% endif %}">
+                                    {{ complaint.status }}
+                                </span>
+                            </p>
+                            <p class="mb-1"><strong>Priority:</strong>
+                                <span class="badge
+                                    {% if complaint.priority == 'Low' %}bg-secondary
+                                    {% elif complaint.priority == 'Medium' %}bg-primary
+                                    {% elif complaint.priority == 'High' %}bg-warning text-dark
+                                    {% elif complaint.priority == 'Urgent' %}bg-danger
+                                    {% endif %}">
+                                    {{ complaint.priority }}
+                                </span>
+                            </p>
+                            <p class="mb-1"><strong>Submitted:</strong> {{ complaint.submitted_at|date:"M d, Y - h:i A" }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <strong>Student:</strong>
+                        {% if complaint.is_anonymous and request.user.role != 'Admin' %}
+                            <span class="badge bg-secondary">Anonymous</span>
+                        {% else %}
+                            {{ complaint.student.full_name }} ({{ complaint.student.student_id }}) - {{ complaint.student.department }}
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Description:</strong>
+                        <p class="mb-0 mt-2">{{ complaint.description }}</p>
+                    </div>
+
+                    {% if complaint.faculty_concerned %}
+                    <div class="mb-3">
+                        <strong>Faculty/Staff Concerned:</strong> {{ complaint.faculty_concerned.full_name }}
+                    </div>
+                    {% endif %}
+
+                    {% if complaint.location %}
+                    <div class="mb-0">
+                        <strong>Location:</strong> {{ complaint.location }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Previous Updates -->
+            {% if updates %}
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">Previous Updates</h5>
+
+                <div class="timeline">
+                    {% for update in updates %}
+                    <div class="timeline-item">
+                        <div class="update-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <strong>{{ update.updated_by.full_name }}</strong>
+                                    <span class="badge bg-secondary ms-2">{{ update.updated_by.role }}</span>
+                                </div>
+                                <small class="text-muted">{{ update.created_at|date:"M d, Y - h:i A" }}</small>
+                            </div>
+
+                            {% if update.status_changed_to %}
+                            <div class="mb-2">
+                                <span class="badge bg-primary">Status Changed to: {{ update.status_changed_to }}</span>
+                            </div>
+                            {% endif %}
+
+                            <p class="mb-0">{{ update.comment }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Add Update Form -->
+            <div class="alert alert-info">
+                <strong>💡 Guidelines:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Provide clear updates on actions taken</li>
+                    <li>Change status when appropriate (Pending → Under Investigation → Resolved)</li>
+                    <li>Be professional and empathetic in your response</li>
+                    <li>If escalating, explain why to higher authority</li>
+                </ul>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="{{ form.comment.id_for_label }}" class="form-label">
+                        <strong>Your Update/Comment</strong> <span class="text-danger">*</span>
+                    </label>
+                    {{ form.comment }}
+                    {% if form.comment.errors %}
+                        <div class="text-danger small mt-1">{{ form.comment.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label for="{{ form.status_changed_to.id_for_label }}" class="form-label">
+                        <strong>Change Status (Optional)</strong>
+                    </label>
+                    {{ form.status_changed_to }}
+                    <small class="form-text text-muted d-block">
+                        Leave blank if you don't want to change the status
+                    </small>
+                    {% if form.status_changed_to.errors %}
+                        <div class="text-danger small mt-1">{{ form.status_changed_to.errors }}</div>
+                    {% endif %}
+                </div>
+
+
+                <div class="mb-3">
+                    <p class="mb-2"><strong>Quick Actions:</strong></p>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-info btn-sm" onclick="setStatus('Under Investigation')">
+                            🔍 Start Investigation
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="setStatus('Resolved')">
+                            ✅ Mark Resolved
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="setStatus('Escalated')">
+                            ⬆️ Escalate
+                        </button>
+                    </div>
+                </div>
+
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        💬 Submit Update
+                    </button>
+                    {% if request.user.role == 'HOD' %}
+                        <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary btn-lg">
+                            Cancel
+                        </a>
+                    {% elif request.user.role == 'Staff' %}
+                        <a href="{% url 'staff_complaints_list' %}" class="btn btn-outline-secondary btn-lg">
+                            Cancel
+                        </a>
+                    {% elif request.user.role == 'Admin' %}
+                        <a href="{% url 'admin_complaints_list' %}" class="btn btn-outline-secondary btn-lg">
+                            Cancel
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function setStatus(status) {
+        const statusSelect = document.getElementById('{{ form.status_changed_to.id_for_label }}');
+        statusSelect.value = status;
+    }
+</script>
+{% endblock %}
