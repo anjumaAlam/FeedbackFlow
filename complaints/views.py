@@ -41,7 +41,7 @@ def submit_complaint(request):
         'form': form,
         'page_title': 'Submit Complaint'
     }
-    return render(request, 'complaints/submit_complaint.html', context)
+    return render(request, 'complaints/submit_complaints.html', context)
 
 
 @login_required
