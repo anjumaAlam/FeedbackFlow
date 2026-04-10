@@ -1,4 +1,4 @@
-# users/forms.py
+
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
@@ -85,7 +85,7 @@ class StudentRegistrationForm(forms.ModelForm):
                 'Example: yourname@uap-bd.edu'
             )
 
-        # Check uniqueness
+
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('This email is already registered.')
 
@@ -103,7 +103,7 @@ class StudentRegistrationForm(forms.ModelForm):
         if not student_id.isdigit():
             raise forms.ValidationError('Student ID must contain only numbers.')
 
-        # Check uniqueness
+
         if User.objects.filter(student_id=student_id).exists():
             raise forms.ValidationError('This student ID is already registered.')
 
