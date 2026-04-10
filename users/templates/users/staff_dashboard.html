@@ -1,0 +1,195 @@
+
+
+{% extends 'users/dashboard_base.html' %}
+
+{% block title %}Staff Dashboard - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>🔧 Welcome, {{ user.full_name }}!</h1>
+                <p class="mb-0 opacity-75">
+                    <strong>Facilities Management Staff</strong>
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="text-white">
+                    <small class="opacity-75">Last login</small><br>
+                    <strong>{{ user.last_login|date:"M d, Y - h:i A"|default:"First time login" }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card blue">
+                <span class="stat-icon">📋</span>
+                <h2 class="stat-number">{{ assigned_complaints }}</h2>
+                <p class="stat-label">Assigned to You</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card yellow">
+                <span class="stat-icon">⏳</span>
+                <h2 class="stat-number">{{ pending_complaints }}</h2>
+                <p class="stat-label">Pending</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card purple">
+                <span class="stat-icon">🔄</span>
+                <h2 class="stat-number">{{ in_progress_complaints }}</h2>
+                <p class="stat-label">In Progress</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card green">
+                <span class="stat-icon">✅</span>
+                <h2 class="stat-number">{{ resolved_complaints }}</h2>
+                <p class="stat-label">Resolved</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card info-card border-success">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-1">⏱️ Performance Metrics</h5>
+                            <p class="text-muted mb-0">Average resolution time: <strong>{{ avg_resolution_time }}
+                                hours</strong></p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-success disabled">View Detailed Stats</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Quick Actions</h3>
+            <div>
+                <a href="{% url 'staff_complaints_list' %}" class="btn btn-primary quick-action-btn">
+                    <i class="bi bi-list"></i> View All Complaints
+                </a>
+                <a href="{% url 'staff_complaints_list' %}" class="btn btn-warning quick-action-btn">
+                    <i class="bi bi-hourglass-split"></i> Pending Tasks
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Facility Complaints</h3>
+
+            {% if has_complaints %}
+            <div class="modern-table">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Issue</th>
+                        <th>Location</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Reported</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for complaint in recent_complaints %}
+                    <tr>
+                        <td><strong>{{ complaint.id }}</strong></td>
+                        <td>{{ complaint.issue }}</td>
+                        <td>{{ complaint.location }}</td>
+                        <td>
+                                <span class="badge bg-{{ complaint.priority_color }}">
+                                    {{ complaint.priority }}
+                                </span>
+                        </td>
+                        <td>
+                                <span class="badge-{{ complaint.status_class }}">
+                                    {{ complaint.status }}
+                                </span>
+                        </td>
+                        <td>{{ complaint.date|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-outline-primary">Handle</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+
+            <div class="card info-card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h4>No facility complaints</h4>
+                        <p class="text-muted mb-0">
+                            Facility-related complaints from students will appear here
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">💡 Staff Guidelines</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">Review assigned facility complaints promptly</li>
+                        <li class="mb-2">Update status regularly (Pending → In Progress → Resolved)</li>
+                        <li class="mb-2">Provide estimated resolution time to students</li>
+                        <li class="mb-2">Upload before/after photos when resolving</li>
+                        <li class="mb-0">Escalate to Admin if external help needed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">👤 Your Profile</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Name:</strong> {{ user.full_name }}</p>
+                    <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+                    <p class="mb-2"><strong>Role:</strong> Facilities Staff</p>
+                    <p class="mb-0"><strong>Department:</strong> {{ user.department|default:"Facilities Management" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
