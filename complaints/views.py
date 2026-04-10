@@ -54,7 +54,7 @@ def my_complaints(request):
 
     complaints_list = Complaint.objects.filter(student=request.user).order_by('-submitted_at')
 
-    # Statistics
+
     total_complaints = complaints_list.count()
     pending = complaints_list.filter(status='Pending').count()
     resolved = complaints_list.filter(status='Resolved').count()
@@ -214,9 +214,7 @@ def staff_complaints_list(request):
     return render(request, 'complaints/staff_complaints_list.html', context)
 
 
-# ============================================
-# ADMIN VIEWS
-# ============================================
+
 
 @login_required
 def admin_complaints_list(request):
