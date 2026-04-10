@@ -1,4 +1,4 @@
-# users/models.py
+
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
@@ -57,24 +57,24 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('Architecture', 'Department of Architecture'),
     )
 
-    # Basic Information
+
     email = models.EmailField(unique=True, max_length=255)
     full_name = models.CharField(max_length=150)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
-    # Additional Information
+
     department = models.CharField(max_length=100, choices=DEPARTMENT_CHOICES, null=True, blank=True)
     student_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
 
-    # Status
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)  # For Django admin access
 
-    # Timestamps
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Configuration
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name']
 
