@@ -28,7 +28,7 @@ def make_feedback(student, course, **kw):
     return Feedback.objects.create(student=student, course=course, **defaults)
 
 
-#    FEED-13 — Faculty Feedback Submission
+#    Faculty Feedback Submission
 class FeedbackResponseModelTest(TestCase):
 
 
