@@ -242,3 +242,146 @@ def test_faculty_respond_page_loads():
     driver.quit()
 
 
+# ═══════════════════════════════════════════
+# STAGE 3: COMPLAINT TESTS (TEST 15–22)
+# ═══════════════════════════════════════════
+
+# TEST 15: Complaint submit page loads for student
+def test_complaint_submit_page_loads_for_student():
+    driver = get_driver()
+    do_login(driver, "student_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/complaints/submit/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Complaint" in page
+    driver.quit()
+
+
+# TEST 16: Complaint submit form valid
+def test_complaint_submit_form_valid():
+    driver = get_driver()
+    do_login(driver, "student_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/complaints/submit/")
+    time.sleep(1)
+
+    Select(driver.find_element(By.NAME, "complaint_type")).select_by_value("Facility")
+    time.sleep(0.5)
+    driver.find_element(By.NAME, "subject").send_keys("Selenium Test Complaint Subject")
+    time.sleep(0.5)
+    driver.find_element(By.NAME, "description").send_keys(
+        "This is a detailed complaint submitted by Selenium for testing purposes."
+    )
+    time.sleep(0.5)
+    driver.find_element(By.NAME, "location").send_keys("Room 301, CSE Building")
+    time.sleep(0.5)
+    js_click(driver, driver.find_element(By.CSS_SELECTOR, "button[type='submit']"))
+
+    time.sleep(2)
+    # After success, redirects to my-complaints
+    assert "/complaints/my-complaints/" in driver.current_url
+    driver.quit()
+
+
+# TEST 17: Complaint submit without login redirects
+def test_complaint_submit_without_login_redirects():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/complaints/submit/")
+    time.sleep(2)
+    assert "/login/" in driver.current_url
+    driver.quit()
+
+
+# TEST 18: My complaints page loads for student
+def test_my_complaints_page_loads_for_student():
+    driver = get_driver()
+    do_login(driver, "student_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/complaints/my-complaints/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Complaint" in page
+    driver.quit()
+
+
+# TEST 19: My complaints without login redirects
+def test_my_complaints_without_login_redirects():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/complaints/my-complaints/")
+    time.sleep(2)
+    assert "/login/" in driver.current_url
+    driver.quit()
+
+
+# TEST 20: Complaint detail page loads for student
+def test_complaint_detail_page_loads_for_student():
+    driver = get_driver()
+    from complaints.models import Complaint
+    complaint = Complaint.objects.filter(
+        student__email="student_test@uap-bd.edu"
+    ).first()
+    if complaint:
+        do_login(driver, "student_test@uap-bd.edu")
+        driver.get(f"{BASE_URL}/complaints/detail/{complaint.id}/")
+        time.sleep(1)
+        page = driver.find_element(By.TAG_NAME, "body").text
+        assert "Complaint" in page or complaint.tracking_id in page
+    driver.quit()
+
+
+# TEST 21: HOD complaints list loads for HOD
+def test_hod_complaints_list_loads():
+    driver = get_driver()
+    do_login(driver, "hod_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/complaints/hod/list/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Complaint" in page or "HOD" in page
+    driver.quit()
+
+
+# TEST 22: HOD complaints list without login redirects
+def test_hod_complaints_list_without_login_redirects():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/complaints/hod/list/")
+    time.sleep(2)
+    assert "/login/" in driver.current_url
+    driver.quit()
+
+
+# TEST 23: Staff complaints list loads for staff
+def test_staff_complaints_list_loads():
+    driver = get_driver()
+    do_login(driver, "staff_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/complaints/staff/list/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Complaint" in page or "Staff" in page or "Facility" in page
+    driver.quit()
+
+
+# TEST 24: Staff complaints list without login redirects
+def test_staff_complaints_list_without_login_redirects():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/complaints/staff/list/")
+    time.sleep(2)
+    assert "/login/" in driver.current_url
+    driver.quit()
+
+
+# TEST 25: Admin complaints list loads for admin
+def test_admin_complaints_list_loads():
+    driver = get_driver()
+    do_login(driver, "admin_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/complaints/admin/list/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Complaint" in page or "Admin" in page
+    driver.quit()
+
+
+# TEST 26: Admin complaints list without login redirects
+def test_admin_complaints_list_without_login_redirects():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/complaints/admin/list/")
+    time.sleep(2)
+    assert "/login/" in driver.current_url
+    driver.quit()
