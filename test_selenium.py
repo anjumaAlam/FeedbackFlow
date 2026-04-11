@@ -144,7 +144,74 @@ def do_login(driver, email, password="TestPass123!"):
     js_click(driver, driver.find_element(By.CSS_SELECTOR, "button[type='submit']"))
     time.sleep(2)
 
+# Sprint 01: AUTH TESTS
+def test_login_page_loads():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/login/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Login" in page or "login" in page.lower()
+    driver.quit()
 
+def test_valid_login_student():
+    driver = get_driver()
+    do_login(driver, "student_test@uap-bd.edu")
+    time.sleep(1)
+    assert "dashboard" in driver.current_url or "student" in driver.current_url
+    driver.quit()
+
+def test_invalid_login_shows_error():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/login/")
+    driver.find_element(By.NAME, "email").send_keys("wrong@uap-bd.edu")
+    time.sleep(0.5)
+    driver.find_element(By.NAME, "password").send_keys("WrongPassword!")
+    time.sleep(0.5)
+    js_click(driver, driver.find_element(By.CSS_SELECTOR, "button[type='submit']"))
+    time.sleep(2)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "/login/" in driver.current_url or "Invalid" in page or "incorrect" in page.lower()
+    driver.quit()
+
+def test_register_page_loads():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/register/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Register" in page or "Registration" in page
+    driver.quit()
+
+
+def test_register_valid_student():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/register/")
+    time.sleep(1)
+
+    driver.find_element(By.NAME, "full_name").send_keys("New Selenium Student")
+    time.sleep(0.3)
+    driver.find_element(By.NAME, "student_id").send_keys("99999777")
+    time.sleep(0.3)
+    driver.find_element(By.NAME, "email").send_keys("new_selenium777@uap-bd.edu")
+    time.sleep(0.3)
+    Select(driver.find_element(By.NAME, "department")).select_by_value("CSE")
+    time.sleep(0.3)
+    driver.find_element(By.NAME, "password").send_keys("TestPass123!")
+    time.sleep(0.3)
+    driver.find_element(By.NAME, "confirm_password").send_keys("TestPass123!")
+    time.sleep(0.3)
+    js_click(driver, driver.find_element(By.CSS_SELECTOR, "button[type='submit']"))
+    time.sleep(2)
+
+    assert "/login/" in driver.current_url
+    driver.quit()
+
+def test_logout_works():
+    driver = get_driver()
+    do_login(driver, "student_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/logout/")
+    time.sleep(1)
+    assert "/login/" in driver.current_url or driver.current_url == f"{BASE_URL}/"
+    driver.quit()
 
 #Sprint 02: FEEDBACK TESTS
 
