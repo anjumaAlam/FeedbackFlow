@@ -28,6 +28,105 @@ def make_feedback(student, course, **kw):
     return Feedback.objects.create(student=student, course=course, **defaults)
 
 
+
+#Course Feedback Submission
+
+
+class CourseModelTest(TestCase):
+    """FEED-12 | Course model unit tests"""
+
+    def setUp(self):
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+
+    def test_course_creation(self):
+        """Course saves with correct code"""
+        course = make_course(self.faculty)
+        self.assertEqual(Course.objects.count(), 1)
+        self.assertEqual(course.course_code, 'CSE101')
+
+    def test_course_str(self):
+        """_str_ includes code and name"""
+        course = make_course(self.faculty)
+        self.assertIn('CSE101', str(course))
+        self.assertIn('Intro to CS', str(course))
+
+    def test_course_is_active_by_default(self):
+        """New course defaults to active"""
+        self.assertTrue(make_course(self.faculty).is_active)
+
+
+class CourseFeedbackModelTest(TestCase):
+    """FEED-12 | Feedback model unit tests"""
+
+    def setUp(self):
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101010')
+        self.course = make_course(self.faculty)
+
+    def test_feedback_saved_correctly(self):
+        """Feedback record is persisted"""
+        make_feedback(self.student, self.course)
+        self.assertEqual(Feedback.objects.count(), 1)
+
+    def test_default_status_is_pending(self):
+        """Newly submitted feedback has Pending status"""
+        self.assertEqual(make_feedback(self.student, self.course).status, 'Pending')
+
+    def test_get_average_rating(self):
+        """Average rating computed correctly: (4+3+5)/3 = 4.0"""
+        fb = make_feedback(self.student, self.course,
+                           teaching_rating=4, content_rating=3, communication_rating=5)
+        self.assertEqual(fb.get_average_rating(), 4.0)
+
+    def test_duplicate_submission_blocked(self):
+        """Same student cannot submit feedback twice for same course"""
+        make_feedback(self.student, self.course)
+        with self.assertRaises(Exception):
+            make_feedback(self.student, self.course)
+
+    def test_feedback_str(self):
+        """_str_ mentions student email and course code"""
+        fb = make_feedback(self.student, self.course)
+        self.assertIn('student@uap-bd.edu', str(fb))
+        self.assertIn('CSE101', str(fb))
+
+
+class SubmitCourseFeedbackViewTest(TestCase):
+    """FEED-12 | submit_feedback view tests"""
+
+    def setUp(self):
+        self.client = Client()
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101012')
+        self.course = make_course(self.faculty)
+        self.url = reverse('submit_feedback')
+
+    def test_unauthenticated_user_redirected(self):
+        self.assertEqual(self.client.get(self.url).status_code, 302)
+
+    def test_student_sees_feedback_form(self):
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        self.assertEqual(self.client.get(self.url).status_code, 200)
+
+    def test_valid_post_creates_feedback(self):
+        """Valid form submission creates a Feedback object"""
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        self.client.post(self.url, {
+            'course': self.course.id,
+            'teaching_rating': 4, 'content_rating': 4,
+            'communication_rating': 5, 'is_anonymous': False,
+        })
+        self.assertEqual(Feedback.objects.count(), 1)
+
+    def test_successful_submission_redirects(self):
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        response = self.client.post(self.url, {
+            'course': self.course.id,
+            'teaching_rating': 3, 'content_rating': 3,
+            'communication_rating': 3, 'is_anonymous': False,
+        })
+        self.assertEqual(response.status_code, 302)
+
 #    Faculty Feedback Submission
 class FeedbackResponseModelTest(TestCase):
 
