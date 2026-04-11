@@ -131,3 +131,79 @@ class MarkFeedbackReviewedViewTest(TestCase):
         self.assertIsNotNone(self.fb.reviewed_at)
 
 
+
+# Anonymous Feedback
+
+
+class AnonymousFeedbackModelTest(TestCase):
+    """FEED-14 | Anonymous flag on the Feedback model"""
+
+    def setUp(self):
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101020')
+        self.course = make_course(self.faculty)
+
+    def test_is_anonymous_defaults_to_false(self):
+        fb = make_feedback(self.student, self.course)
+        self.assertFalse(fb.is_anonymous)
+
+    def test_anonymous_flag_saved_correctly(self):
+        fb = make_feedback(self.student, self.course, is_anonymous=True)
+        fb.refresh_from_db()
+        self.assertTrue(fb.is_anonymous)
+
+    def test_anonymous_feedback_still_links_to_student(self):
+        """Even anonymous feedback records the actual student server-side"""
+        fb = make_feedback(self.student, self.course, is_anonymous=True)
+        self.assertEqual(fb.student, self.student)
+
+    def test_non_anonymous_exposes_student(self):
+        fb = make_feedback(self.student, self.course, is_anonymous=False)
+        self.assertEqual(fb.student.email, 'student@uap-bd.edu')
+
+
+class AnonymousFeedbackSubmissionViewTest(TestCase):
+    """FEED-14 | Submitting anonymous feedback through the view"""
+
+    def setUp(self):
+        self.client = Client()
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101021')
+        self.course = make_course(self.faculty)
+        self.url = reverse('submit_feedback')
+
+    def test_anonymous_submission_creates_feedback(self):
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        self.client.post(self.url, {
+            'course': self.course.id,
+            'teaching_rating': 3, 'content_rating': 3,
+            'communication_rating': 3, 'is_anonymous': True,
+        })
+        self.assertEqual(Feedback.objects.count(), 1)
+
+    def test_anonymous_flag_persisted_via_view(self):
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        self.client.post(self.url, {
+            'course': self.course.id,
+            'teaching_rating': 5, 'content_rating': 5,
+            'communication_rating': 5, 'is_anonymous': True,
+        })
+        self.assertTrue(Feedback.objects.first().is_anonymous)
+
+    def test_anonymous_feedback_redirects_on_success(self):
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        response = self.client.post(self.url, {
+            'course': self.course.id,
+            'teaching_rating': 4, 'content_rating': 4,
+            'communication_rating': 4, 'is_anonymous': True,
+        })
+        self.assertEqual(response.status_code, 302)
+
+    def test_anonymous_feedback_visible_in_my_feedback(self):
+        """Anonymous entry still appears in the student's own list"""
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        make_feedback(self.student, self.course, is_anonymous=True)
+        response = self.client.get(reverse('my_feedback'))
+        self.assertEqual(response.status_code, 200)
+        courses = [fb.course for fb in response.context['feedback_list']]
+        self.assertIn(self.course, courses)
