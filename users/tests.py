@@ -1,9 +1,16 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from unittest import skip
+from feedback.models import Course, Feedback
+from complaints.models import Complaint
 
 User = get_user_model()
 
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  ORIGINAL TESTS (Authentication Module)                                 ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
 
 class UserModelTest(TestCase):
     """Test the custom User model"""
@@ -61,8 +68,6 @@ class UserModelTest(TestCase):
         self.assertEqual(self.user.department, 'CSE')
 
 
-
-
 class RegistrationViewTest(TestCase):
     """Test the registration view"""
 
@@ -98,9 +103,7 @@ class RegistrationViewTest(TestCase):
             'password': 'NewPass@123',
             'confirm_password': 'NewPass@123'
         }
-        response = self.client.post(self.register_url, data)
-
-        # Check that user was created
+        self.client.post(self.register_url, data)
         self.assertEqual(User.objects.count(), 1)
         self.assertTrue(User.objects.filter(email='newstudent@uap-bd.edu').exists())
 
@@ -115,7 +118,7 @@ class RegistrationViewTest(TestCase):
             'confirm_password': 'NewPass@123'
         }
         response = self.client.post(self.register_url, data)
-        self.assertEqual(response.status_code, 302)  # Redirect status
+        self.assertEqual(response.status_code, 302)
 
     def test_registration_assigns_student_role(self):
         """Test that registration assigns Student role"""
@@ -128,7 +131,6 @@ class RegistrationViewTest(TestCase):
             'confirm_password': 'NewPass@123'
         }
         self.client.post(self.register_url, data)
-
         user = User.objects.get(email='newstudent@uap-bd.edu')
         self.assertEqual(user.role, 'Student')
 
@@ -140,8 +142,6 @@ class LoginViewTest(TestCase):
         """Set up test client and user"""
         self.client = Client()
         self.login_url = reverse('login')
-
-        # Create test user
         self.user = User.objects.create_user(
             email='student@uap-bd.edu',
             password='Student@123',
@@ -172,7 +172,7 @@ class LoginViewTest(TestCase):
             'email': 'student@uap-bd.edu',
             'password': 'Student@123'
         })
-        self.assertEqual(response.status_code, 302)  # Redirect
+        self.assertEqual(response.status_code, 302)
 
     def test_successful_login_authenticates_user(self):
         """Test that successful login authenticates the user"""
@@ -180,8 +180,6 @@ class LoginViewTest(TestCase):
             'email': 'student@uap-bd.edu',
             'password': 'Student@123'
         })
-
-        # Check if user is logged in by accessing protected page
         response = self.client.get(reverse('student_dashboard'))
         self.assertEqual(response.status_code, 200)
 
@@ -191,8 +189,6 @@ class LoginViewTest(TestCase):
             'email': 'student@uap-bd.edu',
             'password': 'WrongPassword@123'
         })
-
-        # Should stay on login page (status 200, not redirect 302)
         self.assertEqual(response.status_code, 200)
 
     def test_nonexistent_user_cannot_login(self):
@@ -201,9 +197,8 @@ class LoginViewTest(TestCase):
             'email': 'nonexistent@uap-bd.edu',
             'password': 'Test@123'
         })
-
-        # Should stay on login page
         self.assertEqual(response.status_code, 200)
+
 
 class LogoutViewTest(TestCase):
     """Test the logout view"""
@@ -212,7 +207,6 @@ class LogoutViewTest(TestCase):
         """Set up test client and user"""
         self.client = Client()
         self.logout_url = reverse('logout')
-
         self.user = User.objects.create_user(
             email='student@uap-bd.edu',
             password='Student@123',
@@ -222,28 +216,18 @@ class LogoutViewTest(TestCase):
 
     def test_logout_redirects_to_login(self):
         """Test that logout redirects to login page"""
-
         self.client.login(username='student@uap-bd.edu', password='Student@123')
-
-        # Logout
         response = self.client.get(self.logout_url)
-        self.assertEqual(response.status_code, 302)  # Redirect
+        self.assertEqual(response.status_code, 302)
 
     def test_logout_clears_session(self):
         """Test that logout clears the session"""
-
         self.client.login(username='student@uap-bd.edu', password='Student@123')
-
-
         response = self.client.get(reverse('student_dashboard'))
         self.assertEqual(response.status_code, 200)
-
-
         self.client.get(self.logout_url)
-
-
         response = self.client.get(reverse('student_dashboard'))
-        self.assertEqual(response.status_code, 302)  # Redirect to login
+        self.assertEqual(response.status_code, 302)
 
 
 class PasswordResetTest(TestCase):
@@ -253,7 +237,6 @@ class PasswordResetTest(TestCase):
         """Set up test client and user"""
         self.client = Client()
         self.reset_url = reverse('password_reset_request')
-
         self.user = User.objects.create_user(
             email='student@uap-bd.edu',
             password='Student@123',
@@ -284,14 +267,12 @@ class DashboardAccessTest(TestCase):
     def setUp(self):
         """Set up test users"""
         self.client = Client()
-
         self.student = User.objects.create_user(
             email='student@uap-bd.edu',
             password='Student@123',
             full_name='Test Student',
             role='Student'
         )
-
         self.faculty = User.objects.create_user(
             email='faculty@uap-bd.edu',
             password='Faculty@123',
@@ -314,7 +295,7 @@ class DashboardAccessTest(TestCase):
     def test_unauthenticated_user_cannot_access_dashboard(self):
         """Test that unauthenticated user is redirected"""
         response = self.client.get(reverse('student_dashboard'))
-        self.assertEqual(response.status_code, 302)  # Redirect to login
+        self.assertEqual(response.status_code, 302)
 
     def test_student_dashboard_shows_user_info(self):
         """Test that dashboard displays user information"""
@@ -370,9 +351,7 @@ class FormTest(TestCase):
             'password': 'ValidPass@123',
             'confirm_password': 'ValidPass@123'
         }
-        response = self.client.post(self.register_url, data)
-
-        # Should create user
+        self.client.post(self.register_url, data)
         self.assertTrue(User.objects.filter(email='valid@uap-bd.edu').exists())
 
     def test_registration_requires_all_fields(self):
@@ -385,7 +364,162 @@ class FormTest(TestCase):
             'password': 'Test@123',
             'confirm_password': 'Test@123'
         }
-        response = self.client.post(self.register_url, data)
-
-        # Should not create user
+        self.client.post(self.register_url, data)
         self.assertEqual(User.objects.count(), 0)
+
+
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  ADMIN USER MANAGEMENT                                                  ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+# ── PART 1: User Model (role, active/inactive) ────────────────────────────
+
+class UserModelRoleTest(TestCase):
+    """Admin User Management | User model role & field validation"""
+
+    def test_all_roles_can_be_created(self):
+        """Student/Faculty/HOD/Staff/Admin সব role valid"""
+        roles = [('Student', '23101001'), ('Faculty', None),
+                 ('HOD', None), ('Staff', None), ('Admin', None)]
+        for i, (role, sid) in enumerate(roles):
+            kwargs = {'student_id': sid} if sid else {}
+            u = User.objects.create_user(
+                email=f'{role.lower()}{i}@uap-bd.edu', password='Test@1234',
+                full_name=f'Test {role}', role=role, **kwargs
+            )
+            self.assertEqual(u.role, role)
+
+    def test_user_can_be_deactivated(self):
+        """is_active=False সেট করে save করলে user deactivate হয়"""
+        u = User.objects.create_user(
+            email='todeactivate@uap-bd.edu', password='Test@1234',
+            full_name='To Deactivate', role='Faculty'
+        )
+        u.is_active = False
+        u.save()
+        u.refresh_from_db()
+        self.assertFalse(u.is_active)
+
+    def test_deactivated_user_cannot_login(self):
+        """Inactive user login করতে পারবে না"""
+        User.objects.create_user(
+            email='inactive@uap-bd.edu', password='Test@1234',
+            full_name='Inactive User', role='Faculty', is_active=False
+        )
+        c = Client()
+        c.post(reverse('login'), {'email': 'inactive@uap-bd.edu', 'password': 'Test@1234'})
+        response = c.get(reverse('faculty_dashboard'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_admin_superuser_has_is_staff_true(self):
+        """create_superuser দিয়ে বানালে is_staff=True হয়"""
+        admin = User.objects.create_superuser(
+            email='superadmin@uap-bd.edu', password='Admin@1234'
+        )
+        self.assertTrue(admin.is_staff)
+        self.assertTrue(admin.is_superuser)
+
+    def test_duplicate_email_raises_error(self):
+        """একই email দিয়ে দুইটা user বানানো যাবে না"""
+        User.objects.create_user(
+            email='dup@uap-bd.edu', password='Test@1234',
+            full_name='First', role='Faculty'
+        )
+        with self.assertRaises(Exception):
+            User.objects.create_user(
+                email='dup@uap-bd.edu', password='Test@1234',
+                full_name='Second', role='Staff'
+            )
+
+
+# ── PART 2: Admin Dashboard View ─────────────────────────────────────────
+
+class AdminDashboardViewTest(TestCase):
+    """Admin User Management | admin_dashboard view"""
+
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_user(
+            email='admin@uap-bd.edu', password='Test@1234',
+            full_name='Test Admin', role='Admin'
+        )
+        self.student = User.objects.create_user(
+            email='student@uap-bd.edu', password='Test@1234',
+            full_name='Test Student', role='Student', student_id='23101002'
+        )
+        self.url = reverse('admin_dashboard')
+
+    def test_unauthenticated_user_redirected(self):
+        self.assertEqual(self.client.get(self.url).status_code, 302)
+
+    def test_admin_can_access_dashboard(self):
+        self.client.force_login(self.admin)
+        self.assertEqual(self.client.get(self.url).status_code, 200)
+
+    def test_dashboard_shows_correct_total_users(self):
+        """setUp-এ 2 user আছে, total_users=2 হবে"""
+        self.client.force_login(self.admin)
+        response = self.client.get(self.url)
+        self.assertEqual(response.context['total_users'], 2)
+
+    def test_dashboard_shows_student_count(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(self.url)
+        self.assertEqual(response.context['student_count'], 1)
+
+    def test_dashboard_uses_correct_template(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(self.url)
+        self.assertTemplateUsed(response, 'users/admin_dashboard.html')
+
+
+# ── PART 3: Admin-only Access Validation ─────────────────────────────────
+
+class AdminOnlyAccessTest(TestCase):
+    """Admin User Management | শুধু Admin admin dashboard-এ যেতে পারবে"""
+
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_user(
+            email='admin@uap-bd.edu', password='Test@1234',
+            full_name='Admin', role='Admin'
+        )
+        User.objects.create_user(
+            email='student@uap-bd.edu', password='Test@1234',
+            full_name='Student', role='Student', student_id='23101003'
+        )
+        User.objects.create_user(
+            email='faculty@uap-bd.edu', password='Test@1234',
+            full_name='Faculty', role='Faculty'
+        )
+        User.objects.create_user(
+            email='hod@uap-bd.edu', password='Test@1234',
+            full_name='HOD', role='HOD'
+        )
+        User.objects.create_user(
+            email='staff@uap-bd.edu', password='Test@1234',
+            full_name='Staff', role='Staff'
+        )
+        self.url = reverse('admin_dashboard')
+
+    def test_student_blocked(self):
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        self.assertEqual(self.client.get(self.url).status_code, 302)
+
+    def test_faculty_blocked(self):
+        self.client.login(username='faculty@uap-bd.edu', password='Test@1234')
+        self.assertEqual(self.client.get(self.url).status_code, 302)
+
+    def test_hod_blocked(self):
+        self.client.login(username='hod@uap-bd.edu', password='Test@1234')
+        self.assertEqual(self.client.get(self.url).status_code, 302)
+
+    def test_staff_blocked(self):
+        self.client.login(username='staff@uap-bd.edu', password='Test@1234')
+        self.assertEqual(self.client.get(self.url).status_code, 302)
+
+    def test_only_admin_gets_200(self):
+        self.client.force_login(self.admin)
+        self.assertEqual(self.client.get(self.url).status_code, 200)
+
+
