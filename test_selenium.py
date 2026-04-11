@@ -144,7 +144,7 @@ def do_login(driver, email, password="TestPass123!"):
     js_click(driver, driver.find_element(By.CSS_SELECTOR, "button[type='submit']"))
     time.sleep(2)
 
-# Sprint 01: AUTH TESTS
+# Sprint 01: AUTH TEST
 def test_login_page_loads():
     driver = get_driver()
     driver.get(f"{BASE_URL}/login/")
