@@ -2,6 +2,7 @@ import os
 import django
 import pytest
 import time
+import random
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "feedbackflow.settings")
@@ -187,11 +188,12 @@ def test_register_valid_student():
     driver.get(f"{BASE_URL}/register/")
     time.sleep(1)
 
+    uid = random.randint(10000, 99999)
     driver.find_element(By.NAME, "full_name").send_keys("New Selenium Student")
     time.sleep(0.3)
-    driver.find_element(By.NAME, "student_id").send_keys("99999777")
+    driver.find_element(By.NAME, "student_id").send_keys(f"99{uid}")
     time.sleep(0.3)
-    driver.find_element(By.NAME, "email").send_keys("new_selenium777@uap-bd.edu")
+    driver.find_element(By.NAME, "email").send_keys(f"new_selenium{uid}@uap-bd.edu")
     time.sleep(0.3)
     Select(driver.find_element(By.NAME, "department")).select_by_value("CSE")
     time.sleep(0.3)
@@ -200,6 +202,7 @@ def test_register_valid_student():
     driver.find_element(By.NAME, "confirm_password").send_keys("TestPass123!")
     time.sleep(0.3)
     js_click(driver, driver.find_element(By.CSS_SELECTOR, "button[type='submit']"))
+
     time.sleep(2)
 
     assert "/login/" in driver.current_url
@@ -309,9 +312,9 @@ def test_faculty_respond_page_loads():
     driver.quit()
 
 
-# ═══════════════════════════════════════════
-# STAGE 3: COMPLAINT TESTS (TEST 15–22)
-# ═══════════════════════════════════════════
+
+# Sprint 03: COMPLAINT TESTS
+
 
 # TEST 15: Complaint submit page loads for student
 def test_complaint_submit_page_loads_for_student():
@@ -344,7 +347,7 @@ def test_complaint_submit_form_valid():
     js_click(driver, driver.find_element(By.CSS_SELECTOR, "button[type='submit']"))
 
     time.sleep(2)
-    # After success, redirects to my-complaints
+
     assert "/complaints/my-complaints/" in driver.current_url
     driver.quit()
 
