@@ -1,11 +1,37 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from unittest import skip
 from feedback.models import Course, Feedback
 from complaints.models import Complaint
 
 User = get_user_model()
+
+
+def make_user(email, role, password='Test@1234', department='CSE',
+              student_id=None, is_active=True, **kwargs):
+
+    return User.objects.create_user(
+        email=email,
+        password=password,
+        full_name=f'Test {role}',
+        role=role,
+        department=department,
+        student_id=student_id,
+        is_active=is_active,
+        **kwargs
+    )
+
+
+def make_course(faculty, code='CSE101', name='Test Course',
+                department='CSE', semester='Spring 2025'):
+
+    return Course.objects.create(
+        course_code=code,
+        course_name=name,
+        faculty=faculty,
+        department=department,
+        semester=semester,
+    )
 
 
 class UserModelTest(TestCase):
@@ -364,7 +390,6 @@ class FormTest(TestCase):
         self.assertEqual(User.objects.count(), 0)
 
 
-
 class UserModelRoleTest(TestCase):
 
 
@@ -381,29 +406,19 @@ class UserModelRoleTest(TestCase):
             self.assertEqual(u.role, role)
 
     def test_user_can_be_deactivated(self):
-
-        u = User.objects.create_user(
-            email='todeactivate@uap-bd.edu', password='Test@1234',
-            full_name='To Deactivate', role='Faculty'
-        )
+        u = make_user('todeactivate@uap-bd.edu', 'Faculty')
         u.is_active = False
         u.save()
         u.refresh_from_db()
         self.assertFalse(u.is_active)
 
     def test_deactivated_user_cannot_login(self):
-
-        User.objects.create_user(
-            email='inactive@uap-bd.edu', password='Test@1234',
-            full_name='Inactive User', role='Faculty', is_active=False
-        )
+        make_user('inactive@uap-bd.edu', 'Faculty', is_active=False)
         c = Client()
         c.post(reverse('login'), {'email': 'inactive@uap-bd.edu', 'password': 'Test@1234'})
-        response = c.get(reverse('faculty_dashboard'))
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(c.get(reverse('faculty_dashboard')).status_code, 302)
 
     def test_admin_superuser_has_is_staff_true(self):
-
         admin = User.objects.create_superuser(
             email='superadmin@uap-bd.edu', password='Admin@1234'
         )
@@ -411,31 +426,17 @@ class UserModelRoleTest(TestCase):
         self.assertTrue(admin.is_superuser)
 
     def test_duplicate_email_raises_error(self):
-
-        User.objects.create_user(
-            email='dup@uap-bd.edu', password='Test@1234',
-            full_name='First', role='Faculty'
-        )
+        make_user('dup@uap-bd.edu', 'Faculty')
         with self.assertRaises(Exception):
-            User.objects.create_user(
-                email='dup@uap-bd.edu', password='Test@1234',
-                full_name='Second', role='Staff'
-            )
+            make_user('dup@uap-bd.edu', 'Staff')
 
 
 class AdminDashboardViewTest(TestCase):
 
-
     def setUp(self):
         self.client = Client()
-        self.admin = User.objects.create_user(
-            email='admin@uap-bd.edu', password='Test@1234',
-            full_name='Test Admin', role='Admin'
-        )
-        self.student = User.objects.create_user(
-            email='student@uap-bd.edu', password='Test@1234',
-            full_name='Test Student', role='Student', student_id='23101002'
-        )
+        self.admin = make_user('admin@uap-bd.edu', 'Admin')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101002')
         self.url = reverse('admin_dashboard')
 
     def test_unauthenticated_user_redirected(self):
@@ -446,7 +447,6 @@ class AdminDashboardViewTest(TestCase):
         self.assertEqual(self.client.get(self.url).status_code, 200)
 
     def test_dashboard_shows_correct_total_users(self):
-
         self.client.force_login(self.admin)
         response = self.client.get(self.url)
         self.assertEqual(response.context['total_users'], 2)
@@ -455,6 +455,11 @@ class AdminDashboardViewTest(TestCase):
         self.client.force_login(self.admin)
         response = self.client.get(self.url)
         self.assertEqual(response.context['student_count'], 1)
+
+    def test_dashboard_shows_active_users_count(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(self.url)
+        self.assertIn('active_users', response.context)
 
     def test_dashboard_uses_correct_template(self):
         self.client.force_login(self.admin)
@@ -466,46 +471,84 @@ class AdminOnlyAccessTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.admin = User.objects.create_user(
-            email='admin@uap-bd.edu', password='Test@1234',
-            full_name='Admin', role='Admin'
-        )
-        User.objects.create_user(
-            email='student@uap-bd.edu', password='Test@1234',
-            full_name='Student', role='Student', student_id='23101003'
-        )
-        User.objects.create_user(
-            email='faculty@uap-bd.edu', password='Test@1234',
-            full_name='Faculty', role='Faculty'
-        )
-        User.objects.create_user(
-            email='hod@uap-bd.edu', password='Test@1234',
-            full_name='HOD', role='HOD'
-        )
-        User.objects.create_user(
-            email='staff@uap-bd.edu', password='Test@1234',
-            full_name='Staff', role='Staff'
-        )
-        self.url = reverse('admin_dashboard')
+        self.admin = make_user('admin@uap-bd.edu', 'Admin')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101004')
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.hod = make_user('hod@uap-bd.edu', 'HOD')
+        self.staff = make_user('staff@uap-bd.edu', 'Staff')
 
-    def test_student_blocked(self):
-        self.client.login(username='student@uap-bd.edu', password='Test@1234')
-        self.assertEqual(self.client.get(self.url).status_code, 302)
+    def test_student_cannot_access_user_list(self):
+        self.client.force_login(self.student)
+        self.assertEqual(self.client.get(reverse('admin_user_list')).status_code, 302)
 
-    def test_faculty_blocked(self):
-        self.client.login(username='faculty@uap-bd.edu', password='Test@1234')
-        self.assertEqual(self.client.get(self.url).status_code, 302)
+    def test_faculty_cannot_access_user_list(self):
+        self.client.force_login(self.faculty)
+        self.assertEqual(self.client.get(reverse('admin_user_list')).status_code, 302)
 
-    def test_hod_blocked(self):
-        self.client.login(username='hod@uap-bd.edu', password='Test@1234')
-        self.assertEqual(self.client.get(self.url).status_code, 302)
+    def test_hod_cannot_access_user_list(self):
+        self.client.force_login(self.hod)
+        self.assertEqual(self.client.get(reverse('admin_user_list')).status_code, 302)
 
-    def test_staff_blocked(self):
-        self.client.login(username='staff@uap-bd.edu', password='Test@1234')
-        self.assertEqual(self.client.get(self.url).status_code, 302)
+    def test_staff_cannot_access_user_list(self):
+        self.client.force_login(self.staff)
+        self.assertEqual(self.client.get(reverse('admin_user_list')).status_code, 302)
 
-    def test_only_admin_gets_200(self):
+    def test_only_admin_can_access_user_list(self):
         self.client.force_login(self.admin)
-        self.assertEqual(self.client.get(self.url).status_code, 200)
+        self.assertEqual(self.client.get(reverse('admin_user_list')).status_code, 200)
+
+
+class DashboardContextDataTest(TestCase):
+
+
+    def setUp(self):
+        self.client = Client()
+        self.admin = make_user('admin@uap-bd.edu', 'Admin')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101006')
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.hod = make_user('hod@uap-bd.edu', 'HOD')
+        self.course = make_course(self.faculty)
+
+    def test_student_dashboard_complaint_count_updates(self):
+        Complaint.objects.create(
+            student=self.student, complaint_type='Behavioral',
+            subject='Test', description='Details.'
+        )
+        self.client.force_login(self.student)
+        response = self.client.get(reverse('student_dashboard'))
+        self.assertEqual(response.context['total_complaints'], 1)
+
+    def test_student_dashboard_feedback_count_updates(self):
+        Feedback.objects.create(
+            student=self.student, course=self.course,
+            teaching_rating=4, content_rating=4, communication_rating=4
+        )
+        self.client.force_login(self.student)
+        response = self.client.get(reverse('student_dashboard'))
+        self.assertEqual(response.context['total_feedback'], 1)
+
+    def test_faculty_dashboard_shows_pending_feedback(self):
+        Feedback.objects.create(
+            student=self.student, course=self.course,
+            teaching_rating=3, content_rating=3, communication_rating=3
+        )
+        self.client.force_login(self.faculty)
+        response = self.client.get(reverse('faculty_dashboard'))
+        self.assertEqual(response.context['pending_response'], 1)
+
+    def test_hod_dashboard_shows_complaint_stats(self):
+
+        self.client.force_login(self.hod)
+        response = self.client.get(reverse('hod_dashboard'))
+        self.assertIn('total_complaints', response.context)
+        self.assertIn('pending_complaints', response.context)
+
+    def test_admin_dashboard_shows_correct_user_counts(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('admin_dashboard'))
+        self.assertEqual(response.context['student_count'], 1)
+        self.assertEqual(response.context['faculty_count'], 1)
+
+
 
 
