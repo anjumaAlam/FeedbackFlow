@@ -1,0 +1,198 @@
+<!-- users/templates/users/hod_dashboard.html -->
+
+{% extends 'users/dashboard_base.html' %}
+
+{% block title %}HOD Dashboard - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>👔 Welcome, {{ user.full_name }}!</h1>
+                <p class="mb-0 opacity-75">
+                    <strong>Head of Department - {{ user.get_department_display_full }}</strong>
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="text-white">
+                    <small class="opacity-75">Last login</small><br>
+                    <strong>{{ user.last_login|date:"M d, Y - h:i A"|default:"First time login" }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card blue">
+                <span class="stat-icon">📋</span>
+                <h2 class="stat-number">{{ total_complaints }}</h2>
+                <p class="stat-label">Total Complaints</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card yellow">
+                <span class="stat-icon">⏳</span>
+                <h2 class="stat-number">{{ pending_complaints }}</h2>
+                <p class="stat-label">Pending Review</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card green">
+                <span class="stat-icon">✅</span>
+                <h2 class="stat-number">{{ resolved_complaints }}</h2>
+                <p class="stat-label">Resolved</p>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stat-card red">
+                <span class="stat-icon">⬆️</span>
+                <h2 class="stat-number">{{ escalated_complaints }}</h2>
+                <p class="stat-label">Escalated to Admin</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Stats -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card info-card border-primary">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-1">🏫 Department Overview</h5>
+                            <p class="text-muted mb-0">Managing <strong>{{ faculty_count }}</strong> faculty members in
+                                your department</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-primary disabled">View Faculty List</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Quick Actions</h3>
+            <div>
+                <a href="{% url 'hod_complaints_list' %}" class="btn btn-primary quick-action-btn">
+                    <i class="bi bi-list"></i> View All Complaints
+                </a>
+                <a href="{% url 'faculty_feedback_list' %}" class="btn btn-success quick-action-btn">
+                    <i class="bi bi-star"></i> View Feedback
+                </a>
+                <a href="{% url 'hod_complaints_list' %}" class="btn btn-warning quick-action-btn">
+                    <i class="bi bi-exclamation-triangle"></i> Pending Actions
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Complaints -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Recent Faculty Complaints</h3>
+
+            {% if has_complaints %}
+            <div class="modern-table">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Subject</th>
+                        <th>Faculty</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for complaint in recent_complaints %}
+                    <tr>
+                        <td><strong>{{ complaint.id }}</strong></td>
+                        <td>{{ complaint.subject }}</td>
+                        <td>{{ complaint.faculty }}</td>
+                        <td>
+                                <span class="badge-{{ complaint.status_class }}">
+                                    {{ complaint.status }}
+                                </span>
+                        </td>
+                        <td>
+                                <span class="badge bg-{{ complaint.priority_color }}">
+                                    {{ complaint.priority }}
+                                </span>
+                        </td>
+                        <td>{{ complaint.date|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-outline-primary">Review</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="card info-card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h4>No complaints assigned</h4>
+                        <p class="text-muted mb-0">
+                            Complaints about faculty members will appear here for your review
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Information Cards -->
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">💡 HOD Responsibilities</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">Review complaints about faculty members</li>
+                        <li class="mb-2">Investigate and gather facts</li>
+                        <li class="mb-2">Contact involved faculty for clarification</li>
+                        <li class="mb-2">Resolve or escalate to Admin if needed</li>
+                        <li class="mb-0">Maintain confidentiality throughout process</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">👤 Your Profile</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Name:</strong> {{ user.full_name }}</p>
+                    <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+                    <p class="mb-2"><strong>Role:</strong> Head of Department</p>
+                    <p class="mb-0"><strong>Department:</strong> {{ user.get_department_display_full }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
