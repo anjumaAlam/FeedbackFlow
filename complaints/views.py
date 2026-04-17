@@ -255,4 +255,4 @@ def admin_complaints_list(request):
         'behavioral_complaints': behavioral_complaints,
         'page_title': 'All Complaints'
     }
-    return render(request, 'complaints/admin_complaints_list.html', context)
+    return render(request, 'complaints/admins_complaints_list.html', context)
