@@ -622,7 +622,105 @@ class CrossRoleAccessTest(TestCase):
        })
        self.assertRedirects(response, reverse('faculty_dashboard'))
 
+class FeedbackReportsAccessTest(TestCase):
 
+
+   def setUp(self):
+       self.client = Client()
+       self.admin = make_user('admin@uap-bd.edu', 'Admin')
+       self.hod = make_user('hod@uap-bd.edu', 'HOD')
+       self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+       self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101008')
+       self.staff = make_user('staff@uap-bd.edu', 'Staff')
+       self.url = reverse('feedback_reports')
+
+   def test_unauthenticated_user_redirected(self):
+       self.assertEqual(self.client.get(self.url).status_code, 302)
+
+   def test_admin_can_access_reports(self):
+       self.client.force_login(self.admin)
+       self.assertEqual(self.client.get(self.url).status_code, 200)
+
+   def test_hod_can_access_reports(self):
+       self.client.force_login(self.hod)
+       self.assertEqual(self.client.get(self.url).status_code, 200)
+
+   def test_faculty_cannot_access_reports(self):
+       self.client.force_login(self.faculty)
+       self.assertEqual(self.client.get(self.url).status_code, 302)
+
+   def test_student_cannot_access_reports(self):
+       self.client.force_login(self.student)
+       self.assertEqual(self.client.get(self.url).status_code, 302)
+
+   def test_staff_cannot_access_reports(self):
+       self.client.force_login(self.staff)
+       self.assertEqual(self.client.get(self.url).status_code, 302)
+
+   def test_reports_uses_correct_template(self):
+       self.client.force_login(self.admin)
+       response = self.client.get(self.url)
+       self.assertTemplateUsed(response, 'users/feedback_reports.html')
+
+
+
+
+class FeedbackReportsDataTest(TestCase):
+
+
+   def setUp(self):
+       self.client = Client()
+       self.admin = make_user('admin@uap-bd.edu', 'Admin')
+       self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+       self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101009')
+       self.course = make_course(self.faculty)
+       self.url = reverse('feedback_reports')
+
+   def test_total_feedback_count_zero_initially(self):
+       self.client.force_login(self.admin)
+       response = self.client.get(self.url)
+       self.assertEqual(response.context['total_feedback'], 0)
+
+   def test_total_feedback_count_updates(self):
+       Feedback.objects.create(
+           student=self.student, course=self.course,
+           teaching_rating=4, content_rating=4, communication_rating=4
+       )
+       self.client.force_login(self.admin)
+       response = self.client.get(self.url)
+       self.assertEqual(response.context['total_feedback'], 1)
+
+   def test_average_teaching_rating_correct(self):
+
+       Feedback.objects.create(
+           student=self.student, course=self.course,
+           teaching_rating=4, content_rating=3, communication_rating=5
+       )
+       self.client.force_login(self.admin)
+       response = self.client.get(self.url)
+       self.assertEqual(response.context['avg_teaching'], 4.0)
+
+   def test_overall_avg_zero_when_no_feedback(self):
+       self.client.force_login(self.admin)
+       response = self.client.get(self.url)
+       self.assertEqual(response.context['overall_avg'], 0)
+
+   def test_course_filter_returns_correct_data(self):
+
+       other_faculty = make_user('faculty2@uap-bd.edu', 'Faculty')
+       other_course = make_course(other_faculty, code='CSE202')
+       other_student = make_user('student2@uap-bd.edu', 'Student', student_id='23101010')
+       Feedback.objects.create(
+           student=self.student, course=self.course,
+           teaching_rating=5, content_rating=5, communication_rating=5
+       )
+       Feedback.objects.create(
+           student=other_student, course=other_course,
+           teaching_rating=2, content_rating=2, communication_rating=2
+       )
+       self.client.force_login(self.admin)
+       response = self.client.get(self.url + f'?course={self.course.id}')
+       self.assertEqual(response.context['total_feedback'], 1)
 
 
 class FeedbackReportsScopingTest(TestCase):
