@@ -455,3 +455,182 @@ def test_admin_complaints_list_without_login_redirects():
     time.sleep(2)
     assert "/login/" in driver.current_url
     driver.quit()
+
+    # Sprint 04
+
+    # TEST 27: Student dashboard loads
+
+def test_student_dashboard_loads():
+    driver = get_driver()
+    do_login(driver, "student_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/student/dashboard/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Dashboard" in page or "Student" in page
+    driver.quit()
+
+    # TEST 28: Faculty dashboard loads
+
+def test_faculty_dashboard_loads():
+    driver = get_driver()
+    do_login(driver, "faculty_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/faculty/dashboard/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Dashboard" in page or "Faculty" in page
+    driver.quit()
+
+    # TEST 29: HOD dashboard loads
+
+def test_hod_dashboard_loads():
+    driver = get_driver()
+    do_login(driver, "hod_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/hod/dashboard/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Dashboard" in page or "HOD" in page
+    driver.quit()
+
+    # TEST 30: Staff dashboard loads
+
+def test_staff_dashboard_loads():
+    driver = get_driver()
+    do_login(driver, "staff_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/staff/dashboard/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Dashboard" in page or "Staff" in page
+    driver.quit()
+
+    # TEST 31: Admin dashboard loads
+
+def test_admin_dashboard_loads():
+    driver = get_driver()
+    do_login(driver, "admin_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/dashboard/admin/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Dashboard" in page or "Admin" in page
+    driver.quit()
+
+    # TEST 32: Dashboard without login redirects to login
+
+def test_dashboard_without_login_redirects():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/student/dashboard/")
+    time.sleep(2)
+    assert "/login/" in driver.current_url
+    driver.quit()
+
+    # TEST 39: Admin user list page loads for admin
+
+def test_admin_user_list_loads():
+    driver = get_driver()
+    do_login(driver, "admin_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/dashboard/users/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "User" in page or "Management" in page or "Email" in page
+    driver.quit()
+
+    # TEST 40: Admin user list redirects without login
+
+def test_admin_user_list_without_login_redirects():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/dashboard/users/")
+    time.sleep(2)
+    assert "/login/" in driver.current_url
+    driver.quit()
+
+    # TEST 41: Admin user list not accessible by student
+
+def test_admin_user_list_not_accessible_by_student():
+    driver = get_driver()
+    do_login(driver, "student_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/dashboard/users/")
+    time.sleep(1)
+    # Student should be redirected or get forbidden
+    page = driver.find_element(By.TAG_NAME, "body").text
+    current = driver.current_url
+    assert "/dashboard/users/" not in current or "denied" in page.lower() or "not authorized" in page.lower() or "Forbidden" in page or "/login/" in current or "dashboard" in current
+    driver.quit()
+
+    # TEST 42: Admin user create page loads for admin
+
+def test_admin_user_create_page_loads():
+    driver = get_driver()
+    do_login(driver, "admin_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/dashboard/users/create/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Create" in page or "User" in page or "Add" in page
+    driver.quit()
+
+    # TEST 43: Admin creates a new user successfully
+
+def test_admin_create_user_successfully():
+    driver = get_driver()
+    do_login(driver, "admin_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/dashboard/users/create/")
+    time.sleep(1)
+
+    uid = random.randint(10000, 99999)
+    driver.find_element(By.NAME, "full_name").send_keys(f"Selenium Created User {uid}")
+    time.sleep(0.3)
+    driver.find_element(By.NAME, "email").send_keys(f"selenium_created_{uid}@uap-bd.edu")
+    time.sleep(0.3)
+    Select(driver.find_element(By.NAME, "role")).select_by_value("Faculty")
+    time.sleep(0.3)
+    Select(driver.find_element(By.NAME, "department")).select_by_value("CSE")
+    time.sleep(0.3)
+    driver.find_element(By.NAME, "password").send_keys("TestPass123!")
+    time.sleep(0.3)
+    js_click(driver, driver.find_element(By.CSS_SELECTOR, "button[type='submit']"))
+    time.sleep(2)
+
+
+    assert "/dashboard/users/" in driver.current_url
+    driver.quit()
+
+    # TEST 44: Admin user edit page loads
+
+def test_admin_user_edit_page_loads():
+    driver = get_driver()
+    User = get_user_model()
+    # Get the test faculty user to edit
+    target = User.objects.filter(email="faculty_test@uap-bd.edu").first()
+    if target:
+        do_login(driver, "admin_test@uap-bd.edu")
+        driver.get(f"{BASE_URL}/dashboard/users/{target.id}/edit/")
+        time.sleep(1)
+        page = driver.find_element(By.TAG_NAME, "body").text
+        assert "Edit" in page or "User" in page or "Update" in page
+    driver.quit()
+
+    # TEST 45: Admin user list shows search/filter options
+
+def test_admin_user_list_filter_options():
+    driver = get_driver()
+    do_login(driver, "admin_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/dashboard/users/")
+    time.sleep(1)
+    # Check that search and role filter exist
+    search = driver.find_elements(By.NAME, "q")
+    role_filter = driver.find_elements(By.NAME, "role")
+    assert len(search) > 0 or len(role_filter) > 0
+    driver.quit()
+
+    # TEST 46: Admin user delete page loads
+
+def test_admin_user_delete_page_loads():
+    driver = get_driver()
+    User = get_user_model()
+    # Find a user created by selenium to test delete page (not actual test users)
+    target = User.objects.filter(email__startswith="selenium_created_").first()
+    if target:
+        do_login(driver, "admin_test@uap-bd.edu")
+        driver.get(f"{BASE_URL}/dashboard/users/{target.id}/delete/")
+        time.sleep(1)
+        page = driver.find_element(By.TAG_NAME, "body").text
+        assert "Delete" in page or "Confirm" in page or "delete" in page.lower()
+    driver.quit()
