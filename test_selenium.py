@@ -522,10 +522,6 @@ def test_dashboard_without_login_redirects():
     assert "/login/" in driver.current_url
     driver.quit()
 
-    # ═══════════════════════════════════════════
-    # STAGE 5: FEEDBACK REPORTS TESTS (TEST 33–38)
-    # (FEED-90: Selenium test for report view flow)
-    # ═══════════════════════════════════════════
 
     # TEST 33: Feedback reports page loads for admin
 def test_feedback_reports_page_loads_for_admin_user():
@@ -570,21 +566,21 @@ def test_feedback_reports_filter_options_exist():
     do_login(driver, "admin_test@uap-bd.edu")
     driver.get(f"{BASE_URL}/reports/feedback/")
     time.sleep(1)
-    # Check that course and department filter dropdowns exist
+
     course_filter = driver.find_elements(By.NAME, "course")
     dept_filter = driver.find_elements(By.NAME, "department")
     assert len(course_filter) > 0 or len(dept_filter) > 0
     driver.quit()
 
-    #
-    #
+
+
     # TEST 38: Feedback reports filter form submits without error
 def test_feedback_reports_filter_by_department():
     driver = get_driver()
     do_login(driver, "admin_test@uap-bd.edu")
     driver.get(f"{BASE_URL}/reports/feedback/")
     time.sleep(1)
-    # Click the filter/submit button to ensure form works without error
+
     submit_btns = driver.find_elements(By.CSS_SELECTOR, "button[type='submit']")
     if submit_btns:
         js_click(driver, submit_btns[0])
@@ -621,7 +617,7 @@ def test_admin_user_list_not_accessible_by_student():
     do_login(driver, "student_test@uap-bd.edu")
     driver.get(f"{BASE_URL}/dashboard/users/")
     time.sleep(1)
-    # Student should be redirected or get forbidden
+
     page = driver.find_element(By.TAG_NAME, "body").text
     current = driver.current_url
     assert "/dashboard/users/" not in current or "denied" in page.lower() or "not authorized" in page.lower() or "Forbidden" in page or "/login/" in current or "dashboard" in current
@@ -669,7 +665,7 @@ def test_admin_create_user_successfully():
 def test_admin_user_edit_page_loads():
     driver = get_driver()
     User = get_user_model()
-    # Get the test faculty user to edit
+
     target = User.objects.filter(email="faculty_test@uap-bd.edu").first()
     if target:
         do_login(driver, "admin_test@uap-bd.edu")
@@ -686,7 +682,7 @@ def test_admin_user_list_filter_options():
     do_login(driver, "admin_test@uap-bd.edu")
     driver.get(f"{BASE_URL}/dashboard/users/")
     time.sleep(1)
-    # Check that search and role filter exist
+
     search = driver.find_elements(By.NAME, "q")
     role_filter = driver.find_elements(By.NAME, "role")
     assert len(search) > 0 or len(role_filter) > 0
@@ -697,7 +693,7 @@ def test_admin_user_list_filter_options():
 def test_admin_user_delete_page_loads():
     driver = get_driver()
     User = get_user_model()
-    # Find a user created by selenium to test delete page (not actual test users)
+
     target = User.objects.filter(email__startswith="selenium_created_").first()
     if target:
         do_login(driver, "admin_test@uap-bd.edu")
