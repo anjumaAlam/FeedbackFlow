@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <!-- User Statistics Cards -->
+
     <div class="row mb-4">
         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
             <div class="stat-card blue">
@@ -75,7 +75,7 @@
         </div>
     </div>
 
-    <!-- System Statistics -->
+
     <div class="row mb-4">
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="stat-card green">
@@ -110,29 +110,28 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <!-- Quick Actions -->
+
     <div class="row mb-4">
         <div class="col-12">
             <h3 class="section-title">Quick Actions</h3>
             <div>
                 <a href="{% url 'admin_complaints_list' %}" class="btn btn-primary quick-action-btn">
-                    <i class="bi bi-file-earmark-text"></i> All Complaints
+                    📋 All Complaints
                 </a>
-                <a href="#" class="btn btn-success quick-action-btn disabled">
-                    <i class="bi bi-people"></i> Manage Users
+                <a href="{% url 'admin_user_list' %}" class="btn btn-success quick-action-btn">
+                    👥 Manage Users
                 </a>
                 <a href="{% url 'admin_complaints_list' %}" class="btn btn-warning quick-action-btn">
-                    <i class="bi bi-exclamation-triangle"></i> Handle Complaints
+                    ⚠️ Handle Complaints
                 </a>
-                <a href="#" class="btn btn-info quick-action-btn disabled">
-                    <i class="bi bi-bar-chart"></i> System Reports
+                <a href="{% url 'feedback_reports' %}" class="btn btn-info quick-action-btn">
+                    📊 Feedback Reports
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Recent Users -->
+
     <div class="row mb-4">
         <div class="col-12">
             <h3 class="section-title">Recently Registered Users</h3>
@@ -168,7 +167,7 @@
                         </td>
                         <td>{{ recent_user.created_at|date:"M d, Y" }}</td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-outline-primary disabled">Manage</a>
+                            <a href="{% url 'admin_user_edit' recent_user.id %}" class="btn btn-sm btn-outline-primary">Manage</a>
                         </td>
                     </tr>
                     {% empty %}
@@ -182,7 +181,7 @@
         </div>
     </div>
 
-    <!-- Department Overview -->
+
     <div class="row mb-4">
         <div class="col-12">
             <h3 class="section-title">Department Overview</h3>
@@ -208,7 +207,7 @@
         </div>
     </div>
 
-    <!-- Information Cards -->
+
     <div class="row">
         <div class="col-md-6 mb-3">
             <div class="card info-card border-danger">

@@ -237,14 +237,10 @@ def password_reset_confirm(request, uidb64, token):
 
 @login_required
 def student_dashboard(request):
-    """Student dashboard with stats and recent activity"""
 
     if request.user.role != 'Student':
         messages.error(request, 'Access denied. Students only.')
         return redirect('login')
-
-    from feedback.models import Feedback
-    from complaints.models import Complaint
 
     all_feedback = Feedback.objects.filter(student=request.user)
 
@@ -252,12 +248,10 @@ def student_dashboard(request):
     reviewed_count = all_feedback.filter(status__in=['Reviewed', 'Responded']).count()
     pending_feedback = all_feedback.filter(status='Pending').count()
 
-
     all_complaints = Complaint.objects.filter(student=request.user)
 
     total_complaints = all_complaints.count()
     pending_complaints = all_complaints.filter(status='Pending').count()
-    resolved_complaints = all_complaints.filter(status='Resolved').count()
 
     recent_feedback = all_feedback.order_by('-submitted_at')[:3]
     recent_complaints = all_complaints.order_by('-submitted_at')[:2]
@@ -265,15 +259,12 @@ def student_dashboard(request):
     context = {
         'page_title': 'Student Dashboard',
         'user': request.user,
-
         'total_submissions': total_feedback + total_complaints,
         'total_feedback': total_feedback,
         'total_complaints': total_complaints,
         'reviewed_count': reviewed_count,
         'pending_count': pending_feedback + pending_complaints,
         'active_complaints': all_complaints.exclude(status='Resolved').count(),
-
-
         'recent_feedback': recent_feedback,
         'recent_complaints': recent_complaints,
         'has_submissions': (total_feedback + total_complaints) > 0,
@@ -284,15 +275,15 @@ def student_dashboard(request):
 
 @login_required
 def faculty_dashboard(request):
-    """Faculty dashboard with feedback stats"""
+
 
     if request.user.role not in ['Faculty', 'HOD']:
         messages.error(request, 'Access denied. Faculty only.')
         return redirect('login')
 
-
-    from feedback.models import Feedback, Course
-    from django.db.models import Avg
+    from feedback.models import Course
+    from datetime import timedelta
+    from django.utils import timezone
 
     all_feedback = Feedback.objects.filter(course__faculty=request.user)
     courses = Course.objects.filter(faculty=request.user, is_active=True)
@@ -300,15 +291,11 @@ def faculty_dashboard(request):
     total_feedback = all_feedback.count()
     pending_response = all_feedback.filter(status='Pending').count()
 
-
     avg_ratings = all_feedback.aggregate(
         avg_all=Avg('teaching_rating')
     )
     average_rating = round(avg_ratings['avg_all'] or 0, 1)
 
-
-    from datetime import timedelta
-    from django.utils import timezone
     week_ago = timezone.now() - timedelta(days=7)
     this_week_feedback = all_feedback.filter(submitted_at__gte=week_ago).count()
 
@@ -317,15 +304,11 @@ def faculty_dashboard(request):
     context = {
         'page_title': 'Faculty Dashboard',
         'user': request.user,
-
-
         'total_feedback': total_feedback,
         'pending_response': pending_response,
         'average_rating': average_rating,
         'courses_count': courses.count(),
         'this_week_feedback': this_week_feedback,
-
-
         'recent_feedback': recent_feedback,
         'has_feedback': total_feedback > 0,
     }
@@ -335,15 +318,11 @@ def faculty_dashboard(request):
 
 @login_required
 def hod_dashboard(request):
-    """HOD dashboard with complaints and department stats"""
+
 
     if request.user.role != 'HOD':
         messages.error(request, 'Access denied. HOD only.')
         return redirect('login')
-
-    from complaints.models import Complaint
-    from feedback.models import Feedback
-
 
     all_complaints = Complaint.objects.filter(assigned_to=request.user)
 
@@ -352,25 +331,21 @@ def hod_dashboard(request):
     resolved_complaints = all_complaints.filter(status='Resolved').count()
     escalated_complaints = all_complaints.filter(status='Escalated').count()
 
-
-    from users.models import User
-    faculty_count = User.objects.filter(role='Faculty', department=request.user.department).count()
-
+    faculty_count = User.objects.filter(
+        role='Faculty',
+        department=request.user.department
+    ).count()
 
     recent_complaints = all_complaints.order_by('-submitted_at')[:5]
 
     context = {
         'page_title': 'HOD Dashboard',
         'user': request.user,
-
-
         'total_complaints': total_complaints,
         'pending_complaints': pending_complaints,
         'resolved_complaints': resolved_complaints,
         'escalated_complaints': escalated_complaints,
         'faculty_count': faculty_count,
-
-
         'recent_complaints': recent_complaints,
         'has_complaints': total_complaints > 0,
     }
@@ -380,15 +355,11 @@ def hod_dashboard(request):
 
 @login_required
 def staff_dashboard(request):
-    """Staff dashboard with facility complaints"""
+
 
     if request.user.role != 'Staff':
         messages.error(request, 'Access denied. Staff only.')
         return redirect('login')
-
-
-    from complaints.models import Complaint
-
 
     all_complaints = Complaint.objects.filter(assigned_to=request.user)
 
@@ -397,21 +368,16 @@ def staff_dashboard(request):
     in_progress_complaints = all_complaints.filter(status='Under Investigation').count()
     resolved_complaints = all_complaints.filter(status='Resolved').count()
 
-    # Recent complaints
     recent_complaints = all_complaints.order_by('-submitted_at')[:5]
 
     context = {
         'page_title': 'Staff Dashboard',
         'user': request.user,
-
-
         'assigned_complaints': assigned_complaints,
         'pending_complaints': pending_complaints,
         'in_progress_complaints': in_progress_complaints,
         'resolved_complaints': resolved_complaints,
-        'avg_resolution_time': 0,  # TODO: Calculate this
-
-
+        'avg_resolution_time': 0,
         'recent_complaints': recent_complaints,
         'has_complaints': assigned_complaints > 0,
     }
@@ -421,32 +387,22 @@ def staff_dashboard(request):
 
 @login_required
 def admin_dashboard(request):
-    """Admin dashboard with system-wide stats"""
+
 
     if request.user.role != 'Admin':
         messages.error(request, 'Access denied. Admin only.')
         return redirect('login')
 
-    from django.db.models import Count
-    from feedback.models import Feedback
-    from complaints.models import Complaint
-
-    # Real user statistics
     user_stats = User.objects.values('role').annotate(count=Count('id'))
     role_counts = {stat['role']: stat['count'] for stat in user_stats}
 
-
     total_feedback = Feedback.objects.count()
-
-
     total_complaints = Complaint.objects.count()
     pending_complaints = Complaint.objects.filter(status='Pending').count()
 
     context = {
         'page_title': 'Admin Dashboard',
         'user': request.user,
-
-
         'total_users': User.objects.count(),
         'student_count': role_counts.get('Student', 0),
         'faculty_count': role_counts.get('Faculty', 0),
@@ -455,17 +411,11 @@ def admin_dashboard(request):
         'admin_count': role_counts.get('Admin', 0),
         'active_users': User.objects.filter(is_active=True).count(),
         'inactive_users': User.objects.filter(is_active=False).count(),
-
-
-        'department_stats': User.objects.filter(department__isnull=False) \
+        'department_stats': User.objects.filter(department__isnull=False)
             .values('department').annotate(count=Count('id')),
-
-
         'total_feedback': total_feedback,
         'total_complaints': total_complaints,
         'pending_complaints': pending_complaints,
-
-
         'recent_users': User.objects.order_by('-created_at')[:5],
     }
 
