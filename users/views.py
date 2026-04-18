@@ -1,5 +1,5 @@
 
-
+from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -10,15 +10,20 @@ from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, Avg
 
 from .forms import (
     StudentRegistrationForm,
     LoginForm,
     PasswordResetRequestForm,
-    PasswordResetConfirmForm
+    PasswordResetConfirmForm,
+    AdminUserCreateForm,
+    AdminUserEditForm,
 )
 from .models import User
+from feedback.models import Feedback
+from complaints.models import Complaint
+
 
 
 
@@ -465,3 +470,155 @@ def admin_dashboard(request):
     }
 
     return render(request, 'users/admin_dashboard.html', context)
+
+
+
+@login_required
+def admin_user_list(request):
+   """Admin can view and search all users."""
+   if request.user.role != 'Admin':
+       return redirect('login')
+
+
+   users = User.objects.all().order_by('-created_at')
+
+
+   search = request.GET.get('search', '')
+   role_filter = request.GET.get('role', '')
+   dept_filter = request.GET.get('department', '')
+
+
+   if search:
+       users = users.filter(
+           full_name__icontains=search
+       ) | users.filter(
+           email__icontains=search
+       )
+
+
+   if role_filter:
+       users = users.filter(role=role_filter)
+
+
+   if dept_filter:
+       users = users.filter(department=dept_filter)
+
+
+   context = {
+       'users': users,
+       'search': search,
+       'role_filter': role_filter,
+       'dept_filter': dept_filter,
+       'roles': User.ROLE_CHOICES,
+       'departments': User.DEPARTMENT_CHOICES,
+   }
+   return render(request, 'users/admin_user_list.html', context)
+
+
+
+
+@login_required
+def admin_user_create(request):
+   """Admin can create a new user of any role."""
+   if request.user.role != 'Admin':
+       return redirect('login')
+
+
+   if request.method == 'POST':
+       form = AdminUserCreateForm(request.POST)
+       if form.is_valid():
+           form.save()
+           messages.success(request, 'User created successfully.')
+           return redirect('admin_user_list')
+   else:
+       form = AdminUserCreateForm()
+
+
+   return render(request, 'users/admin_user_form.html', {
+       'form': form,
+       'action': 'Create'
+   })
+
+
+
+
+@login_required
+def admin_user_edit(request, user_id):
+   """Admin can edit an existing user."""
+   if request.user.role != 'Admin':
+       return redirect('login')
+
+
+   target_user = get_object_or_404(User, id=user_id)
+
+
+   if request.method == 'POST':
+       form = AdminUserEditForm(request.POST, instance=target_user)
+       if form.is_valid():
+           form.save()
+           messages.success(request, f'{target_user.full_name} updated successfully.')
+           return redirect('admin_user_list')
+   else:
+       form = AdminUserEditForm(instance=target_user)
+
+
+   return render(request, 'users/admin_user_form.html', {
+       'form': form,
+       'action': 'Edit',
+       'target_user': target_user
+   })
+
+
+
+
+@login_required
+def admin_user_delete(request, user_id):
+   """Admin can delete a user (with confirmation)."""
+   if request.user.role != 'Admin':
+       return redirect('login')
+
+
+   target_user = get_object_or_404(User, id=user_id)
+
+
+   if target_user == request.user:
+       messages.error(request, 'You cannot delete your own account.')
+       return redirect('admin_user_list')
+
+
+   if request.method == 'POST':
+       target_user.delete()
+       messages.success(request, 'User deleted successfully.')
+       return redirect('admin_user_list')
+
+
+   return render(request, 'users/admin_user_delete.html', {
+       'target_user': target_user
+   })
+
+
+
+
+@login_required
+def admin_user_toggle_active(request, user_id):
+   """Admin can activate or deactivate a user."""
+   if request.user.role != 'Admin':
+       return redirect('login')
+
+
+   target_user = get_object_or_404(User, id=user_id)
+
+
+   if target_user == request.user:
+       messages.error(request, 'You cannot change your own active status.')
+       return redirect('admin_user_list')
+
+
+   target_user.is_active = not target_user.is_active
+   target_user.save()
+
+
+   status = 'activated' if target_user.is_active else 'deactivated'
+   messages.success(request, f'{target_user.full_name} has been {status}.')
+   return redirect('admin_user_list')
+
