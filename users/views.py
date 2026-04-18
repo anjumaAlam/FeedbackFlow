@@ -469,7 +469,7 @@ def admin_user_list(request):
 
 @login_required
 def admin_user_create(request):
-   """Admin can create a new user of any role."""
+
    if request.user.role != 'Admin':
        return redirect('login')
 
@@ -523,7 +523,7 @@ def admin_user_edit(request, user_id):
 
 @login_required
 def admin_user_delete(request, user_id):
-   """Admin can delete a user (with confirmation)."""
+
    if request.user.role != 'Admin':
        return redirect('login')
 
@@ -551,7 +551,7 @@ def admin_user_delete(request, user_id):
 
 @login_required
 def admin_user_toggle_active(request, user_id):
-   """Admin can activate or deactivate a user."""
+
    if request.user.role != 'Admin':
        return redirect('login')
 
@@ -572,3 +572,66 @@ def admin_user_toggle_active(request, user_id):
    messages.success(request, f'{target_user.full_name} has been {status}.')
    return redirect('admin_user_list')
 
+@login_required
+def feedback_reports(request):
+
+   if request.user.role not in ['Admin', 'HOD']:
+       return redirect('login')
+
+   dept_filter = request.GET.get('department', '')
+   date_from = request.GET.get('date_from', '')
+   date_to = request.GET.get('date_to', '')
+   course_filter = request.GET.get('course', '')
+
+   feedbacks = Feedback.objects.all()
+
+   if request.user.role == 'HOD':
+       feedbacks = feedbacks.filter(course__department=request.user.department)
+
+   if dept_filter:
+       feedbacks = feedbacks.filter(course__department=dept_filter)
+   if date_from:
+       feedbacks = feedbacks.filter(submitted_at__date__gte=date_from)
+   if date_to:
+       feedbacks = feedbacks.filter(submitted_at__date__lte=date_to)
+   if course_filter:
+       feedbacks = feedbacks.filter(course_id=course_filter)
+
+   avg_ratings = feedbacks.aggregate(
+       avg_teaching=Avg('teaching_rating'),
+       avg_content=Avg('content_rating'),
+       avg_communication=Avg('communication_rating'),
+   )
+
+   avg_teaching = round(avg_ratings['avg_teaching'] or 0, 1)
+   avg_content = round(avg_ratings['avg_content'] or 0, 1)
+   avg_communication = round(avg_ratings['avg_communication'] or 0, 1)
+
+   overall_avg = round(
+       (avg_teaching + avg_content + avg_communication) / 3, 1
+   ) if feedbacks.exists() else 0
+
+   course_stats = feedbacks.values(
+       'course__course_code', 'course__course_name'
+   ).annotate(
+       count=Count('id'),
+       avg_teaching=Avg('teaching_rating'),
+       avg_content=Avg('content_rating'),
+       avg_communication=Avg('communication_rating'),
+   ).order_by('-count')
+
+   context = {
+       'feedbacks': feedbacks,
+       'course_stats': course_stats,
+       'total_feedback': feedbacks.count(),
+       'avg_teaching': avg_teaching,
+       'avg_content': avg_content,
+       'avg_communication': avg_communication,
+       'overall_avg': overall_avg,
+       'dept_filter': dept_filter,
+       'date_from': date_from,
+       'date_to': date_to,
+       'course_filter': course_filter,
+       'departments': User.DEPARTMENT_CHOICES,
+   }
+   return render(request, 'users/feedback_reports.html', context)
