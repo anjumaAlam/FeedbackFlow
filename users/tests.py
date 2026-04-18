@@ -578,3 +578,90 @@ class DashboardContextDataTest(TestCase):
 
 
 
+class CrossRoleAccessTest(TestCase):
+
+
+
+   def setUp(self):
+       self.client = Client()
+       self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101007')
+       self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+       self.hod = make_user('hod@uap-bd.edu', 'HOD')
+       self.staff = make_user('staff@uap-bd.edu', 'Staff')
+       self.admin = make_user('admin@uap-bd.edu', 'Admin')
+
+   def test_student_cannot_access_faculty_dashboard(self):
+       self.client.force_login(self.student)
+       self.assertEqual(self.client.get(reverse('faculty_dashboard')).status_code, 302)
+
+   def test_student_cannot_access_admin_dashboard(self):
+       self.client.force_login(self.student)
+       self.assertEqual(self.client.get(reverse('admin_dashboard')).status_code, 302)
+
+   def test_faculty_cannot_access_student_dashboard(self):
+       self.client.force_login(self.faculty)
+       self.assertEqual(self.client.get(reverse('student_dashboard')).status_code, 302)
+
+   def test_hod_cannot_access_staff_dashboard(self):
+       self.client.force_login(self.hod)
+       self.assertEqual(self.client.get(reverse('staff_dashboard')).status_code, 302)
+
+   def test_staff_cannot_access_hod_dashboard(self):
+       self.client.force_login(self.staff)
+       self.assertEqual(self.client.get(reverse('hod_dashboard')).status_code, 302)
+
+   def test_login_redirects_student_to_correct_dashboard(self):
+       response = self.client.post(reverse('login'), {
+           'email': 'student@uap-bd.edu', 'password': 'Test@1234'
+       })
+       self.assertRedirects(response, reverse('student_dashboard'))
+
+   def test_login_redirects_faculty_to_correct_dashboard(self):
+       response = self.client.post(reverse('login'), {
+           'email': 'faculty@uap-bd.edu', 'password': 'Test@1234'
+       })
+       self.assertRedirects(response, reverse('faculty_dashboard'))
+
+
+
+
+class FeedbackReportsScopingTest(TestCase):
+
+
+
+   def setUp(self):
+       self.client = Client()
+       self.hod_cse = make_user('hod_cse@uap-bd.edu', 'HOD', department='CSE')
+       self.hod_eee = make_user('hod_eee@uap-bd.edu', 'HOD', department='EEE')
+       self.faculty_cse = make_user('fac_cse@uap-bd.edu', 'Faculty', department='CSE')
+       self.faculty_eee = make_user('fac_eee@uap-bd.edu', 'Faculty', department='EEE')
+       self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101011')
+
+       self.course_cse = Course.objects.create(
+           course_code='CSE101', course_name='CS Intro',
+           faculty=self.faculty_cse, department='CSE', semester='Spring 2025'
+       )
+       self.course_eee = Course.objects.create(
+           course_code='EEE101', course_name='EEE Intro',
+           faculty=self.faculty_eee, department='EEE', semester='Spring 2025'
+       )
+       Feedback.objects.create(
+           student=self.student, course=self.course_cse,
+           teaching_rating=5, content_rating=5, communication_rating=5
+       )
+
+   def test_hod_cse_sees_only_cse_feedback(self):
+
+
+       self.client.force_login(self.hod_cse)
+       response = self.client.get(reverse('feedback_reports'))
+       self.assertEqual(response.context['total_feedback'], 1)
+
+   def test_hod_eee_sees_zero_feedback(self):
+
+
+       self.client.force_login(self.hod_eee)
+       response = self.client.get(reverse('feedback_reports'))
+       self.assertEqual(response.context['total_feedback'], 0)
+
+
