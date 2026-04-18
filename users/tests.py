@@ -498,6 +498,32 @@ class AdminOnlyAccessTest(TestCase):
         self.assertEqual(self.client.get(reverse('admin_user_list')).status_code, 200)
 
 
+
+
+class DashboardRoleAccessTest(TestCase):
+
+
+   def setUp(self):
+       self.client = Client()
+       self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101005')
+       self.hod = make_user('hod@uap-bd.edu', 'HOD')
+       self.staff = make_user('staff@uap-bd.edu', 'Staff')
+
+       def test_hod_can_access_hod_dashboard(self):
+
+           self.client.force_login(self.hod)
+           self.assertEqual(self.client.get(reverse('hod_dashboard')).status_code, 200)
+
+       def test_staff_can_access_staff_dashboard(self):
+           self.client.force_login(self.staff)
+           self.assertEqual(self.client.get(reverse('staff_dashboard')).status_code, 200)
+
+       def test_unauthenticated_redirected_from_hod_dashboard(self):
+           self.assertEqual(self.client.get(reverse('hod_dashboard')).status_code, 302)
+
+       def test_unauthenticated_redirected_from_staff_dashboard(self):
+           self.assertEqual(self.client.get(reverse('staff_dashboard')).status_code, 302)
+
 class DashboardContextDataTest(TestCase):
 
 
