@@ -522,73 +522,77 @@ def test_dashboard_without_login_redirects():
     assert "/login/" in driver.current_url
     driver.quit()
 
+    # ═══════════════════════════════════════════
+    # STAGE 5: FEEDBACK REPORTS TESTS (TEST 33–38)
+    # (FEED-90: Selenium test for report view flow)
+    # ═══════════════════════════════════════════
+
     # TEST 33: Feedback reports page loads for admin
-    def test_feedback_reports_page_loads_for_admin_user():
-        driver = get_driver()
-        do_login(driver, "admin_test@uap-bd.edu")
-        driver.get(f"{BASE_URL}/reports/feedback/")
-        time.sleep(1)
-        page = driver.find_element(By.TAG_NAME, "body").text
-        assert "Feedback" in page or "Report" in page or "Analytics" in page
-        driver.quit()
+def test_feedback_reports_page_loads_for_admin_user():
+    driver = get_driver()
+    do_login(driver, "admin_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/reports/feedback/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Feedback" in page or "Report" in page or "Analytics" in page
+    driver.quit()
 
     # TEST 34: Feedback reports page redirects without login
-    def test_feedback_reports_without_login_redirects():
-        driver = get_driver()
-        driver.get(f"{BASE_URL}/reports/feedback/")
-        time.sleep(2)
-        assert "/login/" in driver.current_url
-        driver.quit()
+def test_feedback_reports_without_login_redirects():
+    driver = get_driver()
+    driver.get(f"{BASE_URL}/reports/feedback/")
+    time.sleep(2)
+    assert "/login/" in driver.current_url
+    driver.quit()
 
     # TEST 35: Feedback reports page loads for HOD
-    def test_feedback_reports_page_loads_for_hod():
-        driver = get_driver()
-        do_login(driver, "hod_test@uap-bd.edu")
-        driver.get(f"{BASE_URL}/reports/feedback/")
-        time.sleep(1)
-        page = driver.find_element(By.TAG_NAME, "body").text
-        assert "Feedback" in page or "Report" in page or "Analytics" in page
-        driver.quit()
+def test_feedback_reports_page_loads_for_hod():
+    driver = get_driver()
+    do_login(driver, "hod_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/reports/feedback/")
+    time.sleep(1)
+    page = driver.find_element(By.TAG_NAME, "body").text
+    assert "Feedback" in page or "Report" in page or "Analytics" in page
+    driver.quit()
 
     # TEST 36: Feedback reports redirects faculty (only Admin/HOD allowed)
-    def test_feedback_reports_redirects_faculty():
-        driver = get_driver()
-        do_login(driver, "faculty_test@uap-bd.edu")
-        driver.get(f"{BASE_URL}/reports/feedback/")
-        time.sleep(2)
-        assert "/login/" in driver.current_url or "/reports/feedback/" not in driver.current_url
-        driver.quit()
+def test_feedback_reports_redirects_faculty():
+    driver = get_driver()
+    do_login(driver, "faculty_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/reports/feedback/")
+    time.sleep(2)
+    assert "/login/" in driver.current_url or "/reports/feedback/" not in driver.current_url
+    driver.quit()
 
     # TEST 37: Feedback reports shows filter options (course & department)
-    def test_feedback_reports_filter_options_exist():
-        driver = get_driver()
-        do_login(driver, "admin_test@uap-bd.edu")
-        driver.get(f"{BASE_URL}/reports/feedback/")
-        time.sleep(1)
-        # Check that course and department filter dropdowns exist
-        course_filter = driver.find_elements(By.NAME, "course")
-        dept_filter = driver.find_elements(By.NAME, "department")
-        assert len(course_filter) > 0 or len(dept_filter) > 0
-        driver.quit()
+def test_feedback_reports_filter_options_exist():
+    driver = get_driver()
+    do_login(driver, "admin_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/reports/feedback/")
+    time.sleep(1)
+    # Check that course and department filter dropdowns exist
+    course_filter = driver.find_elements(By.NAME, "course")
+    dept_filter = driver.find_elements(By.NAME, "department")
+    assert len(course_filter) > 0 or len(dept_filter) > 0
+    driver.quit()
 
-
-
+    #
+    #
     # TEST 38: Feedback reports filter form submits without error
-    def test_feedback_reports_filter_by_department():
-        driver = get_driver()
-        do_login(driver, "admin_test@uap-bd.edu")
-        driver.get(f"{BASE_URL}/reports/feedback/")
-        time.sleep(1)
-
-        submit_btns = driver.find_elements(By.CSS_SELECTOR, "button[type='submit']")
-        if submit_btns:
-            js_click(driver, submit_btns[0])
-            time.sleep(2)
-
-            page = driver.find_element(By.TAG_NAME, "body").text
-            assert "Feedback" in page or "Report" in page
+def test_feedback_reports_filter_by_department():
+    driver = get_driver()
+    do_login(driver, "admin_test@uap-bd.edu")
+    driver.get(f"{BASE_URL}/reports/feedback/")
+    time.sleep(1)
+    # Click the filter/submit button to ensure form works without error
+    submit_btns = driver.find_elements(By.CSS_SELECTOR, "button[type='submit']")
+    if submit_btns:
+        js_click(driver, submit_btns[0])
+        time.sleep(2)
+        # Page should still show reports content after submitting filter
+        page = driver.find_element(By.TAG_NAME, "body").text
+        assert "Feedback" in page or "Report" in page
         driver.quit()
-
 
     # TEST 39: Admin user list page loads for admin
 
