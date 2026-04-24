@@ -28,5 +28,6 @@ urlpatterns = [
     path('dashboard/users/<int:user_id>/delete/', views.admin_user_delete, name='admin_user_delete'),
     path('dashboard/users/<int:user_id>/toggle-active/', views.admin_user_toggle_active, name='admin_user_toggle_active'),
 
+    path('dashboard/feedback-reports/', views.feedback_reports, name='feedback_reports'),
 ]
 

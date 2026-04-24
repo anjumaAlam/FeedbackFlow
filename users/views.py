@@ -566,7 +566,6 @@ def admin_user_toggle_active(request, user_id):
 
    target_user.is_active = not target_user.is_active
    target_user.save()
-
    status = 'activated' if target_user.is_active else 'deactivated'
    messages.success(request, f'{target_user.full_name} has been {status}.')
    return redirect('admin_user_list')
