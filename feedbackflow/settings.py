@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'users',
     'feedback',
     'complaints',
+    'homepage',
 ]
 
 MIDDLEWARE = [
