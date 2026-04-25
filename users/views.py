@@ -453,6 +453,11 @@ def admin_user_list(request):
 
    if dept_filter:
        users = users.filter(department=dept_filter)
+   status_filter = request.GET.get('status', '')
+   if status_filter == 'active':
+       users = users.filter(is_active=True)
+   elif status_filter == 'inactive':
+       users = users.filter(is_active=False)
 
 
    context = {
@@ -460,8 +465,11 @@ def admin_user_list(request):
        'search': search,
        'role_filter': role_filter,
        'dept_filter': dept_filter,
+       'status_filter': request.GET.get('status', ''),
        'roles': User.ROLE_CHOICES,
        'departments': User.DEPARTMENT_CHOICES,
+       'role_choices': User.ROLE_CHOICES,
+       'department_choices': User.DEPARTMENT_CHOICES,
    }
    return render(request, 'users/admin_user_list.html', context)
 
