@@ -578,7 +578,22 @@ def admin_user_toggle_active(request, user_id):
    status = 'activated' if target_user.is_active else 'deactivated'
    messages.success(request, f'{target_user.full_name} has been {status}.')
    return redirect('admin_user_list')
+@login_required
+def hod_faculty_list(request):
+    if request.user.role != 'HOD':
+        return redirect('login')
 
+    from feedback.models import Course
+    faculty_list = User.objects.filter(
+        role='Faculty',
+        department=request.user.department
+    ).order_by('full_name')
+
+    context = {
+        'faculty_list': faculty_list,
+        'page_title': 'Faculty List'
+    }
+    return render(request, 'users/hod_faculty_list.html', context)
 @login_required
 def feedback_reports(request):
 

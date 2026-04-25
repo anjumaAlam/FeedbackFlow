@@ -94,6 +94,36 @@ def complaint_detail(request, complaint_id):
 
 
 @login_required
+# def hod_complaints_list(request):
+#     """HOD views complaints assigned to them (faculty complaints)"""
+#
+#     if request.user.role != 'HOD':
+#         messages.error(request, 'Access denied. HOD only.')
+#         return redirect('login')
+#
+#
+#     complaints_list = Complaint.objects.filter(
+#         assigned_to=request.user
+#     ).order_by('-submitted_at')
+#
+#
+#     total_complaints = complaints_list.count()
+#     pending = complaints_list.filter(status='Pending').count()
+#     investigating = complaints_list.filter(status='Under Investigation').count()
+#     resolved = complaints_list.filter(status='Resolved').count()
+#     escalated = complaints_list.filter(status='Escalated').count()
+#
+#     context = {
+#         'complaints_list': complaints_list,
+#         'total_complaints': total_complaints,
+#         'pending': pending,
+#         'investigating': investigating,
+#         'resolved': resolved,
+#         'escalated': escalated,
+#         'page_title': 'Faculty Complaints'
+#     }
+#     return render(request, 'complaints/hod_complaints_list.html', context)
+
 def hod_complaints_list(request):
     """HOD views complaints assigned to them (faculty complaints)"""
 
@@ -101,11 +131,11 @@ def hod_complaints_list(request):
         messages.error(request, 'Access denied. HOD only.')
         return redirect('login')
 
-
+    from django.db.models import Q
     complaints_list = Complaint.objects.filter(
-        assigned_to=request.user
-    ).order_by('-submitted_at')
-
+        Q(assigned_to=request.user) |
+        Q(faculty_concerned__department=request.user.department)
+    ).distinct().order_by('-submitted_at')
 
     total_complaints = complaints_list.count()
     pending = complaints_list.filter(status='Pending').count()
