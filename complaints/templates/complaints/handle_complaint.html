@@ -268,8 +268,16 @@
 {% block extra_js %}
 <script>
     function setStatus(status) {
-        const statusSelect = document.getElementById('{{ form.status_changed_to.id_for_label }}');
-        statusSelect.value = status;
+        const statusSelect = document.querySelector('select[name="status_changed_to"]');
+        if (statusSelect) {
+            for (let option of statusSelect.options) {
+                if (option.value === status) {
+                    statusSelect.value = status;
+                    option.selected = true;
+                    break;
+                }
+            }
+        }
     }
 </script>
 {% endblock %}

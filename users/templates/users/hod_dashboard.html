@@ -123,20 +123,20 @@
                     <tr>
                         <td><strong>{{ complaint.id }}</strong></td>
                         <td>{{ complaint.subject }}</td>
-                        <td>{{ complaint.faculty }}</td>
+                        <td>{{ complaint.faculty_concerned.full_name|default:"-" }}</td>
                         <td>
-                                <span class="badge-{{ complaint.status_class }}">
+                                <span class="badge {% if complaint.status == 'Pending' %}bg-warning text-dark{% elif complaint.status == 'Under Investigation' %}bg-info text-white{% elif complaint.status == 'Resolved' %}bg-success{% elif complaint.status == 'Escalated' %}bg-danger{% else %}bg-secondary{% endif %}">
                                     {{ complaint.status }}
                                 </span>
                         </td>
                         <td>
-                                <span class="badge bg-{{ complaint.priority_color }}">
+                                <span class="badge {% if complaint.priority == 'Urgent' %}bg-danger{% elif complaint.priority == 'High' %}bg-warning text-dark{% elif complaint.priority == 'Medium' %}bg-info{% else %}bg-secondary{% endif %}">
                                     {{ complaint.priority }}
                                 </span>
                         </td>
-                        <td>{{ complaint.date|date:"M d, Y" }}</td>
+                        <td>{{ complaint.submitted_at|date:"M d, Y" }}</td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-outline-primary">Review</a>
+                            <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-sm btn-outline-primary">Review</a>
                         </td>
                     </tr>
                     {% endfor %}
