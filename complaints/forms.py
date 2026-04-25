@@ -1,5 +1,3 @@
-
-
 from django import forms
 from .models import Complaint, ComplaintUpdate
 
@@ -8,7 +6,6 @@ class ComplaintSubmissionForm(forms.ModelForm):
     """
     Form for students to submit complaints.
     """
-
     class Meta:
         model = Complaint
         fields = ['complaint_type', 'subject', 'description', 'faculty_concerned', 'location', 'is_anonymous']
@@ -60,7 +57,6 @@ class ComplaintUpdateForm(forms.ModelForm):
     """
     Form for HOD/Staff/Admin to update complaints.
     """
-
     class Meta:
         model = ComplaintUpdate
         fields = ['comment', 'status_changed_to']
@@ -81,5 +77,7 @@ class ComplaintUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['status_changed_to'].choices = [('', 'No Status Change')] + list(Complaint.STATUS_CHOICES)
+        status_choices = [('', 'No Status Change')] + list(Complaint.STATUS_CHOICES)
+        self.fields['status_changed_to'].choices = status_choices
+        self.fields['status_changed_to'].widget.choices = status_choices
         self.fields['status_changed_to'].required = False
