@@ -278,7 +278,7 @@ def student_dashboard(request):
 def faculty_dashboard(request):
 
 
-    if request.user.role not in ['Faculty', 'HOD']:
+    if request.user.role != 'Faculty':
         messages.error(request, 'Access denied. Faculty only.')
         return redirect('login')
 

@@ -165,10 +165,16 @@ def handle_complaint(request, complaint_id):
 
     complaint = get_object_or_404(Complaint, id=complaint_id)
 
-
-    if complaint.assigned_to != request.user and request.user.role != 'Admin':
-        messages.error(request, 'This complaint is not assigned to you.')
-        return redirect('login')
+    if request.user.role == 'HOD':
+        if complaint.assigned_to != request.user and \
+                (complaint.faculty_concerned is None or
+                 complaint.faculty_concerned.department != request.user.department):
+            messages.error(request, 'This complaint is not assigned to you.')
+            return redirect('hod_complaints_list')
+    elif request.user.role != 'Admin':
+        if complaint.assigned_to != request.user:
+            messages.error(request, 'This complaint is not assigned to you.')
+            return redirect('login')
 
     if request.method == 'POST':
         form = ComplaintUpdateForm(request.POST)
