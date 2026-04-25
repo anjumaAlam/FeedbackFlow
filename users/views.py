@@ -11,6 +11,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Count, Avg
+from feedback.models import Course
 
 from .forms import (
     StudentRegistrationForm,
@@ -630,6 +631,7 @@ def feedback_reports(request):
        'date_from': date_from,
        'date_to': date_to,
        'course_filter': course_filter,
-       'departments': User.DEPARTMENT_CHOICES,
+       'departments': User.DEPARTMENT_CHOICES,'department_choices': User.DEPARTMENT_CHOICES,
+       'courses': Course.objects.filter(is_active=True).order_by('course_code'),
    }
    return render(request, 'users/feedback_reports.html', context)
