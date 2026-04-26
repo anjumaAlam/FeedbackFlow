@@ -1,5 +1,3 @@
-
-
 {% extends 'users/dashboard_base.html' %}
 
 {% block title %}Student Dashboard - FeedbackFlow{% endblock %}
@@ -122,7 +120,7 @@
                         </thead>
 
                         <tbody>
-                            {% for feedback in recent_submissions %}
+                            {% for feedback in recent_feedback %}
                                 <tr>
                                     <td>
                                         <span class="badge bg-primary">Feedback</span>

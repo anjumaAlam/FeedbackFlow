@@ -6,18 +6,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Course(models.Model):
-    """
-    Model to store course information.
-    Each course is taught by a faculty member.
-    """
     course_code = models.CharField(max_length=20, unique=True)
     course_name = models.CharField(max_length=200)
-    faculty = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='courses_taught',
-        limit_choices_to={'role__in': ['Faculty', 'HOD']}
-    )
     department = models.CharField(max_length=100)
     semester = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
@@ -31,18 +21,48 @@ class Course(models.Model):
     def __str__(self):
         return f"{self.course_code} - {self.course_name}"
 
+    def get_primary_faculty(self):
+        assignment = self.assignments.filter(is_primary=True).first()
+        if not assignment:
+            assignment = self.assignments.first()
+        return assignment.faculty if assignment else None
+
+    def get_faculty_names(self):
+        return ', '.join(a.faculty.full_name for a in self.assignments.select_related('faculty'))
+
+
+class CourseAssignment(models.Model):
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='assignments'
+    )
+    faculty = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='course_assignments',
+        limit_choices_to={'role__in': ['Faculty', 'HOD']}
+    )
+    is_primary = models.BooleanField(default=False)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['course', 'faculty']
+        ordering = ['-is_primary', 'faculty__full_name']
+        verbose_name = 'Course Assignment'
+        verbose_name_plural = 'Course Assignments'
+
+    def __str__(self):
+        label = ' (Primary)' if self.is_primary else ''
+        return f"{self.faculty.full_name} → {self.course.course_code}{label}"
+
 
 class Feedback(models.Model):
-    """
-    Model to store student feedback for courses.
-    Students rate courses on teaching, content, and communication.
-    """
     STATUS_CHOICES = (
         ('Pending', 'Pending Review'),
         ('Reviewed', 'Reviewed'),
         ('Responded', 'Responded'),
     )
-
 
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -50,13 +70,20 @@ class Feedback(models.Model):
         related_name='feedback_submitted'
     )
 
-
     course = models.ForeignKey(
         Course,
         on_delete=models.CASCADE,
         related_name='feedback_received'
     )
 
+    faculty = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='feedback_received',
+        limit_choices_to={'role__in': ['Faculty', 'HOD']}
+    )
 
     teaching_rating = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],
@@ -71,19 +98,29 @@ class Feedback(models.Model):
         help_text='Rate communication (1-5 stars)'
     )
 
-
     comments = models.TextField(blank=True, null=True)
 
+    SECTION_CHOICES = (
+        ('A', 'Section A'),
+        ('B', 'Section B'),
+        ('C', 'Section C'),
+        ('D', 'Section D'),
+    )
+
+    class_section = models.CharField(
+        max_length=1,
+        choices=SECTION_CHOICES,
+        blank=True,
+        null=True
+    )
 
     is_anonymous = models.BooleanField(default=False)
-
 
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default='Pending'
     )
-
 
     submitted_at = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(blank=True, null=True)
@@ -92,21 +129,16 @@ class Feedback(models.Model):
         ordering = ['-submitted_at']
         verbose_name = 'Feedback'
         verbose_name_plural = 'Feedback'
-        # Prevent duplicate feedback for same course by same student
         unique_together = ['student', 'course']
 
     def __str__(self):
         return f"Feedback by {self.student.email} for {self.course.course_code}"
 
     def get_average_rating(self):
-        """Calculate average rating across all categories"""
         return round((self.teaching_rating + self.content_rating + self.communication_rating) / 3, 1)
 
 
 class FeedbackResponse(models.Model):
-    """
-    Model to store faculty responses to student feedback.
-    """
     feedback = models.OneToOneField(
         Feedback,
         on_delete=models.CASCADE,

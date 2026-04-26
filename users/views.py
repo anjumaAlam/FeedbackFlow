@@ -1,4 +1,3 @@
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -278,7 +277,7 @@ def student_dashboard(request):
 def faculty_dashboard(request):
 
 
-    if request.user.role not in ['Faculty', 'HOD']:
+    if request.user.role != 'Faculty':
         messages.error(request, 'Access denied. Faculty only.')
         return redirect('login')
 
@@ -286,8 +285,8 @@ def faculty_dashboard(request):
     from datetime import timedelta
     from django.utils import timezone
 
-    all_feedback = Feedback.objects.filter(course__faculty=request.user)
-    courses = Course.objects.filter(faculty=request.user, is_active=True)
+    all_feedback = Feedback.objects.filter(faculty=request.user)
+    courses = Course.objects.filter(assignments__faculty=request.user, is_active=True).distinct()
 
     total_feedback = all_feedback.count()
     pending_response = all_feedback.filter(status='Pending').count()
@@ -634,13 +633,19 @@ def feedback_reports(request):
    ) if feedbacks.exists() else 0
 
    course_stats = feedbacks.values(
-       'course__course_code', 'course__course_name'
+       'course__course_code', 'course__course_name', 'faculty__full_name'
    ).annotate(
        count=Count('id'),
        avg_teaching=Avg('teaching_rating'),
        avg_content=Avg('content_rating'),
        avg_communication=Avg('communication_rating'),
    ).order_by('-count')
+
+   status_counts = {
+       'Pending': feedbacks.filter(status='Pending').count(),
+       'Reviewed': feedbacks.filter(status='Reviewed').count(),
+       'Responded': feedbacks.filter(status='Responded').count(),
+   }
 
    context = {
        'feedbacks': feedbacks,
@@ -650,6 +655,7 @@ def feedback_reports(request):
        'avg_content': avg_content,
        'avg_communication': avg_communication,
        'overall_avg': overall_avg,
+       'status_counts': status_counts,
        'dept_filter': dept_filter,
        'date_from': date_from,
        'date_to': date_to,

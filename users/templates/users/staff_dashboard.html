@@ -1,6 +1,3 @@
-
-
-
 {% extends 'users/dashboard_base.html' %}
 
 {% block title %}Staff Dashboard - FeedbackFlow{% endblock %}
@@ -73,7 +70,7 @@
                                 hours</strong></p>
                         </div>
                         <div class="col-md-4 text-end">
-                            <button class="btn btn-success disabled">View Detailed Stats</button>
+                            <a href="{% url 'staff_complaints_list' %}" class="btn btn-success">View Detailed Stats</a>
                         </div>
                     </div>
                 </div>

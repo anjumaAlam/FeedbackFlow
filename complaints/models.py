@@ -108,11 +108,14 @@ class Complaint(models.Model):
         if self.complaint_type == 'Faculty':
             try:
                 if self.faculty_concerned:
-                    hod = User.objects.get(role='HOD', department=self.faculty_concerned.department)
+                    hod = User.objects.filter(role='HOD', department=self.faculty_concerned.department).first()
                 else:
-                    hod = User.objects.get(role='HOD', department=self.student.department)
-                self.assigned_to = hod
-            except User.DoesNotExist:
+                    hod = User.objects.filter(role='HOD', department=self.student.department).first()
+                if hod:
+                    self.assigned_to = hod
+                else:
+                    self.assigned_to = User.objects.filter(role='Admin').first()
+            except Exception:
                 self.assigned_to = User.objects.filter(role='Admin').first()
 
         elif self.complaint_type == 'HOD':

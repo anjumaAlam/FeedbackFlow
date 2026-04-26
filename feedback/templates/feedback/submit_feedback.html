@@ -104,6 +104,37 @@
 
 
                 <div class="form-section">
+                    <h5 class="section-title">Faculty & Class Section</h5>
+
+                    <div class="mb-3">
+                        <label for="{{ form.faculty.id_for_label }}" class="form-label">
+                            Select Faculty <span class="text-danger">*</span>
+                        </label>
+                        {{ form.faculty }}
+                        {% if form.faculty.errors %}
+                            <div class="text-danger small mt-1">{{ form.faculty.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">
+                            Select a course first — only assigned faculty will appear
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.class_section.id_for_label }}" class="form-label">
+                            Class Section <span class="text-danger">*</span>
+                        </label>
+                        {{ form.class_section }}
+                        {% if form.class_section.errors %}
+                            <div class="text-danger small mt-1">{{ form.class_section.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">
+                            Select your class section (A, B, C or D)
+                        </small>
+                    </div>
+                </div>
+
+
+                <div class="form-section">
                     <h5 class="section-title">Rate Your Experience</h5>
 
                     <div class="rating-container">
@@ -156,7 +187,7 @@
 
 
                 <div class="form-section">
-                    <h5 class="section-title">Additional Comments (Optional)</h5>
+                    <strong>Additional Comments</strong> <span class="text-danger">*</span>
 
                     <div class="mb-3">
                         <label for="{{ form.comments.id_for_label }}" class="form-label">
@@ -212,7 +243,52 @@
 {% endblock %}
 
 {% block extra_js %}
+{{ course_faculty_map|json_script:"courses-faculty-data" }}
 <script>
+    // Course → Faculty dropdown filter
+    const dataEl = document.getElementById('courses-faculty-data');
+    const courseFacultyMap = dataEl ? JSON.parse(dataEl.textContent) : {};
+    console.log('[FeedbackFlow] courseFacultyMap loaded:', courseFacultyMap);
+
+    function filterFaculty(courseId) {
+        const facultySelect = document.getElementById('id_faculty');
+        if (!facultySelect) return;
+        const currentVal = facultySelect.value;
+        facultySelect.innerHTML = '';
+
+        const courseIdStr = String(courseId);
+        const facultyList = courseIdStr ? (courseFacultyMap[courseIdStr] || []) : [];
+        console.log('[FeedbackFlow] course selected:', courseIdStr, '→ faculty list:', facultyList);
+
+        if (facultyList.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = courseIdStr ? '— No faculty assigned to this course —' : '— Select a course first —';
+            facultySelect.appendChild(opt);
+        } else {
+            const blank = document.createElement('option');
+            blank.value = '';
+            blank.textContent = '— Select Faculty —';
+            facultySelect.appendChild(blank);
+            facultyList.forEach(f => {
+                const opt = document.createElement('option');
+                opt.value = String(f.id);
+                opt.textContent = f.name;
+                if (String(f.id) === String(currentVal)) opt.selected = true;
+                facultySelect.appendChild(opt);
+            });
+        }
+    }
+
+    const courseSelect = document.getElementById('id_course');
+    if (courseSelect) {
+        courseSelect.addEventListener('change', function () {
+            filterFaculty(this.value);
+        });
+        // On page load (e.g. form error redisplay)
+        filterFaculty(courseSelect.value);
+    }
+
     // Star rating visualization
     function updateStars(inputId, starsId) {
         const input = document.getElementById(inputId);

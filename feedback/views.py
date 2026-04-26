@@ -1,12 +1,10 @@
-# feedback/views.py
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Avg, Count
 
-from .models import Feedback, Course, FeedbackResponse
+from .models import Feedback, Course, CourseAssignment, FeedbackResponse
 from .forms import FeedbackSubmissionForm, FeedbackResponseForm
 
 # STUDENT VIEWS
@@ -14,8 +12,6 @@ from .forms import FeedbackSubmissionForm, FeedbackResponseForm
 
 @login_required
 def submit_feedback(request):
-    """Student submits feedback for a course"""
-
     if request.user.role != 'Student':
         messages.error(request, 'Only students can submit feedback.')
         return redirect('student_dashboard')
@@ -26,19 +22,28 @@ def submit_feedback(request):
             feedback = form.save(commit=False)
             feedback.student = request.user
             feedback.save()
-
-            messages.success(
-                request,
-                f'Feedback submitted successfully for {feedback.course.course_code}!'
-            )
+            messages.success(request, f'Feedback submitted successfully for {feedback.course.course_code}!')
             return redirect('my_feedback')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = FeedbackSubmissionForm(user=request.user)
 
+    # Build course → faculty list mapping for JS
+    assignments = CourseAssignment.objects.filter(
+        course__is_active=True
+    ).select_related('course', 'faculty')
+
+    course_faculty_map = {}
+    for a in assignments:
+        cid = str(a.course_id)
+        if cid not in course_faculty_map:
+            course_faculty_map[cid] = []
+        course_faculty_map[cid].append({'id': a.faculty_id, 'name': a.faculty.full_name})
+
     context = {
         'form': form,
+        'course_faculty_map': course_faculty_map,
         'page_title': 'Submit Course Feedback'
     }
     return render(request, 'feedback/submit_feedback.html', context)
@@ -46,13 +51,13 @@ def submit_feedback(request):
 
 @login_required
 def my_feedback(request):
-    """Student views their submitted feedback"""
-
     if request.user.role != 'Student':
         messages.error(request, 'Access denied.')
         return redirect('login')
 
-    feedback_list = Feedback.objects.filter(student=request.user).select_related('course', 'course__faculty')
+    feedback_list = Feedback.objects.filter(
+        student=request.user
+    ).select_related('course', 'faculty')
 
     context = {
         'feedback_list': feedback_list,
@@ -63,11 +68,8 @@ def my_feedback(request):
 
 @login_required
 def feedback_detail(request, feedback_id):
-    """View detailed feedback with response"""
-
     feedback = get_object_or_404(Feedback, id=feedback_id)
 
-    # Check permission
     if request.user.role == 'Student' and feedback.student != request.user:
         messages.error(request, 'You can only view your own feedback.')
         return redirect('my_feedback')
@@ -79,27 +81,21 @@ def feedback_detail(request, feedback_id):
     return render(request, 'feedback/feedback_detail.html', context)
 
 
-
 # FACULTY VIEWS
 
 
 @login_required
 def faculty_feedback_list(request):
-    """Faculty views all feedback for their courses"""
-
     if request.user.role not in ['Faculty', 'HOD']:
         messages.error(request, 'Access denied. Faculty only.')
         return redirect('login')
 
-
     feedback_list = Feedback.objects.filter(
-        course__faculty=request.user
+        faculty=request.user
     ).select_related('course', 'student').order_by('-submitted_at')
-
 
     total_feedback = feedback_list.count()
     pending_response = feedback_list.filter(status='Pending').count()
-
 
     avg_ratings = feedback_list.aggregate(
         avg_teaching=Avg('teaching_rating'),
@@ -121,19 +117,15 @@ def faculty_feedback_list(request):
 
 @login_required
 def respond_to_feedback(request, feedback_id):
-    """Faculty responds to student feedback"""
-
     if request.user.role not in ['Faculty', 'HOD']:
         messages.error(request, 'Access denied. Faculty only.')
         return redirect('login')
 
     feedback = get_object_or_404(Feedback, id=feedback_id)
 
-
-    if feedback.course.faculty != request.user:
-        messages.error(request, 'You can only respond to feedback for your own courses.')
+    if feedback.faculty != request.user:
+        messages.error(request, 'You can only respond to feedback assigned to you.')
         return redirect('faculty_feedback_list')
-
 
     if hasattr(feedback, 'response'):
         messages.info(request, 'You have already responded to this feedback.')
@@ -146,7 +138,6 @@ def respond_to_feedback(request, feedback_id):
             response.feedback = feedback
             response.faculty = request.user
             response.save()
-
 
             feedback.status = 'Responded'
             feedback.reviewed_at = timezone.now()
@@ -167,15 +158,13 @@ def respond_to_feedback(request, feedback_id):
 
 @login_required
 def mark_feedback_reviewed(request, feedback_id):
-    """Faculty marks feedback as reviewed without response"""
-
     if request.user.role not in ['Faculty', 'HOD']:
         messages.error(request, 'Access denied.')
         return redirect('login')
 
     feedback = get_object_or_404(Feedback, id=feedback_id)
 
-    if feedback.course.faculty != request.user:
+    if feedback.faculty != request.user:
         messages.error(request, 'Access denied.')
         return redirect('faculty_feedback_list')
 

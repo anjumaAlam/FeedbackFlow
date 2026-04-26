@@ -79,5 +79,7 @@ class ComplaintUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['status_changed_to'].choices = [('', 'No Status Change')] + list(Complaint.STATUS_CHOICES)
+        status_choices = [('', 'No Status Change')] + list(Complaint.STATUS_CHOICES)
+        self.fields['status_changed_to'].choices = status_choices
+        self.fields['status_changed_to'].widget.choices = status_choices
         self.fields['status_changed_to'].required = False

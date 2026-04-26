@@ -69,7 +69,7 @@
                         <p><strong>Course Name:</strong> {{ feedback.course.course_name }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Faculty:</strong> {{ feedback.course.faculty.full_name }}</p>
+                        <p><strong>Faculty:</strong> {{ feedback.faculty.full_name|default:"—" }}</p>
                         <p><strong>Department:</strong> {{ feedback.course.department }}</p>
                     </div>
                 </div>
@@ -188,7 +188,7 @@
                 </div>
             </div>
             {% else %}
-                {% if request.user.role in 'Faculty,HOD' and feedback.course.faculty == request.user %}
+                {% if request.user.role in 'Faculty,HOD' and feedback.faculty == request.user %}
                 <div class="alert alert-warning">
                     <strong>⚠️ No response yet</strong>
                     <p class="mb-2">You haven't responded to this feedback.</p>

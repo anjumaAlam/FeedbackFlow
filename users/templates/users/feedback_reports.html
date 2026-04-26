@@ -197,7 +197,7 @@
                    <tr>
                        <td><strong>{{ stat.course__course_code }}</strong></td>
                        <td>{{ stat.course__course_name }}</td>
-                       <td>{{ stat.course__faculty__full_name }}</td>
+                       <td>{{ stat.faculty__full_name|default:"—" }}</td>
                        <td class="text-center">
                            <span class="badge bg-primary">{{ stat.count }}</span>
                        </td>
