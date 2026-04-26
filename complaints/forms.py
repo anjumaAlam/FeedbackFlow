@@ -6,7 +6,6 @@ class ComplaintSubmissionForm(forms.ModelForm):
     """
     Form for students to submit complaints.
     """
-
     class Meta:
         model = Complaint
         fields = ['complaint_type', 'subject', 'description', 'faculty_concerned', 'location', 'is_anonymous']
@@ -58,7 +57,6 @@ class ComplaintUpdateForm(forms.ModelForm):
     """
     Form for HOD/Staff/Admin to update complaints.
     """
-
     class Meta:
         model = ComplaintUpdate
         fields = ['comment', 'status_changed_to']
