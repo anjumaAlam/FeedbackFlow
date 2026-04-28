@@ -8,6 +8,10 @@ from django.db.models import Q, Count
 
 from .models import Complaint, ComplaintUpdate
 from .forms import ComplaintSubmissionForm, ComplaintUpdateForm
+from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.safestring import mark_safe
+from users.models import User
+import json
 
 
 
@@ -36,10 +40,17 @@ def submit_complaint(request):
             messages.error(request, 'Please correct the errors below.')
     else:
         form = ComplaintSubmissionForm()
+    # Build users-by-role mapping for frontend filtering
+    roles = ['Faculty', 'HOD', 'Staff']
+    users_by_role = {}
+    for r in roles:
+        qs = User.objects.filter(role=r, is_active=True).order_by('full_name')
+        users_by_role[r] = [{'id': u.id, 'name': u.full_name} for u in qs]
 
     context = {
         'form': form,
-        'page_title': 'Submit Complaint'
+        'page_title': 'Submit Complaint',
+        'users_by_role': users_by_role,
     }
     return render(request, 'complaints/submit_complaints.html', context)
 
@@ -247,8 +258,6 @@ def admin_complaints_list(request):
     hod_complaints = complaints_list.filter(complaint_type='HOD').count()
     staff_complaints = complaints_list.filter(complaint_type='Staff').count()
     facility_complaints = complaints_list.filter(complaint_type='Facility').count()
-    behavioral_complaints = complaints_list.filter(complaint_type='Behavioral').count()
-
     context = {
         'complaints_list': complaints_list,
         'total_complaints': total_complaints,
@@ -260,7 +269,6 @@ def admin_complaints_list(request):
         'hod_complaints': hod_complaints,
         'staff_complaints': staff_complaints,
         'facility_complaints': facility_complaints,
-        'behavioral_complaints': behavioral_complaints,
         'page_title': 'All Complaints'
     }
     return render(request, 'complaints/admins_complaints_list.html', context)

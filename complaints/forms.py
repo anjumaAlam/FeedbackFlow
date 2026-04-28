@@ -47,9 +47,8 @@ class ComplaintSubmissionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Only show faculty, HOD, and staff in the dropdown
         from users.models import User
-        self.fields['faculty_concerned'].queryset = User.objects.filter(
-            role__in=['Faculty', 'HOD', 'Staff']
-        ).order_by('role', 'full_name')
+        # Start with an empty queryset; frontend JS will populate based on complaint type
+        self.fields['faculty_concerned'].queryset = User.objects.none()
         self.fields['faculty_concerned'].required = False
 
 

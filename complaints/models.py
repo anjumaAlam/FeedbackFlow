@@ -16,7 +16,6 @@ class Complaint(models.Model):
         ('HOD', 'Complaint about HOD'),
         ('Staff', 'Complaint about Staff'),
         ('Facility', 'Facility Issue'),
-        ('Behavioral', 'Behavioral Issue'),
     )
 
     STATUS_CHOICES = (
@@ -126,9 +125,6 @@ class Complaint(models.Model):
 
         elif self.complaint_type == 'Facility':
             self.assigned_to = User.objects.filter(role='Staff').first()
-
-        elif self.complaint_type == 'Behavioral':
-            self.assigned_to = User.objects.filter(role='Admin').first()
 
 
 class ComplaintUpdate(models.Model):

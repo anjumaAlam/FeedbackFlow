@@ -76,7 +76,6 @@
                     <li><strong>Faculty Complaint</strong> → Your HOD</li>
                     <li><strong>HOD Complaint</strong> → Higher Authority</li>
                     <li><strong>Facility Issue</strong> → Facilities Staff</li>
-                    <li><strong>Behavioral Issue</strong> → Administration</li>
                 </ul>
             </div>
 
@@ -187,4 +186,70 @@
     </div>
 
 </div>
+{% endblock %}
+{% block extra_js %}
+{{ users_by_role|json_script:"users-by-role-data" }}
+<script>
+    const dataEl = document.getElementById('users-by-role-data');
+    const usersByRole = dataEl ? JSON.parse(dataEl.textContent) : {};
+
+    const typeSelect = document.getElementById('id_complaint_type');
+    const memberSelect = document.getElementById('id_faculty_concerned');
+
+    function clearOptions(sel) {
+        while (sel && sel.firstChild) sel.removeChild(sel.firstChild);
+    }
+
+    function updateMemberOptions(complaintType) {
+        if (!memberSelect) return;
+        clearOptions(memberSelect);
+
+        // Map complaint types to roles to show
+        const map = {
+            'Faculty': ['Faculty'],
+            'HOD': ['HOD'],
+            'Staff': ['Staff'],
+            'Facility': ['Staff']
+        };
+
+        const roles = map[complaintType] || [];
+
+        if (roles.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '— Not applicable / No specific member —';
+            memberSelect.appendChild(opt);
+            memberSelect.disabled = true;
+            return;
+        }
+
+        memberSelect.disabled = false;
+        const blank = document.createElement('option');
+        blank.value = '';
+        blank.textContent = '— Select Member —';
+        memberSelect.appendChild(blank);
+
+        roles.forEach(role => {
+            const list = usersByRole[role] || [];
+            list.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.textContent = u.name;
+                memberSelect.appendChild(opt);
+            });
+        });
+    }
+
+    if (typeSelect) {
+        typeSelect.addEventListener('change', function() {
+            updateMemberOptions(this.value);
+        });
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const initType = typeSelect ? typeSelect.value : '';
+        updateMemberOptions(initType);
+    });
+</script>
 {% endblock %}
