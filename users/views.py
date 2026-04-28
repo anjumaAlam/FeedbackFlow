@@ -545,6 +545,15 @@ def admin_user_list(request):
    return render(request, 'users/admin_user_list.html', context)
 
 
+@login_required
+def appointment_view(request):
+    """Simple appointment page placeholder."""
+    context = {
+        'page_title': 'Appointment'
+    }
+    return render(request, 'users/appointment.html', context)
+
+
 
 
 @login_required
