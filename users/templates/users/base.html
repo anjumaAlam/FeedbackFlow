@@ -61,6 +61,22 @@
                 <span class="me-3">Hello, {{ user.get_short_name }}!</span>
                 <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">Logout</a>
             </div>
+            {% else %}
+            <!-- Role buttons in top right for unauthenticated users -->
+            <div class="ms-auto d-flex gap-2">
+                <a href="{% url 'student_login' %}" class="btn btn-sm btn-primary" style="background-color: #2563eb; border-color: #2563eb;">
+                    Student Login
+                </a>
+                <a href="{% url 'faculty_login' %}" class="btn btn-sm btn-outline-success">
+                    Faculty & HOD Login
+                </a>
+                <a href="{% url 'staff_login' %}" class="btn btn-sm btn-outline-warning">
+                    Staff Login
+                </a>
+                <a href="{% url 'admin_login' %}" class="btn btn-sm btn-outline-danger">
+                    Admin Login
+                </a>
+            </div>
             {% endif %}
         </div>
     </nav>

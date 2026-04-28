@@ -1,16 +1,39 @@
 
 {% extends 'users/base.html' %}
 
-{% block title %}Login - FeedbackFlow{% endblock %}
+{% block title %}{{ role_display }} Login - FeedbackFlow{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="card auth-card">
         <div class="card-body p-5">
             <div class="text-center mb-4">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🎓</div>
-                <h2 class="fw-bold">Welcome Back</h2>
-                <p class="text-muted">Login to your FeedbackFlow account</p>
+                <!-- Dynamic icon based on role -->
+                {% if role_display == 'Student' %}
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">👨‍🎓</div>
+                {% elif role_display == 'Faculty' or 'HOD' in allowed_roles %}
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">👨‍🏫</div>
+                {% elif role_display == 'Staff' %}
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">👔</div>
+                {% elif role_display == 'Admin' %}
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔐</div>
+                {% else %}
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎓</div>
+                {% endif %}
+                
+                <!-- Dynamic heading based on allowed roles -->
+                {% if 'HOD' in allowed_roles and 'Faculty' in allowed_roles %}
+                    <h2 class="fw-bold">Faculty & Head of Department Login</h2>
+                    <p class="text-muted">Login with your credentials as Faculty Member or Head of Department</p>
+                {% else %}
+                    <h2 class="fw-bold">{{ role_display }} Login</h2>
+                    <p class="text-muted">Login to your FeedbackFlow account as {{ role_display|lower }}</p>
+                {% endif %}
+                
+                <!-- Back to home button -->
+                <a href="{% url 'home' %}" class="btn btn-sm btn-outline-secondary mt-2">
+                    ← Back to Home
+                </a>
             </div>
 
             <form method="post">
@@ -57,9 +80,15 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
-                    <strong>Login</strong>
-                </button>
+                {% if 'HOD' in allowed_roles and 'Faculty' in allowed_roles %}
+                    <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                        <strong>Login</strong>
+                    </button>
+                {% else %}
+                    <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                        <strong>Login as {{ role_display }}</strong>
+                    </button>
+                {% endif %}
 
                 <!-- Forgot Password Link -->
                 <div class="text-center mb-3">
@@ -70,13 +99,35 @@
 
                 <hr class="my-4">
 
-                <!-- Register Link -->
+                <!-- Alternative login options -->
                 <div class="text-center">
-                    <p class="mb-2"><strong>Are you a student?</strong></p>
+                    <p class="text-muted small mb-3">Need to login as a different role?</p>
+                    <div class="d-flex gap-2 flex-wrap justify-content-center">
+                        {% if role != 'student' %}
+                            <a href="{% url 'student_login' %}" class="btn btn-sm btn-outline-primary">Student</a>
+                        {% endif %}
+                        {% if role != 'faculty' %}
+                            <a href="{% url 'faculty_login' %}" class="btn btn-sm btn-outline-success">Faculty</a>
+                        {% endif %}
+                        {% if role != 'staff' %}
+                            <a href="{% url 'staff_login' %}" class="btn btn-sm btn-outline-warning">Staff</a>
+                        {% endif %}
+                        {% if role != 'admin' %}
+                            <a href="{% url 'admin_login' %}" class="btn btn-sm btn-outline-danger">Admin</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if role == 'student' %}
+                <hr class="my-4">
+                <!-- Student Registration -->
+                <div class="text-center">
+                    <p class="mb-2"><strong>Don't have an account?</strong></p>
                     <a href="{% url 'register' %}" class="btn btn-outline-primary w-100">
-                        📝 Register Here
+                        📝 Register as Student
                     </a>
                 </div>
+                {% endif %}
             </form>
 
             <!-- Info Box -->

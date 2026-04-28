@@ -25,6 +25,19 @@ from feedback.models import Feedback
 from complaints.models import Complaint
 
 
+def home_view(request):
+    """
+    Landing page with role selection buttons
+    """
+    if request.user.is_authenticated:
+        return _redirect_by_role(request.user)
+    
+    context = {
+        'page_title': 'FeedbackFlow - Login'
+    }
+    return render(request, 'users/home.html', context)
+
+
 
 
 def register_view(request):
@@ -59,14 +72,38 @@ def register_view(request):
 
 
 
-def login_view(request):
+def login_view(request, role='student', allowed_roles=None):
     """
-    Login view for all user types.
-    GET: Display login form
-    POST: Authenticate user and redirect based on role
+    Role-based login view.
+    GET: Display login form for the specified role(s)
+    POST: Authenticate user and validate role matches
+    
+    Supported roles: student, faculty, staff, admin
+    
+    Args:
+        role: Primary role for display purposes
+        allowed_roles: List of roles that can login on this page (defaults to [role])
     """
     if request.user.is_authenticated:
         return _redirect_by_role(request.user)
+
+    # Normalize role
+    role_map = {
+        'student': 'Student',
+        'faculty': 'Faculty',
+        'staff': 'Staff',
+        'admin': 'Admin',
+        'hod': 'HOD',
+    }
+    
+    primary_role = role_map.get(role.lower(), 'Student')
+    
+    # If allowed_roles not provided, use only primary role
+    if allowed_roles is None:
+        allowed_roles = [primary_role]
+    else:
+        # Convert string roles to proper case
+        allowed_roles = [role_map.get(r.lower(), r) for r in allowed_roles]
 
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -78,9 +115,19 @@ def login_view(request):
 
             if user is not None:
                 if user.is_active:
-                    login(request, user)
-                    messages.success(request, f'Welcome back, {user.get_short_name()}!')
-                    return _redirect_by_role(user)
+                    # Check if user role is in allowed roles
+                    if user.role not in allowed_roles:
+                        roles_str = ' or '.join(allowed_roles)
+                        messages.error(
+                            request, 
+                            f'This account is registered as {user.role}. '
+                            f'This page is for {roles_str} login. '
+                            f'Please go back and select the correct login page.'
+                        )
+                    else:
+                        login(request, user)
+                        messages.success(request, f'Welcome back, {user.get_short_name()}!')
+                        return _redirect_by_role(user)
                 else:
                     messages.error(request, 'Your account has been deactivated.')
             else:
@@ -92,9 +139,32 @@ def login_view(request):
 
     context = {
         'form': form,
-        'page_title': 'Login'
+        'page_title': f'{primary_role} Login',
+        'role': role,
+        'role_display': primary_role,
+        'allowed_roles': allowed_roles,
     }
     return render(request, 'users/login.html', context)
+
+
+def student_login_view(request):
+    """Login page for Students"""
+    return login_view(request, role='student')
+
+
+def faculty_login_view(request):
+    """Login page for Faculty and Head of Department (HOD)"""
+    return login_view(request, role='faculty', allowed_roles=['Faculty', 'HOD'])
+
+
+def staff_login_view(request):
+    """Login page for Staff"""
+    return login_view(request, role='staff')
+
+
+def admin_login_view(request):
+    """Login page for Admin"""
+    return login_view(request, role='admin')
 
 
 def _redirect_by_role(user):

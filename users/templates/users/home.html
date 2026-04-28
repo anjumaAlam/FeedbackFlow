@@ -1,0 +1,155 @@
+{% extends 'users/base.html' %}
+
+{% block title %}FeedbackFlow - Home{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row align-items-center" style="min-height: 80vh;">
+        <!-- Left Section - Welcome -->
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="mb-5">
+                <div style="font-size: 5rem; margin-bottom: 1.5rem;">🎓</div>
+                <h1 class="display-4 fw-bold mb-3">FeedbackFlow</h1>
+                <p class="fs-5 text-muted mb-4">
+                    Student Feedback & Complaints Management System
+                </p>
+                <p class="fs-6 text-secondary mb-5" style="line-height: 1.8;">
+                    University of Asia Pacific's unified platform for collecting student feedback, 
+                    managing faculty evaluations, and handling student complaints with transparency 
+                    and efficiency.
+                </p>
+                
+                <!-- Key Features -->
+                <div class="features-list">
+                    <div class="mb-3">
+                        <span style="font-size: 1.5rem; margin-right: 0.5rem;">✓</span>
+                        <span>Submit and track feedback anonymously</span>
+                    </div>
+                    <div class="mb-3">
+                        <span style="font-size: 1.5rem; margin-right: 0.5rem;">✓</span>
+                        <span>Easy complaint registration with tracking</span>
+                    </div>
+                    <div class="mb-3">
+                        <span style="font-size: 1.5rem; margin-right: 0.5rem;">✓</span>
+                        <span>Role-based dashboards and reports</span>
+                    </div>
+                    <div class="mb-3">
+                        <span style="font-size: 1.5rem; margin-right: 0.5rem;">✓</span>
+                        <span>Secure and confidential handling</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section - Login Options -->
+        <div class="col-lg-6">
+            <div class="card shadow-lg border-0" style="border-radius: 15px;">
+                <div class="card-body p-5">
+                    <h3 class="text-center mb-4 fw-bold">Select Your Role</h3>
+                    <p class="text-center text-muted mb-5">Choose your role to access the system</p>
+
+                    <!-- Student Login -->
+                    <div class="mb-3">
+                        <a href="{% url 'student_login' %}" class="btn btn-primary w-100 py-3 mb-3" style="background-color: #2563eb; border: 2px solid #2563eb; font-size: 1.1rem; border-radius: 10px;">
+                            <span style="font-size: 1.5rem; margin-right: 0.5rem;">👨‍🎓</span> 
+                            <strong>Student Login</strong>
+                        </a>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="text-center my-4">
+                        <span class="text-muted">─────────────────</span>
+                        <p class="text-muted small mt-2">Other Users</p>
+                    </div>
+
+                    <!-- Faculty Login -->
+                    <div class="mb-3">
+                        <a href="{% url 'faculty_login' %}" class="btn btn-outline-success w-100 py-2 mb-3" style="font-size: 1rem; border-radius: 8px; border-width: 2px;">
+                            <span style="font-size: 1.3rem; margin-right: 0.5rem;">👨‍🏫</span> 
+                            Faculty & Head of Department Login
+                        </a>
+                    </div>
+
+                    <!-- Staff Login -->
+                    <div class="mb-3">
+                        <a href="{% url 'staff_login' %}" class="btn btn-outline-warning w-100 py-2 mb-3" style="font-size: 1rem; border-radius: 8px; border-width: 2px;">
+                            <span style="font-size: 1.3rem; margin-right: 0.5rem;">👔</span> 
+                            Staff Login
+                        </a>
+                    </div>
+
+                    <!-- Admin Login -->
+                    <div class="mb-3">
+                        <a href="{% url 'admin_login' %}" class="btn btn-outline-danger w-100 py-2" style="font-size: 1rem; border-radius: 8px; border-width: 2px;">
+                            <span style="font-size: 1.3rem; margin-right: 0.5rem;">🔐</span> 
+                            Admin Login
+                        </a>
+                    </div>
+
+                    <!-- Separator -->
+                    <hr class="my-4">
+
+                    <!-- Student Registration -->
+                    <div class="text-center">
+                        <p class="text-muted mb-3">New student?</p>
+                        <a href="{% url 'register' %}" class="btn btn-light w-100 py-2" style="border: 2px solid #e0e0e0; border-radius: 8px;">
+                            <strong>Create Student Account</strong>
+                        </a>
+                    </div>
+
+                    <!-- Password Reset -->
+                    <div class="text-center mt-4">
+                        <a href="{% url 'password_reset_request' %}" class="text-decoration-none text-muted small">
+                            Forgot your password?
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="text-center mt-4">
+                <p class="text-muted small">
+                    Need help? <a href="#" class="text-decoration-none">Contact Support</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .features-list div {
+        color: #333;
+        font-size: 1rem;
+    }
+    
+    .btn-outline-success {
+        color: #198754;
+        border-color: #198754;
+    }
+    
+    .btn-outline-success:hover {
+        background-color: #198754;
+        color: white;
+    }
+    
+    .btn-outline-warning {
+        color: #ffc107;
+        border-color: #ffc107;
+    }
+    
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        color: #333;
+    }
+    
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+    
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+{% endblock %}
