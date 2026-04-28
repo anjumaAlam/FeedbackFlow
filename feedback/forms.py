@@ -78,27 +78,63 @@ class FeedbackSubmissionForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-        self.fields['course'].queryset = Course.objects.filter(is_active=True)
+        # Base course queryset: only active courses
+        qs = Course.objects.filter(is_active=True)
 
+        # If student provided, filter courses to student's department
+        if user and getattr(user, 'department', None):
+            # Try matching by stored department value (code)
+            dept_val = user.department
+            qs_by_dept = qs.filter(department=dept_val)
+            # If none found, try matching by display name (some existing courses may store full name)
+            if not qs_by_dept.exists():
+                try:
+                    dept_display = dict(User.DEPARTMENT_CHOICES).get(dept_val)
+                except Exception:
+                    dept_display = None
+                if dept_display:
+                    qs_by_dept = qs.filter(department=dept_display)
+
+            # Use department-filtered queryset if it has results; otherwise keep base qs
+            if qs_by_dept.exists():
+                qs = qs_by_dept
+
+        # Exclude courses the student already submitted feedback for
         if user:
             already_submitted = Feedback.objects.filter(student=user).values_list('course_id', flat=True)
-            self.fields['course'].queryset = self.fields['course'].queryset.exclude(id__in=already_submitted)
+            qs = qs.exclude(id__in=already_submitted)
 
-        # All Faculty/HOD users — JS filters by course, clean() validates assignment
+        self.fields['course'].queryset = qs
+
+        # Limit faculty selection to valid assignments for the selected course/section when available.
         self.fields['faculty'].queryset = User.objects.filter(role__in=['Faculty', 'HOD'])
-        self.fields['faculty'].empty_label = '— Select a course first —'
+        self.fields['faculty'].empty_label = '— Select a course and section first —'
+
+        course_id = self.data.get('course') or self.initial.get('course')
+        section = self.data.get('class_section') or self.initial.get('class_section')
+        if course_id and section:
+            assigned_faculty_ids = CourseAssignment.objects.filter(
+                course_id=course_id,
+                class_section=section,
+            ).values_list('faculty_id', flat=True)
+            if assigned_faculty_ids:
+                self.fields['faculty'].queryset = User.objects.filter(id__in=assigned_faculty_ids)
 
     def clean(self):
         cleaned_data = super().clean()
         course = cleaned_data.get('course')
+        section = cleaned_data.get('class_section')
         faculty = cleaned_data.get('faculty')
         teaching = cleaned_data.get('teaching_rating')
         content = cleaned_data.get('content_rating')
         communication = cleaned_data.get('communication_rating')
 
-        if course and faculty:
-            if not CourseAssignment.objects.filter(course=course, faculty=faculty).exists():
-                self.add_error('faculty', 'Selected faculty is not assigned to this course.')
+        if course and section and faculty:
+            if not CourseAssignment.objects.filter(course=course, class_section=section, faculty=faculty).exists():
+                self.add_error('faculty', 'Selected faculty is not assigned to this course and section.')
+
+        if course and section and not faculty:
+            self.add_error('faculty', 'Select the faculty assigned to this course and section.')
 
         for rating, name in [(teaching, 'Teaching'), (content, 'Content'), (communication, 'Communication')]:
             if rating and (rating < 1 or rating > 5):
@@ -121,4 +157,34 @@ class FeedbackResponseForm(forms.ModelForm):
         }
         labels = {
             'response_text': 'Your Response'
+        }
+
+
+class CourseAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = CourseAssignment
+        fields = ['course', 'class_section', 'faculty', 'is_primary']
+        widgets = {
+            'course': forms.Select(attrs={'class': 'form-select'}),
+            'class_section': forms.Select(attrs={'class': 'form-select'}),
+            'faculty': forms.Select(attrs={'class': 'form-select'}),
+            'is_primary': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Only show faculty users with Faculty/HOD roles
+        self.fields['faculty'].queryset = User.objects.filter(role__in=['Faculty', 'HOD'], is_active=True)
+
+
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['course_code', 'course_name', 'department', 'semester', 'is_active']
+        widgets = {
+            'course_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. CSE101'}),
+            'course_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Course name'}),
+            'department': forms.Select(choices=User.DEPARTMENT_CHOICES, attrs={'class': 'form-select'}),
+            'semester': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Spring 2026'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }

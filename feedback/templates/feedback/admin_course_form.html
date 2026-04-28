@@ -1,0 +1,61 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h2 class="mb-1">{{ page_title }}</h2>
+              <p class="text-muted mb-0">Create a new course for department-wise feedback and assignment setup.</p>
+            </div>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              {{ form.course_code.label_tag }}
+              {{ form.course_code }}
+              {% if form.course_code.errors %}<div class="text-danger mt-1">{{ form.course_code.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.course_name.label_tag }}
+              {{ form.course_name }}
+              {% if form.course_name.errors %}<div class="text-danger mt-1">{{ form.course_name.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.department.label_tag }}
+              {{ form.department }}
+              {% if form.department.errors %}<div class="text-danger mt-1">{{ form.department.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.semester.label_tag }}
+              {{ form.semester }}
+              {% if form.semester.errors %}<div class="text-danger mt-1">{{ form.semester.errors }}</div>{% endif %}
+            </div>
+
+            <div class="form-check mb-4">
+              {{ form.is_active }}
+              {{ form.is_active.label_tag }}
+              {% if form.is_active.errors %}<div class="text-danger mt-1">{{ form.is_active.errors }}</div>{% endif %}
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-success">Save Course</button>
+              <a href="{% url 'admin_assignments' %}" class="btn btn-outline-primary">Manage Assignments</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

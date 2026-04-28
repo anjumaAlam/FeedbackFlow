@@ -7,7 +7,7 @@ from .models import Course, CourseAssignment, Feedback, FeedbackResponse
 class CourseAssignmentInline(admin.TabularInline):
     model = CourseAssignment
     extra = 1
-    fields = ['faculty', 'is_primary']
+    fields = ['faculty', 'class_section', 'is_primary']
 
 
 @admin.register(Course)
@@ -25,8 +25,8 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(CourseAssignment)
 class CourseAssignmentAdmin(admin.ModelAdmin):
-    list_display = ['course', 'faculty', 'is_primary', 'assigned_at']
-    list_filter = ['is_primary', 'course__department']
+    list_display = ['course', 'faculty', 'class_section', 'is_primary', 'assigned_at']
+    list_filter = ['is_primary', 'course__department', 'class_section']
     search_fields = ['course__course_code', 'faculty__full_name']
     ordering = ['course__course_code']
 

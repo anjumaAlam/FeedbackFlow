@@ -103,21 +103,7 @@
                 </div>
 
 
-                <div class="form-section">
-                    <h5 class="section-title">Faculty & Class Section</h5>
-
-                    <div class="mb-3">
-                        <label for="{{ form.faculty.id_for_label }}" class="form-label">
-                            Select Faculty <span class="text-danger">*</span>
-                        </label>
-                        {{ form.faculty }}
-                        {% if form.faculty.errors %}
-                            <div class="text-danger small mt-1">{{ form.faculty.errors }}</div>
-                        {% endif %}
-                        <small class="form-text text-muted">
-                            Select a course first — only assigned faculty will appear
-                        </small>
-                    </div>
+                
 
                     <div class="mb-3">
                         <label for="{{ form.class_section.id_for_label }}" class="form-label">
@@ -133,7 +119,22 @@
                     </div>
                 </div>
 
+<div class="form-section">
+                    <h5 class="section-title">Faculty & Class Section</h5>
 
+                    <div class="mb-3">
+                        <label for="{{ form.faculty.id_for_label }}" class="form-label">
+                            Select Faculty <span class="text-danger">*</span>
+                        </label>
+                        {{ form.faculty }}
+                        {% if form.faculty.errors %}
+                            <div class="text-danger small mt-1">{{ form.faculty.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">
+                            Select a course first — only assigned faculty will appear
+                        </small>
+                    </div>
+                    
                 <div class="form-section">
                     <h5 class="section-title">Rate Your Experience</h5>
 
@@ -245,25 +246,35 @@
 {% block extra_js %}
 {{ course_faculty_map|json_script:"courses-faculty-data" }}
 <script>
-    // Course → Faculty dropdown filter
+    // Course → Section → Faculty dropdown filter
     const dataEl = document.getElementById('courses-faculty-data');
     const courseFacultyMap = dataEl ? JSON.parse(dataEl.textContent) : {};
-    console.log('[FeedbackFlow] courseFacultyMap loaded:', courseFacultyMap);
+    console.log('[FeedbackFlow] nested courseFacultyMap loaded:', courseFacultyMap);
 
-    function filterFaculty(courseId) {
+    function filterFaculty(courseId, sectionId) {
         const facultySelect = document.getElementById('id_faculty');
         if (!facultySelect) return;
         const currentVal = facultySelect.value;
         facultySelect.innerHTML = '';
 
-        const courseIdStr = String(courseId);
-        const facultyList = courseIdStr ? (courseFacultyMap[courseIdStr] || []) : [];
-        console.log('[FeedbackFlow] course selected:', courseIdStr, '→ faculty list:', facultyList);
+        const cid = String(courseId || '');
+        const sid = String(sectionId || '');
+
+        let facultyList = [];
+        if (cid && courseFacultyMap[cid]) {
+            // Prefer exact section assignment
+            if (sid && courseFacultyMap[cid][sid]) {
+                facultyList = courseFacultyMap[cid][sid];
+            } else if (courseFacultyMap[cid]['ALL']) {
+                // Fallback to assignments without section
+                facultyList = courseFacultyMap[cid]['ALL'];
+            }
+        }
 
         if (facultyList.length === 0) {
             const opt = document.createElement('option');
             opt.value = '';
-            opt.textContent = courseIdStr ? '— No faculty assigned to this course —' : '— Select a course first —';
+            opt.textContent = cid ? '— No faculty assigned for this course/section —' : '— Select a course first —';
             facultySelect.appendChild(opt);
         } else {
             const blank = document.createElement('option');
@@ -281,13 +292,28 @@
     }
 
     const courseSelect = document.getElementById('id_course');
+    const sectionSelect = document.getElementById('id_class_section');
+
     if (courseSelect) {
         courseSelect.addEventListener('change', function () {
-            filterFaculty(this.value);
+            // update faculty when course changes; uses current section value
+            const sec = sectionSelect ? sectionSelect.value : '';
+            filterFaculty(this.value, sec);
         });
-        // On page load (e.g. form error redisplay)
-        filterFaculty(courseSelect.value);
     }
+
+    if (sectionSelect) {
+        sectionSelect.addEventListener('change', function () {
+            const cid = courseSelect ? courseSelect.value : '';
+            filterFaculty(cid, this.value);
+        });
+    }
+
+    // On page load (e.g. form error redisplay)
+    const initCourse = courseSelect ? courseSelect.value : '';
+    const initSection = sectionSelect ? sectionSelect.value : '';
+    filterFaculty(initCourse, initSection);
+    
 
     // Star rating visualization
     function updateStars(inputId, starsId) {

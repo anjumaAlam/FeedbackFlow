@@ -112,9 +112,34 @@
 
 
     <div class="row mb-4">
+        <div class="col-lg-6 col-md-6 mb-3">
+            <div class="stat-card blue">
+                <span class="stat-icon">📚</span>
+                <h2 class="stat-number">{{ total_courses }}</h2>
+                <p class="stat-label">Total Courses</p>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-md-6 mb-3">
+            <div class="stat-card green">
+                <span class="stat-icon">🧑‍🏫</span>
+                <h2 class="stat-number">{{ total_assignments }}</h2>
+                <p class="stat-label">Course Assignments</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
         <div class="col-12">
             <h3 class="section-title">Quick Actions</h3>
             <div>
+                <a href="{% url 'admin_course_add' %}" class="btn btn-success quick-action-btn">
+                    ➕ Add Course
+                </a>
+                <a href="{% url 'admin_assignments' %}" class="btn btn-primary quick-action-btn">
+                    🧑‍🏫 Assign Faculty by Section
+                </a>
                 <a href="{% url 'admin_complaints_list' %}" class="btn btn-primary quick-action-btn">
                     📋 All Complaints
                 </a>

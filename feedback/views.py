@@ -5,7 +5,8 @@ from django.utils import timezone
 from django.db.models import Avg, Count
 
 from .models import Feedback, Course, CourseAssignment, FeedbackResponse
-from .forms import FeedbackSubmissionForm, FeedbackResponseForm
+from .forms import FeedbackSubmissionForm, FeedbackResponseForm, CourseAssignmentForm, CourseForm
+from django.contrib.auth.decorators import user_passes_test
 
 # STUDENT VIEWS
 
@@ -29,17 +30,22 @@ def submit_feedback(request):
     else:
         form = FeedbackSubmissionForm(user=request.user)
 
-    # Build course → faculty list mapping for JS
+    # Build course → section → faculty mapping for JS
+    # Limit mapping to courses available in the form (department-filtered)
+    course_qs = form.fields['course'].queryset if 'course' in form.fields else Course.objects.filter(is_active=True)
     assignments = CourseAssignment.objects.filter(
-        course__is_active=True
+        course__in=course_qs
     ).select_related('course', 'faculty')
 
     course_faculty_map = {}
     for a in assignments:
         cid = str(a.course_id)
+        section = a.class_section or 'ALL'
         if cid not in course_faculty_map:
-            course_faculty_map[cid] = []
-        course_faculty_map[cid].append({'id': a.faculty_id, 'name': a.faculty.full_name})
+            course_faculty_map[cid] = {}
+        if section not in course_faculty_map[cid]:
+            course_faculty_map[cid][section] = []
+        course_faculty_map[cid][section].append({'id': a.faculty_id, 'name': a.faculty.full_name})
 
     context = {
         'form': form,
@@ -174,3 +180,64 @@ def mark_feedback_reviewed(request, feedback_id):
 
     messages.success(request, 'Feedback marked as reviewed.')
     return redirect('faculty_feedback_list')
+
+
+# ADMIN UI (non-Django-admin) - Course Assignments
+
+
+def admin_required(user):
+    return user.is_authenticated and user.role == 'Admin'
+
+
+@login_required
+@user_passes_test(admin_required)
+def assignment_list(request):
+    assignments = CourseAssignment.objects.select_related('course', 'faculty').order_by('course__course_code', 'class_section')
+    context = {
+        'assignments': assignments,
+        'page_title': 'Course Assignments (Admin)'
+    }
+    return render(request, 'feedback/admin_assignments_list.html', context)
+
+
+@login_required
+@user_passes_test(admin_required)
+def assignment_create(request):
+    if request.method == 'POST':
+        form = CourseAssignmentForm(request.POST)
+        if form.is_valid():
+            # Ensure uniqueness constraint handled by model
+            form.save()
+            messages.success(request, 'Course assignment saved.')
+            return redirect('admin_assignments')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CourseAssignmentForm()
+
+    context = {
+        'form': form,
+        'page_title': 'Add Course Assignment'
+    }
+    return render(request, 'feedback/admin_assignment_form.html', context)
+
+
+@login_required
+@user_passes_test(admin_required)
+def course_create(request):
+    if request.method == 'POST':
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Course created successfully.')
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CourseForm()
+
+    context = {
+        'form': form,
+        'page_title': 'Add Course'
+    }
+    return render(request, 'feedback/admin_course_form.html', context)
