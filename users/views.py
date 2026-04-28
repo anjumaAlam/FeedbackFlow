@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Count, Avg
-from feedback.models import Course
+from feedback.models import Course, CourseAssignment
 
 from .forms import (
     StudentRegistrationForm,
@@ -474,6 +474,8 @@ def admin_dashboard(request):
         'page_title': 'Admin Dashboard',
         'user': request.user,
         'total_users': User.objects.count(),
+        'total_courses': Course.objects.count(),
+        'total_assignments': CourseAssignment.objects.count(),
         'student_count': role_counts.get('Student', 0),
         'faculty_count': role_counts.get('Faculty', 0),
         'hod_count': role_counts.get('HOD', 0),

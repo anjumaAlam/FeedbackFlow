@@ -43,18 +43,26 @@ class CourseAssignment(models.Model):
         related_name='course_assignments',
         limit_choices_to={'role__in': ['Faculty', 'HOD']}
     )
+    SECTION_CHOICES = (
+        ('A', 'Section A'),
+        ('B', 'Section B'),
+        ('C', 'Section C'),
+        ('D', 'Section D'),
+    )
+    class_section = models.CharField(max_length=1, choices=SECTION_CHOICES, null=True, blank=True, help_text='Assign faculty for a specific section')
     is_primary = models.BooleanField(default=False)
     assigned_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ['course', 'faculty']
+        unique_together = ['course', 'class_section']
         ordering = ['-is_primary', 'faculty__full_name']
         verbose_name = 'Course Assignment'
         verbose_name_plural = 'Course Assignments'
 
     def __str__(self):
         label = ' (Primary)' if self.is_primary else ''
-        return f"{self.faculty.full_name} → {self.course.course_code}{label}"
+        section = f' [Section {self.class_section}]' if self.class_section else ''
+        return f"{self.faculty.full_name} → {self.course.course_code}{section}{label}"
 
 
 class Feedback(models.Model):

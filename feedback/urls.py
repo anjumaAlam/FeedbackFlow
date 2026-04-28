@@ -13,4 +13,8 @@ urlpatterns = [
     path('faculty/list/', views.faculty_feedback_list, name='faculty_feedback_list'),
     path('faculty/respond/<int:feedback_id>/', views.respond_to_feedback, name='respond_to_feedback'),
     path('faculty/mark-reviewed/<int:feedback_id>/', views.mark_feedback_reviewed, name='mark_feedback_reviewed'),
+    # Admin UI for managing assignments (non-Django-admin)
+    path('admin/courses/add/', views.course_create, name='admin_course_add'),
+    path('admin/assignments/', views.assignment_list, name='admin_assignments'),
+    path('admin/assignments/add/', views.assignment_create, name='admin_assignment_add'),
 ]
