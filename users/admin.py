@@ -2,7 +2,9 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models import User, Appointment
+
+
 
 
 @admin.register(User)
@@ -38,3 +40,10 @@ class UserAdmin(BaseUserAdmin):
     )
 
     readonly_fields = ['created_at', 'updated_at', 'last_login']
+
+    @admin.register(Appointment)
+    class AppointmentAdmin(admin.ModelAdmin):
+        list_display = ['name', 'student_id', 'department', 'place', 'preferred_time', 'status', 'created_at']
+        list_filter = ['status', 'department', 'created_at']
+        search_fields = ['name', 'student_id']
+        ordering = ['-created_at']

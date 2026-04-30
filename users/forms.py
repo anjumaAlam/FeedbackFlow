@@ -339,3 +339,62 @@ def validate_strong_password(password):
     if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         raise ValidationError('Password must contain at least one special character.')
     return password
+
+class AppointmentForm(forms.Form):
+    name = forms.CharField(
+        label='Full Name',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Your full name'
+        })
+    )
+    roll_number = forms.CharField(
+        label='Student ID',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g. 23101164'
+        })
+
+    )
+    department = forms.ChoiceField(
+        label='Department',
+        choices=[
+            ('', '---------'),
+            ('DBA', 'Department of Business Administration (DBA)'),
+            ('CSE', 'Department of Computer Science and Engineering (CSE)'),
+            ('CE', 'Department of Civil Engineering (CE)'),
+            ('EEE', 'Department of Electrical and Electronic Engineering (EEE)'),
+            ('Pharmacy', 'Department of Pharmacy'),
+            ('Law', 'Department of Law and Human Rights'),
+            ('English', 'Department of English'),
+            ('Architecture', 'Department of Architecture'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    description = forms.CharField(
+        label='Description of Issue',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Describe your issue or reason for appointment...'
+        })
+    )
+    preferred_time = forms.DateTimeField(
+        label='Preferred Time',
+        widget=forms.DateTimeInput(attrs={
+            'class': 'form-control',
+            'type': 'datetime-local'
+        })
+    )
+    place = forms.ChoiceField(
+        label='Preferred Place',
+        choices=[
+            ('', '---------'),
+            ('Faculty Office', 'Faculty Office'),
+            ('HOD Office', 'HOD Office'),
+            ('Meeting Room A', 'Meeting Room A'),
+            ('Meeting Room B', 'Meeting Room B'),
+            ('Online (Zoom/Meet)', 'Online (Zoom/Meet)'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )

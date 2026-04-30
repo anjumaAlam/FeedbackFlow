@@ -1,14 +1,120 @@
 {% extends 'users/base.html' %}
-
 {% block title %}Appointment - FeedbackFlow{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="card">
-    <div class="card-body text-center py-5">
-      <h1>Appointment Page</h1>
-      <p class="text-muted">This is a placeholder appointment page.</p>
+<div class="container py-5" style="max-width: 720px;">
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h2 class="fw-bold" style="color:#1e3a8a;">📅 Book an Appointment</h2>
+        <p class="text-muted">Fill in the details below to request an appointment with faculty or HOD.</p>
     </div>
-  </div>
+
+    <!-- Tabs -->
+    <div class="mb-4 d-flex gap-2">
+        <a href="{% url 'submit_complaint' %}" class="btn btn-outline-primary">💬 Complaint</a>
+        <a href="{% url 'appointment' %}" class="btn btn-primary">📅 Appointment</a>
+    </div>
+
+    <!-- Info Box -->
+    <div class="alert alert-info mb-4" style="border-left: 4px solid #2563eb;">
+        <strong>Note:</strong> Your appointment request will be reviewed.
+        You will be notified once it is approved or rejected.
+    </div>
+
+    <!-- Success / Error Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" novalidate>
+        {% csrf_token %}
+
+        <!-- Personal Info -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header fw-bold" style="background:#f1f5ff; color:#1e3a8a;">
+                👤 Personal Information
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Full Name <span class="text-danger">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">{{ form.name.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Student ID <span class="text-danger">*</span>
+                        </label>
+                        {{ form.roll_number }}
+                        {% if form.roll_number.errors %}
+                            <div class="text-danger small mt-1">{{ form.roll_number.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Department <span class="text-danger">*</span>
+                        </label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                            <div class="text-danger small mt-1">{{ form.department.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointment Details -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header fw-bold" style="background:#f1f5ff; color:#1e3a8a;">
+                📋 Appointment Details
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Description of Issue <span class="text-danger">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-danger small mt-1">{{ form.description.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Preferred Time <span class="text-danger">*</span>
+                        </label>
+                        {{ form.preferred_time }}
+                        {% if form.preferred_time.errors %}
+                            <div class="text-danger small mt-1">{{ form.preferred_time.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">
+                            Preferred Place <span class="text-danger">*</span>
+                        </label>
+                        {{ form.place }}
+                        {% if form.place.errors %}
+                            <div class="text-danger small mt-1">{{ form.place.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">
+                📅 Submit Appointment
+            </button>
+            <span class="text-muted small">All fields marked * are required</span>
+        </div>
+
+    </form>
 </div>
 {% endblock %}

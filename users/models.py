@@ -1,5 +1,3 @@
-
-
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 
@@ -57,23 +55,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('Architecture', 'Department of Architecture'),
     )
 
-
     email = models.EmailField(unique=True, max_length=255)
     full_name = models.CharField(max_length=150)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
-
     department = models.CharField(max_length=100, choices=DEPARTMENT_CHOICES, null=True, blank=True)
     student_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
 
-
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)  # For Django admin access
-
+    is_staff = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name']
@@ -95,3 +88,49 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_department_display_full(self):
         """Get full department name"""
         return dict(self.DEPARTMENT_CHOICES).get(self.department, self.department)
+
+
+# ↓ Appointment is OUTSIDE the User class — at the same level
+class Appointment(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
+    PLACE_CHOICES = [
+        ('Faculty Office', 'Faculty Office'),
+        ('HOD Office', 'HOD Office'),
+        ('Meeting Room A', 'Meeting Room A'),
+        ('Meeting Room B', 'Meeting Room B'),
+        ('Online (Zoom/Meet)', 'Online (Zoom/Meet)'),
+    ]
+
+    DEPARTMENT_CHOICES = (
+        ('DBA', 'Department of Business Administration (DBA)'),
+        ('CSE', 'Department of Computer Science and Engineering (CSE)'),
+        ('CE', 'Department of Civil Engineering (CE)'),
+        ('EEE', 'Department of Electrical and Electronic Engineering (EEE)'),
+        ('Pharmacy', 'Department of Pharmacy'),
+        ('Law', 'Department of Law and Human Rights'),
+        ('English', 'Department of English'),
+        ('Architecture', 'Department of Architecture'),
+    )
+
+    student        = models.ForeignKey('User', on_delete=models.CASCADE, related_name='appointments')
+    name           = models.CharField(max_length=100)
+    roll_number = models.CharField(max_length=20)
+    department     = models.CharField(max_length=100, choices=DEPARTMENT_CHOICES)
+    description    = models.TextField()
+    place          = models.CharField(max_length=100, choices=PLACE_CHOICES)
+    preferred_time = models.DateTimeField()
+    status         = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    created_at     = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Appointment'
+        verbose_name_plural = 'Appointments'
+
+    def __str__(self):
+        return f"{self.name} ({self.student_id}) - {self.status}"

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.shortcuts import render, redirect
+from .forms import StudentRegistrationForm, LoginForm, PasswordResetRequestForm, PasswordResetConfirmForm, AdminUserCreateForm, AdminUserEditForm, AppointmentForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -11,6 +11,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Count, Avg
 from feedback.models import Course, CourseAssignment
+from .models import User, Appointment
 
 from .forms import (
     StudentRegistrationForm,
@@ -745,3 +746,32 @@ def feedback_reports(request):
        'courses': Course.objects.filter(is_active=True).order_by('course_code'),
    }
    return render(request, 'users/feedback_reports.html', context)
+
+@login_required
+def appointment_view(request):
+    if request.user.role != 'Student':
+        messages.error(request, 'Only students can book appointments.')
+        return redirect('student_dashboard')
+
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            Appointment.objects.create(
+                student=request.user,
+                name=form.cleaned_data['name'],
+                roll_number=form.cleaned_data['roll_number'],
+                department=form.cleaned_data['department'],
+                description=form.cleaned_data['description'],
+                preferred_time=form.cleaned_data['preferred_time'],
+                place=form.cleaned_data['place'],
+            )
+            messages.success(request, 'Appointment submitted successfully! You will be notified once approved.')
+            return redirect('appointment')
+    else:
+        form = AppointmentForm(initial={
+            'name': request.user.full_name,
+            'roll_number': request.user.student_id,
+            'department': request.user.department,
+        })
+
+    return render(request, 'users/appointment.html', {'form': form})

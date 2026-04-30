@@ -1,0 +1,269 @@
+{% extends "users/base.html" %}
+
+{% block title %}FeedbackFlow - University Feedback System{% endblock %}
+
+{% block extra_css %}
+<style>
+
+/* ===== BACKGROUND ===== */
+body {
+    background: linear-gradient(135deg, #eef2ff, #f8fafc);
+}
+
+/* ===== HERO ===== */
+.hero {
+    background: linear-gradient(135deg, #2563eb, #1e3a8a);
+    color: white;
+    padding: 100px 20px;
+    border-radius: 0 0 60px 60px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
+}
+
+.hero h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    opacity: 0.95;
+}
+
+/* BUTTONS */
+.btn-custom {
+    border-radius: 50px;
+    padding: 12px 28px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-custom:hover {
+    transform: scale(1.05);
+}
+
+/* ===== SECTION TITLE ===== */
+.section-title {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section-title h2 {
+    font-weight: 800;
+    color: #1e3a8a;
+}
+
+.section-title p {
+    color: #64748b;
+}
+
+/* ===== FEATURE CARDS ===== */
+.feature-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transition: 0.3s;
+    text-align: center;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    color: #2563eb;
+    margin-bottom: 15px;
+}
+
+/* ===== STEPS ===== */
+.step-box {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #2563eb, #60a5fa);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* ===== STATS ===== */
+.stats {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: white;
+    padding: 50px;
+    border-radius: 25px;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* ===== CTA ===== */
+.cta {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: white;
+    padding: 70px 20px;
+    border-radius: 30px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
+}
+
+/* ===== ANIMATION ===== */
+.fade-up {
+    animation: fadeUp 1s ease;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero fade-up">
+    <div class="container">
+        <h1>🎓 FeedbackFlow</h1>
+        <p>Smart, Secure & Transparent University Feedback System</p>
+
+        <div class="mt-4">
+            <a href="{% url 'login' %}" class="btn btn-light btn-custom me-2">Login</a>
+            <a href="{% url 'register' %}" class="btn btn-outline-light btn-custom">Register</a>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="py-5 fade-up">
+    <div class="container">
+        <div class="section-title">
+            <h2>✨ Key Features</h2>
+            <p>Everything your university needs in one platform</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h5>Submit Feedback</h5>
+                    <p class="text-muted">Easily share course and faculty feedback</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h5>Track Progress</h5>
+                    <p class="text-muted">Monitor responses and improvements</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h5>Secure & Anonymous</h5>
+                    <p class="text-muted">Your identity is always protected</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="py-5 bg-light fade-up">
+    <div class="container">
+        <div class="section-title">
+            <h2>⚡ How It Works</h2>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="step-box">
+                    <div class="step-number">1</div>
+                    <h5>Register</h5>
+                    <p>Create your university account</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="step-box">
+                    <div class="step-number">2</div>
+                    <h5>Submit</h5>
+                    <p>Provide feedback or complaints</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="step-box">
+                    <div class="step-number">3</div>
+                    <h5>Improve</h5>
+                    <p>Track responses and see improvements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<section class="py-5 fade-up">
+    <div class="container">
+        <div class="stats text-center">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-number">1000+</div>
+                    <p>Students</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-number">50+</div>
+                    <p>Faculty</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-number">450+</div>
+                    <p>Feedback Submitted</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-number">99%</div>
+                    <p>Satisfaction</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 fade-up">
+    <div class="container">
+        <div class="cta">
+            <h2>🚀 Start improving your university today</h2>
+            <p>Join FeedbackFlow and make your voice count</p>
+            <a href="{% url 'register' %}" class="btn btn-light btn-custom mt-3">Get Started</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
