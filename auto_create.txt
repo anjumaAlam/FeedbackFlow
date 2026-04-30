@@ -1,0 +1,265 @@
+from user.models import User
+
+print("=" * 60)
+print("CREATING SAMPLE ACCOUNTS FOR FEEDBACKFLOW")
+print("=" * 60)
+
+accounts = []
+
+# ============================================
+# 1. ADMIN ACCOUNTS
+# ============================================
+print("\n Creating Admin Accounts...")
+
+admin_users = [
+    {'email': 'admin@uap-bd.edu',  'password': 'Admin@123', 'full_name': 'System Administrator', 'role': 'Admin', 'department': None},
+    {'email': 'admin2@uap-bd.edu', 'password': 'Admin@123', 'full_name': 'John Anderson',         'role': 'Admin', 'department': None},
+]
+
+for u in admin_users:
+    try:
+        obj, created = User.objects.get_or_create(email=u['email'], defaults={
+            'full_name': u['full_name'], 'role': u['role'], 'department': u['department']
+        })
+        if created:
+            obj.set_password(u['password'])
+            obj.is_staff = True
+            obj.is_superuser = True
+            obj.save()
+            accounts.append(u)
+            print(f"  Created: {u['email']} - {u['full_name']}")
+        else:
+            print(f"  Exists:  {u['email']}")
+    except Exception as e:
+        print(f"  Error:   {u['email']}: {e}")
+
+# ============================================
+# 2. HOD ACCOUNTS (1 per department)
+# ============================================
+print("\n Creating HOD Accounts...")
+
+hod_users = [
+    {'email': 'hod.dba@uap-bd.edu',          'password': 'HOD@123', 'full_name': 'Prof. Rahim Chowdhury',   'role': 'HOD', 'department': 'DBA'},
+    {'email': 'hod.cse@uap-bd.edu',          'password': 'HOD@123', 'full_name': 'Prof. Ahmed Rahman',      'role': 'HOD', 'department': 'CSE'},
+    {'email': 'hod.ce@uap-bd.edu',           'password': 'HOD@123', 'full_name': 'Prof. Mohammad Ali',      'role': 'HOD', 'department': 'CE'},
+    {'email': 'hod.eee@uap-bd.edu',          'password': 'HOD@123', 'full_name': 'Prof. Fatima Khan',       'role': 'HOD', 'department': 'EEE'},
+    {'email': 'hod.pharmacy@uap-bd.edu',     'password': 'HOD@123', 'full_name': 'Prof. Nasrin Sultana',    'role': 'HOD', 'department': 'Pharmacy'},
+    {'email': 'hod.law@uap-bd.edu',          'password': 'HOD@123', 'full_name': 'Prof. Kamal Hossain',     'role': 'HOD', 'department': 'Law'},
+    {'email': 'hod.english@uap-bd.edu',      'password': 'HOD@123', 'full_name': 'Prof. Sarah Islam',       'role': 'HOD', 'department': 'English'},
+    {'email': 'hod.architecture@uap-bd.edu', 'password': 'HOD@123', 'full_name': 'Prof. Zahir Uddin',       'role': 'HOD', 'department': 'Architecture'},
+]
+
+for u in hod_users:
+    try:
+        obj, created = User.objects.get_or_create(email=u['email'], defaults={
+            'full_name': u['full_name'], 'role': u['role'], 'department': u['department']
+        })
+        if created:
+            obj.set_password(u['password'])
+            obj.save()
+            accounts.append(u)
+            print(f"  Created: {u['email']} - {u['full_name']}")
+        else:
+            print(f"  Exists:  {u['email']}")
+    except Exception as e:
+        print(f"  Error:   {u['email']}: {e}")
+
+# ============================================
+# 3. FACULTY ACCOUNTS (3 per department)
+# ============================================
+print("\n Creating Faculty Accounts...")
+
+faculty_users = [
+    # DBA
+    {'email': 'faculty1.dba@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Tanvir Hasan',    'role': 'Faculty', 'department': 'DBA'},
+    {'email': 'faculty2.dba@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Maliha Akter',    'role': 'Faculty', 'department': 'DBA'},
+    {'email': 'faculty3.dba@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Shafiq Islam',    'role': 'Faculty', 'department': 'DBA'},
+    # CSE
+    {'email': 'faculty1.cse@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Sarah Johnson',   'role': 'Faculty', 'department': 'CSE'},
+    {'email': 'faculty2.cse@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Michael Chen',    'role': 'Faculty', 'department': 'CSE'},
+    {'email': 'faculty3.cse@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Rubina Yesmin',   'role': 'Faculty', 'department': 'CSE'},
+    # CE
+    {'email': 'faculty1.ce@uap-bd.edu',  'password': 'Faculty@123', 'full_name': 'Dr. Robert Brown',    'role': 'Faculty', 'department': 'CE'},
+    {'email': 'faculty2.ce@uap-bd.edu',  'password': 'Faculty@123', 'full_name': 'Dr. Fariha Noor',     'role': 'Faculty', 'department': 'CE'},
+    {'email': 'faculty3.ce@uap-bd.edu',  'password': 'Faculty@123', 'full_name': 'Dr. Imran Kabir',     'role': 'Faculty', 'department': 'CE'},
+    # EEE
+    {'email': 'faculty1.eee@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Ayesha Begum',    'role': 'Faculty', 'department': 'EEE'},
+    {'email': 'faculty2.eee@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Tariq Mahmud',    'role': 'Faculty', 'department': 'EEE'},
+    {'email': 'faculty3.eee@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Lina Parvin',     'role': 'Faculty', 'department': 'EEE'},
+    # Pharmacy
+    {'email': 'faculty1.pharmacy@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Reza Karim',     'role': 'Faculty', 'department': 'Pharmacy'},
+    {'email': 'faculty2.pharmacy@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Sumaiya Alam',   'role': 'Faculty', 'department': 'Pharmacy'},
+    {'email': 'faculty3.pharmacy@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Noman Siddiqui', 'role': 'Faculty', 'department': 'Pharmacy'},
+    # Law
+    {'email': 'faculty1.law@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Bilkis Zaman',    'role': 'Faculty', 'department': 'Law'},
+    {'email': 'faculty2.law@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Hasib Mollah',    'role': 'Faculty', 'department': 'Law'},
+    {'email': 'faculty3.law@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Tania Rashid',    'role': 'Faculty', 'department': 'Law'},
+    # English
+    {'email': 'faculty1.english@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Nazmul Haque',   'role': 'Faculty', 'department': 'English'},
+    {'email': 'faculty2.english@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Parveen Akter',  'role': 'Faculty', 'department': 'English'},
+    {'email': 'faculty3.english@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Rezaul Karim',   'role': 'Faculty', 'department': 'English'},
+    # Architecture
+    {'email': 'faculty1.architecture@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Shirin Akhter',  'role': 'Faculty', 'department': 'Architecture'},
+    {'email': 'faculty2.architecture@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Asif Hossain',   'role': 'Faculty', 'department': 'Architecture'},
+    {'email': 'faculty3.architecture@uap-bd.edu', 'password': 'Faculty@123', 'full_name': 'Dr. Munira Begum',   'role': 'Faculty', 'department': 'Architecture'},
+]
+
+for u in faculty_users:
+    try:
+        obj, created = User.objects.get_or_create(email=u['email'], defaults={
+            'full_name': u['full_name'], 'role': u['role'], 'department': u['department']
+        })
+        if created:
+            obj.set_password(u['password'])
+            obj.save()
+            accounts.append(u)
+            print(f"  Created: {u['email']} - {u['full_name']}")
+        else:
+            print(f"  Exists:  {u['email']}")
+    except Exception as e:
+        print(f"  Error:   {u['email']}: {e}")
+
+# ============================================
+# 4. STAFF ACCOUNTS (2 per department)
+# ============================================
+print("\n Creating Staff Accounts...")
+
+staff_users = [
+    {'email': 'staff1.dba@uap-bd.edu',          'password': 'Staff@123', 'full_name': 'Karim Hassan',       'role': 'Staff', 'department': 'DBA'},
+    {'email': 'staff2.dba@uap-bd.edu',          'password': 'Staff@123', 'full_name': 'Rahim Uddin',        'role': 'Staff', 'department': 'DBA'},
+    {'email': 'staff1.cse@uap-bd.edu',          'password': 'Staff@123', 'full_name': 'Nasir Ahmed',        'role': 'Staff', 'department': 'CSE'},
+    {'email': 'staff2.cse@uap-bd.edu',          'password': 'Staff@123', 'full_name': 'Roksana Begum',      'role': 'Staff', 'department': 'CSE'},
+    {'email': 'staff1.ce@uap-bd.edu',           'password': 'Staff@123', 'full_name': 'Jalal Miah',         'role': 'Staff', 'department': 'CE'},
+    {'email': 'staff2.ce@uap-bd.edu',           'password': 'Staff@123', 'full_name': 'Selina Khatun',      'role': 'Staff', 'department': 'CE'},
+    {'email': 'staff1.eee@uap-bd.edu',          'password': 'Staff@123', 'full_name': 'Babu Rahman',        'role': 'Staff', 'department': 'EEE'},
+    {'email': 'staff2.eee@uap-bd.edu',          'password': 'Staff@123', 'full_name': 'Moriam Akter',       'role': 'Staff', 'department': 'EEE'},
+    {'email': 'staff1.pharmacy@uap-bd.edu',     'password': 'Staff@123', 'full_name': 'Sabbir Hossain',     'role': 'Staff', 'department': 'Pharmacy'},
+    {'email': 'staff2.pharmacy@uap-bd.edu',     'password': 'Staff@123', 'full_name': 'Dipti Roy',          'role': 'Staff', 'department': 'Pharmacy'},
+    {'email': 'staff1.law@uap-bd.edu',          'password': 'Staff@123', 'full_name': 'Monir Hussain',      'role': 'Staff', 'department': 'Law'},
+    {'email': 'staff2.law@uap-bd.edu',          'password': 'Staff@123', 'full_name': 'Kohinoor Begum',     'role': 'Staff', 'department': 'Law'},
+    {'email': 'staff1.english@uap-bd.edu',      'password': 'Staff@123', 'full_name': 'Liton Das',          'role': 'Staff', 'department': 'English'},
+    {'email': 'staff2.english@uap-bd.edu',      'password': 'Staff@123', 'full_name': 'Nargis Sultana',     'role': 'Staff', 'department': 'English'},
+    {'email': 'staff1.architecture@uap-bd.edu', 'password': 'Staff@123', 'full_name': 'Farhan Islam',       'role': 'Staff', 'department': 'Architecture'},
+    {'email': 'staff2.architecture@uap-bd.edu', 'password': 'Staff@123', 'full_name': 'Shahnaz Parvin',     'role': 'Staff', 'department': 'Architecture'},
+]
+
+for u in staff_users:
+    try:
+        obj, created = User.objects.get_or_create(email=u['email'], defaults={
+            'full_name': u['full_name'], 'role': u['role'], 'department': u['department']
+        })
+        if created:
+            obj.set_password(u['password'])
+            obj.save()
+            accounts.append(u)
+            print(f"  Created: {u['email']} - {u['full_name']}")
+        else:
+            print(f"  Exists:  {u['email']}")
+    except Exception as e:
+        print(f"  Error:   {u['email']}: {e}")
+
+# ============================================
+# 5. STUDENT ACCOUNTS (5 per department)
+# ============================================
+print("\n Creating Student Accounts...")
+
+student_users = [
+    # DBA
+    {'email': 'student1.dba@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Anika Rahman',    'role': 'Student', 'department': 'DBA', 'student_id': 'DBA-2024-001'},
+    {'email': 'student2.dba@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Fahim Ahmed',     'role': 'Student', 'department': 'DBA', 'student_id': 'DBA-2024-002'},
+    {'email': 'student3.dba@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Mehrin Khan',     'role': 'Student', 'department': 'DBA', 'student_id': 'DBA-2024-003'},
+    {'email': 'student4.dba@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Rafid Hassan',    'role': 'Student', 'department': 'DBA', 'student_id': 'DBA-2024-004'},
+    {'email': 'student5.dba@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Nusrat Jahan',    'role': 'Student', 'department': 'DBA', 'student_id': 'DBA-2024-005'},
+    # CSE
+    {'email': 'student1.cse@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Tahmid Islam',    'role': 'Student', 'department': 'CSE', 'student_id': 'CSE-2024-001'},
+    {'email': 'student2.cse@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Sadia Akter',     'role': 'Student', 'department': 'CSE', 'student_id': 'CSE-2024-002'},
+    {'email': 'student3.cse@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Arman Hossain',   'role': 'Student', 'department': 'CSE', 'student_id': 'CSE-2024-003'},
+    {'email': 'student4.cse@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Lamia Tasnim',    'role': 'Student', 'department': 'CSE', 'student_id': 'CSE-2024-004'},
+    {'email': 'student5.cse@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Rakibul Islam',   'role': 'Student', 'department': 'CSE', 'student_id': 'CSE-2024-005'},
+    # CE
+    {'email': 'student1.ce@uap-bd.edu',  'password': 'Student@123', 'full_name': 'Sumaiya Khanom',  'role': 'Student', 'department': 'CE',  'student_id': 'CE-2024-001'},
+    {'email': 'student2.ce@uap-bd.edu',  'password': 'Student@123', 'full_name': 'Imtiaz Ahmed',    'role': 'Student', 'department': 'CE',  'student_id': 'CE-2024-002'},
+    {'email': 'student3.ce@uap-bd.edu',  'password': 'Student@123', 'full_name': 'Tania Akter',     'role': 'Student', 'department': 'CE',  'student_id': 'CE-2024-003'},
+    {'email': 'student4.ce@uap-bd.edu',  'password': 'Student@123', 'full_name': 'Mahfuz Alam',     'role': 'Student', 'department': 'CE',  'student_id': 'CE-2024-004'},
+    {'email': 'student5.ce@uap-bd.edu',  'password': 'Student@123', 'full_name': 'Razia Sultana',   'role': 'Student', 'department': 'CE',  'student_id': 'CE-2024-005'},
+    # EEE
+    {'email': 'student1.eee@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Abir Hassan',     'role': 'Student', 'department': 'EEE', 'student_id': 'EEE-2024-001'},
+    {'email': 'student2.eee@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Mitu Begum',      'role': 'Student', 'department': 'EEE', 'student_id': 'EEE-2024-002'},
+    {'email': 'student3.eee@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Shakib Rahman',   'role': 'Student', 'department': 'EEE', 'student_id': 'EEE-2024-003'},
+    {'email': 'student4.eee@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Farida Yesmin',   'role': 'Student', 'department': 'EEE', 'student_id': 'EEE-2024-004'},
+    {'email': 'student5.eee@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Masum Billah',    'role': 'Student', 'department': 'EEE', 'student_id': 'EEE-2024-005'},
+    # Pharmacy
+    {'email': 'student1.pharmacy@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Nadia Islam',     'role': 'Student', 'department': 'Pharmacy', 'student_id': 'PHARMA-2024-001'},
+    {'email': 'student2.pharmacy@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Towhid Hasan',    'role': 'Student', 'department': 'Pharmacy', 'student_id': 'PHARMA-2024-002'},
+    {'email': 'student3.pharmacy@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Farhana Mitu',    'role': 'Student', 'department': 'Pharmacy', 'student_id': 'PHARMA-2024-003'},
+    {'email': 'student4.pharmacy@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Raihan Uddin',    'role': 'Student', 'department': 'Pharmacy', 'student_id': 'PHARMA-2024-004'},
+    {'email': 'student5.pharmacy@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Sharmin Akter',   'role': 'Student', 'department': 'Pharmacy', 'student_id': 'PHARMA-2024-005'},
+    # Law
+    {'email': 'student1.law@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Mizanur Rahman',  'role': 'Student', 'department': 'Law', 'student_id': 'LAW-2024-001'},
+    {'email': 'student2.law@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Israt Jahan',     'role': 'Student', 'department': 'Law', 'student_id': 'LAW-2024-002'},
+    {'email': 'student3.law@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Salman Farsi',    'role': 'Student', 'department': 'Law', 'student_id': 'LAW-2024-003'},
+    {'email': 'student4.law@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Afsana Khatun',   'role': 'Student', 'department': 'Law', 'student_id': 'LAW-2024-004'},
+    {'email': 'student5.law@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Zahirul Islam',   'role': 'Student', 'department': 'Law', 'student_id': 'LAW-2024-005'},
+    # English
+    {'email': 'student1.english@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Sabrina Haque',   'role': 'Student', 'department': 'English', 'student_id': 'ENG-2024-001'},
+    {'email': 'student2.english@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Asaduzzaman',     'role': 'Student', 'department': 'English', 'student_id': 'ENG-2024-002'},
+    {'email': 'student3.english@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Mousumi Akter',   'role': 'Student', 'department': 'English', 'student_id': 'ENG-2024-003'},
+    {'email': 'student4.english@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Tanzim Ahmed',    'role': 'Student', 'department': 'English', 'student_id': 'ENG-2024-004'},
+    {'email': 'student5.english@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Bithi Rahman',    'role': 'Student', 'department': 'English', 'student_id': 'ENG-2024-005'},
+    # Architecture
+    {'email': 'student1.architecture@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Mariam Siddiqui', 'role': 'Student', 'department': 'Architecture', 'student_id': 'ARCH-2024-001'},
+    {'email': 'student2.architecture@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Naeem Hossain',   'role': 'Student', 'department': 'Architecture', 'student_id': 'ARCH-2024-002'},
+    {'email': 'student3.architecture@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Shanta Islam',    'role': 'Student', 'department': 'Architecture', 'student_id': 'ARCH-2024-003'},
+    {'email': 'student4.architecture@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Wasim Akram',     'role': 'Student', 'department': 'Architecture', 'student_id': 'ARCH-2024-004'},
+    {'email': 'student5.architecture@uap-bd.edu', 'password': 'Student@123', 'full_name': 'Poly Begum',      'role': 'Student', 'department': 'Architecture', 'student_id': 'ARCH-2024-005'},
+]
+
+for u in student_users:
+    try:
+        obj, created = User.objects.get_or_create(email=u['email'], defaults={
+            'full_name': u['full_name'], 'role': u['role'],
+            'department': u['department'], 'student_id': u['student_id']
+        })
+        if created:
+            obj.set_password(u['password'])
+            obj.save()
+            accounts.append(u)
+            print(f"  Created: {u['email']} - {u['full_name']} (ID: {u['student_id']})")
+        else:
+            print(f"  Exists:  {u['email']}")
+    except Exception as e:
+        print(f"  Error:   {u['email']}: {e}")
+
+# ============================================
+# SUMMARY
+# ============================================
+print("\n" + "=" * 60)
+print("ACCOUNT CREATION COMPLETE!")
+print("=" * 60)
+
+print(f"\n Total Accounts Created This Run : {len(accounts)}")
+print(f"  Total Users in System          : {User.objects.count()}")
+
+print("\n BREAKDOWN BY ROLE:")
+print(f"   Admin    : {User.objects.filter(role='Admin').count()}")
+print(f"   HOD      : {User.objects.filter(role='HOD').count()}")
+print(f"   Faculty  : {User.objects.filter(role='Faculty').count()}")
+print(f"   Staff    : {User.objects.filter(role='Staff').count()}")
+print(f"   Student  : {User.objects.filter(role='Student').count()}")
+
+print("\n BREAKDOWN BY DEPARTMENT:")
+for dept in ['DBA', 'CSE', 'CE', 'EEE', 'Pharmacy', 'Law', 'English', 'Architecture']:
+    print(f"   {dept:<15}: {User.objects.filter(department=dept).count()} users")
+
+print("\n" + "=" * 60)
+print(" LOGIN CREDENTIALS:")
+print("=" * 60)
+print("   Admin   :  admin@uap-bd.edu        /  Admin@123")
+print("   HOD     :  hod.cse@uap-bd.edu      /  HOD@123")
+print("   Faculty :  faculty1.cse@uap-bd.edu /  Faculty@123")
+print("   Staff   :  staff1.cse@uap-bd.edu   /  Staff@123")
+print("   Student :  student1.cse@uap-bd.edu /  Student@123")
+print("=" * 60)
+print(" YOU CAN NOW LOGIN WITH ANY OF THESE ACCOUNTS!")
+print("=" * 60)
+

@@ -1,0 +1,140 @@
+
+{% extends 'users/dashboard_base.html' %}
+
+{% block title %}Manage Courses - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>📚 Manage Courses</h1>
+                <p class="mb-0 opacity-75">Create, view, and manage all courses in the system</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'admin_course_add' %}" class="btn btn-light btn-lg">
+                    ➕ Create New Course
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card info-card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Search</label>
+                    <input type="text" name="search" class="form-control" placeholder="Course code or name..." value="{{ search }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Department</label>
+                    <select name="department" class="form-select">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept }}" {% if department == dept %}selected{% endif %}>{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Status</label>
+                    <select name="active" class="form-select">
+                        <option value="">All</option>
+                        <option value="active" {% if active_filter == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if active_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary me-2">🔍 Filter</button>
+                    <a href="{% url 'admin_course_list' %}" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Courses Table -->
+    <div class="modern-table">
+        <table class="table table-hover mb-0">
+            <thead>
+            <tr>
+                <th>Course Code</th>
+                <th>Course Name</th>
+                <th>Department</th>
+                <th>Semester</th>
+                <th>Sections</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for course in courses %}
+            <tr>
+                <td><strong>{{ course.course_code }}</strong></td>
+                <td>{{ course.course_name }}</td>
+                <td>{{ course.department }}</td>
+                <td>{{ course.semester }}</td>
+                <td>
+                    {% with assignments=course.assignments.all %}
+                        {% if assignments %}
+                            <span class="badge bg-info">{{ assignments.count }} assigned</span>
+                        {% else %}
+                            <span class="badge bg-warning">Not assigned</span>
+                        {% endif %}
+                    {% endwith %}
+                </td>
+                <td>
+                    {% if course.is_active %}
+                    <span class="badge bg-success">Active</span>
+                    {% else %}
+                    <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>{{ course.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <a href="{% url 'admin_course_delete' course.id %}" class="btn btn-sm btn-outline-danger" title="Delete">🗑️</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted py-4">
+                    No courses found. <a href="{% url 'admin_course_add' %}">Create one now</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Summary -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card info-card">
+                <div class="card-body text-center">
+                    <h3>{{ courses|length }}</h3>
+                    <p class="text-muted mb-0">Total Courses</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card info-card">
+                <div class="card-body text-center">
+                    <h3>{{ departments|length }}</h3>
+                    <p class="text-muted mb-0">Departments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card info-card">
+                <div class="card-body text-center">
+                    <h3>ℹ️</h3>
+                    <p class="text-muted mb-0"><a href="{% url 'admin_assignments' %}">Manage Assignments</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

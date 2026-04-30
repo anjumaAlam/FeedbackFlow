@@ -1,0 +1,80 @@
+
+{% extends 'users/dashboard_base.html' %}
+
+{% block title %}Delete Course - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>🗑️ Delete Course</h1>
+                <p class="mb-0 opacity-75">Permanently remove course from the system</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">⚠️ Warning: This action cannot be undone</h5>
+                </div>
+                <div class="card-body">
+                    <h4>{{ course.course_code }} - {{ course.course_name }}</h4>
+                    
+                    <div class="alert alert-warning mt-3" role="alert">
+                        <strong>Are you sure you want to delete this course?</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Department: <strong>{{ course.department }}</strong></li>
+                            <li>Semester: <strong>{{ course.semester }}</strong></li>
+                            <li>Assignments: <strong>{{ course.assignments.count }}</strong></li>
+                            <li>Feedback Records: <strong>{{ course.feedback_received.count }}</strong></li>
+                        </ul>
+                    </div>
+
+                    {% if course.feedback_received.count > 0 %}
+                    <div class="alert alert-info">
+                        ℹ️ This course has <strong>{{ course.feedback_received.count }}</strong> feedback records. They will be deleted as well.
+                    </div>
+                    {% endif %}
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            🗑️ Delete Course Permanently
+                        </button>
+                        <a href="{% url 'admin_course_list' %}" class="btn btn-secondary btn-lg ms-2">
+                            ❌ Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card info-card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">ℹ️ Course Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Code:</strong> {{ course.course_code }}</p>
+                    <p><strong>Name:</strong> {{ course.course_name }}</p>
+                    <p><strong>Department:</strong> {{ course.department }}</p>
+                    <p><strong>Semester:</strong> {{ course.semester }}</p>
+                    <p><strong>Status:</strong> 
+                        {% if course.is_active %}
+                        <span class="badge bg-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Created:</strong> {{ course.created_at|date:"M d, Y H:i" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

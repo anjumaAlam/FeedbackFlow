@@ -241,3 +241,61 @@ def course_create(request):
         'page_title': 'Add Course'
     }
     return render(request, 'feedback/admin_course_form.html', context)
+
+
+@login_required
+@user_passes_test(admin_required)
+def admin_course_list(request):
+    """Admin can view and manage all courses."""
+    courses = Course.objects.all().order_by('department', 'course_code')
+
+    search = request.GET.get('search', '')
+    department = request.GET.get('department', '')
+    active_filter = request.GET.get('active', '')
+
+    if search:
+        courses = courses.filter(
+            course_code__icontains=search
+        ) | courses.filter(
+            course_name__icontains=search
+        )
+
+    if department:
+        courses = courses.filter(department=department)
+
+    if active_filter == 'active':
+        courses = courses.filter(is_active=True)
+    elif active_filter == 'inactive':
+        courses = courses.filter(is_active=False)
+
+    # Get unique departments
+    departments = Course.objects.values_list('department', flat=True).distinct()
+
+    context = {
+        'courses': courses,
+        'search': search,
+        'department': department,
+        'active_filter': active_filter,
+        'departments': sorted(departments),
+        'page_title': 'Manage Courses'
+    }
+    return render(request, 'feedback/admin_course_list.html', context)
+
+
+@login_required
+@user_passes_test(admin_required)
+def admin_course_delete(request, course_id):
+    """Admin can delete a course."""
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.method == 'POST':
+        course_name = course.course_code
+        course.delete()
+        messages.success(request, f'Course {course_name} deleted successfully.')
+        return redirect('admin_course_list')
+
+    context = {
+        'course': course,
+        'page_title': 'Delete Course'
+    }
+    return render(request, 'feedback/admin_course_delete.html', context)
