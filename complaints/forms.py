@@ -45,10 +45,33 @@ class ComplaintSubmissionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Only show faculty, HOD, and staff in the dropdown
         from users.models import User
-        # Start with an empty queryset; frontend JS will populate based on complaint type
-        self.fields['faculty_concerned'].queryset = User.objects.none()
+
+        # Keep queryset aligned with selected complaint type so POSTed IDs validate.
+        role_map = {
+            'Faculty': ['Faculty'],
+            'HOD': ['HOD'],
+            'Staff': ['Staff'],
+            'Facility': ['Staff'],
+        }
+
+        selected_type = None
+        if self.is_bound:
+            selected_type = self.data.get('complaint_type')
+        elif self.instance and getattr(self.instance, 'complaint_type', None):
+            selected_type = self.instance.complaint_type
+        else:
+            selected_type = self.initial.get('complaint_type')
+
+        roles = role_map.get(selected_type, [])
+        if roles:
+            self.fields['faculty_concerned'].queryset = User.objects.filter(
+                role__in=roles,
+                is_active=True,
+            ).order_by('full_name')
+        else:
+            self.fields['faculty_concerned'].queryset = User.objects.none()
+
         self.fields['faculty_concerned'].required = False
 
 
