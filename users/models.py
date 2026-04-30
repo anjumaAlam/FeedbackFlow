@@ -117,15 +117,21 @@ class Appointment(models.Model):
         ('Architecture', 'Department of Architecture'),
     )
 
-    student        = models.ForeignKey('User', on_delete=models.CASCADE, related_name='appointments')
-    name           = models.CharField(max_length=100)
-    roll_number = models.CharField(max_length=20)
-    department     = models.CharField(max_length=100, choices=DEPARTMENT_CHOICES)
-    description    = models.TextField()
-    place          = models.CharField(max_length=100, choices=PLACE_CHOICES)
-    preferred_time = models.DateTimeField()
-    status         = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
-    created_at     = models.DateTimeField(auto_now_add=True)
+    COMMITTEE_CHOICES = [
+        ('Harassment Committee', 'Harassment Committee'),
+        ('Proctorial Committee', 'Proctorial Committee'),
+    ]
+
+    student          = models.ForeignKey('User', on_delete=models.CASCADE, related_name='appointments')
+    name             = models.CharField(max_length=100)
+    roll_number      = models.CharField(max_length=20)
+    appointment_with = models.CharField(max_length=50, choices=COMMITTEE_CHOICES, default='Harassment Committee')
+    department       = models.CharField(max_length=100, choices=DEPARTMENT_CHOICES)
+    description      = models.TextField()
+    place            = models.CharField(max_length=100, choices=PLACE_CHOICES)
+    preferred_time   = models.DateTimeField()
+    status           = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    created_at       = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -133,4 +139,4 @@ class Appointment(models.Model):
         verbose_name_plural = 'Appointments'
 
     def __str__(self):
-        return f"{self.name} ({self.student_id}) - {self.status}"
+        return f"{self.name} ({self.roll_number}) - {self.status}"

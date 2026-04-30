@@ -398,3 +398,13 @@ class AppointmentForm(forms.Form):
         ],
         widget=forms.Select(attrs={'class': 'form-select'})
     )
+
+    appointment_with = forms.ChoiceField(
+        label='Book Appointment With',
+        choices=[
+            ('', '---------'),
+            ('Harassment Committee', 'Harassment Committee'),
+            ('Proctorial Committee', 'Proctorial Committee'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )

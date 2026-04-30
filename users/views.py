@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import StudentRegistrationForm, LoginForm, PasswordResetRequestForm, PasswordResetConfirmForm, AdminUserCreateForm, AdminUserEditForm, AppointmentForm
+from .forms import StudentRegistrationForm, LoginForm, PasswordResetRequestForm, PasswordResetConfirmForm, \
+    AdminUserCreateForm, AdminUserEditForm, AppointmentForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -32,13 +33,11 @@ def home_view(request):
     """
     if request.user.is_authenticated:
         return _redirect_by_role(request.user)
-    
+
     context = {
         'page_title': 'FeedbackFlow - Login'
     }
     return render(request, 'users/home.html', context)
-
-
 
 
 def register_view(request):
@@ -71,16 +70,14 @@ def register_view(request):
     return render(request, 'users/register.html', context)
 
 
-
-
 def login_view(request, role='student', allowed_roles=None):
     """
     Role-based login view.
     GET: Display login form for the specified role(s)
     POST: Authenticate user and validate role matches
-    
+
     Supported roles: student, faculty, staff, admin
-    
+
     Args:
         role: Primary role for display purposes
         allowed_roles: List of roles that can login on this page (defaults to [role])
@@ -96,9 +93,9 @@ def login_view(request, role='student', allowed_roles=None):
         'admin': 'Admin',
         'hod': 'HOD',
     }
-    
+
     primary_role = role_map.get(role.lower(), 'Student')
-    
+
     # If allowed_roles not provided, use only primary role
     if allowed_roles is None:
         allowed_roles = [primary_role]
@@ -120,7 +117,7 @@ def login_view(request, role='student', allowed_roles=None):
                     if user.role not in allowed_roles:
                         roles_str = ' or '.join(allowed_roles)
                         messages.error(
-                            request, 
+                            request,
                             f'This account is registered as {user.role}. '
                             f'This page is for {roles_str} login. '
                             f'Please go back and select the correct login page.'
@@ -180,8 +177,6 @@ def _redirect_by_role(user):
     return redirect(role_redirects.get(user.role, 'login'))
 
 
-
-
 @login_required
 def logout_view(request):
     """Logout view"""
@@ -189,8 +184,6 @@ def logout_view(request):
     logout(request)
     messages.success(request, f'Goodbye, {user_name}! You have been logged out.')
     return redirect('login')
-
-
 
 
 def password_reset_request(request):
@@ -213,7 +206,6 @@ def password_reset_request(request):
 
                 token = default_token_generator.make_token(user)
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
-
 
                 reset_url = request.build_absolute_uri(
                     f'/password-reset/confirm/{uid}/{token}/'
@@ -308,7 +300,6 @@ def password_reset_confirm(request, uidb64, token):
 
 @login_required
 def student_dashboard(request):
-
     if request.user.role != 'Student':
         messages.error(request, 'Access denied. Students only.')
         return redirect('login')
@@ -346,8 +337,6 @@ def student_dashboard(request):
 
 @login_required
 def faculty_dashboard(request):
-
-
     if request.user.role != 'Faculty':
         messages.error(request, 'Access denied. Faculty only.')
         return redirect('login')
@@ -389,8 +378,6 @@ def faculty_dashboard(request):
 
 @login_required
 def hod_dashboard(request):
-
-
     if request.user.role != 'HOD':
         messages.error(request, 'Access denied. HOD only.')
         return redirect('login')
@@ -426,8 +413,6 @@ def hod_dashboard(request):
 
 @login_required
 def staff_dashboard(request):
-
-
     if request.user.role != 'Staff':
         messages.error(request, 'Access denied. Staff only.')
         return redirect('login')
@@ -458,8 +443,6 @@ def staff_dashboard(request):
 
 @login_required
 def admin_dashboard(request):
-
-
     if request.user.role != 'Admin':
         messages.error(request, 'Access denied. Admin only.')
         return redirect('login')
@@ -485,7 +468,7 @@ def admin_dashboard(request):
         'active_users': User.objects.filter(is_active=True).count(),
         'inactive_users': User.objects.filter(is_active=False).count(),
         'department_stats': User.objects.filter(department__isnull=False)
-            .values('department').annotate(count=Count('id')),
+        .values('department').annotate(count=Count('id')),
         'total_feedback': total_feedback,
         'total_complaints': total_complaints,
         'pending_complaints': pending_complaints,
@@ -495,55 +478,48 @@ def admin_dashboard(request):
     return render(request, 'users/admin_dashboard.html', context)
 
 
-
 @login_required
 def admin_user_list(request):
-   """Admin can view and search all users."""
-   if request.user.role != 'Admin':
-       return redirect('login')
+    """Admin can view and search all users."""
+    if request.user.role != 'Admin':
+        return redirect('login')
 
+    users = User.objects.all().order_by('-created_at')
 
-   users = User.objects.all().order_by('-created_at')
+    search = request.GET.get('search', '')
+    role_filter = request.GET.get('role', '')
+    dept_filter = request.GET.get('department', '')
 
+    if search:
+        users = users.filter(
+            full_name__icontains=search
+        ) | users.filter(
+            email__icontains=search
+        )
 
-   search = request.GET.get('search', '')
-   role_filter = request.GET.get('role', '')
-   dept_filter = request.GET.get('department', '')
+    if role_filter:
+        users = users.filter(role=role_filter)
 
+    if dept_filter:
+        users = users.filter(department=dept_filter)
+    status_filter = request.GET.get('status', '')
+    if status_filter == 'active':
+        users = users.filter(is_active=True)
+    elif status_filter == 'inactive':
+        users = users.filter(is_active=False)
 
-   if search:
-       users = users.filter(
-           full_name__icontains=search
-       ) | users.filter(
-           email__icontains=search
-       )
-
-
-   if role_filter:
-       users = users.filter(role=role_filter)
-
-
-   if dept_filter:
-       users = users.filter(department=dept_filter)
-   status_filter = request.GET.get('status', '')
-   if status_filter == 'active':
-       users = users.filter(is_active=True)
-   elif status_filter == 'inactive':
-       users = users.filter(is_active=False)
-
-
-   context = {
-       'users': users,
-       'search': search,
-       'role_filter': role_filter,
-       'dept_filter': dept_filter,
-       'status_filter': request.GET.get('status', ''),
-       'roles': User.ROLE_CHOICES,
-       'departments': User.DEPARTMENT_CHOICES,
-       'role_choices': User.ROLE_CHOICES,
-       'department_choices': User.DEPARTMENT_CHOICES,
-   }
-   return render(request, 'users/admin_user_list.html', context)
+    context = {
+        'users': users,
+        'search': search,
+        'role_filter': role_filter,
+        'dept_filter': dept_filter,
+        'status_filter': request.GET.get('status', ''),
+        'roles': User.ROLE_CHOICES,
+        'departments': User.DEPARTMENT_CHOICES,
+        'role_choices': User.ROLE_CHOICES,
+        'department_choices': User.DEPARTMENT_CHOICES,
+    }
+    return render(request, 'users/admin_user_list.html', context)
 
 
 @login_required
@@ -555,110 +531,89 @@ def appointment_view(request):
     return render(request, 'users/appointment.html', context)
 
 
-
-
 @login_required
 def admin_user_create(request):
+    if request.user.role != 'Admin':
+        return redirect('login')
 
-   if request.user.role != 'Admin':
-       return redirect('login')
+    if request.method == 'POST':
+        form = AdminUserCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'User created successfully.')
+            return redirect('admin_user_list')
+    else:
+        form = AdminUserCreateForm()
 
-
-   if request.method == 'POST':
-       form = AdminUserCreateForm(request.POST)
-       if form.is_valid():
-           form.save()
-           messages.success(request, 'User created successfully.')
-           return redirect('admin_user_list')
-   else:
-       form = AdminUserCreateForm()
-
-
-   return render(request, 'users/admin_user_form.html', {
-       'form': form,
-       'action': 'Create'
-   })
-
-
+    return render(request, 'users/admin_user_form.html', {
+        'form': form,
+        'action': 'Create'
+    })
 
 
 @login_required
 def admin_user_edit(request, user_id):
-   """Admin can edit an existing user."""
-   if request.user.role != 'Admin':
-       return redirect('login')
+    """Admin can edit an existing user."""
+    if request.user.role != 'Admin':
+        return redirect('login')
 
+    target_user = get_object_or_404(User, id=user_id)
 
-   target_user = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        form = AdminUserEditForm(request.POST, instance=target_user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'{target_user.full_name} updated successfully.')
+            return redirect('admin_user_list')
+    else:
+        form = AdminUserEditForm(instance=target_user)
 
-
-   if request.method == 'POST':
-       form = AdminUserEditForm(request.POST, instance=target_user)
-       if form.is_valid():
-           form.save()
-           messages.success(request, f'{target_user.full_name} updated successfully.')
-           return redirect('admin_user_list')
-   else:
-       form = AdminUserEditForm(instance=target_user)
-
-
-   return render(request, 'users/admin_user_form.html', {
-       'form': form,
-       'action': 'Edit',
-       'target_user': target_user
-   })
-
-
+    return render(request, 'users/admin_user_form.html', {
+        'form': form,
+        'action': 'Edit',
+        'target_user': target_user
+    })
 
 
 @login_required
 def admin_user_delete(request, user_id):
+    if request.user.role != 'Admin':
+        return redirect('login')
 
-   if request.user.role != 'Admin':
-       return redirect('login')
+    target_user = get_object_or_404(User, id=user_id)
 
+    if target_user == request.user:
+        messages.error(request, 'You cannot delete your own account.')
+        return redirect('admin_user_list')
 
-   target_user = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        target_user.delete()
+        messages.success(request, 'User deleted successfully.')
+        return redirect('admin_user_list')
 
-
-   if target_user == request.user:
-       messages.error(request, 'You cannot delete your own account.')
-       return redirect('admin_user_list')
-
-
-   if request.method == 'POST':
-       target_user.delete()
-       messages.success(request, 'User deleted successfully.')
-       return redirect('admin_user_list')
-
-
-   return render(request, 'users/admin_user_delete.html', {
-       'target_user': target_user
-   })
-
-
+    return render(request, 'users/admin_user_delete.html', {
+        'target_user': target_user
+    })
 
 
 @login_required
 def admin_user_toggle_active(request, user_id):
+    if request.user.role != 'Admin':
+        return redirect('login')
 
-   if request.user.role != 'Admin':
-       return redirect('login')
+    target_user = get_object_or_404(User, id=user_id)
+
+    if target_user == request.user:
+        messages.error(request, 'You cannot change your own active status.')
+        return redirect('admin_user_list')
+
+    target_user.is_active = not target_user.is_active
+    target_user.save()
+    status = 'activated' if target_user.is_active else 'deactivated'
+    messages.success(request, f'{target_user.full_name} has been {status}.')
+    return redirect('admin_user_list')
 
 
-   target_user = get_object_or_404(User, id=user_id)
-
-
-   if target_user == request.user:
-       messages.error(request, 'You cannot change your own active status.')
-       return redirect('admin_user_list')
-
-
-   target_user.is_active = not target_user.is_active
-   target_user.save()
-   status = 'activated' if target_user.is_active else 'deactivated'
-   messages.success(request, f'{target_user.full_name} has been {status}.')
-   return redirect('admin_user_list')
 @login_required
 def hod_faculty_list(request):
     if request.user.role != 'HOD':
@@ -675,77 +630,79 @@ def hod_faculty_list(request):
         'page_title': 'Faculty List'
     }
     return render(request, 'users/hod_faculty_list.html', context)
+
+
 @login_required
 def feedback_reports(request):
+    if request.user.role not in ['Admin', 'HOD']:
+        return redirect('login')
 
-   if request.user.role not in ['Admin', 'HOD']:
-       return redirect('login')
+    dept_filter = request.GET.get('department', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    course_filter = request.GET.get('course', '')
 
-   dept_filter = request.GET.get('department', '')
-   date_from = request.GET.get('date_from', '')
-   date_to = request.GET.get('date_to', '')
-   course_filter = request.GET.get('course', '')
+    feedbacks = Feedback.objects.all()
 
-   feedbacks = Feedback.objects.all()
+    if request.user.role == 'HOD':
+        feedbacks = feedbacks.filter(course__department=request.user.department)
 
-   if request.user.role == 'HOD':
-       feedbacks = feedbacks.filter(course__department=request.user.department)
+    if dept_filter:
+        feedbacks = feedbacks.filter(course__department=dept_filter)
+    if date_from:
+        feedbacks = feedbacks.filter(submitted_at__date__gte=date_from)
+    if date_to:
+        feedbacks = feedbacks.filter(submitted_at__date__lte=date_to)
+    if course_filter:
+        feedbacks = feedbacks.filter(course_id=course_filter)
 
-   if dept_filter:
-       feedbacks = feedbacks.filter(course__department=dept_filter)
-   if date_from:
-       feedbacks = feedbacks.filter(submitted_at__date__gte=date_from)
-   if date_to:
-       feedbacks = feedbacks.filter(submitted_at__date__lte=date_to)
-   if course_filter:
-       feedbacks = feedbacks.filter(course_id=course_filter)
+    avg_ratings = feedbacks.aggregate(
+        avg_teaching=Avg('teaching_rating'),
+        avg_content=Avg('content_rating'),
+        avg_communication=Avg('communication_rating'),
+    )
 
-   avg_ratings = feedbacks.aggregate(
-       avg_teaching=Avg('teaching_rating'),
-       avg_content=Avg('content_rating'),
-       avg_communication=Avg('communication_rating'),
-   )
+    avg_teaching = round(avg_ratings['avg_teaching'] or 0, 1)
+    avg_content = round(avg_ratings['avg_content'] or 0, 1)
+    avg_communication = round(avg_ratings['avg_communication'] or 0, 1)
 
-   avg_teaching = round(avg_ratings['avg_teaching'] or 0, 1)
-   avg_content = round(avg_ratings['avg_content'] or 0, 1)
-   avg_communication = round(avg_ratings['avg_communication'] or 0, 1)
+    overall_avg = round(
+        (avg_teaching + avg_content + avg_communication) / 3, 1
+    ) if feedbacks.exists() else 0
 
-   overall_avg = round(
-       (avg_teaching + avg_content + avg_communication) / 3, 1
-   ) if feedbacks.exists() else 0
+    course_stats = feedbacks.values(
+        'course__course_code', 'course__course_name', 'faculty__full_name'
+    ).annotate(
+        count=Count('id'),
+        avg_teaching=Avg('teaching_rating'),
+        avg_content=Avg('content_rating'),
+        avg_communication=Avg('communication_rating'),
+    ).order_by('-count')
 
-   course_stats = feedbacks.values(
-       'course__course_code', 'course__course_name', 'faculty__full_name'
-   ).annotate(
-       count=Count('id'),
-       avg_teaching=Avg('teaching_rating'),
-       avg_content=Avg('content_rating'),
-       avg_communication=Avg('communication_rating'),
-   ).order_by('-count')
+    status_counts = {
+        'Pending': feedbacks.filter(status='Pending').count(),
+        'Reviewed': feedbacks.filter(status='Reviewed').count(),
+        'Responded': feedbacks.filter(status='Responded').count(),
+    }
 
-   status_counts = {
-       'Pending': feedbacks.filter(status='Pending').count(),
-       'Reviewed': feedbacks.filter(status='Reviewed').count(),
-       'Responded': feedbacks.filter(status='Responded').count(),
-   }
+    context = {
+        'feedbacks': feedbacks,
+        'course_stats': course_stats,
+        'total_feedback': feedbacks.count(),
+        'avg_teaching': avg_teaching,
+        'avg_content': avg_content,
+        'avg_communication': avg_communication,
+        'overall_avg': overall_avg,
+        'status_counts': status_counts,
+        'dept_filter': dept_filter,
+        'date_from': date_from,
+        'date_to': date_to,
+        'course_filter': course_filter,
+        'departments': User.DEPARTMENT_CHOICES, 'department_choices': User.DEPARTMENT_CHOICES,
+        'courses': Course.objects.filter(is_active=True).order_by('course_code'),
+    }
+    return render(request, 'users/feedback_reports.html', context)
 
-   context = {
-       'feedbacks': feedbacks,
-       'course_stats': course_stats,
-       'total_feedback': feedbacks.count(),
-       'avg_teaching': avg_teaching,
-       'avg_content': avg_content,
-       'avg_communication': avg_communication,
-       'overall_avg': overall_avg,
-       'status_counts': status_counts,
-       'dept_filter': dept_filter,
-       'date_from': date_from,
-       'date_to': date_to,
-       'course_filter': course_filter,
-       'departments': User.DEPARTMENT_CHOICES,'department_choices': User.DEPARTMENT_CHOICES,
-       'courses': Course.objects.filter(is_active=True).order_by('course_code'),
-   }
-   return render(request, 'users/feedback_reports.html', context)
 
 @login_required
 def appointment_view(request):
@@ -764,6 +721,7 @@ def appointment_view(request):
                 description=form.cleaned_data['description'],
                 preferred_time=form.cleaned_data['preferred_time'],
                 place=form.cleaned_data['place'],
+                appointment_with=form.cleaned_data['appointment_with'],
             )
             messages.success(request, 'Appointment submitted successfully! You will be notified once approved.')
             return redirect('appointment')

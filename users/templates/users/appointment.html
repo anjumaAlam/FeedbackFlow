@@ -57,6 +57,18 @@
                             <div class="text-danger small mt-1">{{ form.roll_number.errors|join:", " }}</div>
                         {% endif %}
                     </div>
+
+                    <!-- Book Appointment With -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            Book Appointment With <span class="text-danger">*</span>
+                        </label>
+                        {{ form.appointment_with }}
+                        {% if form.appointment_with.errors %}
+                            <div class="text-danger small mt-1">{{ form.appointment_with.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+
                     <div class="col-12">
                         <label class="form-label fw-semibold">
                             Department <span class="text-danger">*</span>
