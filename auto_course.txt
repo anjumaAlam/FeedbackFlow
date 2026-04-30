@@ -1,0 +1,575 @@
+from user.models import User
+from feedback.models import Course, CourseAssignment
+
+print("=" * 60)
+print("CREATING COURSES & ASSIGNMENTS FOR FEEDBACKFLOW")
+print("=" * 60)
+
+created_courses = 0
+created_assignments = 0
+skipped_courses = 0
+skipped_assignments = 0
+
+# ============================================
+# COURSE DATA — 5 courses per department
+# Each course has sections A, B, C, D assigned
+# to different faculty members
+# ============================================
+
+courses_data = [
+
+    # ══════════════════════════════════════════
+    # DBA — Department of Business Administration
+    # ══════════════════════════════════════════
+    {
+        'course_code': 'DBA101',
+        'course_name': 'Principles of Management',
+        'department': 'DBA', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.dba@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty2.dba@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty3.dba@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.dba@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'DBA201',
+        'course_name': 'Business Communication',
+        'department': 'DBA', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty2.dba@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.dba@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'hod.dba@uap-bd.edu',      'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty1.dba@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'DBA301',
+        'course_name': 'Financial Accounting',
+        'department': 'DBA', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty3.dba@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'hod.dba@uap-bd.edu',      'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty1.dba@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty2.dba@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'DBA401',
+        'course_name': 'Marketing Management',
+        'department': 'DBA', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'hod.dba@uap-bd.edu',      'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty1.dba@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.dba@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty3.dba@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'DBA501',
+        'course_name': 'Human Resource Management',
+        'department': 'DBA', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.dba@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.dba@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.dba@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.dba@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+
+    # ══════════════════════════════════════════
+    # CSE — Department of Computer Science and Engineering
+    # ══════════════════════════════════════════
+    {
+        'course_code': 'CSE101',
+        'course_name': 'Introduction to Programming',
+        'department': 'CSE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.cse@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty2.cse@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty3.cse@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.cse@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'CSE201',
+        'course_name': 'Data Structures and Algorithms',
+        'department': 'CSE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty2.cse@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.cse@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'hod.cse@uap-bd.edu',      'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty1.cse@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'CSE301',
+        'course_name': 'Database Management Systems',
+        'department': 'CSE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty3.cse@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'hod.cse@uap-bd.edu',      'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty1.cse@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty2.cse@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'CSE401',
+        'course_name': 'Computer Networks',
+        'department': 'CSE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'hod.cse@uap-bd.edu',      'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty1.cse@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.cse@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty3.cse@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'CSE501',
+        'course_name': 'Artificial Intelligence',
+        'department': 'CSE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.cse@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.cse@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.cse@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.cse@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+
+    # ══════════════════════════════════════════
+    # CE — Department of Civil Engineering
+    # ══════════════════════════════════════════
+    {
+        'course_code': 'CE101',
+        'course_name': 'Engineering Mechanics',
+        'department': 'CE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.ce@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty2.ce@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty3.ce@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.ce@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'CE201',
+        'course_name': 'Structural Analysis',
+        'department': 'CE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty2.ce@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.ce@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'hod.ce@uap-bd.edu',      'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty1.ce@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'CE301',
+        'course_name': 'Fluid Mechanics',
+        'department': 'CE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty3.ce@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'hod.ce@uap-bd.edu',      'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty1.ce@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty2.ce@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'CE401',
+        'course_name': 'Geotechnical Engineering',
+        'department': 'CE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'hod.ce@uap-bd.edu',      'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty1.ce@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.ce@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty3.ce@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'CE501',
+        'course_name': 'Construction Management',
+        'department': 'CE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.ce@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.ce@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.ce@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.ce@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+
+    # ══════════════════════════════════════════
+    # EEE — Department of Electrical and Electronic Engineering
+    # ══════════════════════════════════════════
+    {
+        'course_code': 'EEE101',
+        'course_name': 'Circuit Theory',
+        'department': 'EEE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.eee@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty2.eee@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty3.eee@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.eee@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'EEE201',
+        'course_name': 'Digital Electronics',
+        'department': 'EEE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty2.eee@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.eee@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'hod.eee@uap-bd.edu',      'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty1.eee@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'EEE301',
+        'course_name': 'Power Systems',
+        'department': 'EEE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty3.eee@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'hod.eee@uap-bd.edu',      'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty1.eee@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty2.eee@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'EEE401',
+        'course_name': 'Microprocessors and Microcontrollers',
+        'department': 'EEE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'hod.eee@uap-bd.edu',      'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty1.eee@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.eee@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty3.eee@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'EEE501',
+        'course_name': 'Control Systems Engineering',
+        'department': 'EEE', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.eee@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.eee@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.eee@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.eee@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+
+    # ══════════════════════════════════════════
+    # Pharmacy
+    # ══════════════════════════════════════════
+    {
+        'course_code': 'PHARMA101',
+        'course_name': 'Pharmaceutical Chemistry',
+        'department': 'Pharmacy', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.pharmacy@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty2.pharmacy@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty3.pharmacy@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.pharmacy@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'PHARMA201',
+        'course_name': 'Pharmacology I',
+        'department': 'Pharmacy', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty2.pharmacy@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.pharmacy@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'hod.pharmacy@uap-bd.edu',      'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty1.pharmacy@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'PHARMA301',
+        'course_name': 'Medicinal Biochemistry',
+        'department': 'Pharmacy', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty3.pharmacy@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'hod.pharmacy@uap-bd.edu',      'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty1.pharmacy@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty2.pharmacy@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'PHARMA401',
+        'course_name': 'Pharmacognosy',
+        'department': 'Pharmacy', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'hod.pharmacy@uap-bd.edu',      'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty1.pharmacy@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.pharmacy@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty3.pharmacy@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'PHARMA501',
+        'course_name': 'Clinical Pharmacy Practice',
+        'department': 'Pharmacy', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.pharmacy@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.pharmacy@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.pharmacy@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.pharmacy@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+
+    # ══════════════════════════════════════════
+    # Law
+    # ══════════════════════════════════════════
+    {
+        'course_code': 'LAW101',
+        'course_name': 'Constitutional Law',
+        'department': 'Law', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.law@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty2.law@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty3.law@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.law@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'LAW201',
+        'course_name': 'Contract Law',
+        'department': 'Law', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty2.law@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.law@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'hod.law@uap-bd.edu',      'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty1.law@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'LAW301',
+        'course_name': 'Criminal Law and Procedure',
+        'department': 'Law', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty3.law@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'hod.law@uap-bd.edu',      'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty1.law@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty2.law@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'LAW401',
+        'course_name': 'International Law',
+        'department': 'Law', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'hod.law@uap-bd.edu',      'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty1.law@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.law@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty3.law@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'LAW501',
+        'course_name': 'Human Rights Law',
+        'department': 'Law', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.law@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.law@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.law@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.law@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+
+    # ══════════════════════════════════════════
+    # English
+    # ══════════════════════════════════════════
+    {
+        'course_code': 'ENG101',
+        'course_name': 'English Composition',
+        'department': 'English', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.english@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty2.english@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty3.english@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.english@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'ENG201',
+        'course_name': 'British Literature',
+        'department': 'English', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty2.english@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.english@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'hod.english@uap-bd.edu',      'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty1.english@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'ENG301',
+        'course_name': 'Linguistics and Phonology',
+        'department': 'English', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty3.english@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'hod.english@uap-bd.edu',      'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty1.english@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty2.english@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'ENG401',
+        'course_name': 'American Literature',
+        'department': 'English', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'hod.english@uap-bd.edu',      'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty1.english@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.english@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty3.english@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'ENG501',
+        'course_name': 'Creative Writing',
+        'department': 'English', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.english@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.english@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.english@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.english@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+
+    # ══════════════════════════════════════════
+    # Architecture
+    # ══════════════════════════════════════════
+    {
+        'course_code': 'ARCH101',
+        'course_name': 'Architectural Design I',
+        'department': 'Architecture', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.architecture@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty2.architecture@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty3.architecture@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.architecture@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'ARCH201',
+        'course_name': 'History of Architecture',
+        'department': 'Architecture', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty2.architecture@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.architecture@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'hod.architecture@uap-bd.edu',      'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty1.architecture@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'ARCH301',
+        'course_name': 'Urban Planning and Design',
+        'department': 'Architecture', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty3.architecture@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'hod.architecture@uap-bd.edu',      'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty1.architecture@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty2.architecture@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'ARCH401',
+        'course_name': 'Building Technology and Materials',
+        'department': 'Architecture', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'hod.architecture@uap-bd.edu',      'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty1.architecture@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.architecture@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'faculty3.architecture@uap-bd.edu', 'is_primary': False},
+        ]
+    },
+    {
+        'course_code': 'ARCH501',
+        'course_name': 'Environmental Design',
+        'department': 'Architecture', 'semester': 'Spring 2024',
+        'sections': [
+            {'section': 'A', 'faculty_email': 'faculty1.architecture@uap-bd.edu', 'is_primary': True},
+            {'section': 'B', 'faculty_email': 'faculty3.architecture@uap-bd.edu', 'is_primary': False},
+            {'section': 'C', 'faculty_email': 'faculty2.architecture@uap-bd.edu', 'is_primary': False},
+            {'section': 'D', 'faculty_email': 'hod.architecture@uap-bd.edu',      'is_primary': False},
+        ]
+    },
+]
+
+# ============================================
+# CREATE COURSES AND ASSIGNMENTS
+# ============================================
+
+for data in courses_data:
+    print(f"\n  [{data['department']}] {data['course_code']} — {data['course_name']}")
+
+    course, course_created = Course.objects.get_or_create(
+        course_code=data['course_code'],
+        defaults={
+            'course_name': data['course_name'],
+            'department':  data['department'],
+            'semester':    data['semester'],
+            'is_active':   True,
+        }
+    )
+
+    if course_created:
+        created_courses += 1
+        print(f"    Course created.")
+    else:
+        skipped_courses += 1
+        print(f"    Course already exists — checking assignments...")
+
+    for s in data['sections']:
+        try:
+            faculty = User.objects.get(email=s['faculty_email'])
+        except User.DoesNotExist:
+            print(f"    ERROR: Faculty not found — {s['faculty_email']} (run seed_users.py first)")
+            continue
+
+        assignment, a_created = CourseAssignment.objects.get_or_create(
+            course=course,
+            class_section=s['section'],
+            defaults={
+                'faculty':    faculty,
+                'is_primary': s['is_primary'],
+            }
+        )
+
+        if a_created:
+            created_assignments += 1
+            tag = ' [PRIMARY]' if s['is_primary'] else ''
+            print(f"    Section {s['section']} -> {faculty.full_name}{tag}")
+        else:
+            skipped_assignments += 1
+            print(f"    Section {s['section']} already assigned — skipped.")
+
+# ============================================
+# SUMMARY
+# ============================================
+print("\n" + "=" * 60)
+print("COURSE SEEDING COMPLETE!")
+print("=" * 60)
+print(f"\n  Courses     created : {created_courses}")
+print(f"  Courses     skipped : {skipped_courses}")
+print(f"  Assignments created : {created_assignments}")
+print(f"  Assignments skipped : {skipped_assignments}")
+print(f"\n  Total Courses in DB     : {Course.objects.count()}")
+print(f"  Total Assignments in DB : {CourseAssignment.objects.count()}")
+
+print("\n  COURSES PER DEPARTMENT:")
+for dept in ['DBA', 'CSE', 'CE', 'EEE', 'Pharmacy', 'Law', 'English', 'Architecture']:
+    print(f"    {dept:<15}: {Course.objects.filter(department=dept).count()} courses")
+
+print("\n" + "=" * 60)
+print("  SAMPLE — CSE101 Section Assignments:")
+print("=" * 60)
+try:
+    cse101 = Course.objects.get(course_code='CSE101')
+    for a in cse101.assignments.select_related('faculty').all():
+        tag = ' [PRIMARY]' if a.is_primary else ''
+        print(f"    Section {a.class_section} -> {a.faculty.full_name}{tag}")
+except Course.DoesNotExist:
+    print("    CSE101 not found.")
+
+print("\n" + "=" * 60)
+print("YOU CAN NOW USE COURSES IN THE SYSTEM!")
+print("=" * 60)
+
+exit()
+
