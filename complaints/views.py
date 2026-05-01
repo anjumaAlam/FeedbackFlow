@@ -1,5 +1,3 @@
-
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -14,6 +12,16 @@ from users.models import User
 import json
 
 
+def create_notification(recipient, title, message, notification_type, link=None):
+    """Helper to create a notification"""
+    from users.models import Notification
+    Notification.objects.create(
+        recipient=recipient,
+        title=title,
+        message=message,
+        notification_type=notification_type,
+        link=link,
+    )
 
 
 @login_required
@@ -31,6 +39,39 @@ def submit_complaint(request):
             complaint.student = request.user
             complaint.save()
 
+            # --- NOTIFICATIONS ---
+            if complaint.complaint_type == 'Faculty':
+                if complaint.assigned_to:
+                    create_notification(
+                        recipient=complaint.assigned_to,
+                        title=f'New Faculty Complaint: {complaint.subject}',
+                        message=f'A new complaint has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
+                        notification_type='complaint',
+                        link=f'/complaints/hod/handle/{complaint.id}/',
+                    )
+
+            elif complaint.complaint_type in ['HOD', 'Staff']:
+                admins = User.objects.filter(role='Admin')
+                for admin in admins:
+                    create_notification(
+                        recipient=admin,
+                        title=f'New {complaint.complaint_type} Complaint: {complaint.subject}',
+                        message=f'A complaint against {complaint.complaint_type} has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
+                        notification_type='complaint',
+                        link=f'/complaints/admin/list/',
+                    )
+
+            elif complaint.complaint_type == 'Facility':
+                if complaint.assigned_to:
+                    create_notification(
+                        recipient=complaint.assigned_to,
+                        title=f'New Facility Issue: {complaint.subject}',
+                        message=f'A facility issue has been reported by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
+                        notification_type='complaint',
+                        link=f'/complaints/staff/list/',
+                    )
+            # --- END NOTIFICATIONS ---
+
             messages.success(
                 request,
                 f'Complaint submitted successfully! Tracking ID: {complaint.tracking_id}'
@@ -40,6 +81,7 @@ def submit_complaint(request):
             messages.error(request, 'Please correct the errors below.')
     else:
         form = ComplaintSubmissionForm()
+
     # Build users-by-role mapping for frontend filtering
     roles = ['Faculty', 'HOD', 'Staff']
     users_by_role = {}
@@ -65,7 +107,6 @@ def my_complaints(request):
 
     complaints_list = Complaint.objects.filter(student=request.user).order_by('-submitted_at')
 
-
     total_complaints = complaints_list.count()
     pending = complaints_list.filter(status='Pending').count()
     resolved = complaints_list.filter(status='Resolved').count()
@@ -86,11 +127,9 @@ def complaint_detail(request, complaint_id):
 
     complaint = get_object_or_404(Complaint, id=complaint_id)
 
-
     if request.user.role == 'Student' and complaint.student != request.user:
         messages.error(request, 'You can only view your own complaints.')
         return redirect('my_complaints')
-
 
     updates = complaint.updates.all().order_by('created_at')
 
@@ -102,11 +141,7 @@ def complaint_detail(request, complaint_id):
     return render(request, 'complaints/complaint_detail.html', context)
 
 
-
-
 @login_required
-
-
 def hod_complaints_list(request):
     """HOD views complaints assigned to them (faculty complaints)"""
 
@@ -114,7 +149,6 @@ def hod_complaints_list(request):
         messages.error(request, 'Access denied. HOD only.')
         return redirect('login')
 
-    from django.db.models import Q
     complaints_list = Complaint.objects.filter(
         Q(assigned_to=request.user) |
         Q(faculty_concerned__department=request.user.department)
@@ -167,28 +201,35 @@ def handle_complaint(request, complaint_id):
             update.updated_by = request.user
             update.save()
 
-
             if update.status_changed_to:
                 complaint.status = update.status_changed_to
-
 
                 if update.status_changed_to == 'Resolved':
                     complaint.resolved_at = timezone.now()
 
                 complaint.save()
 
-            messages.success(request, 'Complaint updated successfully!')
+            # --- NOTIFY STUDENT ABOUT UPDATE ---
+            from users.models import Notification
+            Notification.objects.create(
+                recipient=complaint.student,
+                title=f'Update on your complaint: {complaint.tracking_id}',
+                message=f'Your complaint "{complaint.subject}" has been updated. New status: {complaint.status}',
+                notification_type='update',
+                link=f'/complaints/detail/{complaint.id}/',
+            )
+            # --- END NOTIFICATION ---
 
+            messages.success(request, 'Complaint updated successfully!')
 
             if request.user.role == 'HOD':
                 return redirect('hod_complaints_list')
             elif request.user.role == 'Staff':
                 return redirect('staff_complaints_list')
-            else:  # Admin
+            else:
                 return redirect('admin_complaints_list')
     else:
         form = ComplaintUpdateForm()
-
 
     updates = complaint.updates.all().order_by('created_at')
 
@@ -201,8 +242,6 @@ def handle_complaint(request, complaint_id):
     return render(request, 'complaints/handle_complaint.html', context)
 
 
-
-
 @login_required
 def staff_complaints_list(request):
     """Staff views facility complaints assigned to them"""
@@ -211,11 +250,9 @@ def staff_complaints_list(request):
         messages.error(request, 'Access denied. Staff only.')
         return redirect('login')
 
-
     complaints_list = Complaint.objects.filter(
         assigned_to=request.user
     ).order_by('-submitted_at')
-
 
     total_complaints = complaints_list.count()
     pending = complaints_list.filter(status='Pending').count()
@@ -233,8 +270,6 @@ def staff_complaints_list(request):
     return render(request, 'complaints/staff_complaints_list.html', context)
 
 
-
-
 @login_required
 def admin_complaints_list(request):
     """Admin views all complaints or complaints assigned to them"""
@@ -243,9 +278,7 @@ def admin_complaints_list(request):
         messages.error(request, 'Access denied. Admin only.')
         return redirect('login')
 
-
     complaints_list = Complaint.objects.all().order_by('-submitted_at')
-
 
     total_complaints = complaints_list.count()
     pending = complaints_list.filter(status='Pending').count()
@@ -253,11 +286,11 @@ def admin_complaints_list(request):
     resolved = complaints_list.filter(status='Resolved').count()
     escalated = complaints_list.filter(status='Escalated').count()
 
-
     faculty_complaints = complaints_list.filter(complaint_type='Faculty').count()
     hod_complaints = complaints_list.filter(complaint_type='HOD').count()
     staff_complaints = complaints_list.filter(complaint_type='Staff').count()
     facility_complaints = complaints_list.filter(complaint_type='Facility').count()
+
     context = {
         'complaints_list': complaints_list,
         'total_complaints': total_complaints,

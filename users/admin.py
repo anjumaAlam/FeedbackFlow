@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Appointment
+from .models import User, Appointment, Notification
 
 
 
@@ -43,7 +43,15 @@ class UserAdmin(BaseUserAdmin):
 
     @admin.register(Appointment)
     class AppointmentAdmin(admin.ModelAdmin):
-        list_display = ['name', 'student_id', 'department', 'place', 'preferred_time', 'status', 'created_at']
-        list_filter = ['status', 'department', 'created_at']
-        search_fields = ['name', 'student_id']
+        list_display = ['name', 'roll_number', 'department', 'appointment_with', 'incident_type', 'status',
+                        'created_at']
+        list_filter = ['status', 'department', 'appointment_with', 'incident_type']
+        search_fields = ['name', 'roll_number']
+        ordering = ['-created_at']
+
+    @admin.register(Notification)
+    class NotificationAdmin(admin.ModelAdmin):
+        list_display = ['recipient', 'title', 'notification_type', 'is_read', 'created_at']
+        list_filter = ['notification_type', 'is_read']
+        search_fields = ['recipient__full_name', 'title']
         ordering = ['-created_at']

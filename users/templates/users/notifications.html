@@ -1,0 +1,50 @@
+{% extends 'users/base.html' %}
+{% block title %}Notifications - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 750px;">
+
+    <div class="mb-4">
+        <h2 class="fw-bold" style="color:#1e3a8a;">🔔 Notifications</h2>
+        <p class="text-muted">All your recent notifications</p>
+    </div>
+
+    {% if notifications %}
+        {% for notif in notifications %}
+        <div class="card mb-3 shadow-sm {% if not notif.is_read %}border-primary{% endif %}">
+            <div class="card-body d-flex justify-content-between align-items-start">
+                <div>
+                    {% if notif.notification_type == 'complaint' %}
+                        <span class="badge bg-danger me-2">Complaint</span>
+                    {% elif notif.notification_type == 'appointment' %}
+                        <span class="badge bg-primary me-2">Appointment</span>
+                    {% else %}
+                        <span class="badge bg-success me-2">Update</span>
+                    {% endif %}
+
+                    <strong>{{ notif.title }}</strong>
+                    {% if not notif.is_read %}
+                        <span class="badge bg-warning text-dark ms-2">New</span>
+                    {% endif %}
+
+                    <p class="text-muted mb-1 mt-1">{{ notif.message }}</p>
+                    <small class="text-muted">{{ notif.created_at|date:"M d, Y - h:i A" }}</small>
+                </div>
+                {% if notif.link %}
+                <a href="{% url 'mark_notification_read' notif.id %}" class="btn btn-sm btn-outline-primary ms-3">
+                    View
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <p style="font-size: 60px;">🔔</p>
+            <h5 class="text-muted">No notifications yet</h5>
+            <p class="text-muted">You will be notified when something happens.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

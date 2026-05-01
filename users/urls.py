@@ -43,5 +43,7 @@ urlpatterns = [
     path('dashboard/feedback-reports/', views.feedback_reports, name='feedback_reports'),
     path('reports/feedback/', views.feedback_reports, name='feedback_reports_alt'),
     path('appointment/', views.appointment_view, name='appointment'),
+    path('notifications/', views.notifications_view, name='notifications'),
+    path('notifications/mark-read/<int:notif_id>/', views.mark_notification_read, name='mark_notification_read'),
 ]
 

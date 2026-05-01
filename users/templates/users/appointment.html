@@ -7,7 +7,7 @@
     <!-- Header -->
     <div class="mb-4">
         <h2 class="fw-bold" style="color:#1e3a8a;">📅 Book an Appointment</h2>
-        <p class="text-muted">Fill in the details below to request an appointment with faculty or HOD.</p>
+        <p class="text-muted">Fill in the details below to request an appointment.</p>
     </div>
 
     <!-- Tabs -->
@@ -22,7 +22,6 @@
         You will be notified once it is approved or rejected.
     </div>
 
-    <!-- Success / Error Messages -->
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
@@ -40,39 +39,28 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">
-                            Full Name <span class="text-danger">*</span>
-                        </label>
+                        <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
                         {{ form.name }}
                         {% if form.name.errors %}
                             <div class="text-danger small mt-1">{{ form.name.errors|join:", " }}</div>
                         {% endif %}
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">
-                            Student ID <span class="text-danger">*</span>
-                        </label>
+                        <label class="form-label fw-semibold">Student ID <span class="text-danger">*</span></label>
                         {{ form.roll_number }}
                         {% if form.roll_number.errors %}
                             <div class="text-danger small mt-1">{{ form.roll_number.errors|join:", " }}</div>
                         {% endif %}
                     </div>
-
-                    <!-- Book Appointment With -->
                     <div class="col-12">
-                        <label class="form-label fw-semibold">
-                            Book Appointment With <span class="text-danger">*</span>
-                        </label>
+                        <label class="form-label fw-semibold">Book Appointment With <span class="text-danger">*</span></label>
                         {{ form.appointment_with }}
                         {% if form.appointment_with.errors %}
                             <div class="text-danger small mt-1">{{ form.appointment_with.errors|join:", " }}</div>
                         {% endif %}
                     </div>
-
                     <div class="col-12">
-                        <label class="form-label fw-semibold">
-                            Department <span class="text-danger">*</span>
-                        </label>
+                        <label class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
                         {{ form.department }}
                         {% if form.department.errors %}
                             <div class="text-danger small mt-1">{{ form.department.errors|join:", " }}</div>
@@ -85,35 +73,22 @@
         <!-- Appointment Details -->
         <div class="card shadow-sm mb-4">
             <div class="card-header fw-bold" style="background:#f1f5ff; color:#1e3a8a;">
-                📋 Appointment Details
+                📋 Incident Details
             </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-12">
-                        <label class="form-label fw-semibold">
-                            Description of Issue <span class="text-danger">*</span>
-                        </label>
+                        <label class="form-label fw-semibold">Type of Incident <span class="text-danger">*</span></label>
+                        {{ form.incident_type }}
+                        {% if form.incident_type.errors %}
+                            <div class="text-danger small mt-1">{{ form.incident_type.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Description of Incident <span class="text-danger">*</span></label>
                         {{ form.description }}
                         {% if form.description.errors %}
                             <div class="text-danger small mt-1">{{ form.description.errors|join:", " }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">
-                            Preferred Time <span class="text-danger">*</span>
-                        </label>
-                        {{ form.preferred_time }}
-                        {% if form.preferred_time.errors %}
-                            <div class="text-danger small mt-1">{{ form.preferred_time.errors|join:", " }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">
-                            Preferred Place <span class="text-danger">*</span>
-                        </label>
-                        {{ form.place }}
-                        {% if form.place.errors %}
-                            <div class="text-danger small mt-1">{{ form.place.errors|join:", " }}</div>
                         {% endif %}
                     </div>
                 </div>
