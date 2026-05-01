@@ -1,678 +1,736 @@
-{% extends 'users/base.html' %}
-{% block title %}FeedbackFlow - University of Asia Pacific{% endblock %}
-
-{% block extra_css %}
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
-
-:root {
-    --navy: #0f1f3d;
-    --blue: #1a3a8a;
-    --royal: #2563eb;
-    --gold: #f59e0b;
-    --light: #f0f4ff;
-    --white: #ffffff;
-    --gray: #64748b;
-    --soft: #e8eeff;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--white);
-    color: var(--navy);
-    overflow-x: hidden;
-}
-
-/* ===== HERO ===== */
-.hero {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #0f1f3d 0%, #1a3a8a 50%, #2563eb 100%);
-    position: relative;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-}
-
-.hero::before {
-    content: '';
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(245,158,11,0.15) 0%, transparent 70%);
-    top: -100px;
-    right: -100px;
-    border-radius: 50%;
-}
-
-.hero::after {
-    content: '';
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
-    bottom: -50px;
-    left: -50px;
-    border-radius: 50%;
-}
-
-.hero-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-    padding: 100px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-}
-
-.hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(245,158,11,0.15);
-    border: 1px solid rgba(245,158,11,0.3);
-    color: var(--gold);
-    padding: 6px 16px;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 24px;
-}
-
-.hero-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 64px;
-    font-weight: 900;
-    color: var(--white);
-    line-height: 1.05;
-    margin-bottom: 20px;
-}
-
-.hero-title span {
-    color: var(--gold);
-}
-
-.hero-desc {
-    font-size: 18px;
-    color: rgba(255,255,255,0.75);
-    line-height: 1.7;
-    font-weight: 300;
-    margin-bottom: 36px;
-    max-width: 460px;
-}
-
-.hero-buttons {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.btn-hero-primary {
-    background: var(--gold);
-    color: var(--navy);
-    font-weight: 700;
-    font-size: 15px;
-    padding: 14px 32px;
-    border-radius: 50px;
-    text-decoration: none;
-    transition: all 0.3s;
-    display: inline-block;
-}
-
-.btn-hero-primary:hover {
-    background: #fbbf24;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(245,158,11,0.4);
-    color: var(--navy);
-}
-
-.btn-hero-ghost {
-    background: transparent;
-    color: var(--white);
-    font-weight: 600;
-    font-size: 15px;
-    padding: 13px 32px;
-    border-radius: 50px;
-    text-decoration: none;
-    border: 2px solid rgba(255,255,255,0.4);
-    transition: all 0.3s;
-    display: inline-block;
-}
-
-.btn-hero-ghost:hover {
-    border-color: var(--white);
-    background: rgba(255,255,255,0.1);
-    color: var(--white);
-    transform: translateY(-2px);
-}
-
-/* Hero right side cards */
-.hero-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.hero-card {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 16px;
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s;
-    animation: slideIn 0.6s ease forwards;
-    opacity: 0;
-    transform: translateX(30px);
-}
-
-.hero-card:nth-child(1) { animation-delay: 0.2s; }
-.hero-card:nth-child(2) { animation-delay: 0.4s; }
-.hero-card:nth-child(3) { animation-delay: 0.6s; }
-.hero-card:nth-child(4) { animation-delay: 0.8s; }
-
-@keyframes slideIn {
-    to { opacity: 1; transform: translateX(0); }
-}
-
-.hero-card:hover {
-    background: rgba(255,255,255,0.14);
-    transform: translateX(-4px);
-}
-
-.hero-card-icon {
-    font-size: 28px;
-    width: 52px;
-    height: 52px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.hero-card-text h4 {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--white);
-    margin-bottom: 3px;
-}
-
-.hero-card-text p {
-    font-size: 13px;
-    color: rgba(255,255,255,0.6);
-    font-weight: 300;
-}
-
-/* ===== STATS STRIP ===== */
-.stats-strip {
-    background: var(--navy);
-    padding: 40px 60px;
-}
-
-.stats-strip-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-.stat-item {
-    background: var(--navy);
-    padding: 32px 24px;
-    text-align: center;
-}
-
-.stat-num {
-    font-family: 'Playfair Display', serif;
-    font-size: 44px;
-    font-weight: 900;
-    color: var(--gold);
-    line-height: 1;
-    margin-bottom: 6px;
-}
-
-.stat-label {
-    font-size: 13px;
-    color: rgba(255,255,255,0.5);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-weight: 500;
-}
-
-/* ===== SECTION ===== */
-.section {
-    padding: 100px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.section-tag {
-    font-size: 12px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--royal);
-    font-weight: 600;
-    margin-bottom: 12px;
-}
-
-.section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 42px;
-    font-weight: 900;
-    color: var(--navy);
-    line-height: 1.15;
-    margin-bottom: 16px;
-}
-
-.section-title span { color: var(--royal); }
-
-.section-desc {
-    font-size: 17px;
-    color: var(--gray);
-    font-weight: 300;
-    line-height: 1.7;
-    max-width: 500px;
-}
-
-/* ===== FEATURES ===== */
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-top: 60px;
-}
-
-.feature-card {
-    background: var(--white);
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    padding: 36px 28px;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-}
-
-.feature-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--royal), var(--gold));
-    transform: scaleX(0);
-    transition: transform 0.3s;
-}
-
-.feature-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 50px rgba(37,99,235,0.12);
-    border-color: transparent;
-}
-
-.feature-card:hover::before {
-    transform: scaleX(1);
-}
-
-.feature-num {
-    font-family: 'Playfair Display', serif;
-    font-size: 48px;
-    font-weight: 900;
-    color: rgba(37,99,235,0.07);
-    line-height: 1;
-    margin-bottom: 16px;
-}
-
-.feature-icon {
-    font-size: 32px;
-    margin-bottom: 16px;
-    display: block;
-}
-
-.feature-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--navy);
-    margin-bottom: 10px;
-}
-
-.feature-desc {
-    font-size: 14px;
-    color: var(--gray);
-    line-height: 1.7;
-    font-weight: 300;
-}
-
-/* ===== HOW IT WORKS ===== */
-.how-section {
-    background: var(--light);
-    padding: 100px 0;
-}
-
-.how-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 60px;
-}
-
-.steps-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-    margin-top: 60px;
-    position: relative;
-}
-
-.steps-grid::before {
-    content: '';
-    position: absolute;
-    top: 40px;
-    left: 10%;
-    right: 10%;
-    height: 2px;
-    background: linear-gradient(90deg, var(--royal), var(--gold));
-    z-index: 0;
-}
-
-.step-card {
-    background: var(--white);
-    border-radius: 20px;
-    padding: 32px 24px;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    transition: all 0.3s;
-}
-
-.step-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 40px rgba(37,99,235,0.15);
-}
-
-.step-num {
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, var(--royal), #1d4ed8);
-    color: var(--white);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 900;
-    margin: 0 auto 20px;
-    box-shadow: 0 4px 15px rgba(37,99,235,0.3);
-}
-
-.step-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--navy);
-    margin-bottom: 8px;
-}
-
-.step-desc {
-    font-size: 13px;
-    color: var(--gray);
-    line-height: 1.6;
-    font-weight: 300;
-}
-
-/* ===== WHO IS IT FOR ===== */
-.roles-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-    margin-top: 60px;
-}
-
-.role-card {
-    border-radius: 20px;
-    padding: 36px;
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
-    transition: all 0.3s;
-    border: 1px solid transparent;
-}
-
-.role-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(37,99,235,0.2);
-    box-shadow: 0 12px 40px rgba(37,99,235,0.1);
-}
-
-.role-card.student { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
-.role-card.faculty { background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
-.role-card.hod     { background: linear-gradient(135deg, #fefce8, #fef9c3); }
-.role-card.admin   { background: linear-gradient(135deg, #fdf2f8, #fce7f3); }
-
-.role-icon {
-    font-size: 40px;
-    width: 70px;
-    height: 70px;
-    background: var(--white);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-.role-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--navy);
-    margin-bottom: 8px;
-}
-
-.role-desc {
-    font-size: 14px;
-    color: var(--gray);
-    line-height: 1.65;
-    font-weight: 300;
-    margin-bottom: 12px;
-}
-
-.role-tag {
-    display: inline-block;
-    background: rgba(37,99,235,0.1);
-    color: var(--royal);
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 12px;
-    border-radius: 50px;
-}
-
-/* ===== TESTIMONIAL ===== */
-.testimonial-section {
-    background: linear-gradient(135deg, var(--navy), var(--blue));
-    padding: 100px 60px;
-}
-
-.testimonial-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.testimonial-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-top: 60px;
-}
-
-.testimonial-card {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    padding: 32px;
-    transition: all 0.3s;
-}
-
-.testimonial-card:hover {
-    background: rgba(255,255,255,0.12);
-    transform: translateY(-4px);
-}
-
-.testimonial-quote {
-    font-size: 32px;
-    color: var(--gold);
-    margin-bottom: 16px;
-    line-height: 1;
-}
-
-.testimonial-text {
-    font-size: 15px;
-    color: rgba(255,255,255,0.8);
-    line-height: 1.7;
-    font-weight: 300;
-    margin-bottom: 20px;
-    font-style: italic;
-}
-
-.testimonial-author {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.author-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--royal), var(--gold));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--white);
-    font-family: 'Playfair Display', serif;
-}
-
-.author-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--white);
-}
-
-.author-role {
-    font-size: 12px;
-    color: rgba(255,255,255,0.5);
-}
-
-/* ===== CTA ===== */
-.cta-section {
-    padding: 120px 60px;
-    text-align: center;
-    background: var(--white);
-}
-
-.cta-inner {
-    max-width: 700px;
-    margin: 0 auto;
-}
-
-.cta-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 54px;
-    font-weight: 900;
-    color: var(--navy);
-    line-height: 1.1;
-    margin-bottom: 20px;
-}
-
-.cta-title span { color: var(--royal); }
-
-.cta-desc {
-    font-size: 18px;
-    color: var(--gray);
-    font-weight: 300;
-    line-height: 1.7;
-    margin-bottom: 40px;
-}
-
-.btn-cta {
-    background: linear-gradient(135deg, var(--royal), #1d4ed8);
-    color: var(--white);
-    font-weight: 700;
-    font-size: 16px;
-    padding: 16px 40px;
-    border-radius: 50px;
-    text-decoration: none;
-    transition: all 0.3s;
-    display: inline-block;
-    box-shadow: 0 8px 25px rgba(37,99,235,0.3);
-}
-
-.btn-cta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 14px 35px rgba(37,99,235,0.4);
-    color: var(--white);
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .hero-grid { grid-template-columns: 1fr; padding: 80px 24px; }
-    .hero-cards { display: none; }
-    .hero-title { font-size: 40px; }
-    .stats-strip { padding: 40px 24px; }
-    .stats-strip-inner { grid-template-columns: repeat(2, 1fr); }
-    .section { padding: 60px 24px; }
-    .features-grid { grid-template-columns: 1fr; }
-    .steps-grid { grid-template-columns: repeat(2, 1fr); }
-    .steps-grid::before { display: none; }
-    .roles-grid { grid-template-columns: 1fr; }
-    .testimonial-section { padding: 60px 24px; }
-    .testimonial-grid { grid-template-columns: 1fr; }
-    .cta-section { padding: 80px 24px; }
-    .cta-title { font-size: 36px; }
-    .how-inner { padding: 0 24px; }
-}
-
-/* ===== FADE IN ===== */
-.fade-in {
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-}
-.fade-in.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-</style>
-{% endblock %}
-
-{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FeedbackFlow - University of Asia Pacific</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #0f1f3d;
+            --blue: #1a3a8a;
+            --royal: #2563eb;
+            --gold: #f59e0b;
+            --light: #f0f4ff;
+            --white: #ffffff;
+            --gray: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--white);
+            color: var(--navy);
+            overflow-x: hidden;
+        }
+
+        /* ===== NAVBAR ===== */
+        .ff-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 18px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15,31,61,0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            transition: all 0.3s;
+        }
+
+        .ff-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .ff-logo span { color: var(--gold); }
+
+        .ff-nav-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .ff-nav-links a {
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 50px;
+            transition: all 0.2s;
+        }
+
+        .ff-nav-links a:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+
+        .ff-nav-links .btn-nav {
+            background: var(--gold);
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+        .ff-nav-links .btn-nav:hover { background: #fbbf24; color: var(--navy); }
+
+        /* ===== CANVAS PARTICLES ===== */
+        #particles-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f1f3d 0%, #1a3a8a 50%, #2563eb 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-glow-1 {
+            position: absolute;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%);
+            top: -100px; right: -100px;
+            border-radius: 50%;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .hero-glow-2 {
+            position: absolute;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+            bottom: -50px; left: -50px;
+            border-radius: 50%;
+            animation: pulse 6s ease-in-out infinite reverse;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            padding: 120px 60px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245,158,11,0.15);
+            border: 1px solid rgba(245,158,11,0.3);
+            color: var(--gold);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.2s forwards;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 68px;
+            font-weight: 900;
+            color: var(--white);
+            line-height: 1.02;
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.4s forwards;
+        }
+
+        .hero-title .typed-text { color: var(--gold); }
+
+        .hero-title .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 0.9em;
+            background: var(--gold);
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 0.8s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .hero-desc {
+            font-size: 17px;
+            color: rgba(255,255,255,0.72);
+            line-height: 1.75;
+            font-weight: 300;
+            margin-bottom: 36px;
+            max-width: 460px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.6s forwards;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.8s forwards;
+        }
+
+        .btn-hero-primary {
+            background: var(--gold);
+            color: var(--navy);
+            font-weight: 700;
+            font-size: 15px;
+            padding: 14px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-hero-primary:hover {
+            background: #fbbf24;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(245,158,11,0.45);
+            color: var(--navy);
+        }
+
+        .btn-hero-ghost {
+            background: transparent;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 15px;
+            padding: 13px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            border: 2px solid rgba(255,255,255,0.4);
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-hero-ghost:hover {
+            border-color: var(--white);
+            background: rgba(255,255,255,0.1);
+            color: var(--white);
+            transform: translateY(-3px);
+        }
+
+        /* ===== FLOATING CARDS ===== */
+        .hero-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .hero-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 16px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateX(40px);
+            transition: all 0.3s;
+        }
+
+        .hero-card.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .hero-card:hover {
+            background: rgba(255,255,255,0.14);
+            transform: translateX(-6px) !important;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        .hero-card:nth-child(1) { animation-delay: 1s; }
+        .hero-card:nth-child(2) { animation-delay: 1.2s; }
+        .hero-card:nth-child(3) { animation-delay: 1.4s; }
+        .hero-card:nth-child(4) { animation-delay: 1.6s; }
+
+        /* floating animation */
+        .hero-card:nth-child(odd) { animation: floatOdd 3s ease-in-out infinite; }
+        .hero-card:nth-child(even) { animation: floatEven 3.5s ease-in-out infinite; }
+
+        @keyframes floatOdd {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(0) translateY(-6px); }
+        }
+
+        @keyframes floatEven {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(0) translateY(6px); }
+        }
+
+        .hero-card-icon {
+            font-size: 26px;
+            width: 52px; height: 52px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .hero-card-text h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 3px;
+        }
+
+        .hero-card-text p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.55);
+            font-weight: 300;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== STATS ===== */
+        .stats-strip {
+            background: var(--navy);
+            padding: 0 60px;
+        }
+
+        .stats-strip-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .stat-item {
+            background: var(--navy);
+            padding: 40px 24px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .stat-item:hover { background: #162847; }
+
+        .stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* ===== SECTION ===== */
+        .section {
+            padding: 100px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-tag {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--royal);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--navy);
+            line-height: 1.12;
+            margin-bottom: 16px;
+        }
+
+        .section-title span { color: var(--royal); }
+
+        .section-desc {
+            font-size: 16px;
+            color: var(--gray);
+            font-weight: 300;
+            line-height: 1.75;
+            max-width: 520px;
+        }
+
+        /* ===== FEATURES ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 36px 28px;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--royal), var(--gold));
+            transform: scaleX(0);
+            transition: transform 0.4s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 24px 60px rgba(37,99,235,0.14);
+            border-color: transparent;
+        }
+
+        .feature-card:hover::before { transform: scaleX(1); }
+
+        .feature-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 52px;
+            font-weight: 900;
+            color: rgba(37,99,235,0.06);
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+
+        .feature-icon { font-size: 32px; margin-bottom: 16px; display: block; }
+        .feature-title { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+        .feature-desc { font-size: 14px; color: var(--gray); line-height: 1.7; font-weight: 300; }
+
+        /* ===== HOW IT WORKS ===== */
+        .how-section {
+            background: #f0f4ff;
+            padding: 100px 0;
+        }
+
+        .how-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 60px;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 60px;
+            position: relative;
+        }
+
+        .steps-grid::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 12%;
+            right: 12%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--royal), var(--gold));
+            z-index: 0;
+        }
+
+        .step-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 32px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .step-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .step-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(37,99,235,0.16);
+        }
+
+        .step-num {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, var(--royal), #1d4ed8);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 900;
+            margin: 0 auto 20px;
+            box-shadow: 0 6px 18px rgba(37,99,235,0.35);
+        }
+
+        .step-title { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+        .step-desc { font-size: 13px; color: var(--gray); line-height: 1.65; font-weight: 300; }
+
+        /* ===== ROLES ===== */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .role-card {
+            border-radius: 20px;
+            padding: 36px;
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .role-card.visible { opacity: 1; transform: translateX(0); }
+
+        .role-card:hover {
+            transform: translateY(-6px) !important;
+            border-color: rgba(37,99,235,0.2);
+            box-shadow: 0 16px 40px rgba(37,99,235,0.1);
+        }
+
+        .role-card.student { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
+        .role-card.faculty { background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+        .role-card.hod     { background: linear-gradient(135deg, #fefce8, #fef9c3); }
+        .role-card.admin   { background: linear-gradient(135deg, #fdf2f8, #fce7f3); }
+
+        .role-icon {
+            font-size: 36px;
+            width: 68px; height: 68px;
+            background: var(--white);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        .role-title { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+        .role-desc { font-size: 14px; color: var(--gray); line-height: 1.65; font-weight: 300; margin-bottom: 12px; }
+
+        .role-tag {
+            display: inline-block;
+            background: rgba(37,99,235,0.1);
+            color: var(--royal);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 14px;
+            border-radius: 50px;
+        }
+
+        /* ===== TESTIMONIALS ===== */
+        .testimonial-section {
+            background: linear-gradient(135deg, var(--navy), var(--blue));
+            padding: 100px 60px;
+        }
+
+        .testimonial-inner { max-width: 1200px; margin: 0 auto; }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .testimonial-card {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .testimonial-card.visible { opacity: 1; transform: translateY(0); }
+
+        .testimonial-card:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-6px);
+        }
+
+        .testimonial-quote { font-size: 36px; color: var(--gold); margin-bottom: 16px; line-height: 1; }
+        .testimonial-text { font-size: 15px; color: rgba(255,255,255,0.78); line-height: 1.75; font-weight: 300; margin-bottom: 20px; font-style: italic; }
+
+        .testimonial-author { display: flex; align-items: center; gap: 12px; }
+
+        .author-avatar {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--royal), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--white);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .author-name { font-size: 14px; font-weight: 600; color: var(--white); }
+        .author-role { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+        /* ===== CTA ===== */
+        .cta-section {
+            padding: 120px 60px;
+            text-align: center;
+            background: var(--white);
+        }
+
+        .cta-inner { max-width: 700px; margin: 0 auto; }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 56px;
+            font-weight: 900;
+            color: var(--navy);
+            line-height: 1.08;
+            margin-bottom: 20px;
+        }
+
+        .cta-title span { color: var(--royal); }
+        .cta-desc { font-size: 17px; color: var(--gray); font-weight: 300; line-height: 1.75; margin-bottom: 40px; }
+
+        .btn-cta {
+            background: linear-gradient(135deg, var(--royal), #1d4ed8);
+            color: var(--white);
+            font-weight: 700;
+            font-size: 16px;
+            padding: 16px 44px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+            box-shadow: 0 8px 28px rgba(37,99,235,0.32);
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(37,99,235,0.45);
+            color: var(--white);
+        }
+
+        /* ===== FOOTER ===== */
+        .ff-footer {
+            background: var(--navy);
+            padding: 30px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ff-footer p { font-size: 13px; color: rgba(255,255,255,0.35); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .ff-nav { padding: 16px 20px; }
+            .hero-grid { grid-template-columns: 1fr; padding: 100px 24px 60px; }
+            .hero-cards { display: none; }
+            .hero-title { font-size: 42px; }
+            .stats-strip { padding: 0 24px; }
+            .stats-strip-inner { grid-template-columns: repeat(2, 1fr); }
+            .section { padding: 60px 24px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .how-inner { padding: 0 24px; }
+            .steps-grid { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid::before { display: none; }
+            .roles-grid { grid-template-columns: 1fr; }
+            .testimonial-section { padding: 60px 24px; }
+            .testimonial-grid { grid-template-columns: 1fr; }
+            .cta-section { padding: 80px 24px; }
+            .cta-title { font-size: 36px; }
+            .ff-footer { flex-direction: column; gap: 10px; padding: 24px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="ff-nav">
+    <a href="/" class="ff-logo">Feedback<span>Flow</span></a>
+    <div class="ff-nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it Works</a>
+        <a href="{% url 'login' %}">Sign In</a>
+        <a href="{% url 'register' %}" class="btn-nav">Join FeedbackFlow</a>
+    </div>
+</nav>
 
 <!-- ===== HERO ===== -->
 <section class="hero">
+    <canvas id="particles-canvas"></canvas>
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
+
     <div class="hero-grid">
         <div class="hero-left">
-            <div class="hero-badge">
-                🎓 University of Asia Pacific
-            </div>
+            <div class="hero-badge">🎓 University of Asia Pacific</div>
             <h1 class="hero-title">
                 Your Voice.<br>
-                Your <span>Campus.</span><br>
+                Your <span class="typed-text" id="typed-word"></span><span class="cursor"></span><br>
                 Your Change.
             </h1>
             <p class="hero-desc">
@@ -680,34 +738,34 @@ body {
                 to submit feedback, file complaints, and drive meaningful change across campus.
             </p>
             <div class="hero-buttons">
-                <a href="{% url 'register' %}" class="btn-hero-primary">Get Started Free</a>
+                <a href="{% url 'register' %}" class="btn-hero-primary">Join FeedbackFlow</a>
                 <a href="{% url 'login' %}" class="btn-hero-ghost">Sign In</a>
             </div>
         </div>
         <div class="hero-right">
             <div class="hero-cards">
-                <div class="hero-card">
+                <div class="hero-card" id="hc1">
                     <div class="hero-card-icon">💬</div>
                     <div class="hero-card-text">
                         <h4>Submit Feedback</h4>
                         <p>Rate courses, faculty, and campus services</p>
                     </div>
                 </div>
-                <div class="hero-card">
+                <div class="hero-card" id="hc2">
                     <div class="hero-card-icon">📢</div>
                     <div class="hero-card-text">
                         <h4>File Complaints</h4>
                         <p>Report issues directly to the right authority</p>
                     </div>
                 </div>
-                <div class="hero-card">
+                <div class="hero-card" id="hc3">
                     <div class="hero-card-icon">📅</div>
                     <div class="hero-card-text">
                         <h4>Book Appointments</h4>
                         <p>Request meetings with committees securely</p>
                     </div>
                 </div>
-                <div class="hero-card">
+                <div class="hero-card" id="hc4">
                     <div class="hero-card-icon">🔔</div>
                     <div class="hero-card-text">
                         <h4>Real-time Notifications</h4>
@@ -720,29 +778,29 @@ body {
 </section>
 
 <!-- ===== STATS ===== -->
-<div class="stats-strip fade-in">
+<div class="stats-strip">
     <div class="stats-strip-inner">
         <div class="stat-item">
-            <div class="stat-num">1,000+</div>
+            <div class="stat-num" data-target="1000">0</div>
             <div class="stat-label">Students</div>
         </div>
         <div class="stat-item">
-            <div class="stat-num">50+</div>
+            <div class="stat-num" data-target="50">0</div>
             <div class="stat-label">Faculty Members</div>
         </div>
         <div class="stat-item">
-            <div class="stat-num">450+</div>
+            <div class="stat-num" data-target="450">0</div>
             <div class="stat-label">Feedbacks Submitted</div>
         </div>
         <div class="stat-item">
-            <div class="stat-num">99%</div>
-            <div class="stat-label">Satisfaction Rate</div>
+            <div class="stat-num" data-target="99">0</div>
+            <div class="stat-label">Satisfaction Rate %</div>
         </div>
     </div>
 </div>
 
 <!-- ===== FEATURES ===== -->
-<div class="section fade-in">
+<div class="section" id="features">
     <div class="section-tag">Platform Features</div>
     <h2 class="section-title">Everything you need<br><span>in one place</span></h2>
     <p class="section-desc">A complete feedback and complaint management system built specifically for UAP.</p>
@@ -752,7 +810,7 @@ body {
             <div class="feature-num">01</div>
             <span class="feature-icon">💬</span>
             <div class="feature-title">Course Feedback</div>
-            <p class="feature-desc">Submit detailed feedback on courses, teaching quality, and learning materials. Help improve the academic experience for everyone.</p>
+            <p class="feature-desc">Submit detailed feedback on courses, teaching quality, and learning materials to help improve the academic experience for everyone.</p>
         </div>
         <div class="feature-card">
             <div class="feature-num">02</div>
@@ -788,11 +846,11 @@ body {
 </div>
 
 <!-- ===== HOW IT WORKS ===== -->
-<div class="how-section fade-in">
+<div class="how-section" id="how">
     <div class="how-inner">
         <div class="section-tag">Simple Process</div>
         <h2 class="section-title">How it <span>works</span></h2>
-        <p class="section-desc">Getting started takes less than 2 minutes. Here's how FeedbackFlow works.</p>
+        <p class="section-desc">Getting started takes less than 2 minutes. Here is how FeedbackFlow works.</p>
 
         <div class="steps-grid">
             <div class="step-card">
@@ -820,7 +878,7 @@ body {
 </div>
 
 <!-- ===== WHO IS IT FOR ===== -->
-<div class="section fade-in">
+<div class="section">
     <div class="section-tag">For Everyone</div>
     <h2 class="section-title">Built for the<br><span>entire campus</span></h2>
     <p class="section-desc">FeedbackFlow serves every member of the UAP community with role-specific dashboards.</p>
@@ -830,7 +888,7 @@ body {
             <div class="role-icon">🎓</div>
             <div>
                 <div class="role-title">Students</div>
-                <p class="role-desc">Submit course feedback, file complaints about faculty or facilities, book appointments with committees, and track all your submissions in one place.</p>
+                <p class="role-desc">Submit course feedback, file complaints about faculty or facilities, book appointments with committees, and track all your submissions.</p>
                 <span class="role-tag">Student Dashboard</span>
             </div>
         </div>
@@ -838,7 +896,7 @@ body {
             <div class="role-icon">👨‍🏫</div>
             <div>
                 <div class="role-title">Faculty</div>
-                <p class="role-desc">View feedback submitted about your courses, monitor student satisfaction ratings, and respond to reviews to improve your teaching quality.</p>
+                <p class="role-desc">View feedback submitted about your courses, monitor student satisfaction ratings, and respond to reviews to improve teaching quality.</p>
                 <span class="role-tag">Faculty Dashboard</span>
             </div>
         </div>
@@ -846,7 +904,7 @@ body {
             <div class="role-icon">🏛️</div>
             <div>
                 <div class="role-title">Head of Department</div>
-                <p class="role-desc">Manage complaints assigned to your department, view faculty performance through feedback reports, and resolve departmental issues efficiently.</p>
+                <p class="role-desc">Manage complaints assigned to your department, view faculty performance through feedback reports, and resolve departmental issues.</p>
                 <span class="role-tag">HOD Dashboard</span>
             </div>
         </div>
@@ -854,7 +912,7 @@ body {
             <div class="role-icon">⚙️</div>
             <div>
                 <div class="role-title">Administrators</div>
-                <p class="role-desc">Oversee the entire system — manage users, handle escalated complaints, review appointment requests, and generate comprehensive reports.</p>
+                <p class="role-desc">Oversee the entire system — manage users, handle escalated complaints, review appointment requests, and generate reports.</p>
                 <span class="role-tag">Admin Dashboard</span>
             </div>
         </div>
@@ -862,10 +920,10 @@ body {
 </div>
 
 <!-- ===== TESTIMONIALS ===== -->
-<div class="testimonial-section fade-in">
+<div class="testimonial-section">
     <div class="testimonial-inner">
-        <div class="section-tag" style="color: var(--gold);">What People Say</div>
-        <h2 class="section-title" style="color: var(--white);">Trusted by the <span style="color: var(--gold);">UAP community</span></h2>
+        <div class="section-tag" style="color:var(--gold);">What People Say</div>
+        <h2 class="section-title" style="color:var(--white);">Trusted by the <span style="color:var(--gold);">UAP community</span></h2>
 
         <div class="testimonial-grid">
             <div class="testimonial-card">
@@ -906,28 +964,167 @@ body {
 </div>
 
 <!-- ===== CTA ===== -->
-<div class="cta-section fade-in">
+<div class="cta-section">
     <div class="cta-inner">
         <div class="section-tag">Get Started Today</div>
         <h2 class="cta-title">Ready to make your<br><span>voice count?</span></h2>
         <p class="cta-desc">Join thousands of UAP students and faculty already using FeedbackFlow to improve campus life.</p>
-        <a href="{% url 'register' %}" class="btn-cta">Create Your Account →</a>
+        <a href="{% url 'register' %}" class="btn-cta">Join FeedbackFlow →</a>
     </div>
 </div>
 
-{% endblock %}
+<!-- ===== FOOTER ===== -->
+<footer class="ff-footer">
+    <p>© 2026 FeedbackFlow — University of Asia Pacific</p>
+    <p>Built for universities. Powered by student voices.</p>
+</footer>
 
-{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    // Fade in on scroll
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
+// ===== PARTICLES =====
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.speedY = (Math.random() - 0.5) * 0.4;
+        this.opacity = Math.random() * 0.5 + 0.1;
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${this.opacity})`;
+        ctx.fill();
+    }
+}
+
+for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    // Draw lines between close particles
+    particles.forEach((p1, i) => {
+        particles.slice(i + 1).forEach(p2 => {
+            const dx = p1.x - p2.x;
+            const dy = p1.y - p2.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100) {
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = `rgba(255,255,255,${0.08 * (1 - dist / 100)})`;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
             }
         });
-    }, { threshold: 0.1 });
+    });
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
 
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+// ===== TYPING EFFECT =====
+const words = ['Campus.', 'Future.', 'Rights.', 'Story.'];
+let wordIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
+const typedEl = document.getElementById('typed-word');
+
+function type() {
+    const currentWord = words[wordIndex];
+    if (isDeleting) {
+        typedEl.textContent = currentWord.substring(0, charIndex - 1);
+        charIndex--;
+    } else {
+        typedEl.textContent = currentWord.substring(0, charIndex + 1);
+        charIndex++;
+    }
+    if (!isDeleting && charIndex === currentWord.length) {
+        setTimeout(() => isDeleting = true, 1800);
+    } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+    }
+    setTimeout(type, isDeleting ? 60 : 100);
+}
+setTimeout(type, 1500);
+
+// ===== HERO CARDS SLIDE IN =====
+setTimeout(() => {
+    ['hc1','hc2','hc3','hc4'].forEach((id, i) => {
+        setTimeout(() => {
+            document.getElementById(id).classList.add('visible');
+        }, i * 200);
+    });
+}, 1000);
+
+// ===== COUNTER ANIMATION =====
+function animateCounter(el, target, suffix = '') {
+    let current = 0;
+    const increment = target / 60;
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            current = target;
+            clearInterval(timer);
+        }
+        el.textContent = Math.floor(current).toLocaleString() + suffix;
+    }, 25);
+}
+
+// ===== SCROLL OBSERVER =====
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+
+            // Counter animation for stats
+            if (entry.target.classList.contains('stat-num')) {
+                const target = parseInt(entry.target.dataset.target);
+                const suffix = entry.target.dataset.target === '99' ? '%' : '+';
+                animateCounter(entry.target, target, suffix);
+                observer.unobserve(entry.target);
+            }
+        }
+    });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.feature-card, .step-card, .role-card, .testimonial-card, .stat-num').forEach(el => {
+    observer.observe(el);
+});
+
+// Add staggered delays to feature cards
+document.querySelectorAll('.feature-card').forEach((card, i) => {
+    card.style.transitionDelay = `${i * 0.1}s`;
+});
+
+document.querySelectorAll('.step-card').forEach((card, i) => {
+    card.style.transitionDelay = `${i * 0.12}s`;
+});
+
+document.querySelectorAll('.testimonial-card').forEach((card, i) => {
+    card.style.transitionDelay = `${i * 0.15}s`;
+});
 </script>
-{% endblock %}
+
+</body>
+</html>
