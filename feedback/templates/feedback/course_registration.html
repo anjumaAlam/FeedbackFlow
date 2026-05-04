@@ -1,0 +1,155 @@
+{% extends 'users/dashboard_base.html' %}
+{% block title %}Course Registration - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="dashboard-header mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>📚 Course Registration</h1>
+                <p class="mb-0 opacity-75">Confirm the courses you are taking this semester</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'student_dashboard' %}" class="btn btn-light">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card shadow-sm">
+
+                <div class="card-header d-flex justify-content-between align-items-center"
+                     style="background: linear-gradient(135deg,#0d9488,#0f766e); color:white;">
+                    <h5 class="mb-0">
+                        <i class="bi bi-journal-check me-2"></i>My Courses — Current Semester
+                    </h5>
+                    <span class="badge bg-light text-dark fs-6">
+                        {{ confirmed_count }} / {{ total_count }} Confirmed
+                    </span>
+                </div>
+
+                <div class="card-body">
+
+                    <!-- Student Info -->
+                    <div class="bg-light rounded p-3 mb-4">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <small class="text-muted d-block">Name</small>
+                                <strong>{{ user.full_name }}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted d-block">Student ID</small>
+                                <strong>{{ user.student_id }}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted d-block">Department</small>
+                                <strong>{{ user.department }}</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted d-block">Semester</small>
+                                <strong>
+                                    {% if registrations %}
+                                        {{ registrations.first.course.semester }}
+                                    {% else %}—{% endif %}
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Courses below are <strong>automatically assigned</strong> for your department by admin.
+                        Check the ones you are <strong>actually enrolled in</strong>, then click Save.
+                        You can only give feedback for confirmed courses.
+                    </div>
+
+                    {% if total_count == 0 %}
+                    <div class="text-center py-5">
+                        <div style="font-size:3rem;">📭</div>
+                        <h5 class="mt-3">No courses available yet</h5>
+                        <p class="text-muted">
+                            The admin hasn't added any courses for your department this semester.
+                        </p>
+                    </div>
+
+                    {% else %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="list-group mb-4">
+                            {% for reg in registrations %}
+                            <label class="list-group-item list-group-item-action py-3"
+                                   for="course_{{ reg.id }}" style="cursor:pointer;">
+                                <div class="d-flex align-items-center">
+                                    <input class="form-check-input me-3"
+                                           type="checkbox"
+                                           name="course_{{ reg.id }}"
+                                           id="course_{{ reg.id }}"
+                                           {% if reg.is_confirmed %}checked{% endif %}>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">
+                                            {{ reg.course.course_code }}
+                                            <span class="fw-normal text-muted">
+                                                — {{ reg.course.course_name }}
+                                            </span>
+                                        </div>
+                                        <small class="text-muted">
+                                            Semester: <strong>{{ reg.course.semester }}</strong>
+                                            &nbsp;|&nbsp;
+                                            Department: <strong>{{ reg.course.department }}</strong>
+                                            {% with faculty=reg.course.get_primary_faculty %}
+                                                {% if faculty %}
+                                                    &nbsp;|&nbsp; Faculty: <strong>{{ faculty.full_name }}</strong>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </small>
+                                    </div>
+                                    {% if reg.is_confirmed %}
+                                        <span class="badge bg-success ms-3">✅ Confirmed</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark ms-3">⏳ Pending</span>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="bi bi-save me-1"></i> Save Registration
+                            </button>
+                            <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            {% if confirmed_count > 0 %}
+            <div class="alert alert-success mt-3">
+                <i class="bi bi-check-circle me-2"></i>
+                You have confirmed <strong>{{ confirmed_count }}</strong> course(s).
+                You can now <a href="{% url 'submit_feedback' %}" class="alert-link">submit feedback</a>
+                for these courses.
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

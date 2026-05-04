@@ -167,3 +167,25 @@ class FeedbackResponse(models.Model):
 
     def __str__(self):
         return f"Response to {self.feedback.id} by {self.faculty.full_name}"
+class CourseRegistration(models.Model):
+    student      = models.ForeignKey(
+                        settings.AUTH_USER_MODEL,
+                        on_delete=models.CASCADE,
+                        related_name='course_registrations'
+                    )
+    course       = models.ForeignKey(
+                        Course,
+                        on_delete=models.CASCADE,
+                        related_name='registrations'
+                    )
+    is_confirmed = models.BooleanField(default=False)
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    registered_at= models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['student', 'course']
+        ordering = ['-registered_at']
+
+    def __str__(self):
+        status = "Confirmed" if self.is_confirmed else "Pending"
+        return f"{self.student.full_name} → {self.course.course_code} [{status}]"

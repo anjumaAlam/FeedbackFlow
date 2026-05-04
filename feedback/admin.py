@@ -2,6 +2,8 @@
 
 from django.contrib import admin
 from .models import Course, CourseAssignment, Feedback, FeedbackResponse
+from .models import Feedback, Course, CourseAssignment, FeedbackResponse, CourseRegistration
+
 
 
 class CourseAssignmentInline(admin.TabularInline):
@@ -50,3 +52,10 @@ class FeedbackResponseAdmin(admin.ModelAdmin):
     search_fields = ['feedback__course__course_code', 'faculty__full_name']
     readonly_fields = ['responded_at']
     ordering = ['-responded_at']
+
+
+@admin.register(CourseRegistration)
+class CourseRegistrationAdmin(admin.ModelAdmin):
+    list_display  = ['student', 'course', 'is_confirmed', 'confirmed_at']
+    list_filter   = ['is_confirmed']
+    search_fields = ['student__full_name', 'student__student_id', 'course__course_code']

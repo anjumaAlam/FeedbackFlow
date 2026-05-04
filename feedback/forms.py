@@ -78,35 +78,37 @@ class FeedbackSubmissionForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-        # Base course queryset: only active courses
+        # Base queryset — only active courses
         qs = Course.objects.filter(is_active=True)
 
-        # If student provided, filter courses to student's department
         if user and getattr(user, 'department', None):
-            # Try matching by stored department value (code)
-            dept_val = user.department
-            qs_by_dept = qs.filter(department=dept_val)
-            # If none found, try matching by display name (some existing courses may store full name)
-            if not qs_by_dept.exists():
-                try:
-                    dept_display = dict(User.DEPARTMENT_CHOICES).get(dept_val)
-                except Exception:
-                    dept_display = None
-                if dept_display:
-                    qs_by_dept = qs.filter(department=dept_display)
+            # Filter to student's confirmed registered courses only
+            from .models import CourseRegistration
+            confirmed_ids = CourseRegistration.objects.filter(
+                student=user,
+                is_confirmed=True,
+                course__is_active=True
+            ).values_list('course_id', flat=True)
 
-            # Use department-filtered queryset if it has results; otherwise keep base qs
-            if qs_by_dept.exists():
-                qs = qs_by_dept
+            if confirmed_ids:
+                qs = qs.filter(id__in=confirmed_ids)
+            else:
+                # Student has no confirmed registrations — show nothing
+                qs = Course.objects.none()
 
-        # Exclude courses the student already submitted feedback for
+        # Exclude courses already submitted feedback for
         if user:
-            already_submitted = Feedback.objects.filter(student=user).values_list('course_id', flat=True)
+            already_submitted = Feedback.objects.filter(
+                student=user
+            ).values_list('course_id', flat=True)
             qs = qs.exclude(id__in=already_submitted)
 
         self.fields['course'].queryset = qs
 
-        # Limit faculty selection to valid assignments for the selected course/section when available.
+        if not qs.exists():
+            self.fields['course'].empty_label = '— No registered courses found. Please register first. —'
+
+        # Faculty
         self.fields['faculty'].queryset = User.objects.filter(role__in=['Faculty', 'HOD'])
         self.fields['faculty'].empty_label = '— Select a course and section first —'
 
@@ -118,7 +120,9 @@ class FeedbackSubmissionForm(forms.ModelForm):
                 class_section=section,
             ).values_list('faculty_id', flat=True)
             if assigned_faculty_ids:
-                self.fields['faculty'].queryset = User.objects.filter(id__in=assigned_faculty_ids)
+                self.fields['faculty'].queryset = User.objects.filter(
+                    id__in=assigned_faculty_ids
+                )
 
     def clean(self):
         cleaned_data = super().clean()

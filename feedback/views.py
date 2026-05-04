@@ -7,6 +7,7 @@ from django.db.models import Avg, Count
 from .models import Feedback, Course, CourseAssignment, FeedbackResponse
 from .forms import FeedbackSubmissionForm, FeedbackResponseForm, CourseAssignmentForm, CourseForm
 from django.contrib.auth.decorators import user_passes_test
+from .models import Feedback, Course, CourseAssignment, FeedbackResponse, CourseRegistration
 
 # STUDENT VIEWS
 
@@ -299,3 +300,48 @@ def admin_course_delete(request, course_id):
         'page_title': 'Delete Course'
     }
     return render(request, 'feedback/admin_course_delete.html', context)
+@login_required
+def course_registration_view(request):
+    if request.user.role != 'Student':
+        messages.error(request, 'Only students can register courses.')
+        return redirect('student_dashboard')
+
+    student = request.user
+
+    # Auto-load all active courses for student's department
+    active_courses = Course.objects.filter(
+        department=student.department,
+        is_active=True
+    )
+    for course in active_courses:
+        CourseRegistration.objects.get_or_create(
+            student=student,
+            course=course,
+            defaults={'is_confirmed': False}
+        )
+
+    if request.method == 'POST':
+        registrations = CourseRegistration.objects.filter(
+            student=student,
+            course__is_active=True
+        )
+        for reg in registrations:
+            is_checked = request.POST.get(f'course_{reg.id}') == 'on'
+            reg.is_confirmed = is_checked
+            reg.confirmed_at = timezone.now() if is_checked else None
+            reg.save()
+        messages.success(request, 'Course registration saved successfully!')
+        return redirect('course_registration')
+
+    registrations = CourseRegistration.objects.filter(
+        student=student,
+        course__is_active=True
+    ).select_related('course')
+
+    context = {
+        'registrations': registrations,
+        'confirmed_count': registrations.filter(is_confirmed=True).count(),
+        'total_count': registrations.count(),
+        'page_title': 'Course Registration'
+    }
+    return render(request, 'feedback/course_registration.html', context)
