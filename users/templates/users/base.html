@@ -3,114 +3,536 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}FeedbackFlow{% endblock %}</title>
+    <title>{% block title %}FeedbackFlow{% endblock %} — UAP</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Updated Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet">
 
     <style>
+
+        :root {
+            --bg:        #141827;
+            --surface:   #1a2038;
+            --card:      #1f2640;
+            --card-hover:#252d4a;
+
+            --gold:      #c9a84c;
+            --gold2:     #dbb96a;
+            --gold-pale: rgba(201,168,76,.13);
+            --gold-glow: rgba(201,168,76,.22);
+
+            --border:    rgba(201,168,76,.24);
+            --rim:       rgba(255,255,255,.08);
+
+            --text:      #f5f1e8;
+            --dim:       rgba(245,241,232,.78);
+            --faint:     rgba(245,241,232,.46);
+            --silver:    #d6c7a1;
+            --white:     #fffaf0;
+
+            --mist:      rgba(255,255,255,.05);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+
+            pointer-events: none;
+            z-index: 9999;
+            opacity: .28;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+
+            background:
+                radial-gradient(ellipse 65% 55% at 10% 40%, rgba(201,168,76,.06) 0%, transparent 55%),
+                radial-gradient(ellipse 55% 65% at 90% 15%, rgba(99,102,241,.18) 0%, transparent 55%),
+                radial-gradient(ellipse 40% 40% at 50% 85%, rgba(139,92,246,.1) 0%, transparent 50%),
+                linear-gradient(150deg, #141827 0%, #1a2038 50%, #141827 100%);
+
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .navbar {
+            background: rgba(16,20,38,.94) !important;
+            backdrop-filter: blur(28px) saturate(180%);
+            border-bottom: 1px solid var(--border) !important;
+
+            padding: 0 48px;
+            height: 66px;
+
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+
+            z-index: 1000;
+
+            display: flex;
+            align-items: center;
+        }
+
         .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, #2563eb, #1e40af);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--white) !important;
+            text-decoration: none;
+            letter-spacing: .04em;
         }
-        .auth-card {
-            max-width: 500px;
-            margin: 50px auto;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: none;
+
+        .navbar-brand em {
+            font-style: normal;
+            color: var(--gold);
         }
-        .btn-primary {
-            background-color: #2563eb;
-            border-color: #2563eb;
+
+        .navbar-text {
+            color: rgba(245,241,232,.4) !important;
+            font-size: 11px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
         }
-        .btn-primary:hover {
-            background-color: #1e40af;
-            border-color: #1e40af;
+
+        .nav-user-info {
+            color: var(--dim);
+            font-size: 13.5px;
+            font-weight: 400;
         }
+
+        .btn-bell {
+            background: rgba(255,255,255,.05);
+            border: 1px solid var(--border) !important;
+            color: var(--dim) !important;
+
+            padding: 6px 14px;
+            border-radius: 8px;
+
+            font-size: 14px;
+
+            transition: all .25s;
+
+            text-decoration: none;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-bell:hover {
+            background: var(--gold-pale);
+            border-color: rgba(201,168,76,.45) !important;
+            color: var(--gold) !important;
+        }
+
+        .btn-role {
+            font-size: 12px;
+            font-weight: 500;
+
+            padding: 7px 16px;
+
+            border-radius: 6px;
+
+            text-decoration: none;
+
+            transition: all .25s;
+            letter-spacing: .01em;
+        }
+
+        .btn-role-student {
+            background: rgba(99,102,241,.18);
+            border: 1px solid rgba(99,102,241,.32);
+            color: rgba(165,180,252,.95);
+        }
+
+        .btn-role-student:hover {
+            background: rgba(99,102,241,.32);
+            color: #fff;
+        }
+
+        .btn-role-faculty {
+            background: rgba(16,185,129,.14);
+            border: 1px solid rgba(16,185,129,.28);
+            color: rgba(110,231,183,.95);
+        }
+
+        .btn-role-faculty:hover {
+            background: rgba(16,185,129,.28);
+            color: #fff;
+        }
+
+        .btn-role-staff {
+            background: rgba(245,158,11,.14);
+            border: 1px solid rgba(245,158,11,.28);
+            color: rgba(253,211,77,.95);
+        }
+
+        .btn-role-staff:hover {
+            background: rgba(245,158,11,.28);
+            color: #fff;
+        }
+
+        .btn-role-admin {
+            background: rgba(239,68,68,.14);
+            border: 1px solid rgba(239,68,68,.28);
+            color: rgba(252,165,165,.95);
+        }
+
+        .btn-role-admin:hover {
+            background: rgba(239,68,68,.28);
+            color: #fff;
+        }
+
+        .btn-logout {
+            background: rgba(239,68,68,.12);
+            border: 1px solid rgba(239,68,68,.26);
+
+            color: rgba(252,165,165,.9);
+
+            font-size: 12px;
+            font-weight: 500;
+
+            padding: 7px 16px;
+
+            border-radius: 6px;
+
+            text-decoration: none;
+
+            transition: all .25s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239,68,68,.28);
+            color: #fff;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: 1px solid;
+            font-size: 14px;
+            padding: 12px 20px;
+        }
+
+        .alert-success {
+            background: rgba(16,185,129,.1);
+            border-color: rgba(16,185,129,.28);
+            color: #86efac;
+        }
+
+        .alert-error,
+        .alert-danger {
+            background: rgba(239,68,68,.1);
+            border-color: rgba(239,68,68,.28);
+            color: #fca5a5;
+        }
+
+        .alert-warning {
+            background: rgba(245,158,11,.1);
+            border-color: rgba(245,158,11,.28);
+            color: #fde68a;
+        }
+
+        .alert-info {
+            background: rgba(99,102,241,.1);
+            border-color: rgba(99,102,241,.28);
+            color: #c7d2fe;
+        }
+
+        .btn-close {
+            filter: invert(1);
+            opacity: .45;
+        }
+
+        .btn-close:hover {
+            opacity: .75;
+        }
+
         main {
             flex: 1;
+            margin-top: 66px;
+            padding-top: 20px;
         }
+
+        .auth-wrap {
+            min-height: 82vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 40px 16px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 480px;
+
+            background: rgba(26,32,56,.85);
+
+            border: 1px solid var(--border);
+            border-radius: 20px;
+
+            padding: 52px;
+
+            backdrop-filter: blur(18px);
+
+            box-shadow:
+                0 32px 80px rgba(0,0,0,.4),
+                inset 0 1px 0 rgba(255,255,255,.07);
+        }
+
+        .auth-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--white);
+
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .auth-sub {
+            font-size: 14px;
+            font-weight: 300;
+            color: var(--dim);
+
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .form-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+
+            color: var(--silver);
+
+            margin-bottom: 7px;
+            display: block;
+        }
+
+        .form-control,
+        .form-select {
+            background: rgba(255,255,255,.06) !important;
+
+            border: 1px solid rgba(255,255,255,.12) !important;
+            border-radius: 9px !important;
+
+            color: var(--white) !important;
+
+            font-size: 14.5px;
+            font-weight: 300;
+
+            padding: 12px 16px;
+
+            transition: all .25s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: rgba(201,168,76,.08) !important;
+
+            border-color: rgba(201,168,76,.48) !important;
+
+            box-shadow: 0 0 0 3px rgba(201,168,76,.11) !important;
+
+            color: var(--white) !important;
+
+            outline: none !important;
+        }
+
+        .form-control::placeholder {
+            color: rgba(245,241,232,.28) !important;
+        }
+
+        a {
+            color: var(--gold);
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+        a:hover {
+            color: var(--gold2);
+        }
+
         footer {
+            border-top: 1px solid var(--border);
+
+            padding: 24px 48px;
+
+            text-align: center;
             margin-top: auto;
         }
-    </style>
 
-    {% block extra_css %}{% endblock %}
+        footer p {
+            font-size: 12px;
+            color: rgba(245,241,232,.3);
+
+            margin: 0;
+            letter-spacing: .02em;
+        }
+
+        /* ===== DARK TEXT FIX ===== */
+
+        .form-control,
+        .form-select,
+        textarea,
+        select,
+        option,
+        label,
+        .auth-sub,
+        .form-check-label,
+        .invalid-feedback {
+            color: #111827 !important;
+        }
+
+        .form-control::placeholder,
+        textarea::placeholder {
+            color: #6b7280 !important;
+        }
+
+        {% block extra_css %}{% endblock %}
+
+    </style>
 </head>
+
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-        <div class="container">
-            <a class="navbar-brand" href="/">FeedbackFlow</a>
-            <span class="text-muted">University of Asia Pacific</span>
+<nav class="navbar navbar-expand-lg">
 
-            {% if user.is_authenticated %}
-            <div class="ms-auto d-flex align-items-center">
-                <span class="me-3">Hello, {{ user.get_short_name }}!</span>
+    <div class="container-fluid d-flex align-items-center gap-3">
 
-                <!-- BELL ICON -->
-                <a href="{% url 'notifications' %}" class="btn btn-sm btn-outline-secondary me-2 position-relative">
-                    🔔
-                    {% if unread_notifications_count > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:10px;">
-                            {{ unread_notifications_count }}
-                        </span>
-                    {% endif %}
-                </a>
+        <a class="navbar-brand" href="/">
+            Feedback<em>Flow</em>
+        </a>
 
-                <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">Logout</a>
-            </div>
-            {% else %}
-            <!-- Role buttons in top right for unauthenticated users -->
-            <div class="ms-auto d-flex gap-2">
-                <a href="{% url 'student_login' %}" class="btn btn-sm btn-primary" style="background-color: #2563eb; border-color: #2563eb;">
-                    Student Login
-                </a>
-                <a href="{% url 'faculty_login' %}" class="btn btn-sm btn-outline-success">
-                    Faculty & HOD Login
-                </a>
-                <a href="{% url 'staff_login' %}" class="btn btn-sm btn-outline-warning">
-                    Staff Login
-                </a>
-                <a href="{% url 'admin_login' %}" class="btn btn-sm btn-outline-danger">
-                    Admin Login
-                </a>
-            </div>
-            {% endif %}
+        <span class="navbar-text d-none d-md-inline">
+            University of Asia Pacific
+        </span>
+
+        {% if user.is_authenticated %}
+
+        <div class="ms-auto d-flex align-items-center gap-2">
+
+            <span class="nav-user-info d-none d-md-inline">
+                {{ user.get_short_name }}
+            </span>
+
+            <a href="{% url 'notifications' %}" class="btn-bell">
+                🔔
+
+                {% if unread_notifications_count > 0 %}
+                <span class="badge bg-danger"
+                      style="font-size:10px;padding:3px 7px;">
+                    {{ unread_notifications_count }}
+                </span>
+                {% endif %}
+            </a>
+
+            <a href="{% url 'logout' %}" class="btn-logout">
+                Sign Out
+            </a>
+
         </div>
-    </nav>
 
-    {% if messages %}
-    <div class="container mt-3">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        {% else %}
+
+        <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
+
+            <a href="{% url 'student_login' %}"
+               class="btn-role btn-role-student">
+                Student
+            </a>
+
+            <a href="{% url 'faculty_login' %}"
+               class="btn-role btn-role-faculty">
+                Faculty & HOD
+            </a>
+
+            <a href="{% url 'staff_login' %}"
+               class="btn-role btn-role-staff">
+                Staff
+            </a>
+
+            <a href="{% url 'admin_login' %}"
+               class="btn-role btn-role-admin">
+                Admin
+            </a>
+
         </div>
-        {% endfor %}
+
+        {% endif %}
+
     </div>
-    {% endif %}
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+</nav>
 
-    <!-- Footer -->
-    <footer class="text-center text-muted py-4 mt-5 bg-white border-top">
-        <p class="mb-0">&copy; 2026 FeedbackFlow - University of Asia Pacific</p>
-    </footer>
+{% if messages %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="container mt-3" style="max-width:660px;">
 
-    {% block extra_js %}{% endblock %}
+    {% for message in messages %}
+
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+         role="alert">
+
+        {{ message }}
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <p>© 2026 FeedbackFlow — University of Asia Pacific</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% block extra_js %}{% endblock %}
+
 </body>
 </html>

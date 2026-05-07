@@ -1,157 +1,58 @@
-
 {% extends 'users/base.html' %}
-
-{% block title %}{{ role_display }} Login - FeedbackFlow{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="card auth-card">
-        <div class="card-body p-5">
-            <div class="text-center mb-4">
-                <!-- Dynamic icon based on role -->
-                {% if role_display == 'Student' %}
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">👨‍🎓</div>
-                {% elif role_display == 'Faculty' or 'HOD' in allowed_roles %}
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">👨‍🏫</div>
-                {% elif role_display == 'Staff' %}
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">👔</div>
-                {% elif role_display == 'Admin' %}
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔐</div>
-                {% else %}
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎓</div>
-                {% endif %}
-                
-                <!-- Dynamic heading based on allowed roles -->
-                {% if 'HOD' in allowed_roles and 'Faculty' in allowed_roles %}
-                    <h2 class="fw-bold">Faculty & Head of Department Login</h2>
-                    <p class="text-muted">Login with your credentials as Faculty Member or Head of Department</p>
-                {% else %}
-                    <h2 class="fw-bold">{{ role_display }} Login</h2>
-                    <p class="text-muted">Login to your FeedbackFlow account as {{ role_display|lower }}</p>
-                {% endif %}
-                
-                <!-- Back to home button -->
-                <a href="{% url 'home' %}" class="btn btn-sm btn-outline-secondary mt-2">
-                    ← Back to Home
-                </a>
+<div class="auth-wrap">
+    <div style="width:100%;max-width:480px;">
+        <div class="auth-card">
+            <div class="auth-ornament">
+                <div class="auth-ornament-line"></div>
+                <div class="auth-ornament-diamond"></div>
+                <div class="auth-ornament-line"></div>
             </div>
+            <div class="auth-eyebrow">{{ role_display }} Access</div>
+            <h1 class="auth-title">Welcome back</h1>
+            <p class="auth-sub">Sign in to your FeedbackFlow account</p>
 
-            <form method="post">
+            <form method="post" novalidate>
                 {% csrf_token %}
-
-                <!-- Email Field -->
-                <div class="mb-3">
-                    <label for="{{ form.email.id_for_label }}" class="form-label">
-                        Email Address
-                    </label>
-                    {{ form.email }}
-                    <div class="form-text">Use your UAP email (@uap-bd.edu)</div>
-                    {% if form.email.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.email.errors }}
-                        </div>
+                {% for field in form %}
+                <div class="mb-4">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <input
+                        type="{{ field.field.widget.input_type }}"
+                        name="{{ field.html_name }}"
+                        id="{{ field.id_for_label }}"
+                        class="form-control{% if field.errors %} is-invalid{% endif %}"
+                        {% if field.value %}value="{{ field.value }}"{% endif %}
+                        placeholder="{% if field.html_name == 'email' %}your@university.edu{% else %}••••••••••{% endif %}">
+                    {% if field.errors %}
+                    <div class="invalid-feedback">{{ field.errors|join:", " }}</div>
                     {% endif %}
                 </div>
+                {% endfor %}
 
-                <!-- Password Field -->
-                <div class="mb-3">
-                    <label for="{{ form.password.id_for_label }}" class="form-label">
-                        Password
-                    </label>
-                    <div class="input-group">
-                        {{ form.password }}
-                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                            👁️
-                        </button>
-                    </div>
-                    {% if form.password.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.password.errors }}
-                        </div>
-                    {% endif %}
+                <div class="d-flex justify-content-end mb-4">
+                    <a href="{% url 'password_reset_request' %}" style="font-size:12.5px;color:var(--silver);">Forgot password?</a>
                 </div>
 
-                <!-- Remember Me -->
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me">
-                    <label class="form-check-label" for="rememberMe">
-                        Remember me
-                    </label>
-                </div>
-
-                <!-- Submit Button -->
-                {% if 'HOD' in allowed_roles and 'Faculty' in allowed_roles %}
-                    <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
-                        <strong>Login</strong>
-                    </button>
-                {% else %}
-                    <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
-                        <strong>Login as {{ role_display }}</strong>
-                    </button>
-                {% endif %}
-
-                <!-- Forgot Password Link -->
-                <div class="text-center mb-3">
-                    <a href="{% url 'password_reset_request' %}" class="text-decoration-none small">
-                        Forgot Password?
-                    </a>
-                </div>
-
-                <hr class="my-4">
-
-                <!-- Alternative login options -->
-                <div class="text-center">
-                    <p class="text-muted small mb-3">Need to login as a different role?</p>
-                    <div class="d-flex gap-2 flex-wrap justify-content-center">
-                        {% if role != 'student' %}
-                            <a href="{% url 'student_login' %}" class="btn btn-sm btn-outline-primary">Student</a>
-                        {% endif %}
-                        {% if role != 'faculty' %}
-                            <a href="{% url 'faculty_login' %}" class="btn btn-sm btn-outline-success">Faculty</a>
-                        {% endif %}
-                        {% if role != 'staff' %}
-                            <a href="{% url 'staff_login' %}" class="btn btn-sm btn-outline-warning">Staff</a>
-                        {% endif %}
-                        {% if role != 'admin' %}
-                            <a href="{% url 'admin_login' %}" class="btn btn-sm btn-outline-danger">Admin</a>
-                        {% endif %}
-                    </div>
-                </div>
-
-                {% if role == 'student' %}
-                <hr class="my-4">
-                <!-- Student Registration -->
-                <div class="text-center">
-                    <p class="mb-2"><strong>Don't have an account?</strong></p>
-                    <a href="{% url 'register' %}" class="btn btn-outline-primary w-100">
-                        📝 Register as Student
-                    </a>
-                </div>
-                {% endif %}
+                <button type="submit" class="btn btn-primary w-100" style="padding:14px;">Sign In</button>
             </form>
 
-            <!-- Info Box -->
-            <div class="alert alert-info mt-4 mb-0">
-                <small>
-                    <strong>Note:</strong> Faculty and Staff accounts are created by the Admin.
-                    Please contact IT support if you need access.
-                </small>
+            {% if role == 'student' %}
+            <hr class="auth-divider">
+            <p class="auth-footnote">Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+            {% endif %}
+
+            <hr class="auth-divider">
+            <p style="font-size:10.5px;color:rgba(190,210,240,.35);text-align:center;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;">Other portals</p>
+            <div class="auth-login-options">
+                {% if role != 'student' %}<a href="{% url 'student_login' %}" class="btn-role btn-role-student" style="font-size:11px;">Student</a>{% endif %}
+                {% if role != 'faculty' %}<a href="{% url 'faculty_login' %}" class="btn-role btn-role-faculty" style="font-size:11px;">Faculty & HOD</a>{% endif %}
+                {% if role != 'staff' %}<a href="{% url 'staff_login' %}" class="btn-role btn-role-staff" style="font-size:11px;">Staff</a>{% endif %}
+                {% if role != 'admin' %}<a href="{% url 'admin_login' %}" class="btn-role btn-role-admin" style="font-size:11px;">Admin</a>{% endif %}
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // Toggle password visibility
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('{{ form.password.id_for_label }}');
-
-    togglePassword.addEventListener('click', function() {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        this.textContent = type === 'password' ? '👁️' : '🙈';
-    });
-</script>
 {% endblock %}

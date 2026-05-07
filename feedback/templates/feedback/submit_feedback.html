@@ -1,340 +1,458 @@
-
-
 {% extends 'users/base.html' %}
-
-{% block title %}Submit Feedback - FeedbackFlow{% endblock %}
+{% block title %}Submit Feedback{% endblock %}
 
 {% block extra_css %}
 <style>
-    .feedback-form-card {
-        max-width: 800px;
-        margin: 2rem auto;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    .fb-wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
     }
 
-    .rating-container {
-        background: #f9fafb;
-        padding: 1.5rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
+    .back-link {
+        display: inline-flex; align-items: center; gap: 8px;
+        font-size: 13px; color: #475569;
+        text-decoration: none; margin-bottom: 28px;
+        font-weight: 500; transition: color .2s;
     }
+    .back-link:hover { color: #1d4ed8; }
 
-    .star-rating {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
+    .fb-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 40px; font-weight: 700;
+        color: #0f172a; line-height: 1.1; margin-bottom: 6px;
     }
+    .fb-title em { font-style: italic; color: #1d4ed8; }
+    .fb-subtitle { font-size: 14px; color: #475569; margin-bottom: 32px; font-weight: 400; }
 
-    .star-rating input[type="number"] {
-        max-width: 100px;
+    .fb-banner {
+        background: rgba(59,130,246,.08);
+        border: 1px solid rgba(59,130,246,.22);
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-size: 13.5px; color: #1e40af;
+        margin-bottom: 32px;
+        display: flex; align-items: flex-start; gap: 10px;
     }
+    .fb-banner-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
-    .stars {
-        font-size: 1.5rem;
-        color: #fbbf24;
+    .fb-section {
+        background: #ffffff;
+        border: 1px solid rgba(59,130,246,.16);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 16px rgba(59,130,246,.08);
     }
-
-    .form-section {
-        margin-bottom: 2rem;
-    }
-
-    .section-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        color: #1f2937;
-        display: flex;
-        align-items: center;
-    }
-
-    .section-title::before {
+    .fb-section::before {
         content: '';
-        width: 4px;
-        height: 20px;
+        position: absolute; top: 0; left: 0;
+        width: 3px; height: 100%;
+        background: linear-gradient(180deg, #2563eb, rgba(37,99,235,.2));
+    }
+
+    .fb-section-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 22px; font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(59,130,246,.1);
+        display: flex; align-items: center; gap: 12px;
+    }
+    .fb-section-title .step-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 10px; font-weight: 700;
+        letter-spacing: .18em; text-transform: uppercase;
+        color: #1d4ed8;
+        padding: 3px 12px;
+        border: 1px solid rgba(29,78,216,.25);
+        border-radius: 40px;
+        background: rgba(29,78,216,.07);
+    }
+
+    .fb-field { margin-bottom: 22px; }
+    .fb-field:last-child { margin-bottom: 0; }
+
+    .fb-label {
+        display: block;
+        font-size: 11px; font-weight: 700;
+        letter-spacing: .12em; text-transform: uppercase;
+        color: #475569; margin-bottom: 8px;
+    }
+    .fb-label .req { color: #dc2626; margin-left: 3px; }
+    .fb-label .hint {
+        display: block;
+        font-size: 12px; font-weight: 400;
+        color: #64748b; letter-spacing: 0;
+        text-transform: none; margin-top: 4px;
+    }
+
+    .fb-wrap select,
+    .fb-wrap textarea {
+        width: 100%;
+        background: #f8fafc !important;
+        border: 1px solid rgba(59,130,246,.2) !important;
+        border-radius: 9px !important;
+        color: #0f172a !important;
+        font-family: 'Outfit', sans-serif;
+        font-size: 14px; font-weight: 400;
+        padding: 12px 16px;
+        transition: all .25s;
+        appearance: none; -webkit-appearance: none;
+    }
+    .fb-wrap select:focus,
+    .fb-wrap textarea:focus {
+        background: #ffffff !important;
+        border-color: rgba(37,99,235,.5) !important;
+        box-shadow: 0 0 0 3px rgba(37,99,235,.1) !important;
+        outline: none;
+        color: #0f172a !important;
+    }
+    .fb-wrap select option { background: #fff; color: #0f172a; }
+    .fb-wrap textarea { resize: vertical; min-height: 120px; }
+
+    /* Hide number input completely */
+    .rating-number-input,
+    .rating-number-input input,
+    .rating-number-input input[type="number"] {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .star-row {
+        background: #f8fafc;
+        border: 1px solid rgba(59,130,246,.14);
+        border-radius: 12px;
+        padding: 22px 24px;
+        margin-bottom: 14px;
+    }
+    .star-row:last-child { margin-bottom: 0; }
+
+    .star-row-label {
+        font-size: 11px; font-weight: 700;
+        letter-spacing: .12em; text-transform: uppercase;
+        color: #334155; margin-bottom: 12px;
+        display: flex; align-items: center; gap: 4px;
+    }
+    .star-row-label .req { color: #dc2626; }
+
+    .star-interactive {
+        display: flex; gap: 4px; align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .star-btn {
+        background: none; border: none; padding: 2px;
+        font-size: 32px; cursor: pointer;
+        color: #94a3b8;
+        transition: color .15s, transform .15s;
+        line-height: 1;
+    }
+    .star-btn:hover { transform: scale(1.2); color: #f59e0b; }
+    .star-btn.active { color: #f59e0b; }
+
+    .star-value-label {
+        font-size: 13px; color: #64748b;
+        margin-left: 10px; font-weight: 500;
+        font-style: italic;
+    }
+
+    .star-hint { font-size: 12.5px; color: #64748b; font-weight: 400; }
+
+    .fb-check {
+        display: flex; align-items: flex-start; gap: 14px;
+        background: #f8fafc;
+        border: 1px solid rgba(59,130,246,.14);
+        border-radius: 12px;
+        padding: 18px 20px;
+        cursor: pointer;
+        transition: background .2s, border-color .2s;
+    }
+    .fb-check:hover {
+        background: rgba(29,78,216,.04);
+        border-color: rgba(29,78,216,.25);
+    }
+    .fb-check input[type="checkbox"] {
+        width: 18px; height: 18px; flex-shrink: 0;
+        accent-color: #2563eb;
+        cursor: pointer; margin-top: 2px;
+    }
+    .fb-check-label {
+        font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 4px;
+    }
+    .fb-check-hint { font-size: 12.5px; color: #64748b; font-weight: 400; }
+
+    .fb-error { font-size: 12px; color: #dc2626; margin-top: 6px; font-weight: 500; }
+
+    .fb-actions {
+        display: flex; gap: 14px; align-items: center;
+        margin-top: 32px; flex-wrap: wrap;
+    }
+    .btn-submit {
         background: #2563eb;
-        margin-right: 0.5rem;
-        border-radius: 2px;
+        color: #ffffff;
+        font-family: 'Outfit', sans-serif;
+        font-size: 13px; font-weight: 700;
+        letter-spacing: .08em; text-transform: uppercase;
+        padding: 14px 36px; border-radius: 8px;
+        border: none; cursor: pointer;
+        transition: all .3s;
+        box-shadow: 0 4px 16px rgba(37,99,235,.3);
+    }
+    .btn-submit:hover {
+        background: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(37,99,235,.4);
+    }
+    .btn-cancel {
+        font-size: 13.5px; font-weight: 500;
+        color: #475569; text-decoration: none;
+        padding: 14px 22px;
+        border: 1px solid rgba(59,130,246,.2);
+        border-radius: 8px;
+        transition: all .25s;
+    }
+    .btn-cancel:hover {
+        color: #0f172a;
+        border-color: rgba(59,130,246,.4);
+        background: rgba(59,130,246,.05);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="fb-wrap">
 
+    <a href="{% url 'student_dashboard' %}" class="back-link">← Back to Dashboard</a>
 
-    <div class="mb-3">
-        <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">
-            ← Back to Dashboard
-        </a>
+    <h1 class="fb-title">Submit <em>Feedback</em></h1>
+    <p class="fb-subtitle">Your honest feedback helps shape a better learning experience for everyone at UAP.</p>
+
+    <div class="fb-banner">
+        <span class="fb-banner-icon">ℹ️</span>
+        <span>Your feedback improves the quality of education. You can submit anonymously — your identity will remain completely hidden from faculty.</span>
     </div>
 
+    <form method="post" id="feedbackForm">
+        {% csrf_token %}
 
-    <div class="card feedback-form-card">
-        <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">📝 Submit Course Feedback</h3>
+        {% if form.non_field_errors %}
+        <div class="fb-banner" style="background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.25);color:#991b1b;margin-bottom:20px;">
+            <span class="fb-banner-icon">⚠️</span>
+            <span>{{ form.non_field_errors }}</span>
         </div>
-        <div class="card-body p-4">
+        {% endif %}
 
-            <div class="alert alert-info mb-4">
-                <strong>ℹ️ Note:</strong> Your honest feedback helps improve the quality of education.
-                You can submit feedback anonymously if you prefer.
+        <!-- STEP 1 -->
+        <div class="fb-section">
+            <div class="fb-section-title">
+                Select Course <span class="step-badge">Step 1</span>
+            </div>
+            <div class="fb-field">
+                <label class="fb-label" for="{{ form.course.id_for_label }}">
+                    Course <span class="req">*</span>
+                    <span class="hint">Select the course you want to provide feedback for</span>
+                </label>
+                {{ form.course }}
+                {% if form.course.errors %}<div class="fb-error">{{ form.course.errors|join:", " }}</div>{% endif %}
+            </div>
+            <div class="fb-field">
+                <label class="fb-label" for="{{ form.class_section.id_for_label }}">
+                    Class Section <span class="req">*</span>
+                    <span class="hint">Select your class section (A, B, C or D)</span>
+                </label>
+                {{ form.class_section }}
+                {% if form.class_section.errors %}<div class="fb-error">{{ form.class_section.errors|join:", " }}</div>{% endif %}
+            </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="fb-section">
+            <div class="fb-section-title">
+                Select Faculty <span class="step-badge">Step 2</span>
+            </div>
+            <div class="fb-field">
+                <label class="fb-label" for="{{ form.faculty.id_for_label }}">
+                    Faculty Member <span class="req">*</span>
+                    <span class="hint">Select a course first — only assigned faculty will appear</span>
+                </label>
+                {{ form.faculty }}
+                {% if form.faculty.errors %}<div class="fb-error">{{ form.faculty.errors|join:", " }}</div>{% endif %}
+            </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="fb-section">
+            <div class="fb-section-title">
+                Rate Your Experience <span class="step-badge">Step 3</span>
             </div>
 
-            <form method="post">
-                {% csrf_token %}
-
-
-                <div class="form-section">
-                    <h5 class="section-title">Select Course</h5>
-
-                    <div class="mb-3">
-                        <label for="{{ form.course.id_for_label }}" class="form-label">
-                            Course <span class="text-danger">*</span>
-                        </label>
-                        {{ form.course }}
-                        {% if form.course.errors %}
-                            <div class="text-danger small mt-1">{{ form.course.errors }}</div>
-                        {% endif %}
-                        <small class="form-text text-muted">
-                            Select the course you want to provide feedback for
-                        </small>
-                    </div>
+            <div class="star-row">
+                <div class="star-row-label">Teaching Quality <span class="req">*</span></div>
+                <div class="star-interactive" id="teaching-stars-ui">
+                    <button type="button" class="star-btn" data-val="1">★</button>
+                    <button type="button" class="star-btn" data-val="2">★</button>
+                    <button type="button" class="star-btn" data-val="3">★</button>
+                    <button type="button" class="star-btn" data-val="4">★</button>
+                    <button type="button" class="star-btn" data-val="5">★</button>
+                    <span class="star-value-label" id="teaching-val-label">Click to rate</span>
                 </div>
+                <div class="star-hint">How would you rate the teaching quality? (1 = Poor, 5 = Excellent)</div>
+                <div class="rating-number-input">{{ form.teaching_rating }}</div>
+                {% if form.teaching_rating.errors %}<div class="fb-error">{{ form.teaching_rating.errors|join:", " }}</div>{% endif %}
+            </div>
 
-
-                
-
-                    <div class="mb-3">
-                        <label for="{{ form.class_section.id_for_label }}" class="form-label">
-                            Class Section <span class="text-danger">*</span>
-                        </label>
-                        {{ form.class_section }}
-                        {% if form.class_section.errors %}
-                            <div class="text-danger small mt-1">{{ form.class_section.errors }}</div>
-                        {% endif %}
-                        <small class="form-text text-muted">
-                            Select your class section (A, B, C or D)
-                        </small>
-                    </div>
+            <div class="star-row">
+                <div class="star-row-label">Course Content <span class="req">*</span></div>
+                <div class="star-interactive" id="content-stars-ui">
+                    <button type="button" class="star-btn" data-val="1">★</button>
+                    <button type="button" class="star-btn" data-val="2">★</button>
+                    <button type="button" class="star-btn" data-val="3">★</button>
+                    <button type="button" class="star-btn" data-val="4">★</button>
+                    <button type="button" class="star-btn" data-val="5">★</button>
+                    <span class="star-value-label" id="content-val-label">Click to rate</span>
                 </div>
+                <div class="star-hint">How would you rate the course content? (1 = Poor, 5 = Excellent)</div>
+                <div class="rating-number-input">{{ form.content_rating }}</div>
+                {% if form.content_rating.errors %}<div class="fb-error">{{ form.content_rating.errors|join:", " }}</div>{% endif %}
+            </div>
 
-<div class="form-section">
-                    <h5 class="section-title">Faculty & Class Section</h5>
-
-                    <div class="mb-3">
-                        <label for="{{ form.faculty.id_for_label }}" class="form-label">
-                            Select Faculty <span class="text-danger">*</span>
-                        </label>
-                        {{ form.faculty }}
-                        {% if form.faculty.errors %}
-                            <div class="text-danger small mt-1">{{ form.faculty.errors }}</div>
-                        {% endif %}
-                        <small class="form-text text-muted">
-                            Select a course first — only assigned faculty will appear
-                        </small>
-                    </div>
-                    
-                <div class="form-section">
-                    <h5 class="section-title">Rate Your Experience</h5>
-
-                    <div class="rating-container">
-
-                        <div class="mb-4">
-                            <label for="{{ form.teaching_rating.id_for_label }}" class="form-label">
-                                <strong>Teaching Quality</strong> <span class="text-danger">*</span>
-                            </label>
-                            <div class="star-rating">
-                                {{ form.teaching_rating }}
-                                <span class="stars" id="teaching-stars">☆☆☆☆☆</span>
-                            </div>
-                            <small class="form-text text-muted">{{ form.teaching_rating.help_text }}</small>
-                            {% if form.teaching_rating.errors %}
-                                <div class="text-danger small mt-1">{{ form.teaching_rating.errors }}</div>
-                            {% endif %}
-                        </div>
-
-
-                        <div class="mb-4">
-                            <label for="{{ form.content_rating.id_for_label }}" class="form-label">
-                                <strong>Course Content</strong> <span class="text-danger">*</span>
-                            </label>
-                            <div class="star-rating">
-                                {{ form.content_rating }}
-                                <span class="stars" id="content-stars">☆☆☆☆☆</span>
-                            </div>
-                            <small class="form-text text-muted">{{ form.content_rating.help_text }}</small>
-                            {% if form.content_rating.errors %}
-                                <div class="text-danger small mt-1">{{ form.content_rating.errors }}</div>
-                            {% endif %}
-                        </div>
-
-
-                        <div class="mb-0">
-                            <label for="{{ form.communication_rating.id_for_label }}" class="form-label">
-                                <strong>Communication</strong> <span class="text-danger">*</span>
-                            </label>
-                            <div class="star-rating">
-                                {{ form.communication_rating }}
-                                <span class="stars" id="communication-stars">☆☆☆☆☆</span>
-                            </div>
-                            <small class="form-text text-muted">{{ form.communication_rating.help_text }}</small>
-                            {% if form.communication_rating.errors %}
-                                <div class="text-danger small mt-1">{{ form.communication_rating.errors }}</div>
-                            {% endif %}
-                        </div>
-                    </div>
+            <div class="star-row">
+                <div class="star-row-label">Communication <span class="req">*</span></div>
+                <div class="star-interactive" id="communication-stars-ui">
+                    <button type="button" class="star-btn" data-val="1">★</button>
+                    <button type="button" class="star-btn" data-val="2">★</button>
+                    <button type="button" class="star-btn" data-val="3">★</button>
+                    <button type="button" class="star-btn" data-val="4">★</button>
+                    <button type="button" class="star-btn" data-val="5">★</button>
+                    <span class="star-value-label" id="communication-val-label">Click to rate</span>
                 </div>
-
-
-                <div class="form-section">
-                    <strong>Additional Comments</strong> <span class="text-danger">*</span>
-
-                    <div class="mb-3">
-                        <label for="{{ form.comments.id_for_label }}" class="form-label">
-                            Share your thoughts
-                        </label>
-                        {{ form.comments }}
-                        <small class="form-text text-muted">
-                            Provide specific feedback to help faculty improve
-                        </small>
-                        {% if form.comments.errors %}
-                            <div class="text-danger small mt-1">{{ form.comments.errors }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-
-
-                <div class="form-section">
-                    <h5 class="section-title">Privacy Options</h5>
-
-                    <div class="form-check">
-                        {{ form.is_anonymous }}
-                        <label class="form-check-label" for="{{ form.is_anonymous.id_for_label }}">
-                            {{ form.is_anonymous.label }}
-                        </label>
-                        <small class="form-text text-muted d-block mt-1">
-                            {{ form.is_anonymous.help_text }}
-                        </small>
-                    </div>
-                </div>
-
-
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {{ form.non_field_errors }}
-                    </div>
-                {% endif %}
-
-                <!-- Submit Buttons -->
-                <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        📤 Submit Feedback
-                    </button>
-                    <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary btn-lg">
-                        Cancel
-                    </a>
-                </div>
-            </form>
-
+                <div class="star-hint">How would you rate faculty communication? (1 = Poor, 5 = Excellent)</div>
+                <div class="rating-number-input">{{ form.communication_rating }}</div>
+                {% if form.communication_rating.errors %}<div class="fb-error">{{ form.communication_rating.errors|join:", " }}</div>{% endif %}
+            </div>
         </div>
-    </div>
 
+        <!-- STEP 4 -->
+        <div class="fb-section">
+            <div class="fb-section-title">
+                Additional Comments <span class="step-badge">Step 4</span>
+            </div>
+            <div class="fb-field">
+                <label class="fb-label" for="{{ form.comments.id_for_label }}">
+                    Share Your Thoughts <span class="req">*</span>
+                    <span class="hint">Provide specific feedback to help faculty improve</span>
+                </label>
+                {{ form.comments }}
+                {% if form.comments.errors %}<div class="fb-error">{{ form.comments.errors|join:", " }}</div>{% endif %}
+            </div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="fb-section">
+            <div class="fb-section-title">
+                Privacy Options <span class="step-badge">Step 5</span>
+            </div>
+            <label class="fb-check">
+                {{ form.is_anonymous }}
+                <div>
+                    <div class="fb-check-label">Submit Anonymously</div>
+                    <div class="fb-check-hint">Your identity will be completely hidden from the faculty if checked</div>
+                </div>
+            </label>
+        </div>
+
+        <div class="fb-actions">
+            <button type="submit" class="btn-submit">📤 Submit Feedback</button>
+            <a href="{% url 'student_dashboard' %}" class="btn-cancel">Cancel</a>
+        </div>
+
+    </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 {{ course_faculty_map|json_script:"courses-faculty-data" }}
 <script>
-    // Course → Section → Faculty dropdown filter
-    const dataEl = document.getElementById('courses-faculty-data');
-    const courseFacultyMap = dataEl ? JSON.parse(dataEl.textContent) : {};
-    console.log('[FeedbackFlow] nested courseFacultyMap loaded:', courseFacultyMap);
+const dataEl = document.getElementById('courses-faculty-data');
+const courseFacultyMap = dataEl ? JSON.parse(dataEl.textContent) : {};
 
-    function filterFaculty(courseId, sectionId) {
-        const facultySelect = document.getElementById('id_faculty');
-        if (!facultySelect) return;
-        const currentVal = facultySelect.value;
-        facultySelect.innerHTML = '';
-
-        const cid = String(courseId || '');
-        const sid = String(sectionId || '');
-
-        let facultyList = [];
-        if (cid && courseFacultyMap[cid]) {
-            // Prefer exact section assignment
-            if (sid && courseFacultyMap[cid][sid]) {
-                facultyList = courseFacultyMap[cid][sid];
-            } else if (courseFacultyMap[cid]['ALL']) {
-                // Fallback to assignments without section
-                facultyList = courseFacultyMap[cid]['ALL'];
-            }
-        }
-
-        if (facultyList.length === 0) {
-            const opt = document.createElement('option');
-            opt.value = '';
-            opt.textContent = cid ? '— No faculty assigned for this course/section —' : '— Select a course first —';
-            facultySelect.appendChild(opt);
-        } else {
-            const blank = document.createElement('option');
-            blank.value = '';
-            blank.textContent = '— Select Faculty —';
-            facultySelect.appendChild(blank);
-            facultyList.forEach(f => {
-                const opt = document.createElement('option');
-                opt.value = String(f.id);
-                opt.textContent = f.name;
-                if (String(f.id) === String(currentVal)) opt.selected = true;
-                facultySelect.appendChild(opt);
-            });
-        }
+function filterFaculty(courseId, sectionId) {
+    const sel = document.getElementById('id_faculty');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '';
+    const cid = String(courseId || ''), sid = String(sectionId || '');
+    let list = [];
+    if (cid && courseFacultyMap[cid]) {
+        if (sid && courseFacultyMap[cid][sid]) list = courseFacultyMap[cid][sid];
+        else if (courseFacultyMap[cid]['ALL']) list = courseFacultyMap[cid]['ALL'];
     }
-
-    const courseSelect = document.getElementById('id_course');
-    const sectionSelect = document.getElementById('id_class_section');
-
-    if (courseSelect) {
-        courseSelect.addEventListener('change', function () {
-            // update faculty when course changes; uses current section value
-            const sec = sectionSelect ? sectionSelect.value : '';
-            filterFaculty(this.value, sec);
+    if (list.length === 0) {
+        const o = document.createElement('option');
+        o.value = ''; o.textContent = cid ? '— No faculty assigned for this section —' : '— Select a course first —';
+        sel.appendChild(o);
+    } else {
+        const b = document.createElement('option'); b.value = ''; b.textContent = '— Select Faculty —'; sel.appendChild(b);
+        list.forEach(f => {
+            const o = document.createElement('option');
+            o.value = String(f.id); o.textContent = f.name;
+            if (String(f.id) === String(cur)) o.selected = true;
+            sel.appendChild(o);
         });
     }
+}
 
-    if (sectionSelect) {
-        sectionSelect.addEventListener('change', function () {
-            const cid = courseSelect ? courseSelect.value : '';
-            filterFaculty(cid, this.value);
+const courseEl  = document.getElementById('id_course');
+const sectionEl = document.getElementById('id_class_section');
+if (courseEl)  courseEl.addEventListener('change',  () => filterFaculty(courseEl.value, sectionEl?.value));
+if (sectionEl) sectionEl.addEventListener('change', () => filterFaculty(courseEl?.value, sectionEl.value));
+filterFaculty(courseEl?.value, sectionEl?.value);
+
+const LABELS = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+
+function initStars(uiId, inputId, labelId) {
+    const ui    = document.getElementById(uiId);
+    const input = document.getElementById(inputId);
+    const lbl   = document.getElementById(labelId);
+    if (!ui || !input) return;
+    const btns = ui.querySelectorAll('.star-btn');
+
+    function setRating(val) {
+        input.value = val;
+        btns.forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.val) <= val);
+            b.style.color = '';
         });
+        if (lbl) lbl.textContent = val ? LABELS[val] : 'Click to rate';
     }
 
-    // On page load (e.g. form error redisplay)
-    const initCourse = courseSelect ? courseSelect.value : '';
-    const initSection = sectionSelect ? sectionSelect.value : '';
-    filterFaculty(initCourse, initSection);
-    
-
-    // Star rating visualization
-    function updateStars(inputId, starsId) {
-        const input = document.getElementById(inputId);
-        const stars = document.getElementById(starsId);
-
-        input.addEventListener('input', function() {
-            const rating = parseInt(this.value) || 0;
-            let starsHTML = '';
-            for (let i = 1; i <= 5; i++) {
-                starsHTML += i <= rating ? '★' : '☆';
-            }
-            stars.textContent = starsHTML;
+    btns.forEach(b => {
+        b.addEventListener('click', () => setRating(parseInt(b.dataset.val)));
+        b.addEventListener('mouseenter', () => {
+            const hv = parseInt(b.dataset.val);
+            btns.forEach(bb => { bb.style.color = parseInt(bb.dataset.val) <= hv ? '#f59e0b' : '#94a3b8'; });
         });
+    });
 
-        // Trigger on page load if value exists
-        input.dispatchEvent(new Event('input'));
-    }
+    ui.addEventListener('mouseleave', () => {
+        const cur = parseInt(input.value) || 0;
+        btns.forEach(bb => {
+            bb.style.color = '';
+            bb.classList.toggle('active', parseInt(bb.dataset.val) <= cur);
+        });
+    });
 
-    updateStars('{{ form.teaching_rating.id_for_label }}', 'teaching-stars');
-    updateStars('{{ form.content_rating.id_for_label }}', 'content-stars');
-    updateStars('{{ form.communication_rating.id_for_label }}', 'communication-stars');
+    if (input.value) setRating(parseInt(input.value));
+}
+
+initStars('teaching-stars-ui',      '{{ form.teaching_rating.id_for_label }}',     'teaching-val-label');
+initStars('content-stars-ui',       '{{ form.content_rating.id_for_label }}',       'content-val-label');
+initStars('communication-stars-ui', '{{ form.communication_rating.id_for_label }}', 'communication-val-label');
 </script>
 {% endblock %}
