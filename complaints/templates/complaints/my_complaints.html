@@ -1,7 +1,4 @@
-
-
 {% extends 'users/base.html' %}
-
 {% block title %}My Complaints - FeedbackFlow{% endblock %}
 
 {% block extra_css %}
@@ -11,99 +8,85 @@
         transition: all 0.3s;
         margin-bottom: 1rem;
     }
-
     .complaint-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         transform: translateY(-2px);
     }
 
-    .status-pending {
-        background: #fef3c7;
-        color: #92400e;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
+    .status-pending       { background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
+    .status-investigating { background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
+    .status-resolved      { background: #d1fae5; color: #065f46; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
+    .status-escalated     { background: #fecaca; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
 
-    .status-investigating {
-        background: #dbeafe;
-        color: #1e40af;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 500;
+    /* All cards white with dark text */
+    .card {
+        background: #ffffff !important;
     }
+    .card h2, .card h3, .card h4, .card h5 { color: #111827 !important; }
+    .card p, .card small                    { color: #374151 !important; }
+    .card strong                            { color: #111827 !important; }
+    .card .text-muted                       { color: #6b7280 !important; }
 
-    .status-resolved {
-        background: #d1fae5;
-        color: #065f46;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
+    /* Page header stays white (on dark bg) */
+    .page-header-title { color: #ffffff; }
+    .page-header-sub   { color: rgba(255,255,255,.65) !important; }
 
-    .status-escalated {
-        background: #fecaca;
-        color: #991b1b;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
+    /* Stat cards */
+    .stat-card-number { font-size: 2rem; font-weight: 700; color: #111827 !important; }
+
+    /* View details button */
+    .btn-outline-primary { color: #2563eb !important; border-color: #2563eb !important; }
+    .btn-outline-primary:hover { background: #2563eb !important; color: #fff !important; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
 
-
+    <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2>📢 My Complaints</h2>
-            <p class="text-muted mb-0">Track all your submitted complaints</p>
+            <h2 class="page-header-title">📢 My Complaints</h2>
+            <p class="page-header-sub mb-0">Track all your submitted complaints</p>
         </div>
-        <a href="{% url 'submit_complaint' %}" class="btn btn-danger">
-            ➕ Submit New Complaint
-        </a>
+        <a href="{% url 'submit_complaint' %}" class="btn btn-danger">➕ Submit New Complaint</a>
     </div>
 
-
+    <!-- Stats Row -->
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
-            <div class="card border-danger">
-                <div class="card-body text-center">
-                    <h3 class="mb-1">{{ total_complaints }}</h3>
+            <div class="card border-danger text-center">
+                <div class="card-body py-4">
+                    <div class="stat-card-number">{{ total_complaints }}</div>
                     <p class="text-muted mb-0">Total Complaints</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card border-warning">
-                <div class="card-body text-center">
-                    <h3 class="mb-1">{{ pending }}</h3>
+            <div class="card border-warning text-center">
+                <div class="card-body py-4">
+                    <div class="stat-card-number">{{ pending }}</div>
                     <p class="text-muted mb-0">Pending</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="card border-success">
-                <div class="card-body text-center">
-                    <h3 class="mb-1">{{ resolved }}</h3>
+            <div class="card border-success text-center">
+                <div class="card-body py-4">
+                    <div class="stat-card-number">{{ resolved }}</div>
                     <p class="text-muted mb-0">Resolved</p>
                 </div>
             </div>
         </div>
     </div>
 
-
+    <!-- Complaints List -->
     {% if complaints_list %}
         <div class="row">
             {% for complaint in complaints_list %}
             <div class="col-12 mb-3">
                 <div class="card complaint-card">
-                    <div class="card-body">
+                    <div class="card-body p-4">
                         <div class="row">
                             <div class="col-md-8">
                                 <h5 class="mb-2">{{ complaint.subject }}</h5>
@@ -114,20 +97,19 @@
                                         <strong>Submitted:</strong> {{ complaint.submitted_at|date:"M d, Y - h:i A" }}
                                     </small>
                                 </p>
-                                <p class="mb-2">{{ complaint.description|truncatewords:20 }}</p>
-
+                                <p class="mb-3">{{ complaint.description|truncatewords:20 }}</p>
                                 <div>
                                     <span class="status-{{ complaint.status|lower|cut:' ' }}">
                                         {{ complaint.status }}
                                     </span>
                                     {% if complaint.is_anonymous %}
-                                        <span class="badge bg-secondary ms-1">Anonymous</span>
+                                        <span class="badge bg-secondary ms-2">Anonymous</span>
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="col-md-4 text-end">
-                                <div class="mb-2">
-                                    <small class="text-muted">Assigned to:</small><br>
+                            <div class="col-md-4 text-end d-flex flex-column align-items-end justify-content-between">
+                                <div class="mb-3">
+                                    <small class="text-muted d-block">Assigned to:</small>
                                     <strong>{{ complaint.assigned_to.full_name }}</strong>
                                 </div>
                                 <a href="{% url 'complaint_detail' complaint.id %}" class="btn btn-outline-primary">
@@ -140,18 +122,14 @@
             </div>
             {% endfor %}
         </div>
-    {% else %}
 
+    {% else %}
         <div class="card">
             <div class="card-body text-center py-5">
-                <div style="font-size: 4rem; opacity: 0.3;">📭</div>
+                <div style="font-size:4rem;opacity:.3;">📭</div>
                 <h4 class="mt-3">No Complaints Submitted Yet</h4>
-                <p class="text-muted mb-4">
-                    If you're facing any issues, submit a complaint and we'll help you resolve it
-                </p>
-                <a href="{% url 'submit_complaint' %}" class="btn btn-danger">
-                    Submit Your First Complaint
-                </a>
+                <p class="text-muted mb-4">If you're facing any issues, submit a complaint and we'll help you resolve it</p>
+                <a href="{% url 'submit_complaint' %}" class="btn btn-danger">Submit Your First Complaint</a>
             </div>
         </div>
     {% endif %}

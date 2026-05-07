@@ -1,22 +1,91 @@
 {% extends 'users/base.html' %}
 {% block title %}Appointment - FeedbackFlow{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Fix all inputs, labels, text inside cards */
+    .card { background: #ffffff !important; }
+
+    .card .form-label,
+    .card label { color: #1f2937 !important; font-weight: 600; font-size: 13.5px; }
+
+    .card .form-control,
+    .card .form-select,
+    .card select,
+    .card input,
+    .card textarea {
+        color: #111827 !important;
+        background: #ffffff !important;
+        border: 1px solid #d1d5db !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+    }
+
+    .card .form-control:focus,
+    .card .form-select:focus,
+    .card select:focus,
+    .card input:focus,
+    .card textarea:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+        outline: none !important;
+        color: #111827 !important;
+        background: #ffffff !important;
+    }
+
+    .card .form-control::placeholder,
+    .card textarea::placeholder { color: #9ca3af !important; }
+
+    .card .text-danger { color: #ef4444 !important; }
+    .card .text-muted  { color: #6b7280 !important; }
+
+    .card-header {
+        background: #f1f5ff !important;
+        color: #1e3a8a !important;
+        font-weight: 700 !important;
+        font-size: 15px;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 14px 20px;
+    }
+
+    .card-body { padding: 24px !important; }
+
+    .alert-info {
+        background: #dbeafe !important;
+        border-color: #93c5fd !important;
+        color: #1e3a8a !important;
+    }
+    .alert-info strong { color: #1e3a8a !important; }
+
+    .page-title-text { color: #ffffff; }
+    .page-sub-text   { color: rgba(255,255,255,.6) !important; }
+
+    .btn-primary {
+        background: #2563eb !important;
+        border-color: #2563eb !important;
+        color: #fff !important;
+        font-weight: 600;
+    }
+    .btn-primary:hover { background: #1d4ed8 !important; border-color: #1d4ed8 !important; }
+    .btn-outline-primary { color: #2563eb !important; border-color: #2563eb !important; background: transparent !important; }
+    .btn-outline-primary:hover { background: #2563eb !important; color: #fff !important; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5" style="max-width: 720px;">
 
-    <!-- Header -->
     <div class="mb-4">
-        <h2 class="fw-bold" style="color:#1e3a8a;">📅 Book an Appointment</h2>
-        <p class="text-muted">Fill in the details below to request an appointment.</p>
+        <h2 class="fw-bold page-title-text">📅 Book an Appointment</h2>
+        <p class="page-sub-text">Fill in the details below to request an appointment.</p>
     </div>
 
-    <!-- Tabs -->
     <div class="mb-4 d-flex gap-2">
         <a href="{% url 'submit_complaint' %}" class="btn btn-outline-primary">💬 Complaint</a>
         <a href="{% url 'appointment' %}" class="btn btn-primary">📅 Appointment</a>
     </div>
 
-    <!-- Info Box -->
     <div class="alert alert-info mb-4" style="border-left: 4px solid #2563eb;">
         <strong>Note:</strong> Your appointment request will be reviewed.
         You will be notified once it is approved or rejected.
@@ -33,73 +102,55 @@
 
         <!-- Personal Info -->
         <div class="card shadow-sm mb-4">
-            <div class="card-header fw-bold" style="background:#f1f5ff; color:#1e3a8a;">
-                👤 Personal Information
-            </div>
+            <div class="card-header">👤 Personal Information</div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                        <label class="form-label">Full Name <span class="text-danger">*</span></label>
                         {{ form.name }}
-                        {% if form.name.errors %}
-                            <div class="text-danger small mt-1">{{ form.name.errors|join:", " }}</div>
-                        {% endif %}
+                        {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors|join:", " }}</div>{% endif %}
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Student ID <span class="text-danger">*</span></label>
+                        <label class="form-label">Student ID <span class="text-danger">*</span></label>
                         {{ form.roll_number }}
-                        {% if form.roll_number.errors %}
-                            <div class="text-danger small mt-1">{{ form.roll_number.errors|join:", " }}</div>
-                        {% endif %}
+                        {% if form.roll_number.errors %}<div class="text-danger small mt-1">{{ form.roll_number.errors|join:", " }}</div>{% endif %}
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Book Appointment With <span class="text-danger">*</span></label>
+                        <label class="form-label">Book Appointment With <span class="text-danger">*</span></label>
                         {{ form.appointment_with }}
-                        {% if form.appointment_with.errors %}
-                            <div class="text-danger small mt-1">{{ form.appointment_with.errors|join:", " }}</div>
-                        {% endif %}
+                        {% if form.appointment_with.errors %}<div class="text-danger small mt-1">{{ form.appointment_with.errors|join:", " }}</div>{% endif %}
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
+                        <label class="form-label">Department <span class="text-danger">*</span></label>
                         {{ form.department }}
-                        {% if form.department.errors %}
-                            <div class="text-danger small mt-1">{{ form.department.errors|join:", " }}</div>
-                        {% endif %}
+                        {% if form.department.errors %}<div class="text-danger small mt-1">{{ form.department.errors|join:", " }}</div>{% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Appointment Details -->
+        <!-- Incident Details -->
         <div class="card shadow-sm mb-4">
-            <div class="card-header fw-bold" style="background:#f1f5ff; color:#1e3a8a;">
-                📋 Incident Details
-            </div>
+            <div class="card-header">📋 Incident Details</div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Type of Incident <span class="text-danger">*</span></label>
+                        <label class="form-label">Type of Incident <span class="text-danger">*</span></label>
                         {{ form.incident_type }}
-                        {% if form.incident_type.errors %}
-                            <div class="text-danger small mt-1">{{ form.incident_type.errors|join:", " }}</div>
-                        {% endif %}
+                        {% if form.incident_type.errors %}<div class="text-danger small mt-1">{{ form.incident_type.errors|join:", " }}</div>{% endif %}
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold">Description of Incident <span class="text-danger">*</span></label>
+                        <label class="form-label">Description of Incident <span class="text-danger">*</span></label>
                         {{ form.description }}
-                        {% if form.description.errors %}
-                            <div class="text-danger small mt-1">{{ form.description.errors|join:", " }}</div>
-                        {% endif %}
+                        {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors|join:", " }}</div>{% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="d-flex align-items-center gap-3">
-            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">
-                📅 Submit Appointment
-            </button>
-            <span class="text-muted small">All fields marked * are required</span>
+            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">📅 Submit Appointment</button>
+            <span style="color:rgba(255,255,255,.5);font-size:13px;">All fields marked * are required</span>
         </div>
 
     </form>

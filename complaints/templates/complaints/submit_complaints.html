@@ -1,7 +1,4 @@
-
-
 {% extends 'users/base.html' %}
-
 {% block title %}Submit Complaint - FeedbackFlow{% endblock %}
 
 {% block extra_css %}
@@ -37,39 +34,87 @@
         border-radius: 2px;
     }
 
-    .complaint-types {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-top: 1rem;
+    /* All labels visible */
+    .card-body .form-label,
+    .card-body label,
+    .form-section .form-label,
+    .form-section label {
+        color: #1f2937 !important;
+        font-weight: 600;
+        font-size: 13.5px;
     }
 
-    .complaint-type-info {
-        padding: 1rem;
-        background: white;
-        border-left: 3px solid #3b82f6;
-        border-radius: 4px;
+    /* All inputs visible with dark text */
+    .card-body .form-control,
+    .card-body .form-select,
+    .card-body select,
+    .card-body input[type="text"],
+    .card-body textarea,
+    .form-section .form-control,
+    .form-section .form-select,
+    .form-section select,
+    .form-section textarea {
+        color: #111827 !important;
+        background: #ffffff !important;
+        border: 1px solid #d1d5db !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        width: 100%;
     }
+
+    .card-body .form-control:focus,
+    .card-body .form-select:focus,
+    .form-section select:focus,
+    .form-section textarea:focus {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,.12) !important;
+        outline: none !important;
+    }
+
+    .card-body .form-control::placeholder,
+    .card-body textarea::placeholder { color: #9ca3af !important; }
+
+    .card-body .form-text,
+    .card-body .text-muted { color: #6b7280 !important; }
+
+    .card-body h3, .card-body h4,
+    .card-body h5, .card-body p { color: #1f2937; }
+
+    .alert-info {
+        background: #dbeafe !important;
+        border-color: #93c5fd !important;
+        color: #1e3a8a !important;
+    }
+    .alert-info strong,
+    .alert-info li { color: #1e3a8a !important; }
+
+    /* Checkbox */
+    .form-check-label { color: #1f2937 !important; font-size: 14px; font-weight: 500; }
+    .form-check-input { accent-color: #ef4444; width: 18px; height: 18px; cursor: pointer; }
+
+    .card-body .text-danger { color: #ef4444 !important; }
+
+    .btn-outline-primary { color: #2563eb !important; border-color: #2563eb !important; }
+    .btn-outline-primary:hover { background: #2563eb !important; color: #fff !important; }
+
+    .btn-outline-secondary { color: rgba(255,255,255,.7) !important; border-color: rgba(255,255,255,.3) !important; }
+    .btn-outline-secondary:hover { background: rgba(255,255,255,.1) !important; color: #fff !important; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
 
-
     <div class="mb-3 d-flex gap-2">
-        <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">
-            ← Back to Dashboard
-        </a>
-
+        <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">← Back to Dashboard</a>
     </div>
-
 
     <div class="card complaint-form-card">
         <div class="card-header bg-danger text-white">
             <h3 class="mb-0">📢 Submit Complaint</h3>
         </div>
-        
+
         <div class="card-body p-4">
 
             <div class="alert alert-info mb-4">
@@ -80,17 +125,17 @@
                     <li><strong>Facility Issue</strong> → Facilities Staff</li>
                 </ul>
             </div>
-                    <a href="{% url 'appointment' %}" class="btn btn-outline-primary">
-            Appointment
-        </a>
+
+            <div class="mb-3">
+                <a href="{% url 'appointment' %}" class="btn btn-outline-primary">📅 Appointment</a>
+            </div>
 
             <form method="post">
                 {% csrf_token %}
 
-
+                <!-- Complaint Type -->
                 <div class="form-section">
                     <h5 class="section-title">Select Complaint Type</h5>
-
                     <div class="mb-3">
                         <label for="{{ form.complaint_type.id_for_label }}" class="form-label">
                             Type of Complaint <span class="text-danger">*</span>
@@ -102,10 +147,9 @@
                     </div>
                 </div>
 
-
+                <!-- Complaint Details -->
                 <div class="form-section">
                     <h5 class="section-title">Complaint Details</h5>
-
                     <div class="mb-3">
                         <label for="{{ form.subject.id_for_label }}" class="form-label">
                             Subject <span class="text-danger">*</span>
@@ -115,75 +159,63 @@
                             <div class="text-danger small mt-1">{{ form.subject.errors }}</div>
                         {% endif %}
                     </div>
-
                     <div class="mb-3">
                         <label for="{{ form.description.id_for_label }}" class="form-label">
                             Detailed Description <span class="text-danger">*</span>
                         </label>
                         {{ form.description }}
-                        <small class="form-text text-muted">
-                            Please provide as much detail as possible to help us address your concern
-                        </small>
+                        <small class="form-text">Please provide as much detail as possible to help us address your concern</small>
                         {% if form.description.errors %}
                             <div class="text-danger small mt-1">{{ form.description.errors }}</div>
                         {% endif %}
                     </div>
                 </div>
 
-
+                <!-- Additional Info -->
                 <div class="form-section">
                     <h5 class="section-title">Additional Information (Optional)</h5>
-
                     <div class="mb-3">
                         <label for="{{ form.faculty_concerned.id_for_label }}" class="form-label">
                             Faculty/Staff Member (if applicable)
                         </label>
                         {{ form.faculty_concerned }}
-                        <small class="form-text text-muted">
-                            Select if your complaint is about a specific faculty or staff member
-                        </small>
+                        <small class="form-text">Select if your complaint is about a specific faculty or staff member</small>
                         {% if form.faculty_concerned.errors %}
                             <div class="text-danger small mt-1">{{ form.faculty_concerned.errors }}</div>
                         {% endif %}
                     </div>
-
                     <div class="mb-3">
-                        <label for="{{ form.location.id_for_label }}" class="form-label">
-                            Location
-                        </label>
+                        <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
                         {{ form.location }}
-                        <small class="form-text text-muted">
-                            For facility issues, specify the location (e.g., Room 301, Library)
-                        </small>
+                        <small class="form-text">For facility issues, specify the location (e.g., Room 301, Library)</small>
                         {% if form.location.errors %}
                             <div class="text-danger small mt-1">{{ form.location.errors }}</div>
                         {% endif %}
                     </div>
                 </div>
 
-
+                <!-- Privacy -->
                 <div class="form-section">
                     <h5 class="section-title">Privacy Options</h5>
-
-                    <div class="form-check">
-                        {{ form.is_anonymous }}
-                        <label class="form-check-label" for="{{ form.is_anonymous.id_for_label }}">
-                            Submit Anonymously
-                        </label>
-                        <small class="form-text text-muted d-block mt-1">
-                            Your identity will be hidden from everyone except administrators
-                        </small>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:4px 0;">
+                        <input type="checkbox"
+                               name="is_anonymous"
+                               id="id_is_anonymous"
+                               class="form-check-input"
+                               {% if form.is_anonymous.value %}checked{% endif %}>
+                        <div>
+                            <label for="id_is_anonymous" class="form-check-label" style="font-size:15px;cursor:pointer;">
+                                Submit Anonymously
+                            </label>
+                            <small class="form-text d-block mt-1">Your identity will be hidden from everyone except administrators</small>
+                        </div>
                     </div>
                 </div>
 
-
+                <!-- Actions -->
                 <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-danger btn-lg">
-                        📤 Submit Complaint
-                    </button>
-                    <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary btn-lg">
-                        Cancel
-                    </a>
+                    <button type="submit" class="btn btn-danger btn-lg">📤 Submit Complaint</button>
+                    <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
                 </div>
             </form>
 
@@ -192,13 +224,14 @@
 
 </div>
 {% endblock %}
+
 {% block extra_js %}
 {{ users_by_role|json_script:"users-by-role-data" }}
 <script>
     const dataEl = document.getElementById('users-by-role-data');
     const usersByRole = dataEl ? JSON.parse(dataEl.textContent) : {};
 
-    const typeSelect = document.getElementById('id_complaint_type');
+    const typeSelect   = document.getElementById('id_complaint_type');
     const memberSelect = document.getElementById('id_faculty_concerned');
 
     function clearOptions(sel) {
@@ -209,11 +242,10 @@
         if (!memberSelect) return;
         clearOptions(memberSelect);
 
-        // Map complaint types to roles to show
         const map = {
-            'Faculty': ['Faculty'],
-            'HOD': ['HOD'],
-            'Staff': ['Staff'],
+            'Faculty':  ['Faculty'],
+            'HOD':      ['HOD'],
+            'Staff':    ['Staff'],
             'Facility': ['Staff']
         };
 
@@ -251,7 +283,6 @@
         });
     }
 
-    // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         const initType = typeSelect ? typeSelect.value : '';
         updateMemberOptions(initType);
