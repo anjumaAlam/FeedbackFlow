@@ -45,5 +45,10 @@ urlpatterns = [
     path('appointment/', views.appointment_view, name='appointment'),
     path('notifications/', views.notifications_view, name='notifications'),
     path('notifications/mark-read/<int:notif_id>/', views.mark_notification_read, name='mark_notification_read'),
+    path('tasks/',                        views.task_list,   name='task_list'),
+    path('tasks/add/',                    views.task_add,    name='task_add'),
+    path('tasks/<int:task_id>/toggle/',   views.task_toggle, name='task_toggle'),
+    path('tasks/<int:task_id>/delete/',   views.task_delete, name='task_delete'),
 ]
+
 

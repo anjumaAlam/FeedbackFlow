@@ -5,7 +5,6 @@
 {% block content %}
 <div class="container mt-4">
 
-
     <div class="dashboard-header">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -17,15 +16,13 @@
             <div class="col-md-4 text-end">
                 <div class="text-white">
                     <small class="opacity-75">Last login</small><br>
-                    <strong>
-                        {{ user.last_login|date:"M d, Y - h:i A"|default:"First time login" }}
-                    </strong>
+                    <strong>{{ user.last_login|date:"M d, Y - h:i A"|default:"First time login" }}</strong>
                 </div>
             </div>
         </div>
     </div>
 
-
+    <!-- STAT CARDS ROW 1 -->
     <div class="row mb-4">
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="stat-card blue">
@@ -34,7 +31,6 @@
                 <p class="stat-label">Total Submissions</p>
             </div>
         </div>
-
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="stat-card green">
                 <span class="stat-icon">✅</span>
@@ -42,7 +38,6 @@
                 <p class="stat-label">Reviewed</p>
             </div>
         </div>
-
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="stat-card yellow">
                 <span class="stat-icon">⏳</span>
@@ -50,7 +45,6 @@
                 <p class="stat-label">Pending Review</p>
             </div>
         </div>
-
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="stat-card red">
                 <span class="stat-icon">🔔</span>
@@ -60,26 +54,34 @@
         </div>
     </div>
 
-
+    <!-- STAT CARDS ROW 2 -->
     <div class="row mb-4">
-        <div class="col-md-6 mb-3">
+        <div class="col-md-4 mb-3">
             <div class="stat-card purple">
                 <span class="stat-icon">📝</span>
                 <h2 class="stat-number">{{ total_feedback }}</h2>
                 <p class="stat-label">Course Feedback Submitted</p>
             </div>
         </div>
-
-        <div class="col-md-6 mb-3">
+        <div class="col-md-4 mb-3">
             <div class="stat-card indigo">
                 <span class="stat-icon">📢</span>
                 <h2 class="stat-number">{{ total_complaints }}</h2>
                 <p class="stat-label">Complaints Filed</p>
             </div>
         </div>
+        <!-- TASK STAT CARD — NEW -->
+        <div class="col-md-4 mb-3">
+            <div class="stat-card" style="background:#1e3a5f;border:1px solid rgba(59,130,246,.25);">
+                <span class="stat-icon">✅</span>
+                <h2 class="stat-number" style="color:#ffffff;">{{ pending_tasks }}</h2>
+                <p class="stat-label" style="color:#93c5fd;">Pending Tasks</p>
+                <a href="{% url 'task_list' %}" style="font-size:12px;color:#60a5fa;text-decoration:none;margin-top:8px;display:block;">View all tasks →</a>
+            </div>
+        </div>
     </div>
 
-
+    <!-- QUICK ACTIONS -->
     <div class="row mb-4">
         <div class="col-12">
             <h3 class="section-title">Quick Actions</h3>
@@ -97,17 +99,60 @@
                     <i class="bi bi-file-text"></i> View My Complaints
                 </a>
                 <a href="{% url 'course_registration' %}" class="btn btn-success quick-action-btn">
-                     <i class="bi bi-journal-check"></i> Register Courses
+                    <i class="bi bi-journal-check"></i> Register Courses
+                </a>
+                <!-- TASK QUICK ACTION — NEW -->
+                <a href="{% url 'task_list' %}" class="btn btn-outline-info quick-action-btn">
+                    ✅ My Tasks
                 </a>
             </div>
         </div>
     </div>
 
+    <!-- TASK SUMMARY WIDGET — NEW -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card" style="background:#ffffff;border:1px solid rgba(59,130,246,.18);border-radius:14px;box-shadow:0 2px 12px rgba(59,130,246,.08);">
+                <div class="card-header d-flex justify-content-between align-items-center"
+                     style="background:#f1f5ff;border-bottom:1px solid rgba(59,130,246,.12);border-radius:14px 14px 0 0;padding:16px 24px;">
+                    <h5 class="mb-0" style="color:#1e3a8a;font-weight:700;">✅ My Task List</h5>
+                    <a href="{% url 'task_list' %}" class="btn btn-sm btn-primary" style="font-size:12px;">Manage Tasks →</a>
+                </div>
+                <div class="card-body" style="padding:20px 24px;">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;">
+                                <div style="font-size:28px;font-weight:700;color:#15803d;">{{ done_tasks }}</div>
+                                <div style="font-size:12px;color:#166534;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Completed</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:16px;">
+                                <div style="font-size:28px;font-weight:700;color:#854d0e;">{{ pending_tasks }}</div>
+                                <div style="font-size:12px;color:#713f12;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Pending</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;">
+                                <div style="font-size:28px;font-weight:700;color:#1d4ed8;">{{ done_tasks|add:pending_tasks }}</div>
+                                <div style="font-size:12px;color:#1e40af;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Total Tasks</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'task_list' %}" style="font-size:13px;color:#2563eb;font-weight:500;">
+                            + Add new task or view full list
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- RECENT SUBMISSIONS -->
     <div class="row mb-4">
         <div class="col-12">
             <h3 class="section-title">Recent Submissions</h3>
-
             {% if has_submissions %}
                 <div class="modern-table">
                     <table class="table table-hover mb-0">
@@ -121,64 +166,42 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             {% for feedback in recent_feedback %}
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-primary">Feedback</span>
-                                    </td>
-
-                                    <td>
-                                        <strong>{{ feedback.course.course_code }}</strong><br>
-                                        <small class="text-muted">
-                                            {{ feedback.course.course_name|truncatewords:4 }}
-                                        </small>
-                                    </td>
-
-                                    <td>
-                                        <span class="badge bg-warning text-dark">
-                                            ⭐ {{ feedback.get_average_rating }}
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <span class="badge
-                                            {% if feedback.status == 'Pending' %}badge-pending
-                                            {% elif feedback.status == 'Reviewed' %}badge-reviewed
-                                            {% elif feedback.status == 'Responded' %}badge-resolved
-                                            {% endif %}">
-                                            {{ feedback.status }}
-                                        </span>
-                                    </td>
-
-                                    <td>{{ feedback.submitted_at|date:"M d, Y" }}</td>
-
-                                    <td>
-                                        <a href="{% url 'feedback_detail' feedback.id %}"
-                                           class="btn btn-sm btn-outline-primary">
-                                            View
-                                        </a>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td><span class="badge bg-primary">Feedback</span></td>
+                                <td>
+                                    <strong>{{ feedback.course.course_code }}</strong><br>
+                                    <small class="text-muted">{{ feedback.course.course_name|truncatewords:4 }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">⭐ {{ feedback.get_average_rating }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge
+                                        {% if feedback.status == 'Pending' %}badge-pending
+                                        {% elif feedback.status == 'Reviewed' %}badge-reviewed
+                                        {% elif feedback.status == 'Responded' %}badge-resolved
+                                        {% endif %}">
+                                        {{ feedback.status }}
+                                    </span>
+                                </td>
+                                <td>{{ feedback.submitted_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'feedback_detail' feedback.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-
             {% else %}
-
                 <div class="card info-card">
                     <div class="card-body">
                         <div class="empty-state">
                             <div class="empty-state-icon">📭</div>
                             <h4>No submissions yet</h4>
-
-                            <p class="text-muted mb-3">
-                                Start by submitting feedback for your courses or filing a complaint
-                                about any issues you're facing
-                            </p>
-
+                            <p class="text-muted mb-3">Start by submitting feedback for your courses or filing a complaint about any issues you're facing</p>
                             <a href="{% url 'submit_feedback' %}" class="btn btn-primary">
                                 <i class="bi bi-plus-circle"></i> Submit Your First Feedback
                             </a>
@@ -189,14 +212,13 @@
         </div>
     </div>
 
-
+    <!-- INFO CARDS -->
     <div class="row">
         <div class="col-md-6 mb-3">
             <div class="card info-card border-primary">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">💡 Getting Started</h5>
                 </div>
-
                 <div class="card-body">
                     <ul class="mb-0">
                         <li class="mb-2">Submit anonymous or named feedback for your courses</li>
@@ -208,21 +230,17 @@
                 </div>
             </div>
         </div>
-
         <div class="col-md-6 mb-3">
             <div class="card info-card border-info">
                 <div class="card-header bg-info text-white">
                     <h5 class="mb-0">👤 Your Profile</h5>
                 </div>
-
                 <div class="card-body">
                     <p class="mb-2"><strong>Name:</strong> {{ user.full_name }}</p>
                     <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
                     <p class="mb-2"><strong>Student ID:</strong> {{ user.student_id }}</p>
                     <p class="mb-2"><strong>Department:</strong> {{ user.get_department_display_full }}</p>
-                    <p class="mb-0">
-                        <strong>Account Created:</strong> {{ user.created_at|date:"M d, Y" }}
-                    </p>
+                    <p class="mb-0"><strong>Account Created:</strong> {{ user.created_at|date:"M d, Y" }}</p>
                 </div>
             </div>
         </div>

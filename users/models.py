@@ -141,3 +141,29 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.recipient.full_name} - {self.title}"
+
+class Task(models.Model):
+    PRIORITY_CHOICES = (
+        ('Low', 'Low'),
+        ('Medium', 'Medium'),
+        ('High', 'High'),
+    )
+    TYPE_CHOICES = (
+        ('Daily', 'Daily'),
+        ('Weekly', 'Weekly'),
+    )
+
+    student     = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
+    title       = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    task_type   = models.CharField(max_length=10, choices=TYPE_CHOICES, default='Daily')
+    priority    = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Medium')
+    is_done     = models.BooleanField(default=False)
+    due_date    = models.DateField(null=True, blank=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['is_done', '-priority', 'created_at']
+
+    def __str__(self):
+        return f"{self.student.full_name} — {self.title}"

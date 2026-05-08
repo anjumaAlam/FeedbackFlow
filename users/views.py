@@ -1,6 +1,4 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import StudentRegistrationForm, LoginForm, PasswordResetRequestForm, PasswordResetConfirmForm, \
-    AdminUserCreateForm, AdminUserEditForm, AppointmentForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -11,8 +9,8 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Count, Avg
-from feedback.models import Course, CourseAssignment
-from .models import User, Appointment, Notification
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 from .forms import (
     StudentRegistrationForm,
@@ -21,9 +19,10 @@ from .forms import (
     PasswordResetConfirmForm,
     AdminUserCreateForm,
     AdminUserEditForm,
+    AppointmentForm,
 )
-from .models import User
-from feedback.models import Feedback
+from .models import User, Appointment, Notification, Task
+from feedback.models import Course, CourseAssignment, Feedback
 from complaints.models import Complaint
 
 
@@ -150,7 +149,14 @@ def password_reset_request(request):
                 context = {'user': user, 'reset_url': reset_url, 'site_name': 'FeedbackFlow'}
                 email_subject = 'Password Reset - FeedbackFlow'
                 email_body = render_to_string('users/password_reset_email.html', context)
-                send_mail(subject=email_subject, message='', from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=[email], html_message=email_body, fail_silently=False)
+                send_mail(
+                    subject=email_subject,
+                    message='',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    html_message=email_body,
+                    fail_silently=False,
+                )
                 messages.success(request, 'Password reset link has been sent to your email. Please check your inbox.')
             except User.DoesNotExist:
                 messages.success(request, 'If an account exists with this email, a password reset link has been sent.')
@@ -202,6 +208,9 @@ def student_dashboard(request):
     pending_complaints = all_complaints.filter(status='Pending').count()
     recent_feedback = all_feedback.order_by('-submitted_at')[:3]
     recent_complaints = all_complaints.order_by('-submitted_at')[:2]
+    tasks = Task.objects.filter(student=request.user)
+    pending_tasks = tasks.filter(is_done=False).count()
+    done_tasks = tasks.filter(is_done=True).count()
     context = {
         'page_title': 'Student Dashboard',
         'user': request.user,
@@ -214,6 +223,8 @@ def student_dashboard(request):
         'recent_feedback': recent_feedback,
         'recent_complaints': recent_complaints,
         'has_submissions': (total_feedback + total_complaints) > 0,
+        'pending_tasks': pending_tasks,
+        'done_tasks': done_tasks,
     }
     return render(request, 'users/student_dashboard.html', context)
 
@@ -223,7 +234,6 @@ def faculty_dashboard(request):
     if request.user.role != 'Faculty':
         messages.error(request, 'Access denied. Faculty only.')
         return redirect('login')
-    from feedback.models import Course
     from datetime import timedelta
     from django.utils import timezone
     all_feedback = Feedback.objects.filter(faculty=request.user)
@@ -430,7 +440,6 @@ def admin_user_toggle_active(request, user_id):
 def hod_faculty_list(request):
     if request.user.role != 'HOD':
         return redirect('login')
-    from feedback.models import Course
     faculty_list = User.objects.filter(role='Faculty', department=request.user.department).order_by('full_name')
     context = {'faculty_list': faculty_list, 'page_title': 'Faculty List'}
     return render(request, 'users/hod_faculty_list.html', context)
@@ -455,12 +464,23 @@ def feedback_reports(request):
         feedbacks = feedbacks.filter(submitted_at__date__lte=date_to)
     if course_filter:
         feedbacks = feedbacks.filter(course_id=course_filter)
-    avg_ratings = feedbacks.aggregate(avg_teaching=Avg('teaching_rating'), avg_content=Avg('content_rating'), avg_communication=Avg('communication_rating'))
+    avg_ratings = feedbacks.aggregate(
+        avg_teaching=Avg('teaching_rating'),
+        avg_content=Avg('content_rating'),
+        avg_communication=Avg('communication_rating'),
+    )
     avg_teaching = round(avg_ratings['avg_teaching'] or 0, 1)
     avg_content = round(avg_ratings['avg_content'] or 0, 1)
     avg_communication = round(avg_ratings['avg_communication'] or 0, 1)
     overall_avg = round((avg_teaching + avg_content + avg_communication) / 3, 1) if feedbacks.exists() else 0
-    course_stats = feedbacks.values('course__course_code', 'course__course_name', 'faculty__full_name').annotate(count=Count('id'), avg_teaching=Avg('teaching_rating'), avg_content=Avg('content_rating'), avg_communication=Avg('communication_rating')).order_by('-count')
+    course_stats = feedbacks.values(
+        'course__course_code', 'course__course_name', 'faculty__full_name'
+    ).annotate(
+        count=Count('id'),
+        avg_teaching=Avg('teaching_rating'),
+        avg_content=Avg('content_rating'),
+        avg_communication=Avg('communication_rating'),
+    ).order_by('-count')
     status_counts = {
         'Pending': feedbacks.filter(status='Pending').count(),
         'Reviewed': feedbacks.filter(status='Reviewed').count(),
@@ -491,7 +511,6 @@ def appointment_view(request):
     if request.user.role != 'Student':
         messages.error(request, 'Only students can book appointments.')
         return redirect('student_dashboard')
-
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
@@ -504,7 +523,6 @@ def appointment_view(request):
                 incident_type=form.cleaned_data['incident_type'],
                 description=form.cleaned_data['description'],
             )
-            # --- NOTIFY ADMINS ABOUT NEW APPOINTMENT ---
             admins = User.objects.filter(role='Admin')
             for admin in admins:
                 Notification.objects.create(
@@ -514,8 +532,6 @@ def appointment_view(request):
                     notification_type='appointment',
                     link='/appointment/',
                 )
-            # --- END NOTIFICATION ---
-
             messages.success(request, 'Appointment submitted successfully! You will be notified once approved.')
             return redirect('appointment')
     else:
@@ -524,7 +540,6 @@ def appointment_view(request):
             'roll_number': request.user.student_id,
             'department': request.user.department,
         })
-
     return render(request, 'users/appointment.html', {'form': form})
 
 
@@ -533,13 +548,10 @@ def notifications_view(request):
     notifications = Notification.objects.filter(
         recipient=request.user
     ).order_by('-created_at')
-
-    # Mark all as read when page is opened
     notifications.filter(is_read=False).update(is_read=True)
-
     return render(request, 'users/notifications.html', {
         'notifications': notifications,
-        'page_title': 'Notifications'
+        'page_title': 'Notifications',
     })
 
 
@@ -551,3 +563,55 @@ def mark_notification_read(request, notif_id):
     if notif.link:
         return redirect(notif.link)
     return redirect('notifications')
+
+
+@login_required
+def task_list(request):
+    if request.user.role != 'Student':
+        return redirect('home')
+    tasks = Task.objects.filter(student=request.user)
+    daily  = tasks.filter(task_type='Daily')
+    weekly = tasks.filter(task_type='Weekly')
+    return render(request, 'users/task_list.html', {
+        'daily': daily,
+        'weekly': weekly,
+    })
+
+
+@login_required
+@require_POST
+def task_add(request):
+    if request.user.role != 'Student':
+        return redirect('home')
+    title       = request.POST.get('title', '').strip()
+    description = request.POST.get('description', '').strip()
+    task_type   = request.POST.get('task_type', 'Daily')
+    priority    = request.POST.get('priority', 'Medium')
+    due_date    = request.POST.get('due_date') or None
+    if title:
+        Task.objects.create(
+            student=request.user,
+            title=title,
+            description=description,
+            task_type=task_type,
+            priority=priority,
+            due_date=due_date,
+        )
+        messages.success(request, 'Task added successfully.')
+    return redirect('task_list')
+
+
+@login_required
+def task_toggle(request, task_id):
+    task = get_object_or_404(Task, id=task_id, student=request.user)
+    task.is_done = not task.is_done
+    task.save()
+    return redirect('task_list')
+
+
+@login_required
+def task_delete(request, task_id):
+    task = get_object_or_404(Task, id=task_id, student=request.user)
+    task.delete()
+    messages.success(request, 'Task deleted.')
+    return redirect('task_list')
