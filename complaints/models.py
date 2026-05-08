@@ -16,6 +16,7 @@ class Complaint(models.Model):
     STATUS_CHOICES = (
         ('Pending', 'Pending Review'),
         ('Under Investigation', 'Under Investigation'),
+        ('Findings Submitted', 'Findings Submitted'),       # NEW
         ('Resolved', 'Resolved'),
         ('Escalated', 'Escalated to Higher Authority'),
     )
@@ -52,6 +53,10 @@ class Complaint(models.Model):
         related_name='complaints_assigned'
     )
     is_anonymous = models.BooleanField(default=False)
+
+    # HOD's final note sent to student when closing the complaint
+    final_action_note = models.TextField(blank=True, null=True)          # NEW
+
     submitted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     resolved_at = models.DateTimeField(null=True, blank=True)
@@ -124,14 +129,20 @@ class ComplaintInvestigation(models.Model):
         names = ', '.join(i.full_name for i in self.investigators.all())
         return f"Investigation for {self.complaint.tracking_id} → {names}"
 
+    @property
+    def all_findings_submitted(self):
+        """True when every assigned investigator has submitted their findings."""
+        investigator_ids = set(self.investigators.values_list('id', flat=True))
+        submitted_ids = set(self.findings.values_list('submitted_by_id', flat=True))
+        return investigator_ids == submitted_ids and len(investigator_ids) > 0
+
 
 class InvestigationFinding(models.Model):
     """Faculty investigator submits findings back to HOD."""
     VERDICT_CHOICES = (
-        ('Complaint Valid', 'Complaint is Valid'),
-        ('Complaint Invalid', 'Complaint is Invalid'),
-        ('Partially Valid', 'Partially Valid'),
-        ('Needs Further Review', 'Needs Further Review'),
+        ('Proven', 'Complaint is Proven'),
+        ('Unproven', 'Complaint is Unproven'),
+        ('Needs More Info', 'Needs More Info'),
     )
 
     investigation = models.ForeignKey(

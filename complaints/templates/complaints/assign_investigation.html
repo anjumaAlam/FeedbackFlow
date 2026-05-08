@@ -1,0 +1,230 @@
+{% extends 'users/base.html' %}
+{% block title %}Assign Investigation - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .assign-card {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .complaint-preview {
+        background: #f9fafb;
+        border-left: 4px solid #3b82f6;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .investigator-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .investigator-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+    }
+
+    .investigator-option:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
+
+    .investigator-option input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #3b82f6;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .investigator-option label {
+        cursor: pointer;
+        margin: 0;
+        font-weight: 500;
+        color: #1f2937;
+        font-size: 14px;
+    }
+
+    .form-section {
+        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+        background: #f9fafb;
+        border-radius: 8px;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-control, .form-select, textarea, input[type="date"] {
+        color: #111827 !important;
+        background: #ffffff !important;
+        border: 1px solid #d1d5db !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        width: 100%;
+    }
+
+    .form-control:focus, textarea:focus, input[type="date"]:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59,130,246,.12) !important;
+        outline: none !important;
+    }
+
+    label {
+        color: #1f2937 !important;
+        font-weight: 600;
+        font-size: 13.5px;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .existing-badge {
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 1rem;
+        color: #92400e;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="mb-3">
+        <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary">
+            ← Back to Complaint
+        </a>
+    </div>
+
+    <div class="card assign-card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">🔍 Assign Investigation — {{ complaint.tracking_id }}</h4>
+        </div>
+
+        <div class="card-body p-4">
+
+            <!-- Complaint Summary -->
+            <div class="complaint-preview">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
+                        <p class="mb-1"><strong>Subject:</strong> {{ complaint.subject }}</p>
+                        <p class="mb-0"><strong>Type:</strong> {{ complaint.get_complaint_type_display }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Status:</strong>
+                            <span class="badge
+                                {% if complaint.status == 'Pending' %}bg-warning text-dark
+                                {% elif complaint.status == 'Under Investigation' %}bg-info
+                                {% elif complaint.status == 'Resolved' %}bg-success
+                                {% elif complaint.status == 'Escalated' %}bg-danger
+                                {% endif %}">
+                                {{ complaint.status }}
+                            </span>
+                        </p>
+                        {% if complaint.faculty_concerned %}
+                        <p class="mb-1"><strong>Faculty Concerned:</strong> {{ complaint.faculty_concerned.full_name }}</p>
+                        {% endif %}
+                        <p class="mb-0"><strong>Submitted:</strong> {{ complaint.submitted_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                <hr class="my-2">
+                <p class="mb-0"><strong>Description:</strong> {{ complaint.description }}</p>
+            </div>
+
+            {% if existing_investigation %}
+            <div class="existing-badge">
+                ⚠️ An investigation was previously assigned on {{ existing_investigation.assigned_at|date:"M d, Y" }}.
+                You are now updating it.
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Select Investigators -->
+                <div class="form-section">
+                    <div class="section-title">👥 Select Investigator(s)</div>
+                    <small class="text-muted d-block mb-3">
+                        Only faculty from your department ({{ request.user.get_department_display_full }}) are shown.
+                    </small>
+
+                    {% if form.investigators.field.queryset.count == 0 %}
+                        <div class="alert alert-warning">
+                            No faculty members available in your department to assign as investigators.
+                        </div>
+                    {% else %}
+                        <div class="investigator-list">
+                            {% for choice in form.investigators %}
+                            <div class="investigator-option">
+                                {{ choice.tag }}
+                                <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.investigators.errors %}
+                            <div class="text-danger small mt-2">{{ form.investigators.errors }}</div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- Investigation Brief -->
+                <div class="form-section">
+                    <div class="section-title">📝 Investigation Brief</div>
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}">
+                            Brief / Instructions for Investigator <span class="text-danger">*</span>
+                        </label>
+                        {{ form.description }}
+                        <small class="text-muted">This will be shared with the assigned investigator(s).</small>
+                        {% if form.description.errors %}
+                            <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-0">
+                        <label for="{{ form.due_date.id_for_label }}">Expected Completion Date (Optional)</label>
+                        {{ form.due_date }}
+                        {% if form.due_date.errors %}
+                            <div class="text-danger small mt-1">{{ form.due_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        ✅ {% if existing_investigation %}Update Investigation{% else %}Assign Investigation{% endif %}
+                    </button>
+                    <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary btn-lg">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

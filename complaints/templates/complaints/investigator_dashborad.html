@@ -1,0 +1,146 @@
+{% extends 'users/dashboard_base.html' %}
+
+{% block title %}My Investigations - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>🔎 My Investigations</h1>
+                <p class="mb-0 opacity-75">Complaints assigned to you for investigation</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row mb-4">
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="stat-card blue">
+                <span class="stat-icon">📋</span>
+                <h2 class="stat-number">{{ total }}</h2>
+                <p class="stat-label">Total Assigned</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="stat-card yellow">
+                <span class="stat-icon">⏳</span>
+                <h2 class="stat-number">{{ pending }}</h2>
+                <p class="stat-label">Pending Submission</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="stat-card green">
+                <span class="stat-icon">✅</span>
+                <h2 class="stat-number">{{ submitted }}</h2>
+                <p class="stat-label">Findings Submitted</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Investigations List -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Assigned Investigations</h3>
+
+            {% if investigations %}
+            <div class="modern-table">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Tracking ID</th>
+                            <th>Subject</th>
+                            <th>Faculty Concerned</th>
+                            <th>Assigned By</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inv in investigations %}
+                        <tr>
+                            <td><strong>{{ inv.complaint.tracking_id }}</strong></td>
+                            <td>{{ inv.complaint.subject|truncatewords:6 }}</td>
+                            <td>{{ inv.complaint.faculty_concerned.full_name|default:"-" }}</td>
+                            <td>{{ inv.assigned_by.full_name }}</td>
+                            <td>
+                                {% if inv.due_date %}
+                                    {{ inv.due_date|date:"M d, Y" }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if inv.user_submitted %}
+                                    <span class="badge bg-success">Findings Submitted</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'complaint_detail' inv.complaint.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                {% if not inv.user_submitted %}
+                                    <a href="{% url 'submit_findings' inv.id %}" class="btn btn-sm btn-primary">📝 Submit Findings</a>
+                                {% else %}
+                                    <a href="{% url 'submit_findings' inv.id %}" class="btn btn-sm btn-outline-secondary">View Submission</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card info-card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h4>No investigations assigned</h4>
+                        <p class="text-muted mb-0">When the HOD assigns you to investigate a complaint, it will appear here.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Guidelines -->
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">💡 Investigation Guidelines</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">Review the full complaint details carefully</li>
+                        <li class="mb-2">Gather facts objectively from all sides</li>
+                        <li class="mb-2">Document all evidence and observations</li>
+                        <li class="mb-2">Submit findings before the due date</li>
+                        <li class="mb-0">Maintain strict confidentiality throughout</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card info-card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">⚠️ Important Notes</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li class="mb-2">Your findings go directly to the HOD only</li>
+                        <li class="mb-2">Do not discuss the case with uninvolved parties</li>
+                        <li class="mb-2">Be factual — avoid personal opinions</li>
+                        <li class="mb-2">Once submitted, findings cannot be edited</li>
+                        <li class="mb-0">Contact the HOD if you need clarification</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

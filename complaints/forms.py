@@ -4,43 +4,23 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
-from .models import Complaint, ComplaintUpdate, ComplaintInvestigation
-
+from .models import Complaint, ComplaintUpdate, ComplaintInvestigation, InvestigationFinding
 
 User = get_user_model()
 
 
 class ComplaintSubmissionForm(forms.ModelForm):
-    """
-    Form for students to submit complaints
-    """
+    """Form for students to submit complaints."""
     class Meta:
         model = Complaint
         fields = ['complaint_type', 'subject', 'description', 'faculty_concerned', 'location', 'is_anonymous']
         widgets = {
-            'complaint_type': forms.Select(attrs={
-                'class': 'form-select',
-                'required': True
-            }),
-            'subject': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Brief description of the issue'
-            }),
-            'description': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 5,
-                'placeholder': 'Provide detailed information about your complaint...'
-            }),
-            'faculty_concerned': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-            'location': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'e.g., Room 301, Library, Cafeteria'
-            }),
-            'is_anonymous': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            })
+            'complaint_type': forms.Select(attrs={'class': 'form-select', 'required': True}),
+            'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Brief description of the issue'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Provide detailed information about your complaint...'}),
+            'faculty_concerned': forms.Select(attrs={'class': 'form-select'}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Room 301, Library, Cafeteria'}),
+            'is_anonymous': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }
         labels = {
             'complaint_type': 'Type of Complaint',
@@ -55,7 +35,6 @@ class ComplaintSubmissionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         from users.models import User
 
-        # Keep queryset aligned with selected complaint type so POSTed IDs validate
         role_map = {
             'Faculty': ['Faculty'],
             'HOD': ['HOD'],
@@ -83,21 +62,13 @@ class ComplaintSubmissionForm(forms.ModelForm):
 
 
 class ComplaintUpdateForm(forms.ModelForm):
-    """
-    Form for HOD/Staff/Admin to update complaints.
-    """
+    """Form for HOD/Staff/Admin to update complaints."""
     class Meta:
         model = ComplaintUpdate
         fields = ['comment', 'status_changed_to']
         widgets = {
-            'comment': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
-                'placeholder': 'Add your comment or update...'
-            }),
-            'status_changed_to': forms.Select(attrs={
-                'class': 'form-select'
-            })
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Add your comment or update...'}),
+            'status_changed_to': forms.Select(attrs={'class': 'form-select'})
         }
         labels = {
             'comment': 'Comment/Update',
@@ -113,10 +84,7 @@ class ComplaintUpdateForm(forms.ModelForm):
 
 
 class AssignInvestigationForm(forms.ModelForm):
-    """
-    HOD uses this form to assign one or more faculty investigators
-    and forward complaint details to them.
-    """
+    """HOD uses this form to assign one or more faculty investigators."""
 
     investigators = forms.ModelMultipleChoiceField(
         queryset=User.objects.none(),
@@ -151,7 +119,6 @@ class AssignInvestigationForm(forms.ModelForm):
     def __init__(self, *args, complaint=None, hod_user=None, **kwargs):
         super().__init__(*args, **kwargs)
         if hod_user:
-            # Only show active faculty in the same department, excluding the HOD themselves
             self.fields['investigators'].queryset = (
                 User.objects.filter(
                     role__in=['Faculty', 'HOD'],
@@ -161,7 +128,6 @@ class AssignInvestigationForm(forms.ModelForm):
                 .exclude(pk=hod_user.pk)
                 .order_by('full_name')
             )
-        # Pre-fill description with complaint context when creating a new investigation
         if complaint and not self.instance.pk:
             self.fields['description'].initial = (
                 f"Complaint Reference: {complaint.tracking_id}\n"
@@ -170,3 +136,51 @@ class AssignInvestigationForm(forms.ModelForm):
                 f"Complaint Details:\n{complaint.description}\n\n"
                 f"--- Please investigate the above matter and report your findings. ---"
             )
+
+
+class InvestigationFindingsForm(forms.ModelForm):
+    """Faculty investigator submits findings and verdict back to HOD."""
+    class Meta:
+        model = InvestigationFinding
+        fields = ['verdict', 'findings']
+        widgets = {
+            'verdict': forms.Select(attrs={'class': 'form-select'}),
+            'findings': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 7,
+                'placeholder': 'Describe your investigation findings in detail — evidence gathered, people spoken to, observations made...'
+            }),
+        }
+        labels = {
+            'verdict': 'Your Verdict',
+            'findings': 'Detailed Findings',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['verdict'].choices = [('', '-- Select Verdict --')] + list(InvestigationFinding.VERDICT_CHOICES)
+
+
+class HODFinalActionForm(forms.Form):
+    """HOD takes final action after reviewing investigator findings."""
+
+    ACTION_CHOICES = (
+        ('Resolve', '✅  Resolve — Mark complaint as resolved'),
+        ('Escalate', '⬆️  Escalate — Send to Admin for further action'),
+        ('More Investigation', '🔍  Request More Investigation — Send back to investigators'),
+    )
+
+    action = forms.ChoiceField(
+        choices=ACTION_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+        label='Final Action'
+    )
+
+    note = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Write a note to the student explaining the outcome or next steps...'
+        }),
+        label='Note to Student',
+    )
