@@ -78,7 +78,59 @@
     }
 
     strong[style*="line-through"] { color: #9ca3af !important; }
+     /* Fix date input always visible */
+input[type="date"] {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: 1.5px solid #ced4da !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    width: 100% !important;
+    display: block !important;
+    -webkit-text-fill-color: #111827 !important;
+    opacity: 1 !important;
+    color-scheme: light !important;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0) !important;
+    opacity: 1 !important;
+    cursor: pointer;
+}
+    /* Fix task title input always visible */
+input[name="title"] {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    -webkit-text-fill-color: #111827 !important;
+    border: 1.5px solid #ced4da !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    width: 100% !important;
+    display: block !important;
+    opacity: 1 !important;
+}
 
+/* Fix description textarea always visible */
+textarea[name="description"] {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    -webkit-text-fill-color: #111827 !important;
+    border: 1.5px solid #ced4da !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    width: 100% !important;
+    display: block !important;
+    opacity: 1 !important;
+    min-height: 80px !important;
+}
+
+input[name="title"]::placeholder,
+textarea[name="description"]::placeholder {
+    color: #9ca3af !important;
+    -webkit-text-fill-color: #9ca3af !important;
+}
     /* Task Type and Priority Buttons */
     .task-type-btn, .priority-btn {
         padding: 10px 20px;
@@ -232,7 +284,7 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <p class="text-muted py-3">No daily tasks yet. Add one above!</p>
+                <p class="text-black py-3">No daily tasks yet. Add one above!</p>
             {% endif %}
         </div>
     </div>
@@ -282,7 +334,7 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <p class="text-muted py-3">No weekly tasks yet. Add one above!</p>
+                <p class="text-black py-3">No weekly tasks yet. Add one above!</p>
             {% endif %}
         </div>
     </div>

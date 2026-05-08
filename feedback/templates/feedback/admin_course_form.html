@@ -1,6 +1,34 @@
 {% extends 'users/base.html' %}
 {% load static %}
-
+{% block extra_css %}
+<style>
+    .card { background: #ffffff !important; }
+    .card input,
+    .card select,
+    .card textarea {
+        display: block !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        color: #111827 !important;
+        border: 1.5px solid #ced4da !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        margin-top: 4px !important;
+    }
+    .card input:focus,
+    .card select:focus,
+    .card textarea:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+        outline: none !important;
+    }
+    .card label { color: #374151 !important; font-weight: 600; font-size: 13.5px; }
+    .card h2 { color: #111827 !important; }
+    .card .text-muted { color: #6b7280 !important; }
+    .card select option { background: #fff; color: #111827; }
+</style>
+{% endblock %}
 {% block content %}
 <div class="container py-4">
   <div class="row justify-content-center">
