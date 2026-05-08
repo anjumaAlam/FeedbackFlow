@@ -14,10 +14,58 @@
         display: flex;
         align-items: flex-start;
         gap: 0.75rem;
+        background-color: #ffffff;
+        color: #212529;
+        width: 100%;
     }
-    .verdict-option:has(input:checked) { border-color: #3b82f6; background: #eff6ff; }
-    .verdict-option input { margin-top: 3px; flex-shrink: 0; }
-    .verdict-option .label { font-weight: 600; }
+    .verdict-option:has(input:checked) {
+        border-color: #3b82f6;
+        background: #eff6ff;
+    }
+    .verdict-option:has(input:checked) .verdict-dot {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+    .verdict-option:has(input:checked) .verdict-dot::after {
+        display: block;
+    }
+
+    /* Hide native radio, show custom dot */
+    .verdict-option input[type="radio"] {
+        display: none;
+    }
+
+    .verdict-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #9ca3af;
+        background: #fff;
+        flex-shrink: 0;
+        margin-top: 3px;
+        position: relative;
+        transition: all 0.15s;
+    }
+    .verdict-dot::after {
+        content: '';
+        display: none;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #fff;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .verdict-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .verdict-option .label { font-weight: 600; color: #212529; }
     .verdict-option .desc  { font-size: 0.85rem; color: #6b7280; margin-top: 2px; }
 
     .complaint-preview {
@@ -25,6 +73,7 @@
         border-left: 4px solid #3b82f6;
         padding: 1.5rem;
         border-radius: 8px;
+        color: #212529;
     }
 
     .already-submitted {
@@ -32,7 +81,32 @@
         border: 1px solid #86efac;
         border-radius: 8px;
         padding: 1.25rem;
+        color: #212529;
     }
+
+    .card-body textarea,
+    .card-body input[type="text"],
+    .card-body select {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        border: 1px solid #ced4da !important;
+    }
+
+    .card-body textarea::placeholder,
+    .card-body input::placeholder {
+        color: #6b7280 !important;
+    }
+
+    .card-body .form-label { color: #212529 !important; }
+    .card-body p, .card-body strong, .card-body h5 { color: #212529; }
+    .card-body small.text-muted { color: #6b7280 !important; }
+
+    .alert-info {
+        background-color: #eff6ff !important;
+        border-color: #bfdbfe !important;
+        color: #1e3a5f !important;
+    }
+    .alert-info strong { color: #1e3a5f !important; }
 </style>
 {% endblock %}
 
@@ -47,7 +121,7 @@
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0">📝 Submit Findings — {{ complaint.tracking_id }}</h4>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-4" style="background-color: #ffffff; color: #212529;">
 
             <!-- Complaint Summary -->
             <div class="mb-4">
@@ -111,27 +185,32 @@
                 <!-- Verdict -->
                 <div class="mb-4">
                     <label class="form-label fw-bold">Your Verdict <span class="text-danger">*</span></label>
-                    <label class="verdict-option">
-                        <input type="radio" name="verdict" value="Proven" class="form-check-input">
-                        <div>
-                            <div class="label">Proven</div>
-                            <div class="desc">Evidence clearly supports the complaint.</div>
-                        </div>
-                    </label>
-                    <label class="verdict-option">
-                        <input type="radio" name="verdict" value="Unproven" class="form-check-input">
-                        <div>
-                            <div class="label">Unproven</div>
-                            <div class="desc">Insufficient evidence to support the complaint.</div>
-                        </div>
-                    </label>
-                    <label class="verdict-option">
-                        <input type="radio" name="verdict" value="Needs More Info" class="form-check-input">
-                        <div>
-                            <div class="label">Needs More Info</div>
-                            <div class="desc">More evidence or time is needed for a conclusive verdict.</div>
-                        </div>
-                    </label>
+                    <div class="verdict-group">
+                        <label class="verdict-option">
+                            <input type="radio" name="verdict" value="Proven">
+                            <div class="verdict-dot"></div>
+                            <div>
+                                <div class="label">Proven</div>
+                                <div class="desc">Evidence clearly supports the complaint.</div>
+                            </div>
+                        </label>
+                        <label class="verdict-option">
+                            <input type="radio" name="verdict" value="Unproven">
+                            <div class="verdict-dot"></div>
+                            <div>
+                                <div class="label">Unproven</div>
+                                <div class="desc">Insufficient evidence to support the complaint.</div>
+                            </div>
+                        </label>
+                        <label class="verdict-option">
+                            <input type="radio" name="verdict" value="Needs More Info">
+                            <div class="verdict-dot"></div>
+                            <div>
+                                <div class="label">Needs More Info</div>
+                                <div class="desc">More evidence or time is needed for a conclusive verdict.</div>
+                            </div>
+                        </label>
+                    </div>
                     {% if form.verdict.errors %}
                         <div class="text-danger small mt-1">{{ form.verdict.errors }}</div>
                     {% endif %}
