@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
-from feedback.models import Course, Feedback, FeedbackResponse
+from feedback.models import Course, CourseAssignment, Feedback, FeedbackResponse, CourseRegistration
 
 User = get_user_model()
 
@@ -17,10 +17,17 @@ def make_user(email, role, department='CSE', **kwargs):
     )
 
 def make_course(faculty, code='CSE101'):
-    return Course.objects.create(
+    course = Course.objects.create(
         course_code=code, course_name='Intro to CS',
-        faculty=faculty, department='CSE', semester='Spring 2025',
+        department='CSE', semester='Spring 2025',
     )
+    if faculty is not None:
+        CourseAssignment.objects.create(
+            course=course,
+            faculty=faculty,
+            is_primary=True
+        )
+    return course
 
 def make_feedback(student, course, **kw):
     defaults = dict(teaching_rating=4, content_rating=4, communication_rating=4)
@@ -99,6 +106,23 @@ class SubmitCourseFeedbackViewTest(TestCase):
         self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
         self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101012')
         self.course = make_course(self.faculty)
+        
+        # Register the student for the course
+        from feedback.models import CourseRegistration
+        CourseRegistration.objects.create(
+            student=self.student,
+            course=self.course,
+            is_confirmed=True
+        )
+        
+        # Create course assignment
+        CourseAssignment.objects.create(
+            course=self.course,
+            faculty=self.faculty,
+            class_section='A',
+            is_primary=True
+        )
+        
         self.url = reverse('submit_feedback')
 
     def test_unauthenticated_user_redirected(self):
@@ -106,13 +130,16 @@ class SubmitCourseFeedbackViewTest(TestCase):
 
     def test_student_sees_feedback_form(self):
         self.client.login(username='student@uap-bd.edu', password='Test@1234')
-        self.assertEqual(self.client.get(self.url).status_code, 200)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
 
     def test_valid_post_creates_feedback(self):
         """Valid form submission creates a Feedback object"""
         self.client.login(username='student@uap-bd.edu', password='Test@1234')
         self.client.post(self.url, {
             'course': self.course.id,
+            'faculty': self.faculty.id,
+            'class_section': 'A',
             'teaching_rating': 4, 'content_rating': 4,
             'communication_rating': 5, 'is_anonymous': False,
         })
@@ -122,6 +149,8 @@ class SubmitCourseFeedbackViewTest(TestCase):
         self.client.login(username='student@uap-bd.edu', password='Test@1234')
         response = self.client.post(self.url, {
             'course': self.course.id,
+            'faculty': self.faculty.id,
+            'class_section': 'A',
             'teaching_rating': 3, 'content_rating': 3,
             'communication_rating': 3, 'is_anonymous': False,
         })
@@ -163,7 +192,11 @@ class FacultyFeedbackListViewTest(TestCase):
         self.client  = Client()
         self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
         self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101013')
-        make_course(self.faculty)
+        self.course = make_course(self.faculty)
+        # Create feedback assigned to the faculty
+        self.fb = make_feedback(self.student, self.course)
+        self.fb.faculty = self.faculty
+        self.fb.save()
         self.url = reverse('faculty_feedback_list')
 
     def test_unauthenticated_user_redirected(self):
@@ -187,6 +220,9 @@ class RespondToFeedbackViewTest(TestCase):
         self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101014')
         self.course  = make_course(self.faculty)
         self.fb      = make_feedback(self.student, self.course)
+        # Set faculty on feedback
+        self.fb.faculty = self.faculty
+        self.fb.save()
         self.url     = reverse('respond_to_feedback', args=[self.fb.id])
 
     def test_faculty_response_changes_status(self):
@@ -215,6 +251,9 @@ class MarkFeedbackReviewedViewTest(TestCase):
         self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101015')
         self.course  = make_course(self.faculty)
         self.fb      = make_feedback(self.student, self.course)
+        # Set faculty on feedback
+        self.fb.faculty = self.faculty
+        self.fb.save()
         self.url     = reverse('mark_feedback_reviewed', args=[self.fb.id])
 
     def test_faculty_can_mark_reviewed(self):
@@ -269,12 +308,30 @@ class AnonymousFeedbackSubmissionViewTest(TestCase):
         self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
         self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101021')
         self.course = make_course(self.faculty)
+        
+        # Register the student for the course
+        CourseRegistration.objects.create(
+            student=self.student,
+            course=self.course,
+            is_confirmed=True
+        )
+        
+        # Create course assignment
+        CourseAssignment.objects.create(
+            course=self.course,
+            faculty=self.faculty,
+            class_section='A',
+            is_primary=True
+        )
+        
         self.url = reverse('submit_feedback')
 
     def test_anonymous_submission_creates_feedback(self):
         self.client.login(username='student@uap-bd.edu', password='Test@1234')
         self.client.post(self.url, {
             'course': self.course.id,
+            'faculty': self.faculty.id,
+            'class_section': 'A',
             'teaching_rating': 3, 'content_rating': 3,
             'communication_rating': 3, 'is_anonymous': True,
         })
@@ -284,15 +341,21 @@ class AnonymousFeedbackSubmissionViewTest(TestCase):
         self.client.login(username='student@uap-bd.edu', password='Test@1234')
         self.client.post(self.url, {
             'course': self.course.id,
+            'faculty': self.faculty.id,
+            'class_section': 'A',
             'teaching_rating': 5, 'content_rating': 5,
             'communication_rating': 5, 'is_anonymous': True,
         })
-        self.assertTrue(Feedback.objects.first().is_anonymous)
+        fb = Feedback.objects.first()
+        self.assertIsNotNone(fb)
+        self.assertTrue(fb.is_anonymous)
 
     def test_anonymous_feedback_redirects_on_success(self):
         self.client.login(username='student@uap-bd.edu', password='Test@1234')
         response = self.client.post(self.url, {
             'course': self.course.id,
+            'faculty': self.faculty.id,
+            'class_section': 'A',
             'teaching_rating': 4, 'content_rating': 4,
             'communication_rating': 4, 'is_anonymous': True,
         })

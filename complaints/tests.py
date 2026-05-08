@@ -9,7 +9,6 @@ User = get_user_model()
 
 
 
-#  Helper: create users quickly
 
 
 def make_user(email, role, department='CSE', **kwargs):
@@ -89,8 +88,10 @@ class ComplaintModelTest(TestCase):
         self.assertEqual(complaint.assigned_to, self.admin)
 
     def test_behavioral_complaint_assigned_to_admin(self):
-        """Behavioral complaint auto-assigns to Admin"""
-        complaint = self._make_complaint(complaint_type='Behavioral')
+        """HOD-type complaint (no Staff/Faculty match) auto-assigns to Admin"""
+        # Note: The model supports Faculty, HOD, Staff, Facility types.
+        # 'HOD' type always assigns to Admin — equivalent to a "behavioral" escalation.
+        complaint = self._make_complaint(complaint_type='HOD')
         self.assertEqual(complaint.assigned_to, self.admin)
 
 
@@ -103,7 +104,7 @@ class ComplaintUpdateModelTest(TestCase):
                                  student_id='23101002')
         self.complaint = Complaint.objects.create(
             student=self.student,
-            complaint_type='Behavioral',
+            complaint_type='HOD',
             subject='Rude behaviour',
             description='Details here.',
         )
@@ -169,7 +170,7 @@ class SubmitComplaintViewTest(TestCase):
         """Successful complaint submission redirects"""
         self.client.login(username='student@uap-bd.edu', password='Test@1234')
         data = {
-            'complaint_type': 'Behavioral',
+            'complaint_type': 'HOD',       # valid choice in the model
             'subject': 'Issue in class',
             'description': 'Detailed description.',
             'is_anonymous': False,
@@ -202,7 +203,7 @@ class MyComplaintsViewTest(TestCase):
         other = make_user('other@uap-bd.edu', 'Student', student_id='23101005')
         Complaint.objects.create(
             student=other,
-            complaint_type='Behavioral',
+            complaint_type='HOD',
             subject='Other complaint',
             description='Not mine.',
         )
@@ -221,7 +222,7 @@ class HandleComplaintViewTest(TestCase):
                                  student_id='23101006')
         self.complaint = Complaint.objects.create(
             student=self.student,
-            complaint_type='Behavioral',
+            complaint_type='HOD',
             subject='Test',
             description='Test description.',
         )

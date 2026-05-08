@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from feedback.models import Course, Feedback
+from feedback.models import Course, CourseAssignment, Feedback
 from complaints.models import Complaint
 
 User = get_user_model()
@@ -25,13 +25,19 @@ def make_user(email, role, password='Test@1234', department='CSE',
 def make_course(faculty, code='CSE101', name='Test Course',
                 department='CSE', semester='Spring 2025'):
 
-    return Course.objects.create(
+    course = Course.objects.create(
         course_code=code,
         course_name=name,
-        faculty=faculty,
         department=department,
         semester=semester,
     )
+    if faculty is not None:
+        CourseAssignment.objects.create(
+            course=course,
+            faculty=faculty,
+            is_primary=True
+        )
+    return course
 
 
 class UserModelTest(TestCase):
@@ -349,10 +355,10 @@ class URLTest(TestCase):
         response = self.client.get(reverse('password_reset_request'))
         self.assertEqual(response.status_code, 200)
 
-    def test_root_url_redirects_to_login(self):
-        """Test that root URL redirects to login"""
+    def test_root_url_returns_homepage(self):
+        """Test that root URL loads the homepage"""
         response = self.client.get('/')
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
 
 class FormTest(TestCase):
@@ -555,7 +561,7 @@ class DashboardContextDataTest(TestCase):
 
     def test_faculty_dashboard_shows_pending_feedback(self):
         Feedback.objects.create(
-            student=self.student, course=self.course,
+            student=self.student, course=self.course, faculty=self.faculty,
             teaching_rating=3, content_rating=3, communication_rating=3
         )
         self.client.force_login(self.faculty)
@@ -617,7 +623,7 @@ class CrossRoleAccessTest(TestCase):
        self.assertRedirects(response, reverse('student_dashboard'))
 
    def test_login_redirects_faculty_to_correct_dashboard(self):
-       response = self.client.post(reverse('login'), {
+       response = self.client.post(reverse('faculty_login'), {
            'email': 'faculty@uap-bd.edu', 'password': 'Test@1234'
        })
        self.assertRedirects(response, reverse('faculty_dashboard'))
@@ -735,14 +741,10 @@ class FeedbackReportsScopingTest(TestCase):
        self.faculty_eee = make_user('fac_eee@uap-bd.edu', 'Faculty', department='EEE')
        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101011')
 
-       self.course_cse = Course.objects.create(
-           course_code='CSE101', course_name='CS Intro',
-           faculty=self.faculty_cse, department='CSE', semester='Spring 2025'
-       )
-       self.course_eee = Course.objects.create(
-           course_code='EEE101', course_name='EEE Intro',
-           faculty=self.faculty_eee, department='EEE', semester='Spring 2025'
-       )
+       self.course_cse = make_course(self.faculty_cse, code='CSE101', name='CS Intro',
+                                      department='CSE', semester='Spring 2025')
+       self.course_eee = make_course(self.faculty_eee, code='EEE101', name='EEE Intro',
+                                      department='EEE', semester='Spring 2025')
        Feedback.objects.create(
            student=self.student, course=self.course_cse,
            teaching_rating=5, content_rating=5, communication_rating=5
