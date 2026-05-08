@@ -6,11 +6,6 @@ from django.utils import timezone
 
 
 class Complaint(models.Model):
-    """
-    Model to store student complaints.
-    Auto-routes to appropriate handler based on complaint type.
-    """
-
     COMPLAINT_TYPE_CHOICES = (
         ('Faculty', 'Complaint about Faculty'),
         ('HOD', 'Complaint about HOD'),
@@ -32,51 +27,34 @@ class Complaint(models.Model):
         ('Urgent', 'Urgent'),
     )
 
-
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='complaints_submitted'
     )
-
-
     complaint_type = models.CharField(max_length=20, choices=COMPLAINT_TYPE_CHOICES)
     subject = models.CharField(max_length=200)
     description = models.TextField()
-
-
     faculty_concerned = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        null=True, blank=True,
         related_name='complaints_against',
         limit_choices_to={'role__in': ['Faculty', 'HOD', 'Staff']}
     )
-    location = models.CharField(max_length=200, blank=True, null=True, help_text='For facility issues')
-
-
+    location = models.CharField(max_length=200, blank=True, null=True)
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='Pending')
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Medium')
-
-
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        null=True, blank=True,
         related_name='complaints_assigned'
     )
-
-
     is_anonymous = models.BooleanField(default=False)
-
-
     submitted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     resolved_at = models.DateTimeField(null=True, blank=True)
-
-
     tracking_id = models.CharField(max_length=20, unique=True, editable=False)
 
     class Meta:
@@ -88,66 +66,87 @@ class Complaint(models.Model):
         return f"{self.tracking_id} - {self.subject}"
 
     def save(self, *args, **kwargs):
-        # Generate tracking ID if not exists
         if not self.tracking_id:
-            import random
-            import string
+            import random, string
             self.tracking_id = 'CMP' + ''.join(random.choices(string.digits, k=6))
-
-
         if not self.assigned_to:
             self.auto_assign_handler()
-
         super().save(*args, **kwargs)
 
     def auto_assign_handler(self):
-        """Auto-assign complaint to appropriate handler"""
         from users.models import User
-
         if self.complaint_type == 'Faculty':
-            try:
-                if self.faculty_concerned:
-                    hod = User.objects.filter(role='HOD', department=self.faculty_concerned.department).first()
-                else:
-                    hod = User.objects.filter(role='HOD', department=self.student.department).first()
-                if hod:
-                    self.assigned_to = hod
-                else:
-                    self.assigned_to = User.objects.filter(role='Admin').first()
-            except Exception:
-                self.assigned_to = User.objects.filter(role='Admin').first()
-
+            if self.faculty_concerned:
+                hod = User.objects.filter(role='HOD', department=self.faculty_concerned.department).first()
+            else:
+                hod = User.objects.filter(role='HOD', department=self.student.department).first()
+            self.assigned_to = hod or User.objects.filter(role='Admin').first()
         elif self.complaint_type == 'HOD':
             self.assigned_to = User.objects.filter(role='Admin').first()
-
-        elif self.complaint_type == 'Staff':
-            self.assigned_to = User.objects.filter(role='Admin').first()
-
-        elif self.complaint_type == 'Facility':
-            self.assigned_to = User.objects.filter(role='Staff').first()
+        elif self.complaint_type in ('Staff', 'Facility'):
+            staff = User.objects.filter(role='Staff', department=self.student.department).first()
+            self.assigned_to = staff or User.objects.filter(role='Admin').first()
 
 
 class ComplaintUpdate(models.Model):
-    """
-    Model to store updates/comments on complaints.
-    """
-    complaint = models.ForeignKey(
-        Complaint,
-        on_delete=models.CASCADE,
-        related_name='updates'
-    )
-    updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-    )
+    complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='updates')
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     comment = models.TextField()
     status_changed_to = models.CharField(max_length=30, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['created_at']
-        verbose_name = 'Complaint Update'
-        verbose_name_plural = 'Complaint Updates'
 
     def __str__(self):
         return f"Update on {self.complaint.tracking_id} by {self.updated_by.full_name}"
+
+
+class ComplaintInvestigation(models.Model):
+    complaint = models.OneToOneField(Complaint, on_delete=models.CASCADE, related_name='investigation')
+    assigned_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='investigations_assigned_by'
+    )
+    investigators = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='investigations_assigned_to',
+        limit_choices_to={'role__in': ['Faculty', 'HOD']},
+    )
+    description = models.TextField()
+    is_active = models.BooleanField(default=True)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-assigned_at']
+
+    def __str__(self):
+        names = ', '.join(i.full_name for i in self.investigators.all())
+        return f"Investigation for {self.complaint.tracking_id} → {names}"
+
+
+class InvestigationFinding(models.Model):
+    """Faculty investigator submits findings back to HOD."""
+    VERDICT_CHOICES = (
+        ('Complaint Valid', 'Complaint is Valid'),
+        ('Complaint Invalid', 'Complaint is Invalid'),
+        ('Partially Valid', 'Partially Valid'),
+        ('Needs Further Review', 'Needs Further Review'),
+    )
+
+    investigation = models.ForeignKey(
+        ComplaintInvestigation, on_delete=models.CASCADE, related_name='findings'
+    )
+    submitted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='investigation_findings'
+    )
+    verdict = models.CharField(max_length=30, choices=VERDICT_CHOICES)
+    findings = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-submitted_at']
+        unique_together = ('investigation', 'submitted_by')
+
+    def __str__(self):
+        return f"Finding by {self.submitted_by.full_name} on {self.investigation.complaint.tracking_id}"

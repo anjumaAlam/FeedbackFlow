@@ -1,11 +1,13 @@
+# complaints/views.py
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q, Count
 
-from .models import Complaint, ComplaintUpdate
-from .forms import ComplaintSubmissionForm, ComplaintUpdateForm
+from .models import Complaint, ComplaintUpdate, ComplaintInvestigation
+from .forms import ComplaintSubmissionForm, ComplaintUpdateForm, AssignInvestigationForm
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 from users.models import User
@@ -39,7 +41,7 @@ def submit_complaint(request):
             complaint.student = request.user
             complaint.save()
 
-            # --- NOTIFICATIONS ---
+            # --- NOTIFICATION ---
             if complaint.complaint_type == 'Faculty':
                 if complaint.assigned_to:
                     create_notification(
@@ -50,15 +52,25 @@ def submit_complaint(request):
                         link=f'/complaints/hod/handle/{complaint.id}/',
                     )
 
-            elif complaint.complaint_type in ['HOD', 'Staff']:
-                admins = User.objects.filter(role='Admin')
-                for admin in admins:
+            elif complaint.complaint_type == 'HOD':
+                for admin in User.objects.filter(role='Admin'):
                     create_notification(
                         recipient=admin,
-                        title=f'New {complaint.complaint_type} Complaint: {complaint.subject}',
-                        message=f'A complaint against {complaint.complaint_type} has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
+                        title=f'New HOD Complaint: {complaint.subject}',
+                        message=f'A complaint against HOD has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
                         notification_type='complaint',
                         link=f'/complaints/admin/list/',
+                    )
+
+            elif complaint.complaint_type == 'Staff':
+                # ✅ Notify only the assigned staff member (same department as student)
+                if complaint.assigned_to:
+                    create_notification(
+                        recipient=complaint.assigned_to,
+                        title=f'New Staff Complaint: {complaint.subject}',
+                        message=f'A complaint has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
+                        notification_type='complaint',
+                        link=f'/complaints/staff/list/',
                     )
 
             elif complaint.complaint_type == 'Facility':
@@ -70,7 +82,7 @@ def submit_complaint(request):
                         notification_type='complaint',
                         link=f'/complaints/staff/list/',
                     )
-            # --- END NOTIFICATIONS ---
+            # --- END NOTIFICATION ---
 
             messages.success(
                 request,
@@ -82,11 +94,13 @@ def submit_complaint(request):
     else:
         form = ComplaintSubmissionForm()
 
-    # Build users-by-role mapping for frontend filtering
+    # ✅ Faculty and Staff both filtered to student's own department
     roles = ['Faculty', 'HOD', 'Staff']
     users_by_role = {}
     for r in roles:
         qs = User.objects.filter(role=r, is_active=True).order_by('full_name')
+        if r in ['Faculty', 'Staff']:
+            qs = qs.filter(department=request.user.department)
         users_by_role[r] = [{'id': u.id, 'name': u.full_name} for u in qs]
 
     context = {
@@ -99,14 +113,11 @@ def submit_complaint(request):
 
 @login_required
 def my_complaints(request):
-    """Student views their submitted complaints"""
-
     if request.user.role != 'Student':
         messages.error(request, 'Access denied.')
         return redirect('login')
 
     complaints_list = Complaint.objects.filter(student=request.user).order_by('-submitted_at')
-
     total_complaints = complaints_list.count()
     pending = complaints_list.filter(status='Pending').count()
     resolved = complaints_list.filter(status='Resolved').count()
@@ -123,8 +134,6 @@ def my_complaints(request):
 
 @login_required
 def complaint_detail(request, complaint_id):
-    """View detailed complaint with updates"""
-
     complaint = get_object_or_404(Complaint, id=complaint_id)
 
     if request.user.role == 'Student' and complaint.student != request.user:
@@ -143,8 +152,6 @@ def complaint_detail(request, complaint_id):
 
 @login_required
 def hod_complaints_list(request):
-    """HOD views complaints assigned to them (faculty complaints)"""
-
     if request.user.role != 'HOD':
         messages.error(request, 'Access denied. HOD only.')
         return redirect('login')
@@ -154,19 +161,13 @@ def hod_complaints_list(request):
         Q(faculty_concerned__department=request.user.department)
     ).distinct().order_by('-submitted_at')
 
-    total_complaints = complaints_list.count()
-    pending = complaints_list.filter(status='Pending').count()
-    investigating = complaints_list.filter(status='Under Investigation').count()
-    resolved = complaints_list.filter(status='Resolved').count()
-    escalated = complaints_list.filter(status='Escalated').count()
-
     context = {
         'complaints_list': complaints_list,
-        'total_complaints': total_complaints,
-        'pending': pending,
-        'investigating': investigating,
-        'resolved': resolved,
-        'escalated': escalated,
+        'total_complaints': complaints_list.count(),
+        'pending': complaints_list.filter(status='Pending').count(),
+        'investigating': complaints_list.filter(status='Under Investigation').count(),
+        'resolved': complaints_list.filter(status='Resolved').count(),
+        'escalated': complaints_list.filter(status='Escalated').count(),
         'page_title': 'Faculty Complaints'
     }
     return render(request, 'complaints/hod_complaints_list.html', context)
@@ -174,8 +175,6 @@ def hod_complaints_list(request):
 
 @login_required
 def handle_complaint(request, complaint_id):
-    """HOD/Staff/Admin handles a complaint"""
-
     if request.user.role not in ['HOD', 'Staff', 'Admin']:
         messages.error(request, 'Access denied.')
         return redirect('login')
@@ -203,22 +202,17 @@ def handle_complaint(request, complaint_id):
 
             if update.status_changed_to:
                 complaint.status = update.status_changed_to
-
                 if update.status_changed_to == 'Resolved':
                     complaint.resolved_at = timezone.now()
-
                 complaint.save()
 
-            # --- NOTIFY STUDENT ABOUT UPDATE ---
-            from users.models import Notification
-            Notification.objects.create(
+            create_notification(
                 recipient=complaint.student,
                 title=f'Update on your complaint: {complaint.tracking_id}',
                 message=f'Your complaint "{complaint.subject}" has been updated. New status: {complaint.status}',
                 notification_type='update',
                 link=f'/complaints/detail/{complaint.id}/',
             )
-            # --- END NOTIFICATION ---
 
             messages.success(request, 'Complaint updated successfully!')
 
@@ -232,7 +226,6 @@ def handle_complaint(request, complaint_id):
         form = ComplaintUpdateForm()
 
     updates = complaint.updates.all().order_by('created_at')
-
     context = {
         'form': form,
         'complaint': complaint,
@@ -244,64 +237,146 @@ def handle_complaint(request, complaint_id):
 
 @login_required
 def staff_complaints_list(request):
-    """Staff views facility complaints assigned to them"""
-
     if request.user.role != 'Staff':
         messages.error(request, 'Access denied. Staff only.')
         return redirect('login')
 
-    complaints_list = Complaint.objects.filter(
-        assigned_to=request.user
-    ).order_by('-submitted_at')
-
-    total_complaints = complaints_list.count()
-    pending = complaints_list.filter(status='Pending').count()
-    investigating = complaints_list.filter(status='Under Investigation').count()
-    resolved = complaints_list.filter(status='Resolved').count()
+    complaints_list = Complaint.objects.filter(assigned_to=request.user).order_by('-submitted_at')
 
     context = {
         'complaints_list': complaints_list,
-        'total_complaints': total_complaints,
-        'pending': pending,
-        'investigating': investigating,
-        'resolved': resolved,
-        'page_title': 'Facility Complaints'
+        'total_complaints': complaints_list.count(),
+        'pending': complaints_list.filter(status='Pending').count(),
+        'investigating': complaints_list.filter(status='Under Investigation').count(),
+        'resolved': complaints_list.filter(status='Resolved').count(),
+        'page_title': 'Staff & Facility Complaints'
     }
     return render(request, 'complaints/staff_complaints_list.html', context)
 
 
 @login_required
 def admin_complaints_list(request):
-    """Admin views all complaints or complaints assigned to them"""
-
     if request.user.role != 'Admin':
         messages.error(request, 'Access denied. Admin only.')
         return redirect('login')
 
     complaints_list = Complaint.objects.all().order_by('-submitted_at')
 
-    total_complaints = complaints_list.count()
-    pending = complaints_list.filter(status='Pending').count()
-    investigating = complaints_list.filter(status='Under Investigation').count()
-    resolved = complaints_list.filter(status='Resolved').count()
-    escalated = complaints_list.filter(status='Escalated').count()
-
-    faculty_complaints = complaints_list.filter(complaint_type='Faculty').count()
-    hod_complaints = complaints_list.filter(complaint_type='HOD').count()
-    staff_complaints = complaints_list.filter(complaint_type='Staff').count()
-    facility_complaints = complaints_list.filter(complaint_type='Facility').count()
-
     context = {
         'complaints_list': complaints_list,
-        'total_complaints': total_complaints,
-        'pending': pending,
-        'investigating': investigating,
-        'resolved': resolved,
-        'escalated': escalated,
-        'faculty_complaints': faculty_complaints,
-        'hod_complaints': hod_complaints,
-        'staff_complaints': staff_complaints,
-        'facility_complaints': facility_complaints,
+        'total_complaints': complaints_list.count(),
+        'pending': complaints_list.filter(status='Pending').count(),
+        'investigating': complaints_list.filter(status='Under Investigation').count(),
+        'resolved': complaints_list.filter(status='Resolved').count(),
+        'escalated': complaints_list.filter(status='Escalated').count(),
+        'faculty_complaints': complaints_list.filter(complaint_type='Faculty').count(),
+        'hod_complaints': complaints_list.filter(complaint_type='HOD').count(),
+        'staff_complaints': complaints_list.filter(complaint_type='Staff').count(),
+        'facility_complaints': complaints_list.filter(complaint_type='Facility').count(),
         'page_title': 'All Complaints'
     }
     return render(request, 'complaints/admins_complaints_list.html', context)
+
+
+@login_required
+def assign_investigation(request, complaint_id):
+    if request.user.role not in ['HOD', 'Admin']:
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    complaint = get_object_or_404(Complaint, id=complaint_id)
+
+    if request.user.role == 'HOD':
+        in_dept = (
+            (complaint.assigned_to == request.user) or
+            (complaint.faculty_concerned and complaint.faculty_concerned.department == request.user.department) or
+            (complaint.student.department == request.user.department)
+        )
+        if not in_dept:
+            messages.error(request, 'This complaint is not in your department.')
+            return redirect('hod_complaints_list')
+
+    try:
+        existing = complaint.investigation
+    except ComplaintInvestigation.DoesNotExist:
+        existing = None
+
+    if request.method == 'POST':
+        form = AssignInvestigationForm(
+            request.POST,
+            instance=existing,
+            complaint=complaint,
+            hod_user=request.user,
+        )
+        if form.is_valid():
+            investigation = form.save(commit=False)
+            investigation.complaint = complaint
+            investigation.assigned_by = request.user
+            investigation.save()
+            form.save_m2m()
+
+            complaint.status = 'Under Investigation'
+            complaint.save()
+
+            investigator_names = ', '.join(i.full_name for i in investigation.investigators.all())
+            brief_preview = investigation.description[:200]
+            if len(investigation.description) > 200:
+                brief_preview += '...'
+
+            ComplaintUpdate.objects.create(
+                complaint=complaint,
+                updated_by=request.user,
+                comment=(
+                    f"Investigation assigned to: {investigator_names}. "
+                    f"Brief: {brief_preview}"
+                ),
+                status_changed_to='Under Investigation',
+            )
+
+            _notify_investigators(complaint, investigation, request.user)
+
+            create_notification(
+                recipient=complaint.student,
+                title=f'Your complaint {complaint.tracking_id} is under investigation',
+                message=(
+                    f'Your complaint "{complaint.subject}" has been assigned for investigation. '
+                    f'You will be notified when there is an update.'
+                ),
+                notification_type='complaint',
+                link=f'/complaints/detail/{complaint.id}/',
+            )
+
+            messages.success(request, f'Investigation assigned successfully to {investigator_names}.')
+            return redirect('handle_complaint', complaint_id=complaint.id)
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = AssignInvestigationForm(
+            instance=existing,
+            complaint=complaint,
+            hod_user=request.user,
+        )
+
+    context = {
+        'form': form,
+        'complaint': complaint,
+        'existing_investigation': existing,
+        'page_title': f'Assign Investigation – {complaint.tracking_id}',
+    }
+    return render(request, 'complaints/assign_investigation.html', context)
+
+
+def _notify_investigators(complaint, investigation, assigned_by):
+    from users.models import Notification
+    for investigator in investigation.investigators.all():
+        Notification.objects.create(
+            recipient=investigator,
+            title=f'You have been assigned to investigate complaint {complaint.tracking_id}',
+            message=(
+                f'HOD {assigned_by.full_name} has assigned you to investigate:\n'
+                f'Subject: {complaint.subject}\n\n'
+                f'Brief:\n{investigation.description[:400]}'
+            ),
+            notification_type='complaint',
+            link=f'/complaints/detail/{complaint.id}/',
+        )

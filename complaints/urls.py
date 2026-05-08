@@ -1,3 +1,5 @@
+# complaints/urls.py
+
 from django.urls import path
 from . import views
 
@@ -8,6 +10,9 @@ urlpatterns = [
 
     path('hod/list/', views.hod_complaints_list, name='hod_complaints_list'),
     path('hod/handle/<int:complaint_id>/', views.handle_complaint, name='handle_complaint'),
+
+    # NEW: Assign investigators from the handle page
+    path('hod/assign-investigation/<int:complaint_id>/', views.assign_investigation, name='assign_investigation'),
 
     path('staff/list/', views.staff_complaints_list, name='staff_complaints_list'),
 

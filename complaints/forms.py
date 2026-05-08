@@ -1,10 +1,18 @@
+# complaints/forms.py
+
 from django import forms
-from .models import Complaint, ComplaintUpdate
+from django.conf import settings
+from django.contrib.auth import get_user_model
+
+from .models import Complaint, ComplaintUpdate, ComplaintInvestigation
+
+
+User = get_user_model()
 
 
 class ComplaintSubmissionForm(forms.ModelForm):
     """
-    Form for students to submit complaints.
+    Form for students to submit complaints
     """
     class Meta:
         model = Complaint
@@ -47,7 +55,7 @@ class ComplaintSubmissionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         from users.models import User
 
-        # Keep queryset aligned with selected complaint type so POSTed IDs validate.
+        # Keep queryset aligned with selected complaint type so POSTed IDs validate
         role_map = {
             'Faculty': ['Faculty'],
             'HOD': ['HOD'],
@@ -65,10 +73,9 @@ class ComplaintSubmissionForm(forms.ModelForm):
 
         roles = role_map.get(selected_type, [])
         if roles:
-            self.fields['faculty_concerned'].queryset = User.objects.filter(
-                role__in=roles,
-                is_active=True,
-            ).order_by('full_name')
+            self.fields['faculty_concerned'].queryset = (
+                User.objects.filter(role__in=roles, is_active=True).order_by('full_name')
+            )
         else:
             self.fields['faculty_concerned'].queryset = User.objects.none()
 
@@ -103,3 +110,63 @@ class ComplaintUpdateForm(forms.ModelForm):
         self.fields['status_changed_to'].choices = status_choices
         self.fields['status_changed_to'].widget.choices = status_choices
         self.fields['status_changed_to'].required = False
+
+
+class AssignInvestigationForm(forms.ModelForm):
+    """
+    HOD uses this form to assign one or more faculty investigators
+    and forward complaint details to them.
+    """
+
+    investigators = forms.ModelMultipleChoiceField(
+        queryset=User.objects.none(),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'investigation-checkbox'}),
+        label='Assign Investigators',
+        help_text='Select one or more faculty members to investigate this complaint.',
+        required=True,
+    )
+
+    class Meta:
+        model = ComplaintInvestigation
+        fields = ['investigators', 'description', 'due_date']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 6,
+                'placeholder': (
+                    'Describe the scope of investigation, specific concerns to address, '
+                    'and any relevant context from the complaint...'
+                ),
+            }),
+            'due_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+            }),
+        }
+        labels = {
+            'description': 'Investigation Brief / Forwarded Details',
+            'due_date': 'Expected Completion Date (optional)',
+        }
+
+    def __init__(self, *args, complaint=None, hod_user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if hod_user:
+            # Only show active faculty in the same department, excluding the HOD themselves
+            self.fields['investigators'].queryset = (
+                User.objects.filter(
+                    role__in=['Faculty', 'HOD'],
+                    department=hod_user.department,
+                    is_active=True,
+                )
+                .exclude(pk=hod_user.pk)
+                .order_by('full_name')
+            )
+        # Pre-fill description with complaint context when creating a new investigation
+        if complaint and not self.instance.pk:
+            self.fields['description'].initial = (
+                f"Complaint Reference: {complaint.tracking_id}\n"
+                f"Type: {complaint.get_complaint_type_display()}\n"
+                f"Subject: {complaint.subject}\n\n"
+                f"Complaint Details:\n{complaint.description}\n\n"
+                f"--- Please investigate the above matter and report your findings. ---"
+            )
