@@ -51,7 +51,7 @@ class FeedbackSubmissionForm(forms.ModelForm):
             'comments': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Share your thoughts about this course... (optional)'
+                'placeholder': 'Share your thoughts about this course... '
             }),
             'is_anonymous': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
