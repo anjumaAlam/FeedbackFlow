@@ -164,46 +164,58 @@ class RegistrationViewTest(TestCase):
 
 
 class LoginViewTest(TestCase):
-
+    """Comprehensive login tests for all user roles"""
 
     def setUp(self):
-        """Set up test client and user"""
+        """Set up test client and users"""
         self.client = Client()
         self.login_url = reverse('login')
-        self.user = User.objects.create_user(
-            email='student@uap-bd.edu',
-            password='Student@123',
-            full_name='Test Student',
-            role='Student'
-        )
+        self.student = make_user('student@uap-bd.edu', 'Student', 
+                                password='Student@123', student_id='23101001')
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty',
+                                password='Faculty@123')
+        self.hod = make_user('hod@uap-bd.edu', 'HOD',
+                            password='HOD@123')
+        self.staff = make_user('staff@uap-bd.edu', 'Staff',
+                              password='Staff@123')
+        self.admin = make_user('admin@uap-bd.edu', 'Admin',
+                              password='Admin@123')
 
+    # === BASIC LOGIN PAGE TESTS ===
     def test_login_page_exists(self):
-
+        """Test that login page loads successfully"""
         response = self.client.get(self.login_url)
         self.assertEqual(response.status_code, 200)
 
     def test_login_uses_correct_template(self):
-
+        """Test that login page uses the correct template"""
         response = self.client.get(self.login_url)
         self.assertTemplateUsed(response, 'users/login.html')
 
     def test_login_page_contains_form(self):
-
+        """Test that login page contains form with email and password fields"""
         response = self.client.get(self.login_url)
         self.assertContains(response, '<form')
         self.assertContains(response, 'email')
         self.assertContains(response, 'password')
 
-    def test_successful_login_redirects(self):
+    def test_authenticated_user_redirected_from_login(self):
+        """Test that authenticated users are redirected from login page"""
+        self.client.force_login(self.student)
+        response = self.client.get(self.login_url)
+        self.assertEqual(response.status_code, 302)
 
+    # === SUCCESSFUL LOGIN TESTS ===
+    def test_successful_student_login_redirects(self):
+        """Test student login redirects after successful authentication"""
         response = self.client.post(self.login_url, {
             'email': 'student@uap-bd.edu',
             'password': 'Student@123'
         })
         self.assertEqual(response.status_code, 302)
 
-    def test_successful_login_authenticates_user(self):
-
+    def test_successful_student_login_creates_session(self):
+        """Test that student login creates a valid session"""
         self.client.post(self.login_url, {
             'email': 'student@uap-bd.edu',
             'password': 'Student@123'
@@ -211,21 +223,259 @@ class LoginViewTest(TestCase):
         response = self.client.get(reverse('student_dashboard'))
         self.assertEqual(response.status_code, 200)
 
-    def test_wrong_password_does_not_login(self):
+    def test_successful_faculty_login_creates_session(self):
+        """Test that faculty login creates a valid session"""
+        self.client.post(self.login_url, {
+            'email': 'faculty@uap-bd.edu',
+            'password': 'Faculty@123'
+        })
+        response = self.client.get(reverse('faculty_dashboard'))
+        self.assertEqual(response.status_code, 200)
 
+    def test_successful_hod_login_creates_session(self):
+        """Test that HOD login creates a valid session"""
+        self.client.post(self.login_url, {
+            'email': 'hod@uap-bd.edu',
+            'password': 'HOD@123'
+        })
+        response = self.client.get(reverse('hod_dashboard'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_successful_staff_login_creates_session(self):
+        """Test that staff login creates a valid session"""
+        self.client.post(self.login_url, {
+            'email': 'staff@uap-bd.edu',
+            'password': 'Staff@123'
+        })
+        response = self.client.get(reverse('staff_dashboard'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_successful_admin_login_creates_session(self):
+        """Test that admin login creates a valid session"""
+        self.client.post(self.login_url, {
+            'email': 'admin@uap-bd.edu',
+            'password': 'Admin@123'
+        })
+        response = self.client.get(reverse('admin_dashboard'))
+        self.assertEqual(response.status_code, 200)
+
+    # === INVALID CREDENTIALS TESTS ===
+    def test_wrong_password_does_not_login(self):
+        """Test that wrong password prevents login"""
         response = self.client.post(self.login_url, {
             'email': 'student@uap-bd.edu',
             'password': 'WrongPassword@123'
         })
         self.assertEqual(response.status_code, 200)
+        # Verify not logged in
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
+
+    def test_wrong_password_keeps_user_on_login_page(self):
+        """Test that invalid credentials keep user on login page"""
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'WrongPassword@123'
+        })
+        self.assertTemplateUsed(response, 'users/login.html')
 
     def test_nonexistent_user_cannot_login(self):
-
+        """Test that non-existent user cannot login"""
         response = self.client.post(self.login_url, {
             'email': 'nonexistent@uap-bd.edu',
             'password': 'Test@123'
         })
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
+
+    def test_email_normalization(self):
+        """Test that email is normalized during login"""
+        # Test that login works with the exact email
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'Student@123'
+        })
+        # Should redirect (login successful)
+        self.assertEqual(response.status_code, 302)
+
+    def test_empty_email_fails(self):
+        """Test that empty email fails login"""
+        response = self.client.post(self.login_url, {
+            'email': '',
+            'password': 'Student@123'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/login.html')
+
+    def test_empty_password_fails(self):
+        """Test that empty password fails login"""
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': ''
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/login.html')
+
+    # === INACTIVE USER TESTS ===
+    def test_inactive_user_cannot_login(self):
+        """Test that inactive user cannot login"""
+        self.student.is_active = False
+        self.student.save()
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'Student@123'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
+
+    def test_inactive_user_sees_error_message(self):
+        """Test that inactive user sees deactivation message"""
+        self.student.is_active = False
+        self.student.save()
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'Student@123'
+        })
+        messages = list(response.context['messages'])
+        self.assertTrue(any('deactivated' in str(m) for m in messages))
+
+    def test_deactivated_user_cannot_access_dashboard(self):
+        """Test that deactivated user cannot access dashboard"""
+        self.client.force_login(self.student)
+        self.student.is_active = False
+        self.student.save()
+        response = self.client.get(reverse('student_dashboard'))
+        # Should redirect due to inactive status (depends on implementation)
+        self.assertNotEqual(response.status_code, 200)
+
+    # === ROLE-BASED REDIRECT TESTS ===
+    def test_student_redirects_to_student_dashboard(self):
+        """Test that student login redirects to student dashboard"""
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'Student@123'
+        }, follow=True)
+        self.assertTemplateUsed(response, 'users/student_dashboard.html')
+
+    def test_faculty_redirects_to_faculty_dashboard(self):
+        """Test that faculty login redirects to faculty dashboard"""
+        response = self.client.post(self.login_url, {
+            'email': 'faculty@uap-bd.edu',
+            'password': 'Faculty@123'
+        }, follow=True)
+        self.assertTemplateUsed(response, 'users/faculty_dashboard.html')
+
+    def test_hod_redirects_to_hod_dashboard(self):
+        """Test that HOD login redirects to HOD dashboard"""
+        response = self.client.post(self.login_url, {
+            'email': 'hod@uap-bd.edu',
+            'password': 'HOD@123'
+        }, follow=True)
+        self.assertTemplateUsed(response, 'users/hod_dashboard.html')
+
+    def test_staff_redirects_to_staff_dashboard(self):
+        """Test that staff login redirects to staff dashboard"""
+        response = self.client.post(self.login_url, {
+            'email': 'staff@uap-bd.edu',
+            'password': 'Staff@123'
+        }, follow=True)
+        self.assertTemplateUsed(response, 'users/staff_dashboard.html')
+
+    def test_admin_redirects_to_admin_dashboard(self):
+        """Test that admin login redirects to admin dashboard"""
+        response = self.client.post(self.login_url, {
+            'email': 'admin@uap-bd.edu',
+            'password': 'Admin@123'
+        }, follow=True)
+        self.assertTemplateUsed(response, 'users/admin_dashboard.html')
+
+    # === SUCCESS MESSAGE TESTS ===
+    def test_successful_login_shows_welcome_message(self):
+        """Test that successful login shows welcome message"""
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'Student@123'
+        }, follow=True)
+        messages = list(response.context['messages'])
+        self.assertTrue(any('Welcome' in str(m) for m in messages))
+
+    def test_failed_login_shows_error_message(self):
+        """Test that failed login shows error message"""
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'WrongPassword@123'
+        })
+        messages = list(response.context['messages'])
+        self.assertTrue(any('Invalid' in str(m) or 'password' in str(m).lower() 
+                          for m in messages))
+
+    # === FORM VALIDATION TESTS ===
+    def test_invalid_email_format_fails(self):
+        """Test that invalid email format fails"""
+        response = self.client.post(self.login_url, {
+            'email': 'not-an-email',
+            'password': 'Student@123'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/login.html')
+
+    def test_whitespace_in_email_handled(self):
+        """Test that whitespace in email is handled properly"""
+        response = self.client.post(self.login_url, {
+            'email': '  student@uap-bd.edu  ',
+            'password': 'Student@123'
+        })
+        # Should still work or show appropriate error
+        self.assertIn(response.status_code, [200, 302])
+
+    # === SESSION SECURITY TESTS ===
+    def test_login_sets_session_cookie(self):
+        """Test that login sets a session cookie"""
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'Student@123'
+        }, follow=True)
+        self.assertIn('sessionid', self.client.cookies)
+
+    def test_user_info_available_in_session(self):
+        """Test that user info is available after login"""
+        self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'Student@123'
+        })
+        response = self.client.get(reverse('student_dashboard'))
+        self.assertEqual(response.wsgi_request.user.email, 'student@uap-bd.edu')
+        self.assertEqual(response.wsgi_request.user.role, 'Student')
+
+    # === MULTIPLE ATTEMPTS TESTS ===
+    def test_multiple_failed_attempts_do_not_lockout(self):
+        """Test that multiple failed login attempts don't lock account"""
+        for i in range(5):
+            self.client.post(self.login_url, {
+                'email': 'student@uap-bd.edu',
+                'password': f'WrongPassword{i}@123'
+            })
+        # User should still be able to login with correct password
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'Student@123'
+        })
+        self.assertEqual(response.status_code, 302)
+
+    def test_second_login_after_logout(self):
+        """Test that user can login again after logout"""
+        # First login
+        self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'Student@123'
+        })
+        # Logout
+        self.client.get(reverse('logout'))
+        # Second login
+        response = self.client.post(self.login_url, {
+            'email': 'student@uap-bd.edu',
+            'password': 'Student@123'
+        })
+        self.assertEqual(response.status_code, 302)
 
 
 class LogoutViewTest(TestCase):

@@ -50,21 +50,15 @@ def register_view(request):
     return render(request, 'users/register.html', context)
 
 
-def login_view(request, role='student', allowed_roles=None):
+def login_view(request):
+    """
+    Unified login view for all users.
+    Authenticates user by email and password, then automatically detects
+    their role and redirects to the appropriate dashboard.
+    """
     if request.user.is_authenticated:
         return _redirect_by_role(request.user)
-    role_map = {
-        'student': 'Student',
-        'faculty': 'Faculty',
-        'staff': 'Staff',
-        'admin': 'Admin',
-        'hod': 'HOD',
-    }
-    primary_role = role_map.get(role.lower(), 'Student')
-    if allowed_roles is None:
-        allowed_roles = [primary_role]
-    else:
-        allowed_roles = [role_map.get(r.lower(), r) for r in allowed_roles]
+    
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -73,45 +67,23 @@ def login_view(request, role='student', allowed_roles=None):
             user = authenticate(request, username=email, password=password)
             if user is not None:
                 if user.is_active:
-                    if user.role not in allowed_roles:
-                        roles_str = ' or '.join(allowed_roles)
-                        messages.error(request, f'This account is registered as {user.role}. This page is for {roles_str} login. Please go back and select the correct login page.')
-                    else:
-                        login(request, user)
-                        messages.success(request, f'Welcome back, {user.get_short_name()}!')
-                        return _redirect_by_role(user)
+                    login(request, user)
+                    messages.success(request, f'Welcome back, {user.get_short_name()}!')
+                    return _redirect_by_role(user)
                 else:
-                    messages.error(request, 'Your account has been deactivated.')
+                    messages.error(request, 'Your account has been deactivated. Please contact support.')
             else:
                 messages.error(request, 'Invalid email or password.')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = LoginForm()
+    
     context = {
         'form': form,
-        'page_title': f'{primary_role} Login',
-        'role': role,
-        'role_display': primary_role,
-        'allowed_roles': allowed_roles,
+        'page_title': 'Login to FeedbackFlow',
     }
     return render(request, 'users/login.html', context)
-
-
-def student_login_view(request):
-    return login_view(request, role='student')
-
-
-def faculty_login_view(request):
-    return login_view(request, role='faculty', allowed_roles=['Faculty', 'HOD'])
-
-
-def staff_login_view(request):
-    return login_view(request, role='staff')
-
-
-def admin_login_view(request):
-    return login_view(request, role='admin')
 
 
 def _redirect_by_role(user):

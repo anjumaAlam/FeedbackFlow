@@ -41,63 +41,75 @@
             </div>
         </div>
 
-        <!-- Right Section - Login Options -->
+        <!-- Right Section - Login -->
         <div class="col-lg-6">
             <div class="card shadow-lg border-0" style="border-radius: 15px;">
                 <div class="card-body p-5">
-                    <h3 class="text-center mb-4 fw-bold">Select Your Role</h3>
-                    <p class="text-center text-muted mb-5">Choose your role to access the system</p>
+                    <h3 class="text-center mb-2 fw-bold">Get Started</h3>
+                    <p class="text-center text-muted mb-5">Sign in with your university email</p>
 
-                    <!-- Student Login -->
-                    <div class="mb-3">
-                        <a href="{% url 'student_login' %}" class="btn btn-primary w-100 py-3 mb-3" style="background-color: #2563eb; border: 2px solid #2563eb; font-size: 1.1rem; border-radius: 10px;">
-                            <span style="font-size: 1.5rem; margin-right: 0.5rem;">👨‍🎓</span> 
-                            <strong>Student Login</strong>
-                        </a>
-                    </div>
+                    <!-- Unified Login Form -->
+                    <form method="post" action="{% url 'login' %}" novalidate style="margin-bottom: 2rem;">
+                        {% csrf_token %}
+                        
+                        <!-- Email Field -->
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" id="id_email" class="form-control" 
+                                   placeholder="your.name@uap-bd.edu" required>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" id="id_password" class="form-control" 
+                                   placeholder="••••••••••" required>
+                        </div>
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="d-flex justify-content-between align-items-center mb-4" style="font-size: 0.9rem;">
+                            <label class="form-check-label" style="margin: 0;">
+                                <input type="checkbox" name="remember" class="form-check-input" style="margin-right: 0.5rem;">
+                                Remember me
+                            </label>
+                            <a href="{% url 'password_reset_request' %}" class="text-decoration-none">Forgot password?</a>
+                        </div>
+
+                        <!-- Sign In Button -->
+                        <button type="submit" class="btn btn-primary w-100 py-2" 
+                                style="font-size: 1.05rem; border-radius: 8px; margin-bottom: 1rem;">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <!-- Info Message -->
+                    <p class="text-center text-muted small mb-3">
+                        All users (students, faculty, HOD, staff, and admin) sign in using the same form.<br>
+                        You'll be automatically redirected to your role-specific dashboard.
+                    </p>
 
                     <!-- Divider -->
-                    <div class="text-center my-4">
-                        <span class="text-muted">─────────────────</span>
-                        <p class="text-muted small mt-2">Other Users</p>
-                    </div>
-
-                    <!-- Faculty Login -->
-                    <div class="mb-3">
-                        <a href="{% url 'faculty_login' %}" class="btn btn-outline-success w-100 py-2 mb-3" style="font-size: 1rem; border-radius: 8px; border-width: 2px;">
-                            <span style="font-size: 1.3rem; margin-right: 0.5rem;">👨‍🏫</span> 
-                            Faculty & Head of Department Login
-                        </a>
-                    </div>
-
-                    <!-- Staff Login -->
-                    <div class="mb-3">
-                        <a href="{% url 'staff_login' %}" class="btn btn-outline-warning w-100 py-2 mb-3" style="font-size: 1rem; border-radius: 8px; border-width: 2px;">
-                            <span style="font-size: 1.3rem; margin-right: 0.5rem;">👔</span> 
-                            Staff Login
-                        </a>
-                    </div>
-
-                    <!-- Admin Login -->
-                    <div class="mb-3">
-                        <a href="{% url 'admin_login' %}" class="btn btn-outline-danger w-100 py-2" style="font-size: 1rem; border-radius: 8px; border-width: 2px;">
-                            <span style="font-size: 1.3rem; margin-right: 0.5rem;">🔐</span> 
-                            Admin Login
-                        </a>
-                    </div>
-
-                    <!-- Separator -->
                     <hr class="my-4">
 
                     <!-- Student Registration -->
                     <div class="text-center">
                         <p class="text-muted mb-3">New student?</p>
-                        <a href="{% url 'register' %}" class="btn btn-light w-100 py-2" style="border: 2px solid #e0e0e0; border-radius: 8px;">
+                        <a href="{% url 'register' %}" class="btn btn-outline-primary w-100 py-2" 
+                           style="border-radius: 8px; margin-bottom: 1rem;">
                             <strong>Create Student Account</strong>
                         </a>
                     </div>
 
-                    <!-- Password Reset -->
+                    <!-- Support Info -->
+                    <div class="alert alert-info alert-sm mt-3 mb-0" role="alert" style="font-size: 0.85rem;">
+                        <strong>Need help?</strong> Contact IT support or your department administrator if you have any issues.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
                     <div class="text-center mt-4">
                         <a href="{% url 'password_reset_request' %}" class="text-decoration-none text-muted small">
                             Forgot your password?

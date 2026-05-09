@@ -10,9 +10,18 @@
                 <div class="auth-ornament-diamond"></div>
                 <div class="auth-ornament-line"></div>
             </div>
-            <div class="auth-eyebrow">{{ role_display }} Access</div>
+            
             <h1 class="auth-title">Welcome back</h1>
             <p class="auth-sub">Sign in to your FeedbackFlow account</p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
 
             <form method="post" novalidate>
                 {% csrf_token %}
@@ -39,19 +48,8 @@
                 <button type="submit" class="btn btn-primary w-100" style="padding:14px;">Sign In</button>
             </form>
 
-            {% if role == 'student' %}
             <hr class="auth-divider">
-            <p class="auth-footnote">Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
-            {% endif %}
-
-            <hr class="auth-divider">
-            <p style="font-size:10.5px;color:rgba(190,210,240,.35);text-align:center;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;">Other portals</p>
-            <div class="auth-login-options">
-                {% if role != 'student' %}<a href="{% url 'student_login' %}" class="btn-role btn-role-student" style="font-size:11px;">Student</a>{% endif %}
-                {% if role != 'faculty' %}<a href="{% url 'faculty_login' %}" class="btn-role btn-role-faculty" style="font-size:11px;">Faculty & HOD</a>{% endif %}
-                {% if role != 'staff' %}<a href="{% url 'staff_login' %}" class="btn-role btn-role-staff" style="font-size:11px;">Staff</a>{% endif %}
-                {% if role != 'admin' %}<a href="{% url 'admin_login' %}" class="btn-role btn-role-admin" style="font-size:11px;">Admin</a>{% endif %}
-            </div>
+            <p class="auth-footnote">New student? <a href="{% url 'register' %}">Register here</a></p>
         </div>
     </div>
 </div>

@@ -216,11 +216,8 @@
             <a href="{% url 'logout' %}" class="btn-logout">Sign Out</a>
         </div>
         {% else %}
-        <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
-            <a href="{% url 'student_login' %}" class="btn-role btn-role-student">Student</a>
-            <a href="{% url 'faculty_login' %}" class="btn-role btn-role-faculty">Faculty & HOD</a>
-            <a href="{% url 'staff_login' %}"   class="btn-role btn-role-staff">Staff</a>
-            <a href="{% url 'admin_login' %}"   class="btn-role btn-role-admin">Admin</a>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Sign In</a>
         </div>
         {% endif %}
     </div>

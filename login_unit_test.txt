@@ -1,0 +1,20 @@
+python manage.py test users.tests.LoginViewTest --keepdb -v 1
+Found 32 test(s).
+Using existing test database for alias 'default'...
+System check identified no issues (0 silenced).
+..........F.....................
+======================================================================
+FAIL: test_inactive_user_sees_error_message (users.tests.LoginViewTest.test_inactive_user_sees_error_message)
+Test that inactive user sees deactivation message
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\PycharmProjects\PythonProject16\feedbackflow\users\tests.py", line 339, in test_inactive_user_sees_error_message
+    self.assertTrue(any('deactivated' in str(m) for m in messages))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 32 tests in 312.459s
+
+FAILED (failures=1)
+Preserving test database for alias 'default'...
