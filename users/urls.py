@@ -9,20 +9,20 @@ urlpatterns = [
     # Registration
     path('register/', views.register_view, name='register'),
     
-    # Unified login
-    path('login/', views.login_view, name='login'),
-    
-    # Kept for backward compatibility (redirect to unified login)
-    path('login/student/', views.login_view, name='student_login'),
-    path('login/faculty/', views.login_view, name='faculty_login'),
-    path('login/staff/', views.login_view, name='staff_login'),
-    path('login/admin/', views.login_view, name='admin_login'),
+    # Role-based logins
+    path('login/', views.student_login_view, name='login'),
+    path('login/student/', views.student_login_view, name='student_login'),
+    path('login/faculty/', views.faculty_login_view, name='faculty_login'),
+    path('login/staff/', views.staff_login_view, name='staff_login'),
+    path('login/admin/', views.admin_login_view, name='admin_login'),
     
     # Logout
     path('logout/', views.logout_view, name='logout'),
 
+
     path('password-reset/', views.password_reset_request, name='password_reset_request'),
     path('password-reset/confirm/<uidb64>/<token>/', views.password_reset_confirm, name='password_reset_confirm'),
+
 
     path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
     path('faculty/dashboard/', views.faculty_dashboard, name='faculty_dashboard'),
@@ -30,6 +30,9 @@ urlpatterns = [
     path('hod/faculty/', views.hod_faculty_list, name='hod_faculty_list'),
     path('staff/dashboard/', views.staff_dashboard, name='staff_dashboard'),
     path('dashboard/admin/', views.admin_dashboard, name='admin_dashboard'),
+
+
+
 
     path('dashboard/users/', views.admin_user_list, name='admin_user_list'),
     path('dashboard/users/create/', views.admin_user_create, name='admin_user_create'),
@@ -46,6 +49,12 @@ urlpatterns = [
     path('tasks/add/',                    views.task_add,    name='task_add'),
     path('tasks/<int:task_id>/toggle/',   views.task_toggle, name='task_toggle'),
     path('tasks/<int:task_id>/delete/',   views.task_delete, name='task_delete'),
+    path('appointment/my/', views.my_appointments, name='my_appointments'),
+    path('dashboard/appointments/', views.admin_appointments, name='admin_appointments'),
+    path('dashboard/appointments/<int:appointment_id>/', views.admin_appointment_detail, name='admin_appointment_detail'),
+    path('committee/dashboard/', views.committee_dashboard, name='committee_dashboard'),
+    path('committee/appointment/<int:appointment_id>/', views.committee_appointment_action, name='committee_appointment_action'),
+    path('login/committee/', views.committee_login_view, name='committee_login'),
 ]
 
 

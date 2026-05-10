@@ -70,7 +70,7 @@
                 <p class="stat-label">Complaints Filed</p>
             </div>
         </div>
-        <!-- TASK STAT CARD — NEW -->
+        <!-- TASK STAT CARD -->
         <div class="col-md-4 mb-3">
             <div class="stat-card" style="background:#1e3a5f;border:1px solid rgba(59,130,246,.25);">
                 <span class="stat-icon">✅</span>
@@ -101,15 +101,18 @@
                 <a href="{% url 'course_registration' %}" class="btn btn-success quick-action-btn">
                     <i class="bi bi-journal-check"></i> Register Courses
                 </a>
-                <!-- TASK QUICK ACTION — NEW -->
                 <a href="{% url 'task_list' %}" class="btn btn-outline-info quick-action-btn">
                     ✅ My Tasks
+                </a>
+                <!-- NEW: Appointment quick action -->
+                <a href="{% url 'appointment' %}" class="btn btn-outline-warning quick-action-btn">
+                    <i class="bi bi-calendar-plus"></i> Book Appointment
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- TASK SUMMARY WIDGET — NEW -->
+    <!-- TASK SUMMARY WIDGET -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card" style="background:#ffffff;border:1px solid rgba(59,130,246,.18);border-radius:14px;box-shadow:0 2px 12px rgba(59,130,246,.08);">
@@ -208,6 +211,82 @@
                         </div>
                     </div>
                 </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ✅ NEW: MY APPOINTMENTS SECTION -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="section-title mb-0">📅 My Appointments</h3>
+                <a href="{% url 'appointment' %}" class="btn btn-sm btn-warning">+ Book New</a>
+            </div>
+
+            {% if recent_appointments %}
+            <div class="modern-table">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Committee</th>
+                            <th>Incident</th>
+                            <th>Status</th>
+                            <th>Latest Update</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in recent_appointments %}
+                        <tr>
+                            <td><strong>{{ appt.appointment_with }}</strong></td>
+                            <td>{{ appt.incident_type }}</td>
+                            <td>
+                                <span class="badge
+                                    {% if appt.status == 'Pending' %}bg-warning text-dark
+                                    {% elif appt.status == 'Forwarded to Committee' %}bg-info
+                                    {% elif appt.status == 'Meeting Scheduled' %}bg-success
+                                    {% elif appt.status == 'Rejected by Committee' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ appt.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% with latest=appt.updates.first %}
+                                    {% if latest %}
+                                        <small class="text-muted">{{ latest.message|truncatewords:8 }}</small>
+                                        {% if latest.meeting_date %}
+                                        <br><small class="text-success fw-bold">📅 {{ latest.meeting_date|date:"M d, Y - h:i A" }}</small>
+                                        {% endif %}
+                                    {% else %}
+                                        <small class="text-muted">No updates yet</small>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td><small>{{ appt.created_at|date:"M d, Y" }}</small></td>
+                            <td>
+                                <a href="{% url 'my_appointments' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-end mt-2">
+                <a href="{% url 'my_appointments' %}" class="btn btn-outline-primary btn-sm">View All Appointments →</a>
+            </div>
+
+            {% else %}
+            <div class="card info-card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h4>No appointments yet</h4>
+                        <p class="text-muted mb-0">Book an appointment with a committee when you need support.</p>
+                        <a href="{% url 'appointment' %}" class="btn btn-warning mt-3">📅 Book Appointment</a>
+                    </div>
+                </div>
+            </div>
             {% endif %}
         </div>
     </div>

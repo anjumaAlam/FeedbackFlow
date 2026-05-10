@@ -18,7 +18,6 @@ import json
 
 
 def create_notification(recipient, title, message, notification_type, link=None):
-    """Helper to create a notification"""
     from users.models import Notification
     Notification.objects.create(
         recipient=recipient,
@@ -35,8 +34,6 @@ def create_notification(recipient, title, message, notification_type, link=None)
 
 @login_required
 def submit_complaint(request):
-    """Student submits a complaint"""
-
     if request.user.role != 'Student':
         messages.error(request, 'Only students can submit complaints.')
         return redirect('student_dashboard')
@@ -65,7 +62,7 @@ def submit_complaint(request):
                         title=f'New HOD Complaint: {complaint.subject}',
                         message=f'A complaint against HOD has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
                         notification_type='complaint',
-                        link=f'/complaints/admin/list/',
+                        link=f'/complaints/admin/handle/{complaint.id}/',
                     )
 
             elif complaint.complaint_type == 'Staff':
@@ -75,7 +72,7 @@ def submit_complaint(request):
                         title=f'New Staff Complaint: {complaint.subject}',
                         message=f'A complaint has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
                         notification_type='complaint',
-                        link=f'/complaints/staff/list/',
+                        link=f'/complaints/staff/handle/{complaint.id}/',
                     )
 
             elif complaint.complaint_type == 'Facility':
@@ -85,7 +82,7 @@ def submit_complaint(request):
                         title=f'New Facility Issue: {complaint.subject}',
                         message=f'A facility issue has been reported by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
                         notification_type='complaint',
-                        link=f'/complaints/staff/list/',
+                        link=f'/complaints/staff/handle/{complaint.id}/',
                     )
 
             messages.success(request, f'Complaint submitted successfully! Tracking ID: {complaint.tracking_id}')
@@ -225,7 +222,6 @@ def handle_complaint(request, complaint_id):
     else:
         form = ComplaintUpdateForm()
 
-    # Fetch investigation and findings for display in the handle page
     try:
         investigation = complaint.investigation
         findings = investigation.findings.all()
@@ -344,12 +340,11 @@ def _notify_investigators(complaint, investigation, assigned_by):
 
 
 # ─────────────────────────────────────────────
-# INVESTIGATOR (FACULTY) — NEW
+# INVESTIGATOR (FACULTY)
 # ─────────────────────────────────────────────
 
 @login_required
 def investigator_dashboard(request):
-    """Faculty sees all investigations assigned to them."""
     if request.user.role not in ['Faculty', 'HOD']:
         messages.error(request, 'Access denied.')
         return redirect('login')
@@ -358,7 +353,6 @@ def investigator_dashboard(request):
         investigators=request.user
     ).select_related('complaint').order_by('-assigned_at')
 
-    # Annotate each investigation with whether this user already submitted findings
     already_submitted_ids = set(
         InvestigationFinding.objects.filter(submitted_by=request.user)
         .values_list('investigation_id', flat=True)
@@ -379,7 +373,6 @@ def investigator_dashboard(request):
 
 @login_required
 def submit_findings(request, investigation_id):
-    """Faculty investigator submits their findings and verdict to HOD."""
     if request.user.role not in ['Faculty', 'HOD']:
         messages.error(request, 'Access denied.')
         return redirect('login')
@@ -389,7 +382,6 @@ def submit_findings(request, investigation_id):
     )
     complaint = investigation.complaint
 
-    # Check if already submitted
     existing_finding = InvestigationFinding.objects.filter(
         investigation=investigation, submitted_by=request.user
     ).first()
@@ -406,7 +398,6 @@ def submit_findings(request, investigation_id):
             finding.submitted_by = request.user
             finding.save()
 
-            # If ALL investigators have now submitted → update complaint status
             if investigation.all_findings_submitted:
                 complaint.status = 'Findings Submitted'
                 complaint.save()
@@ -414,7 +405,6 @@ def submit_findings(request, investigation_id):
             else:
                 all_done = False
 
-            # Notify HOD
             notif_msg = (
                 f'{request.user.full_name} has submitted investigation findings for '
                 f'complaint "{complaint.subject}" (ID: {complaint.tracking_id}). '
@@ -450,7 +440,6 @@ def submit_findings(request, investigation_id):
 
 @login_required
 def hod_final_action(request, complaint_id):
-    """HOD reviews all findings and takes final action."""
     if request.user.role != 'HOD':
         messages.error(request, 'Access denied.')
         return redirect('login')
@@ -472,39 +461,38 @@ def hod_final_action(request, complaint_id):
         form = HODFinalActionForm(request.POST)
         if form.is_valid():
             action = form.cleaned_data['action']
-            note = form.cleaned_data['note']
+            note   = form.cleaned_data['note']
 
             complaint.final_action_note = note
 
             if action == 'Resolve':
                 complaint.status = 'Resolved'
                 complaint.resolved_at = timezone.now()
-                student_title = f'Your complaint has been resolved'
-                student_msg = f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been resolved. Note from HOD: {note}'
+                student_title = 'Your complaint has been resolved'
+                student_msg   = f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been resolved. Note from HOD: {note}'
 
             elif action == 'Escalate':
                 complaint.status = 'Escalated'
                 admin = User.objects.filter(role='Admin').first()
                 complaint.assigned_to = admin
-                student_title = f'Your complaint has been escalated'
-                student_msg = f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been escalated to Admin for further action.'
+                student_title = 'Your complaint has been escalated'
+                student_msg   = f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been escalated to Admin for further action.'
                 if admin:
                     create_notification(
                         recipient=admin,
                         title=f'Escalated Complaint: {complaint.tracking_id}',
                         message=f'HOD {request.user.full_name} has escalated complaint {complaint.tracking_id} to you.',
                         notification_type='complaint',
-                        link=f'/complaints/admin/list/',
+                        link=f'/complaints/admin/handle/{complaint.id}/',
                     )
 
             elif action == 'More Investigation':
                 complaint.status = 'Under Investigation'
-                # Re-open investigation and clear previous findings
                 if investigation:
                     investigation.findings.all().delete()
                     _notify_investigators(complaint, investigation, request.user)
-                student_title = f'Further investigation requested on your complaint'
-                student_msg = f'The HOD has reviewed the findings for "{complaint.subject}" and requested further investigation. You will be notified when complete.'
+                student_title = 'Further investigation requested on your complaint'
+                student_msg   = f'The HOD has reviewed the findings for "{complaint.subject}" and requested further investigation. You will be notified when complete.'
 
             complaint.save()
 

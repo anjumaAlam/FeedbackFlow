@@ -1,0 +1,269 @@
+{% extends 'users/dashboard_base.html' %}
+{% block title %}Appointments - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-box {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem 1rem;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        transition: transform 0.15s;
+    }
+    .stat-box:hover { transform: translateY(-2px); }
+    .stat-box h3 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+        color: #111827 !important;
+    }
+    .stat-box p {
+        color: #6b7280;
+        margin: 0;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .stat-box.total   h3 { color: #111827 !important; }
+    .stat-box.pending h3 { color: #d97706 !important; }
+    .stat-box.forward h3 { color: #0891b2 !important; }
+    .stat-box.schedule h3 { color: #16a34a !important; }
+    .stat-box.reject  h3 { color: #dc2626 !important; }
+
+    .stat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .filter-bar {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .card {
+        background: #ffffff !important;
+        border-radius: 12px !important;
+        border: 1px solid #e5e7eb !important;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+        overflow: hidden;
+    }
+
+    .table thead th {
+        background: #f8fafc !important;
+        color: #374151 !important;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 1rem 1.25rem;
+        border-bottom: 2px solid #e5e7eb !important;
+    }
+
+    .table tbody td {
+        color: #212529 !important;
+        vertical-align: middle;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #f3f4f6 !important;
+    }
+
+    .table tbody tr:hover { background: #f9fafb !important; }
+    .table tbody tr:last-child td { border-bottom: none !important; }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .btn-handle {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.4rem 1rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        transition: all 0.15s;
+    }
+    .btn-handle:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, rgba(37,99,235,0.15), rgba(139,92,246,0.1));
+        border: 1px solid rgba(37,99,235,0.2);
+        border-radius: 16px;
+        padding: 1.75rem 2rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .empty-state { padding: 4rem 2rem; text-align: center; }
+    .empty-state .empty-icon { font-size: 3.5rem; opacity: 0.25; margin-bottom: 1rem; }
+    .empty-state h5 { color: #6b7280; font-weight: 600; }
+    .empty-state p  { color: #9ca3af; font-size: 0.9rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1" style="color:#fff;">📅 Appointment Requests</h2>
+                <p class="mb-0" style="color:rgba(255,255,255,.6);">
+                    Review and forward student appointment requests to committees
+                </p>
+            </div>
+            <div>
+                <span class="badge bg-primary" style="font-size:0.9rem; padding:0.5rem 1rem;">
+                    {{ total }} Total
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-2 col-sm-6">
+            <div class="stat-box total">
+                <span class="stat-icon">📋</span>
+                <h3>{{ total }}</h3>
+                <p>Total</p>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6">
+            <div class="stat-box pending">
+                <span class="stat-icon">⏳</span>
+                <h3>{{ pending }}</h3>
+                <p>Pending</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-box forward">
+                <span class="stat-icon">📤</span>
+                <h3>{{ forwarded }}</h3>
+                <p>Forwarded</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-box schedule">
+                <span class="stat-icon">📅</span>
+                <h3>{{ scheduled }}</h3>
+                <p>Meeting Scheduled</p>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6">
+            <div class="stat-box reject">
+                <span class="stat-icon">❌</span>
+                <h3>{{ rejected }}</h3>
+                <p>Rejected</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar mb-4 d-flex gap-2 align-items-center flex-wrap">
+        <span style="color:#374151; font-weight:700; font-size:0.9rem;">Filter by status:</span>
+        <a href="?status=" class="btn btn-sm {% if not status_filter %}btn-dark{% else %}btn-outline-secondary{% endif %}">
+            All
+        </a>
+        <a href="?status=Pending" class="btn btn-sm {% if status_filter == 'Pending' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
+            ⏳ Pending
+        </a>
+        <a href="?status=Forwarded to Committee" class="btn btn-sm {% if status_filter == 'Forwarded to Committee' %}btn-info{% else %}btn-outline-info{% endif %}">
+            📤 Forwarded
+        </a>
+        <a href="?status=Meeting Scheduled" class="btn btn-sm {% if status_filter == 'Meeting Scheduled' %}btn-success{% else %}btn-outline-success{% endif %}">
+            📅 Scheduled
+        </a>
+        <a href="?status=Rejected by Committee" class="btn btn-sm {% if status_filter == 'Rejected by Committee' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+            ❌ Rejected
+        </a>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            {% if appointments %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Student ID</th>
+                            <th>Appointment With</th>
+                            <th>Incident Type</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr>
+                            <td style="color:#9ca3af; font-size:0.85rem;">{{ forloop.counter }}</td>
+                            <td>
+                                <div style="font-weight:700; color:#111827;">{{ appt.name }}</div>
+                                <div style="font-size:0.78rem; color:#6b7280;">{{ appt.get_department_display }}</div>
+                            </td>
+                            <td style="font-family:monospace; color:#374151;">{{ appt.roll_number }}</td>
+                            <td>
+                                <span style="font-weight:600; color:#1e40af;">
+                                    {% if appt.appointment_with == 'Harassment Committee' %}⚖️{% else %}🔒{% endif %}
+                                    {{ appt.appointment_with }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark" style="border:1px solid #e5e7eb;">
+                                    {{ appt.incident_type }}
+                                </span>
+                            </td>
+                            <td style="color:#6b7280; font-size:0.88rem;">
+                                {{ appt.created_at|date:"M d, Y" }}
+                            </td>
+                            <td>
+                                <span class="badge
+                                    {% if appt.status == 'Pending' %}bg-warning text-dark
+                                    {% elif appt.status == 'Forwarded to Committee' %}bg-info
+                                    {% elif appt.status == 'Meeting Scheduled' %}bg-success
+                                    {% elif appt.status == 'Rejected by Committee' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ appt.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_appointment_detail' appt.id %}" class="btn-handle">
+                                    {% if appt.status == 'Pending' %}🔍 Review{% else %}👁 View{% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h5>No appointments found</h5>
+                <p>Student appointment requests will appear here once submitted.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

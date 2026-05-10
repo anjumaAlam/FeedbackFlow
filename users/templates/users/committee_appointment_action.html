@@ -1,0 +1,146 @@
+{% extends 'users/base.html' %}
+{% block title %}Review Appointment - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card { background:#ffffff !important; color:#212529; }
+    .card p, .card strong, .card h5, .card label { color:#212529 !important; }
+    .detail-box { background:#f9fafb; border-left:4px solid #2563eb; border-radius:8px; padding:1.5rem; color:#212529; }
+    .update-item { background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:1rem; margin-bottom:0.75rem; }
+    .update-item p, .update-item strong, .update-item small { color:#212529 !important; }
+    .card textarea, .card select, .card input[type="datetime-local"] {
+        background:#fff !important; color:#212529 !important;
+        border:1px solid #d1d5db !important; border-radius:8px !important;
+        padding:10px 14px !important;
+    }
+    .card textarea::placeholder { color:#9ca3af !important; }
+    .action-option {
+        border:2px solid #e5e7eb; border-radius:10px; padding:1rem 1.25rem;
+        margin-bottom:0.75rem; cursor:pointer; display:flex;
+        align-items:flex-start; gap:0.75rem; background:#fff; color:#212529;
+    }
+    .action-option:has(input:checked).schedule { border-color:#22c55e; background:#f0fdf4; }
+    .action-option:has(input:checked).reject   { border-color:#ef4444; background:#fef2f2; }
+    .action-option input[type="radio"] { display:none; }
+    .action-dot { width:20px; height:20px; border-radius:50%; border:2px solid #9ca3af; background:#fff; flex-shrink:0; margin-top:3px; position:relative; transition:all 0.15s; }
+    .action-option:has(input:checked) .action-dot { background:#3b82f6; border-color:#3b82f6; }
+    .action-option:has(input:checked) .action-dot::after { display:block; }
+    .action-dot::after { content:''; display:none; width:8px; height:8px; border-radius:50%; background:#fff; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
+    .action-option .label { font-weight:600; color:#212529; }
+    .action-option .desc  { font-size:0.85rem; color:#6b7280; margin-top:2px; }
+    #meeting-date-section { display:none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width:850px;">
+
+    <div class="mb-3">
+        <a href="{% url 'committee_dashboard' %}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header" style="background:#f1f5ff;color:#1e3a8a;font-weight:700;padding:14px 20px;border-bottom:1px solid #e5e7eb;">
+            ⚖️ Review Appointment — {{ appointment.name }}
+        </div>
+        <div class="card-body p-4">
+
+            <!-- Details -->
+            <h5 class="text-primary mb-3">Appointment Details</h5>
+            <div class="detail-box mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Student Name:</strong> {{ appointment.name }}</p>
+                        <p class="mb-2"><strong>Student ID:</strong> {{ appointment.roll_number }}</p>
+                        <p class="mb-2"><strong>Department:</strong> {{ appointment.get_department_display }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><strong>Committee:</strong> {{ appointment.appointment_with }}</p>
+                        <p class="mb-2"><strong>Incident Type:</strong> {{ appointment.incident_type }}</p>
+                        <p class="mb-2"><strong>Submitted:</strong> {{ appointment.created_at|date:"M d, Y - h:i A" }}</p>
+                    </div>
+                </div>
+                <hr>
+                <p class="mb-1"><strong>Description:</strong></p>
+                <p class="mb-0">{{ appointment.description }}</p>
+            </div>
+
+            <!-- Previous Updates -->
+            {% if updates %}
+            <h5 class="text-primary mb-3">📋 Previous Updates</h5>
+            <div class="mb-4">
+                {% for update in updates %}
+                <div class="update-item">
+                    <div class="d-flex justify-content-between mb-1">
+                        <strong>{{ update.updated_by.full_name }}</strong>
+                        <small class="text-muted">{{ update.created_at|date:"M d, Y - h:i A" }}</small>
+                    </div>
+                    <p class="mb-0">{{ update.message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Response Form -->
+            {% if appointment.status == 'Forwarded to Committee' %}
+            <h5 class="text-primary mb-3">📝 Your Response</h5>
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Your Decision <span class="text-danger">*</span></label>
+                    <label class="action-option schedule">
+                        <input type="radio" name="action" value="Meeting Scheduled" id="action-schedule"
+                               onchange="document.getElementById('meeting-date-section').style.display='block'">
+                        <div class="action-dot"></div>
+                        <div>
+                            <div class="label">📅 Schedule a Meeting</div>
+                            <div class="desc">The request is valid. Set a date and time for the meeting.</div>
+                        </div>
+                    </label>
+                    <label class="action-option reject">
+                        <input type="radio" name="action" value="Rejected by Committee" id="action-reject"
+                               onchange="document.getElementById('meeting-date-section').style.display='none'">
+                        <div class="action-dot"></div>
+                        <div>
+                            <div class="label">❌ Reject Request</div>
+                            <div class="desc">The reason is not sufficient or outside committee scope.</div>
+                        </div>
+                    </label>
+                    {% if form.action.errors %}
+                        <div class="text-danger small mt-1">{{ form.action.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div id="meeting-date-section" class="mb-4">
+                    <label class="form-label fw-bold">Meeting Date & Time <span class="text-danger">*</span></label>
+                    {{ form.meeting_date }}
+                    {% if form.meeting_date.errors %}
+                        <div class="text-danger small mt-1">{{ form.meeting_date.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Message / Reason <span class="text-danger">*</span></label>
+                    {{ form.message }}
+                    {% if form.message.errors %}
+                        <div class="text-danger small mt-1">{{ form.message.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">📤 Submit Response to Admin</button>
+                    <a href="{% url 'committee_dashboard' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                </div>
+            </form>
+
+            {% else %}
+            <div class="alert {% if appointment.status == 'Meeting Scheduled' %}alert-success{% else %}alert-danger{% endif %}">
+                This appointment has been <strong>{{ appointment.status }}</strong>.
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

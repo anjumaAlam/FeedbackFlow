@@ -366,3 +366,80 @@ class AppointmentForm(forms.Form):
             'placeholder': 'Describe the incident in detail...'
         })
     )
+
+
+class CommitteeUpdateForm(forms.Form):
+    action = forms.ChoiceField(
+        label='Action',
+        choices=[
+            ('Meeting Scheduled', 'Schedule a Meeting Date'),
+            ('Rejected by Committee', 'Reject this Request'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    message = forms.CharField(
+        label='Message / Reason',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Provide details about your decision...'
+        })
+    )
+    meeting_date = forms.DateTimeField(
+        label='Meeting Date & Time (if scheduling)',
+        required=False,
+        widget=forms.DateTimeInput(attrs={
+            'class': 'form-control',
+            'type': 'datetime-local'
+        })
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        action = cleaned_data.get('action')
+        meeting_date = cleaned_data.get('meeting_date')
+        if action == 'Meeting Scheduled' and not meeting_date:
+            raise ValidationError('Please provide a meeting date and time.')
+        return cleaned_data
+
+
+class AdminForwardForm(forms.Form):
+    committee_member = forms.ModelChoiceField(
+        queryset=None,
+        label='Select Committee Member',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    note = forms.CharField(
+        label='Note to Committee',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Add context or instructions for the committee...'
+        })
+    )
+
+    def __init__(self, *args, committee_type=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        from .models import User
+        if committee_type:
+            self.fields['committee_member'].queryset = User.objects.filter(
+                role='Committee',
+                committee_type=committee_type,
+                is_active=True
+            )
+        else:
+            self.fields['committee_member'].queryset = User.objects.filter(
+                role='Committee',
+                is_active=True
+            )
+
+
+class AdminStudentUpdateForm(forms.Form):
+    message = forms.CharField(
+        label='Message to Student',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Write the update message for the student...'
+        })
+    )
