@@ -172,7 +172,7 @@ def hod_complaints_list(request):
 
 @login_required
 def handle_complaint(request, complaint_id):
-    if request.user.role not in ['HOD', 'Staff', 'Admin']:
+    if request.user.role not in ['HOD', 'Staff', 'DAO', 'Admin']:
         messages.error(request, 'Access denied.')
         return redirect('login')
 
@@ -216,7 +216,9 @@ def handle_complaint(request, complaint_id):
             if request.user.role == 'HOD':
                 return redirect('hod_complaints_list')
             elif request.user.role == 'Staff':
-                return redirect('staff_complaints_list')
+                return redirect('staff_task_list')
+            elif request.user.role == 'DAO':
+                return redirect('dao_complaints_list')
             else:
                 return redirect('admin_complaints_list')
     else:
@@ -577,3 +579,188 @@ def admin_complaints_list(request):
         'page_title': 'All Complaints'
     }
     return render(request, 'complaints/admins_complaints_list.html', context)
+
+@login_required
+def dao_complaints_list(request):
+    if request.user.role != 'DAO':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    complaints_list = Complaint.objects.filter(
+        assigned_to=request.user
+    ).order_by('-submitted_at')
+
+    staff_list = User.objects.filter(role='Staff', is_active=True)
+
+    total_complaints = complaints_list.count()
+    pending   = complaints_list.filter(status='Pending').count()
+    resolved  = complaints_list.filter(status='Resolved').count()
+    escalated = complaints_list.filter(status='Escalated').count()
+
+    context = {
+        'complaints_list': complaints_list,
+        'staff_list': staff_list,
+        'total_complaints': total_complaints,
+        'pending': pending,
+        'resolved': resolved,
+        'escalated': escalated,
+        'page_title': 'DAO Complaints',
+    }
+    return render(request, 'complaints/dao_complaints_list.html', context)
+
+
+@login_required
+def dao_assign_staff(request, complaint_id):
+    if request.user.role != 'DAO':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    complaint = get_object_or_404(Complaint, id=complaint_id)
+    staff_id  = request.POST.get('staff_id')
+
+    if not staff_id:
+        messages.error(request, 'Please select a staff member.')
+        return redirect('dao_complaints_list')
+
+    staff = get_object_or_404(User, id=staff_id, role='Staff')
+
+    # Save DAO as the original assignee in a comment
+    ComplaintUpdate.objects.create(
+        complaint=complaint,
+        updated_by=request.user,
+        comment=f'Complaint assigned to Staff member {staff.full_name} for physical resolution.',
+        status_changed_to='Under Investigation',
+    )
+
+    complaint.status = 'Under Investigation'
+    complaint.assigned_to = staff
+    complaint.save()
+
+    # Notify staff
+    from users.models import Notification
+    Notification.objects.create(
+        recipient=staff,
+        title=f'New Task Assigned: {complaint.tracking_id}',
+        message=f'DAO has assigned you a facility complaint "{complaint.subject}". Please attend to it promptly.',
+        notification_type='complaint',
+        link=f'/complaints/detail/{complaint.id}/',
+    )
+
+    # Notify student
+    Notification.objects.create(
+        recipient=complaint.student,
+        title=f'Your complaint is being handled',
+        message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been assigned to a staff member for resolution.',
+        notification_type='update',
+        link=f'/complaints/detail/{complaint.id}/',
+    )
+
+    messages.success(request, f'Complaint assigned to {staff.full_name}. Both staff and student have been notified.')
+    return redirect('dao_complaints_list')
+
+
+@login_required
+def dao_escalate_complaint(request, complaint_id):
+    if request.user.role != 'DAO':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    complaint = get_object_or_404(Complaint, id=complaint_id)
+    head = User.objects.filter(role='HOD', department=complaint.student.department).first()
+    if not head:
+        head = User.objects.filter(role='Admin').first()
+
+    if head:
+        ComplaintUpdate.objects.create(
+            complaint=complaint,
+            updated_by=request.user,
+            comment=f'Complaint escalated to Head ({head.full_name}) by DAO as it requires higher authority attention.',
+            status_changed_to='Escalated',
+        )
+
+        complaint.assigned_to = head
+        complaint.status = 'Escalated'
+        complaint.save()
+
+        from users.models import Notification
+        # Notify head
+        Notification.objects.create(
+            recipient=head,
+            title=f'Escalated Complaint: {complaint.tracking_id}',
+            message=f'Complaint "{complaint.subject}" has been escalated to you by DAO {request.user.full_name}.',
+            notification_type='complaint',
+            link=f'/complaints/detail/{complaint.id}/',
+        )
+
+        # Notify student
+        Notification.objects.create(
+            recipient=complaint.student,
+            title=f'Your complaint has been escalated',
+            message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been escalated to the Head for review as it requires higher authority attention.',
+            notification_type='update',
+            link=f'/complaints/detail/{complaint.id}/',
+        )
+
+        messages.success(request, f'Complaint escalated to {head.full_name}. Student has been notified.')
+    else:
+        messages.error(request, 'No head found to escalate to.')
+
+    return redirect('dao_complaints_list')
+
+
+@login_required
+def staff_task_list(request):
+    if request.user.role != 'Staff':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    tasks = Complaint.objects.filter(
+        assigned_to=request.user
+    ).order_by('-submitted_at')
+
+    total    = tasks.count()
+    pending  = tasks.filter(status='Pending').count()
+    active   = tasks.filter(status='Under Investigation').count()
+    resolved = tasks.filter(status='Resolved').count()
+
+    context = {
+        'tasks': tasks,
+        'total': total,
+        'pending': pending,
+        'active': active,
+        'resolved': resolved,
+    }
+    return render(request, 'complaints/staff_task_list.html', context)
+
+
+@login_required
+def staff_mark_fixed(request, complaint_id):
+    if request.user.role != 'Staff':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    complaint = get_object_or_404(Complaint, id=complaint_id, assigned_to=request.user)
+
+    ComplaintUpdate.objects.create(
+        complaint=complaint,
+        updated_by=request.user,
+        comment='Staff has completed the physical work. Marked as Fixed — awaiting DAO final review.',
+        status_changed_to='Resolved',
+    )
+
+    complaint.status = 'Resolved'
+    complaint.resolved_at = timezone.now()
+    complaint.save()
+
+    from users.models import Notification
+    # Notify student
+    Notification.objects.create(
+        recipient=complaint.student,
+        title=f'Your complaint has been resolved',
+        message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been resolved by our staff team.',
+        notification_type='update',
+        link=f'/complaints/detail/{complaint.id}/',
+    )
+
+    messages.success(request, 'Complaint marked as resolved. Student has been notified.')
+    return redirect('staff_task_list')

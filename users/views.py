@@ -59,6 +59,7 @@ def login_view(request, role='student', allowed_roles=None):
         'student':   'Student',
         'faculty':   'Faculty',
         'staff':     'Staff',
+        'Dao': 'Dao',
         'admin':     'Admin',
         'hod':       'HOD',
         'committee': 'Committee',
@@ -115,6 +116,8 @@ def faculty_login_view(request):
 def staff_login_view(request):
     return login_view(request, role='staff')
 
+def dao_login_view(request):
+    return login_view(request, role='dao', allowed_roles=['DAO'])
 
 def admin_login_view(request):
     return login_view(request, role='admin')
@@ -132,6 +135,7 @@ def _redirect_by_role(user):
         'Faculty':   'faculty_dashboard',
         'HOD':       'hod_dashboard',
         'Staff':     'staff_dashboard',
+        'DAO': 'dao_dashboard',
         'Admin':     'admin_dashboard',
         'Committee': 'committee_dashboard',
     }
@@ -837,3 +841,28 @@ def my_appointments(request):
         'page_title':   'My Appointments',
     }
     return render(request, 'users/my_appointments.html', context)
+
+@login_required
+def dao_dashboard(request):
+    if request.user.role != 'DAO':
+        messages.error(request, 'Access denied. DAO only.')
+        return redirect('login')
+    from complaints.models import Complaint
+    all_complaints = Complaint.objects.filter(assigned_to=request.user)
+    assigned  = all_complaints.count()
+    pending   = all_complaints.filter(status='Pending').count()
+    resolved  = all_complaints.filter(status='Resolved').count()
+    escalated = all_complaints.filter(status='Escalated').count()
+    recent    = all_complaints.order_by('-submitted_at')[:5]
+    staff_list = User.objects.filter(role='Staff', is_active=True)
+    context = {
+        'page_title': 'DAO Dashboard',
+        'user': request.user,
+        'assigned_complaints': assigned,
+        'pending_complaints':  pending,
+        'resolved_complaints': resolved,
+        'escalated_complaints': escalated,
+        'recent_complaints': recent,
+        'staff_list': staff_list,
+    }
+    return render(request, 'users/dao_dashboard.html', context)

@@ -60,39 +60,37 @@
 
 
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="card info-card border-success">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h5 class="mb-1">⏱️ Performance Metrics</h5>
-                            <p class="text-muted mb-0">Average resolution time: <strong>{{ avg_resolution_time }}
-                                hours</strong></p>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <a href="{% url 'staff_complaints_list' %}" class="btn btn-success">View Detailed Stats</a>
-                        </div>
+    <div class="col-12">
+        <div class="card info-card border-success">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="mb-1">⏱️ Performance Metrics</h5>
+                        <p class="text-muted mb-0">Average resolution time: <strong>{{ avg_resolution_time }}
+                            hours</strong></p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="{% url 'staff_task_list' %}" class="btn btn-success">View Detailed Stats</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-
-    <div class="row mb-4">
-        <div class="col-12">
-            <h3 class="section-title">Quick Actions</h3>
-            <div>
-                <a href="{% url 'staff_complaints_list' %}" class="btn btn-primary quick-action-btn">
-                    <i class="bi bi-list"></i> View All Complaints
-                </a>
-                <a href="{% url 'staff_complaints_list' %}" class="btn btn-warning quick-action-btn">
-                    <i class="bi bi-hourglass-split"></i> Pending Tasks
-                </a>
-            </div>
+<div class="row mb-4">
+    <div class="col-12">
+        <h3 class="section-title">Quick Actions</h3>
+        <div>
+            <a href="{% url 'staff_task_list' %}" class="btn btn-primary quick-action-btn">
+                <i class="bi bi-list"></i> View All Tasks
+            </a>
+            <a href="{% url 'staff_task_list' %}" class="btn btn-warning quick-action-btn">
+                <i class="bi bi-hourglass-split"></i> Pending Tasks
+            </a>
         </div>
     </div>
-
+</div>
 
     <div class="row mb-4">
         <div class="col-12">

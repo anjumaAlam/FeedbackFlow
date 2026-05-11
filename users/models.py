@@ -27,8 +27,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('Faculty', 'Faculty'),
         ('HOD', 'Head of Department'),
         ('Staff', 'Staff'),
+        ('DAO', 'Dean of Administration Office'),
         ('Admin', 'Administrator'),
-        ('Committee', 'Committee Member'),   # ✅ already existed, kept
+        ('Committee', 'Committee Member'),
     )
 
     DEPARTMENT_CHOICES = (

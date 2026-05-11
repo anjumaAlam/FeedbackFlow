@@ -1,0 +1,140 @@
+{% extends 'users/base.html' %}
+{% block title %}DAO Complaints{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h2 style="color:#ffffff;">🏛️ DAO Complaints</h2>
+        <p style="color:rgba(255,255,255,.65);">Review complaints — handle directly, assign to staff, or escalate to Head.</p>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div style="background:#fff;border:1px solid #bfdbfe;border-radius:12px;padding:24px;text-align:center;">
+                <h3 style="color:#1d4ed8;font-weight:700;margin-bottom:4px;">{{ total_complaints }}</h3>
+                <p style="color:#6b7280;margin:0;">Total Assigned</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div style="background:#fff;border:1px solid #fde68a;border-radius:12px;padding:24px;text-align:center;">
+                <h3 style="color:#92400e;font-weight:700;margin-bottom:4px;">{{ pending }}</h3>
+                <p style="color:#6b7280;margin:0;">Pending</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div style="background:#fff;border:1px solid #bbf7d0;border-radius:12px;padding:24px;text-align:center;">
+                <h3 style="color:#065f46;font-weight:700;margin-bottom:4px;">{{ resolved }}</h3>
+                <p style="color:#6b7280;margin:0;">Resolved</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div style="background:#fff;border:1px solid #fecaca;border-radius:12px;padding:24px;text-align:center;">
+                <h3 style="color:#991b1b;font-weight:700;margin-bottom:4px;">{{ escalated }}</h3>
+                <p style="color:#6b7280;margin:0;">Escalated</p>
+            </div>
+        </div>
+    </div>
+
+    {% if complaints_list %}
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+        <div style="background:#f9fafb;padding:16px 20px;border-bottom:1px solid #e5e7eb;">
+            <h5 style="color:#111827;font-weight:700;margin:0;">All Complaints</h5>
+        </div>
+        <div class="table-responsive">
+            <table style="width:100%;border-collapse:collapse;background:#fff;">
+                <thead>
+                    <tr style="background:#f9fafb;border-bottom:2px solid #e5e7eb;">
+                        <th style="color:#374151;font-weight:700;padding:14px 18px;text-align:left;">Tracking ID</th>
+                        <th style="color:#374151;font-weight:700;padding:14px 18px;text-align:left;">Subject</th>
+                        <th style="color:#374151;font-weight:700;padding:14px 18px;text-align:left;">Location</th>
+                        <th style="color:#374151;font-weight:700;padding:14px 18px;text-align:left;">Priority</th>
+                        <th style="color:#374151;font-weight:700;padding:14px 18px;text-align:left;">Status</th>
+                        <th style="color:#374151;font-weight:700;padding:14px 18px;text-align:left;">Reported</th>
+                        <th style="color:#374151;font-weight:700;padding:14px 18px;text-align:left;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for complaint in complaints_list %}
+                <tr style="border-bottom:1px solid #f1f5f9;">
+                    <td style="color:#111827;font-weight:700;padding:14px 18px;">{{ complaint.tracking_id }}</td>
+                    <td style="color:#111827;padding:14px 18px;">{{ complaint.subject }}</td>
+                    <td style="color:#374151;padding:14px 18px;">{{ complaint.location|default:"-" }}</td>
+                    <td style="padding:14px 18px;">
+                        {% if complaint.priority == 'Low' %}<span style="background:#e5e7eb;color:#374151;padding:3px 12px;border-radius:40px;font-size:12px;font-weight:600;">Low</span>
+                        {% elif complaint.priority == 'Medium' %}<span style="background:#dbeafe;color:#1d4ed8;padding:3px 12px;border-radius:40px;font-size:12px;font-weight:600;">Medium</span>
+                        {% elif complaint.priority == 'High' %}<span style="background:#fef3c7;color:#92400e;padding:3px 12px;border-radius:40px;font-size:12px;font-weight:600;">High</span>
+                        {% elif complaint.priority == 'Urgent' %}<span style="background:#fee2e2;color:#991b1b;padding:3px 12px;border-radius:40px;font-size:12px;font-weight:600;">Urgent</span>
+                        {% else %}<span style="background:#e5e7eb;color:#374151;padding:3px 12px;border-radius:40px;font-size:12px;font-weight:600;">{{ complaint.priority }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding:14px 18px;">
+                        {% if complaint.status == 'Pending' %}<span style="background:#fef3c7;color:#92400e;padding:3px 12px;border-radius:40px;font-size:12px;font-weight:600;">Pending</span>
+                        {% elif complaint.status == 'Under Investigation' %}<span style="background:#dbeafe;color:#1d4ed8;padding:3px 12px;border-radius:40px;font-size:12px;font-weight:600;">Investigating</span>
+                        {% elif complaint.status == 'Resolved' %}<span style="background:#d1fae5;color:#065f46;padding:3px 12px;border-radius:40px;font-size:12px;font-weight:600;">Resolved</span>
+                        {% elif complaint.status == 'Escalated' %}<span style="background:#fee2e2;color:#991b1b;padding:3px 12px;border-radius:40px;font-size:12px;font-weight:600;">Escalated</span>
+                        {% else %}<span style="background:#e5e7eb;color:#374151;padding:3px 12px;border-radius:40px;font-size:12px;font-weight:600;">{{ complaint.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:#6b7280;padding:14px 18px;font-size:13px;">{{ complaint.submitted_at|date:"M d, Y" }}</td>
+                    <td style="padding:14px 18px;">
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                            <a href="{% url 'complaint_detail' complaint.id %}"
+                               style="font-size:12px;font-weight:600;color:#2563eb;border:1px solid #2563eb;padding:4px 12px;border-radius:6px;text-decoration:none;background:#fff;">View</a>
+                            <a href="{% url 'handle_complaint' complaint.id %}"
+                               style="font-size:12px;font-weight:600;color:#fff;background:#059669;padding:4px 12px;border-radius:6px;text-decoration:none;">Handle</a>
+                            {% if complaint.status != 'Escalated' and complaint.status != 'Resolved' %}
+                            <!-- Assign to Staff -->
+                            <button onclick="document.getElementById('assign-modal-{{ complaint.id }}').style.display='flex'"
+                                    style="font-size:12px;font-weight:600;color:#fff;background:#7c3aed;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;">Assign Staff</button>
+                            <!-- Escalate -->
+                            <a href="{% url 'dao_escalate_complaint' complaint.id %}"
+                               onclick="return confirm('Escalate to Head? Student will be notified.')"
+                               style="font-size:12px;font-weight:600;color:#fff;background:#dc2626;padding:4px 12px;border-radius:6px;text-decoration:none;">Escalate</a>
+                            {% endif %}
+                        </div>
+
+                        <!-- Assign Staff Modal -->
+                        {% if complaint.status != 'Escalated' and complaint.status != 'Resolved' %}
+                        <div id="assign-modal-{{ complaint.id }}"
+                             style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;">
+                            <div style="background:#fff;border-radius:12px;padding:28px;max-width:400px;width:90%;">
+                                <h5 style="color:#111827;margin-bottom:16px;">Assign to Staff</h5>
+                                <p style="color:#6b7280;font-size:13px;margin-bottom:16px;">Select a staff member to handle: <strong>{{ complaint.subject }}</strong></p>
+                                <form method="post" action="{% url 'dao_assign_staff' complaint.id %}">
+                                    {% csrf_token %}
+                                    <select name="staff_id" required
+                                            style="width:100%;background:#fff;color:#111827;border:1.5px solid #ced4da;border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:16px;">
+                                        <option value="">— Select Staff Member —</option>
+                                        {% for staff in staff_list %}
+                                        <option value="{{ staff.id }}">{{ staff.full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div style="display:flex;gap:8px;">
+                                        <button type="submit"
+                                                style="background:#7c3aed;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;flex:1;">Assign</button>
+                                        <button type="button"
+                                                onclick="document.getElementById('assign-modal-{{ complaint.id }}').style.display='none'"
+                                                style="background:#e5e7eb;color:#374151;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;flex:1;">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:64px 24px;text-align:center;">
+        <div style="font-size:4rem;opacity:.3;">📭</div>
+        <h4 style="color:#111827;margin-top:16px;">No Complaints Assigned</h4>
+        <p style="color:#6b7280;">Facility complaints will appear here when submitted by students</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

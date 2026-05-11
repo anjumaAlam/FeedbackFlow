@@ -88,10 +88,12 @@ class Complaint(models.Model):
             self.assigned_to = hod or User.objects.filter(role='Admin').first()
         elif self.complaint_type == 'HOD':
             self.assigned_to = User.objects.filter(role='Admin').first()
-        elif self.complaint_type in ('Staff', 'Facility'):
+        elif self.complaint_type == 'Staff':
             staff = User.objects.filter(role='Staff', department=self.student.department).first()
             self.assigned_to = staff or User.objects.filter(role='Admin').first()
-
+        elif self.complaint_type == 'Facility':
+            dao = User.objects.filter(role='DAO').first()
+            self.assigned_to = dao if dao else User.objects.filter(role='Admin').first()
 
 class ComplaintUpdate(models.Model):
     complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='updates')

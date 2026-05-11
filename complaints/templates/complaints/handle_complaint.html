@@ -143,7 +143,9 @@
         {% if request.user.role == 'HOD' %}
             <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">← Back to Complaints List</a>
         {% elif request.user.role == 'Staff' %}
-            <a href="{% url 'staff_complaints_list' %}" class="btn btn-outline-secondary">← Back to Complaints List</a>
+            <a href="{% url 'staff_task_list' %}" class="btn btn-outline-secondary">← Back to Complaints List</a>
+        {% elif request.user.role == 'DAO' %}
+            <a href="{% url 'dao_complaints_list' %}" class="btn btn-outline-secondary">← Back to Complaints List</a>
         {% elif request.user.role == 'Admin' %}
             <a href="{% url 'admin_complaints_list' %}" class="btn btn-outline-secondary">← Back to Complaints List</a>
         {% endif %}

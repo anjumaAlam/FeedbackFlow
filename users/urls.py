@@ -55,6 +55,8 @@ urlpatterns = [
     path('committee/dashboard/', views.committee_dashboard, name='committee_dashboard'),
     path('committee/appointment/<int:appointment_id>/', views.committee_appointment_action, name='committee_appointment_action'),
     path('login/committee/', views.committee_login_view, name='committee_login'),
+    path('login/dao/', views.dao_login_view, name='dao_login'),
+    path('dao/dashboard/', views.dao_dashboard, name='dao_dashboard'),
 ]
 
 
