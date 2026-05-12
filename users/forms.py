@@ -404,8 +404,17 @@ class CommitteeUpdateForm(forms.Form):
 
 
 class AdminForwardForm(forms.Form):
-    committee_member = forms.ModelChoiceField(
-        queryset=None,
+    COMMITTEE_MEMBER_CHOICES = [
+        ('', '---------'),
+        ('Sumon Mahmud', 'Sumon Mahmud'),
+        ('Rabeya Rahman', 'Rabeya Rahman'),
+        ('Mohiuddin Ahmed', 'Mohiuddin Ahmed'),
+        ('Kawser Ali', 'Kawser Ali'),
+        ('Parvin Jahan', 'Parvin Jahan'),
+    ]
+
+    committee_member = forms.ChoiceField(
+        choices=COMMITTEE_MEMBER_CHOICES,
         label='Select Committee Member',
         widget=forms.Select(attrs={'class': 'form-select'})
     )

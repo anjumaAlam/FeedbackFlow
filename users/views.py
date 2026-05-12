@@ -54,7 +54,6 @@ def login_view(request, role='student', allowed_roles=None):
     if request.user.is_authenticated:
         return _redirect_by_role(request.user)
 
-    # FIX 1: added 'committee': 'Committee'
     role_map = {
         'student':   'Student',
         'faculty':   'Faculty',
@@ -123,13 +122,11 @@ def admin_login_view(request):
     return login_view(request, role='admin')
 
 
-# FIX 2: new committee_login_view
 def committee_login_view(request):
     return login_view(request, role='committee', allowed_roles=['Committee'])
 
 
 def _redirect_by_role(user):
-    # FIX 3: added 'Committee': 'committee_dashboard'
     role_redirects = {
         'Student':   'student_dashboard',
         'Faculty':   'faculty_dashboard',
@@ -683,8 +680,9 @@ def admin_appointment_detail(request, appointment_id):
                 committee_type=appointment.appointment_with
             )
             if forward_form.is_valid():
-                member = forward_form.cleaned_data['committee_member']
-                note   = forward_form.cleaned_data['note']
+                # ✅ CHANGED: member_name is now a plain string (hardcoded choice)
+                member_name = forward_form.cleaned_data['committee_member']
+                note        = forward_form.cleaned_data['note']
 
                 appointment.status = 'Forwarded to Committee'
                 appointment.save()
@@ -692,17 +690,13 @@ def admin_appointment_detail(request, appointment_id):
                 AppointmentUpdate.objects.create(
                     appointment=appointment,
                     updated_by=request.user,
-                    message=f'Forwarded to {member.full_name} ({appointment.appointment_with}). Note: {note}',
+                    # ✅ CHANGED: use member_name directly instead of member.full_name
+                    message=f'Forwarded to {member_name} ({appointment.appointment_with}). Note: {note}',
                     status='Forwarded to Committee',
                 )
 
-                Notification.objects.create(
-                    recipient=member,
-                    title=f'New Appointment Assigned — {appointment.name}',
-                    message=f'Admin has forwarded an appointment request from {appointment.name} ({appointment.roll_number}) to you. Incident: {appointment.incident_type}. Note: {note}',
-                    notification_type='appointment',
-                    link=f'/committee/appointment/{appointment.id}/',
-                )
+                # ✅ REMOVED: Notification to committee member (no real user exists yet)
+                # When real committee users are created later, re-add this block.
 
                 Notification.objects.create(
                     recipient=appointment.student,
@@ -712,7 +706,8 @@ def admin_appointment_detail(request, appointment_id):
                     link='/appointment/my/',
                 )
 
-                messages.success(request, f'Appointment forwarded to {member.full_name}.')
+                # ✅ CHANGED: use member_name instead of member.full_name
+                messages.success(request, f'Appointment forwarded to {member_name}.')
                 return redirect('admin_appointment_detail', appointment_id=appointment.id)
 
         elif action_type == 'notify_student':
