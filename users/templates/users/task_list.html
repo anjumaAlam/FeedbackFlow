@@ -4,200 +4,520 @@
 
 {% block extra_css %}
 <style>
-    .form-control, .form-select, textarea {
-        background-color: #ffffff !important;
-        color: #111827 !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 8px !important;
+    /* ── PAGE LAYOUT ── */
+    .task-page-container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 8px;
     }
 
-    .form-control:focus, .form-select:focus, textarea:focus {
+    /* ── PAGE HEADER ── */
+    .task-page-header {
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .task-page-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .task-page-subtitle {
+        color: rgba(255,255,255,.55);
+        font-size: 14px;
+        font-weight: 300;
+        margin: 0;
+    }
+
+    /* ── SUMMARY STATS ── */
+    .task-summary-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .task-summary-box {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        transition: transform .2s, box-shadow .2s;
+    }
+    .task-summary-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,.1);
+    }
+    .task-summary-number {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 4px;
+        line-height: 1;
+    }
+    .task-summary-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+    .summary-total   .task-summary-number { color: #2563eb; }
+    .summary-daily   .task-summary-number { color: #7c3aed; }
+    .summary-weekly  .task-summary-number { color: #059669; }
+    .summary-done    .task-summary-number { color: #d97706; }
+
+    /* ── ADD TASK CARD ── */
+    .add-task-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.1);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 28px;
+        overflow: hidden;
+    }
+    .add-task-card-header {
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .add-task-card-header h5 {
+        color: #ffffff;
+        font-weight: 700;
+        margin: 0;
+        font-size: 16px;
+    }
+    .add-task-card-body {
+        padding: 24px;
+    }
+
+    /* ── FORM INPUTS ── */
+    .form-control,
+    .form-select,
+    textarea {
+        background-color: #ffffff !important;
+        color: #111827 !important;
+        border: 1.5px solid #d1d5db !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        transition: border-color .2s, box-shadow .2s !important;
+    }
+    .form-control:focus,
+    .form-select:focus,
+    textarea:focus {
         background-color: #ffffff !important;
         color: #111827 !important;
         border: 2px solid #2563eb !important;
         box-shadow: 0 0 0 3px rgba(37,99,235,.1) !important;
         outline: none !important;
     }
-
-    .form-control::placeholder, textarea::placeholder {
+    .form-control::placeholder,
+    textarea::placeholder {
         color: #9ca3af !important;
     }
-
     .form-select option {
         background: #fff;
         color: #111827;
     }
-
-    .card {
-        background-color: #ffffff !important;
-        border: 1px solid #e5e7eb !important;
-    }
-
-    .card-header {
-        background-color: #f1f5f9 !important;
-        color: #1e293b !important;
-        font-weight: 700;
-        border-bottom: 1px solid #e2e8f0 !important;
-    }
-
     .form-label {
         color: #374151 !important;
         font-weight: 600;
-        font-size: 13px;
-    }
-
-    .task-header-text {
-        color: rgba(255,255,255,.7) !important;
-    }
-
-    h2.fw-bold { color: #ffffff; }
-
-    .flex-grow-1 strong { color: #111827 !important; }
-    .flex-grow-1 .small { color: #6b7280 !important; }
-
-    .card-body > p { color: #6b7280 !important; }
-
-    .btn.btn-success {
-        background-color: #2563eb !important;
-        border-color: #2563eb !important;
-        color: #fff !important;
-        font-weight: 700;
-        border-radius: 8px !important;
-    }
-
-    .btn.btn-success:hover {
-        background-color: #1d4ed8 !important;
-        border-color: #1d4ed8 !important;
-    }
-
-    .btn.btn-sm.btn-danger {
-        background-color: #dc2626 !important;
-        border-color: #dc2626 !important;
-        color: #fff !important;
-        border-radius: 6px !important;
-    }
-
-    strong[style*="line-through"] { color: #9ca3af !important; }
-     /* Fix date input always visible */
-input[type="date"] {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-    color: #111827 !important;
-    border: 1.5px solid #ced4da !important;
-    border-radius: 8px !important;
-    padding: 10px 14px !important;
-    width: 100% !important;
-    display: block !important;
-    -webkit-text-fill-color: #111827 !important;
-    opacity: 1 !important;
-    color-scheme: light !important;
-}
-input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0) !important;
-    opacity: 1 !important;
-    cursor: pointer;
-}
-    /* Fix task title input always visible */
-input[name="title"] {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-    color: #111827 !important;
-    -webkit-text-fill-color: #111827 !important;
-    border: 1.5px solid #ced4da !important;
-    border-radius: 8px !important;
-    padding: 10px 14px !important;
-    width: 100% !important;
-    display: block !important;
-    opacity: 1 !important;
-}
-
-/* Fix description textarea always visible */
-textarea[name="description"] {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-    color: #111827 !important;
-    -webkit-text-fill-color: #111827 !important;
-    border: 1.5px solid #ced4da !important;
-    border-radius: 8px !important;
-    padding: 10px 14px !important;
-    width: 100% !important;
-    display: block !important;
-    opacity: 1 !important;
-    min-height: 80px !important;
-}
-
-input[name="title"]::placeholder,
-textarea[name="description"]::placeholder {
-    color: #9ca3af !important;
-    -webkit-text-fill-color: #9ca3af !important;
-}
-    /* Task Type and Priority Buttons */
-    .task-type-btn, .priority-btn {
-        padding: 10px 20px;
         font-size: 12px;
-        font-weight: 600;
-        border-radius: 8px;
-        margin: 5px;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        margin-bottom: 7px;
+    }
+
+    /* ── DATE INPUT ── */
+    input[type="date"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #111827 !important;
+        border: 1.5px solid #d1d5db !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        width: 100% !important;
+        display: block !important;
+        -webkit-text-fill-color: #111827 !important;
+        opacity: 1 !important;
+        color-scheme: light !important;
+        font-size: 14px !important;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0) !important;
+        opacity: 1 !important;
         cursor: pointer;
-        display: inline-block;
-        transition: background-color 0.3s;
     }
 
-    .task-type-btn {
-        background-color: #f3f4f6;
-        color: #111827;
+    /* ── TITLE INPUT ── */
+    input[name="title"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+        border: 1.5px solid #d1d5db !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        width: 100% !important;
+        display: block !important;
+        opacity: 1 !important;
+        font-size: 14px !important;
     }
 
-    .task-type-btn:hover {
-        background-color: #2563eb;
-        color: white;
+    /* ── DESCRIPTION TEXTAREA ── */
+    textarea[name="description"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+        border: 1.5px solid #d1d5db !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        width: 100% !important;
+        display: block !important;
+        opacity: 1 !important;
+        min-height: 90px !important;
+        resize: vertical !important;
+    }
+    input[name="title"]::placeholder,
+    textarea[name="description"]::placeholder {
+        color: #9ca3af !important;
+        -webkit-text-fill-color: #9ca3af !important;
     }
 
+    /* ── TASK TYPE & PRIORITY BUTTONS ── */
+    .btn-group-task {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .task-type-btn,
     .priority-btn {
-        background-color: #f3f4f6;
-        color: #111827;
+        padding: 9px 20px;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 40px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all .2s;
+        border: 2px solid #e5e7eb;
+        background: #f9fafb;
+        color: #374151;
+        letter-spacing: .04em;
     }
-
+    .task-type-btn:hover,
     .priority-btn:hover {
-        background-color: #2563eb;
-        color: white;
+        border-color: #2563eb;
+        color: #2563eb;
+        background: #eff6ff;
+    }
+    .task-type-btn.active,
+    .priority-btn.active {
+        background: #2563eb;
+        color: #ffffff;
+        border-color: #2563eb;
+        box-shadow: 0 4px 12px rgba(37,99,235,.3);
+    }
+    .priority-btn.active-high   { background: #dc2626; border-color: #dc2626; color: #fff; box-shadow: 0 4px 12px rgba(220,38,38,.3); }
+    .priority-btn.active-medium { background: #d97706; border-color: #d97706; color: #fff; box-shadow: 0 4px 12px rgba(217,119,6,.3); }
+    .priority-btn.active-low    { background: #059669; border-color: #059669; color: #fff; box-shadow: 0 4px 12px rgba(5,150,105,.3); }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-add-task {
+        background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+        border: none !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        border-radius: 10px !important;
+        padding: 12px 28px !important;
+        width: 100% !important;
+        margin-top: 8px !important;
+        letter-spacing: .04em !important;
+        transition: all .3s !important;
+        box-shadow: 0 4px 14px rgba(37,99,235,.3) !important;
+    }
+    .btn-add-task:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(37,99,235,.4) !important;
     }
 
-    /* Active button state */
-    .active {
-        background-color: #2563eb;
-        color: white;
+    /* ── TASK LIST CARDS ── */
+    .task-list-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.08);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 28px;
+        overflow: hidden;
+    }
+    .task-list-card-header {
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .task-list-card-header.daily-header  { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
+    .task-list-card-header.weekly-header { background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+    .task-list-card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .task-count-pill {
+        background: #2563eb;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 40px;
+    }
+    .weekly-header .task-count-pill { background: #059669; }
+    .task-list-card-body { padding: 8px 16px; }
+
+    /* ── TASK ITEM ── */
+    .task-item-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    transition: all .2s;
+    border-left: 5px solid #2563eb;
+}
+.task-item-row:hover {
+    background: #eff6ff !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 4px 12px rgba(37,99,235,.15) !important;
+    transform: translateY(-1px);
+}
+.task-item-row.task-done {
+    opacity: 1;
+    border-left-color: #16a34a;
+    background: #f0fdf4;
+    border-color: #86efac;
+}
+.task-item-row.task-done .task-item-title {
+    text-decoration: line-through;
+    color: #374151 !important;
+    font-weight: 600;
+}
+.task-item-row.task-done .task-item-description {
+    color: #4b5563 !important;
+}
+.task-item-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+.task-item-description {
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 8px;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+    /* Checkbox */
+    .task-check-input {
+        width: 20px !important;
+        height: 20px !important;
+        cursor: pointer !important;
+        accent-color: #2563eb !important;
+        margin-top: 3px !important;
+        flex-shrink: 0 !important;
+        border-radius: 4px !important;
+    }
+
+    /* Task content */
+    .task-item-content { flex: 1; min-width: 0; }
+    ..task-item-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #000000 !important;
+    margin-bottom: 4px;
+    line-height: 1.4;
+    -webkit-text-fill-color: #000000 !important;
+}
+.task-item-title.done-title {
+    text-decoration: line-through;
+    color: #374151 !important;
+    -webkit-text-fill-color: #374151 !important;
+}
+.task-item-description {
+    font-size: 13px;
+    color: #1f2937 !important;
+    margin-bottom: 8px;
+    line-height: 1.5;
+    font-weight: 500;
+    -webkit-text-fill-color: #1f2937 !important;
+}
+    .task-item-title.done-title {
+        text-decoration: line-through;
+        color: #9ca3af;
+    }
+    .task-item-description {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 8px;
+        line-height: 1.5;
+        font-weight: 300;
+    }
+    .task-item-meta {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    /* Badges */
+    .task-badge {
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 40px;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        border: 1px solid;
+    }
+    .badge-priority-high   { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .badge-priority-medium { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+    .badge-priority-low    { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+    .badge-due             { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; font-weight: 500; text-transform: none; letter-spacing: 0; }
+    .badge-done-tag        { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+
+    /* Delete button */
+    .btn-task-delete {
+        background: #fef2f2 !important;
+        border: 1px solid #fecaca !important;
+        color: #dc2626 !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        padding: 6px 14px !important;
+        cursor: pointer !important;
+        transition: all .2s !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+    }
+    .btn-task-delete:hover {
+        background: #fee2e2 !important;
+        border-color: #fca5a5 !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* ── EMPTY STATE ── */
+    .task-empty-state {
+        text-align: center;
+        padding: 48px 24px;
+    }
+    .task-empty-icon {
+        font-size: 48px;
+        opacity: .25;
+        margin-bottom: 14px;
+    }
+    .task-empty-title {
+        font-size: 17px;
+        font-weight: 600;
+        color: #9ca3af;
+        margin-bottom: 6px;
+    }
+    .task-empty-desc {
+        font-size: 13px;
+        color: #d1d5db;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+        .task-summary-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+        .task-summary-row { grid-template-columns: 1fr; }
+        .task-item-row { flex-wrap: wrap; }
+    }
+
+    .task-item-row * {
+        -webkit-text-fill-color: unset;
+    }
+    .task-item-row .task-item-title,
+    .task-item-row .task-item-description,
+    .task-item-row .flex-grow-1 strong,
+    .task-item-row .flex-grow-1 .small {
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
     }
 </style>
+
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <!-- Header Section -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h2 class="fw-bold text-primary">📌 Task List</h2>
-            <p class="task-header-text mb-0">
-                Manage your daily and weekly tasks with style.
-            </p>
+<div class="container mt-4 task-page-container">
+
+    <!-- PAGE HEADER -->
+    <div class="task-page-header">
+        <div class="task-page-title">📌 Task List</div>
+        <p class="task-page-subtitle">Manage your daily and weekly tasks. Stay organized and on top of your studies.</p>
+    </div>
+
+    <!-- SUMMARY STATS -->
+    <div class="task-summary-row">
+        <div class="task-summary-box summary-total">
+            <div class="task-summary-number">{{ daily|length|add:weekly|length }}</div>
+            <div class="task-summary-label">Total Tasks</div>
+        </div>
+        <div class="task-summary-box summary-daily">
+            <div class="task-summary-number">{{ daily|length }}</div>
+            <div class="task-summary-label">Daily Tasks</div>
+        </div>
+        <div class="task-summary-box summary-weekly">
+            <div class="task-summary-number">{{ weekly|length }}</div>
+            <div class="task-summary-label">Weekly Tasks</div>
+        </div>
+        <div class="task-summary-box summary-done">
+            <div class="task-summary-number">
+                {% with done_count=0 %}
+                {% for t in daily %}{% if t.is_done %}{% with done_count=done_count|add:1 %}{% endwith %}{% endif %}{% endfor %}
+                {% for t in weekly %}{% if t.is_done %}{% with done_count=done_count|add:1 %}{% endwith %}{% endif %}{% endfor %}
+                {% endwith %}
+                —
+            </div>
+            <div class="task-summary-label">Completed</div>
         </div>
     </div>
 
     <!-- ADD TASK FORM -->
-    <div class="card shadow-lg mb-4 rounded-lg border-light">
-        <div class="card-header">
-            ➕ Add New Task
+    <div class="add-task-card">
+        <div class="add-task-card-header">
+            <span style="font-size:20px;">➕</span>
+            <h5>Add New Task</h5>
         </div>
-
-        <div class="card-body">
+        <div class="add-task-card-body">
             <form method="post" action="{% url 'task_add' %}">
                 {% csrf_token %}
-
                 <div class="row g-3">
 
                     <div class="col-md-6">
-                        <label class="form-label">Task Title</label>
-                        <input type="text" name="title" class="form-control" placeholder="e.g. Study for CSE-301" required>
+                        <label class="form-label">Task Title *</label>
+                        <input type="text" name="title" class="form-control"
+                               placeholder="e.g. Study for CSE-301 exam" required>
                     </div>
 
                     <div class="col-md-6">
@@ -205,139 +525,207 @@ textarea[name="description"]::placeholder {
                         <input type="date" name="due_date" class="form-control">
                     </div>
 
-                    <!-- Task Type Buttons -->
                     <div class="col-md-6">
                         <label class="form-label">Task Type</label>
-                        <div>
-                            <button type="button" class="task-type-btn active" name="task_type" value="Daily" onclick="this.classList.toggle('active')">Daily</button>
-                            <button type="button" class="task-type-btn" name="task_type" value="Weekly" onclick="this.classList.toggle('active')">Weekly</button>
+                        <div class="btn-group-task">
+                            <button type="button" class="task-type-btn active"
+                                    onclick="setTaskType(this, 'Daily')">📅 Daily</button>
+                            <button type="button" class="task-type-btn"
+                                    onclick="setTaskType(this, 'Weekly')">🗓️ Weekly</button>
                         </div>
+                        <input type="hidden" name="task_type" id="task_type_input" value="Daily">
                     </div>
 
-                    <!-- Priority Buttons -->
                     <div class="col-md-6">
                         <label class="form-label">Priority</label>
-                        <div>
-                            <button type="button" class="priority-btn active" name="priority" value="High" onclick="this.classList.toggle('active')">High</button>
-                            <button type="button" class="priority-btn" name="priority" value="Medium" onclick="this.classList.toggle('active')">Medium</button>
-                            <button type="button" class="priority-btn" name="priority" value="Low" onclick="this.classList.toggle('active')">Low</button>
+                        <div class="btn-group-task">
+                            <button type="button" class="priority-btn active-high"
+                                    onclick="setPriority(this, 'High', 'active-high')">🔴 High</button>
+                            <button type="button" class="priority-btn"
+                                    onclick="setPriority(this, 'Medium', 'active-medium')">🟡 Medium</button>
+                            <button type="button" class="priority-btn"
+                                    onclick="setPriority(this, 'Low', 'active-low')">🟢 Low</button>
                         </div>
+                        <input type="hidden" name="priority" id="priority_input" value="High">
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3" placeholder="Add notes or details..."></textarea>
+                        <label class="form-label">Description (Optional)</label>
+                        <textarea name="description" class="form-control" rows="3"
+                                  placeholder="Add notes or details about this task..."></textarea>
                     </div>
 
                 </div>
 
-                <button type="submit" class="btn btn-success mt-3 w-100">
+                <button type="submit" class="btn btn-success btn-add-task mt-3">
                     ➕ Add Task
                 </button>
-
             </form>
         </div>
     </div>
 
     <!-- DAILY TASKS -->
-    <div class="card shadow-lg mb-4 rounded-lg">
-
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span>📅 Daily Tasks</span>
-            <span class="badge bg-info rounded-pill">{{ daily|length }}</span>
+    <div class="task-list-card">
+        <div class="task-list-card-header daily-header">
+            <div class="task-list-card-title">
+                📅 Daily Tasks
+                <span class="task-count-pill">{{ daily|length }}</span>
+            </div>
+            <small style="color:#000000;font-size:12px;">Today's to-do list</small>
         </div>
-
-        <div class="card-body">
+        <div class="task-list-card-body">
             {% if daily %}
                 {% for task in daily %}
-                <div class="d-flex align-items-start justify-content-between border-bottom py-3">
+                <div class="task-item-row {% if task.is_done %}task-done{% endif %}">
 
-                    <form method="post" action="{% url 'task_toggle' task.id %}">
+                    <form method="post" action="{% url 'task_toggle' task.id %}" style="margin:0;">
                         {% csrf_token %}
-                        <input type="checkbox" onchange="this.form.submit()" {% if task.is_done %}checked{% endif %}
-                               style="width:18px;height:18px;cursor:pointer;accent-color:#2563eb;margin-top:4px;">
+                        <input type="checkbox" class="task-check-input"
+                               onchange="this.form.submit()"
+                               {% if task.is_done %}checked{% endif %}>
                     </form>
 
-                    <div class="flex-grow-1 ms-3">
-                        <strong {% if task.is_done %}style="text-decoration:line-through;"{% endif %} class="fs-5">
+                    <div class="task-item-content">
+                        <div class="task-item-title {% if task.is_done %}done-title{% endif %}">
                             {{ task.title }}
-                        </strong>
+                        </div>
                         {% if task.description %}
-                            <div class="small mt-1">{{ task.description }}</div>
+                        <div class="task-item-description">{{ task.description }}</div>
                         {% endif %}
-                        <div class="mt-2">
-                            <span class="badge bg-primary">{{ task.priority }}</span>
+                        <div class="task-item-meta">
+                            <span class="task-badge badge-priority-{{ task.priority|lower }}">
+                                {{ task.priority }}
+                            </span>
                             {% if task.due_date %}
-                            <span class="badge bg-warning text-dark">Due {{ task.due_date|date:"M d, Y" }}</span>
+                            <span class="task-badge badge-due">
+                                📅 Due {{ task.due_date|date:"M d, Y" }}
+                            </span>
                             {% endif %}
                             {% if task.is_done %}
-                            <span class="badge bg-success">Done</span>
+                            <span class="task-badge badge-done-tag">✅ Done</span>
                             {% endif %}
                         </div>
                     </div>
 
-                    <form method="post" action="{% url 'task_delete' task.id %}">
+                    <form method="post" action="{% url 'task_delete' task.id %}"
+                          style="margin:0;"
+                          onsubmit="return confirm('Delete this task?')">
                         {% csrf_token %}
-                        <button class="btn btn-sm btn-danger" onclick="return confirm('Delete task?')">🗑</button>
+                        <button type="submit" class="btn-task-delete">🗑 Delete</button>
                     </form>
 
                 </div>
                 {% endfor %}
             {% else %}
-                <p class="text-black py-3">No daily tasks yet. Add one above!</p>
+            <div class="task-empty-state">
+                <div class="task-empty-icon">📅</div>
+                <div class="task-empty-title">No daily tasks yet</div>
+                <div class="task-empty-desc">Add a task using the form above to get started.</div>
+            </div>
             {% endif %}
         </div>
     </div>
 
     <!-- WEEKLY TASKS -->
-    <div class="card shadow-lg mb-4 rounded-lg">
-
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span>🗓️ Weekly Tasks</span>
-            <span class="badge bg-info rounded-pill">{{ weekly|length }}</span>
+    <div class="task-list-card">
+        <div class="task-list-card-header weekly-header">
+            <div class="task-list-card-title">
+                🗓️ Weekly Tasks
+                <span class="task-count-pill">{{ weekly|length }}</span>
+            </div>
+            <small style="color:#6b7280;font-size:12px;">This week's plan</small>
         </div>
-
-        <div class="card-body">
+        <div class="task-list-card-body">
             {% if weekly %}
                 {% for task in weekly %}
-                <div class="d-flex align-items-start justify-content-between border-bottom py-3">
+                <div class="task-item-row {% if task.is_done %}task-done{% endif %}">
 
-                    <form method="post" action="{% url 'task_toggle' task.id %}">
+                    <form method="post" action="{% url 'task_toggle' task.id %}" style="margin:0;">
                         {% csrf_token %}
-                        <input type="checkbox" onchange="this.form.submit()" {% if task.is_done %}checked{% endif %}
-                               style="width:18px;height:18px;cursor:pointer;accent-color:#2563eb;margin-top:4px;">
+                        <input type="checkbox" class="task-check-input"
+                               onchange="this.form.submit()"
+                               {% if task.is_done %}checked{% endif %}>
                     </form>
 
-                    <div class="flex-grow-1 ms-3">
-                        <strong {% if task.is_done %}style="text-decoration:line-through;"{% endif %} class="fs-5">
+                    <div class="task-item-content">
+                        <div class="task-item-title {% if task.is_done %}done-title{% endif %}">
                             {{ task.title }}
-                        </strong>
+                        </div>
                         {% if task.description %}
-                            <div class="small mt-1">{{ task.description }}</div>
+                        <div class="task-item-description">{{ task.description }}</div>
                         {% endif %}
-                        <div class="mt-2">
-                            <span class="badge bg-primary">{{ task.priority }}</span>
+                        <div class="task-item-meta">
+                            <span class="task-badge badge-priority-{{ task.priority|lower }}">
+                                {{ task.priority }}
+                            </span>
                             {% if task.due_date %}
-                            <span class="badge bg-warning text-dark">Due {{ task.due_date|date:"M d, Y" }}</span>
+                            <span class="task-badge badge-due">
+                                📅 Due {{ task.due_date|date:"M d, Y" }}
+                            </span>
                             {% endif %}
                             {% if task.is_done %}
-                            <span class="badge bg-success">Done</span>
+                            <span class="task-badge badge-done-tag">✅ Done</span>
                             {% endif %}
                         </div>
                     </div>
 
-                    <form method="post" action="{% url 'task_delete' task.id %}">
+                    <form method="post" action="{% url 'task_delete' task.id %}"
+                          style="margin:0;"
+                          onsubmit="return confirm('Delete this task?')">
                         {% csrf_token %}
-                        <button class="btn btn-sm btn-danger" onclick="return confirm('Delete task?')">🗑</button>
+                        <button type="submit" class="btn-task-delete">🗑 Delete</button>
                     </form>
 
                 </div>
                 {% endfor %}
             {% else %}
-                <p class="text-black py-3">No weekly tasks yet. Add one above!</p>
+            <div class="task-empty-state">
+                <div class="task-empty-icon">🗓️</div>
+                <div class="task-empty-title">No weekly tasks yet</div>
+                <div class="task-empty-desc">Plan your week by adding a weekly task above.</div>
+            </div>
             {% endif %}
         </div>
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ── TASK TYPE SELECTOR ──
+    function setTaskType(btn, value) {
+        document.querySelectorAll('.task-type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('task_type_input').value = value;
+    }
+
+    // ── PRIORITY SELECTOR ──
+    function setPriority(btn, value, activeClass) {
+        document.querySelectorAll('.priority-btn').forEach(b => {
+            b.classList.remove('active-high', 'active-medium', 'active-low');
+        });
+        btn.classList.add(activeClass);
+        document.getElementById('priority_input').value = value;
+    }
+
+    // ── TASK ITEM HOVER EFFECT ──
+    document.querySelectorAll('.task-item-row').forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.background = '#f8faff';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.background = '';
+        });
+    });
+
+    // ── AUTO HIDE SUCCESS MESSAGES ──
+    setTimeout(function() {
+        document.querySelectorAll('.alert').forEach(function(alert) {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = '0';
+            setTimeout(function() { alert.remove(); }, 500);
+        });
+    }, 3000);
+</script>
 {% endblock %}
