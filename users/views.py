@@ -842,21 +842,37 @@ def dao_dashboard(request):
     if request.user.role != 'DAO':
         messages.error(request, 'Access denied. DAO only.')
         return redirect('login')
-    from complaints.models import Complaint
-    all_complaints = Complaint.objects.filter(assigned_to=request.user)
-    assigned  = all_complaints.count()
+
+    from django.db.models import Q
+    from complaints.models import Complaint, ComplaintUpdate
+
+    # Get all complaints DAO ever touched
+    dao_handled_ids = ComplaintUpdate.objects.filter(
+        updated_by=request.user
+    ).values_list('complaint_id', flat=True)
+
+    all_complaints = Complaint.objects.filter(
+        Q(assigned_to=request.user) | Q(id__in=dao_handled_ids)
+    ).distinct()
+
+    # Stats
+    total     = all_complaints.count()
     pending   = all_complaints.filter(status='Pending').count()
     resolved  = all_complaints.filter(status='Resolved').count()
     escalated = all_complaints.filter(status='Escalated').count()
+    assigned_to_staff = all_complaints.filter(status='Under Investigation').count()
+
     recent    = all_complaints.order_by('-submitted_at')[:5]
     staff_list = User.objects.filter(role='Staff', is_active=True)
+
     context = {
         'page_title': 'DAO Dashboard',
         'user': request.user,
-        'assigned_complaints': assigned,
+        'assigned_complaints': total,
         'pending_complaints':  pending,
         'resolved_complaints': resolved,
         'escalated_complaints': escalated,
+        'assigned_to_staff': assigned_to_staff,
         'recent_complaints': recent,
         'staff_list': staff_list,
     }

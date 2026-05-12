@@ -1,100 +1,126 @@
-{% extends 'users/dashboard_base.html' %}
+{% extends 'users/base.html' %}
 {% block title %}DAO Dashboard{% endblock %}
 
-{% block sidebar %}
-<div class="sidebar">
-    <div class="sidebar-logo">
-        <div class="role-label">DAO Portal</div>
-        <div class="user-name">{{ user.full_name }}</div>
-        <div class="user-dept">Dean of Administration Office</div>
-    </div>
-    <div class="sidebar-section">
-        <div class="sidebar-section-label">Navigation</div>
-        <a href="{% url 'dao_dashboard' %}" class="sidebar-link active"><div class="sl-icon">🏠</div>Dashboard</a>
-        <a href="{% url 'dao_complaints_list' %}" class="sidebar-link"><div class="sl-icon">📋</div>All Complaints</a>
-        <a href="{% url 'notifications' %}" class="sidebar-link">
-            <div class="sl-icon">🔔</div>Notifications
-            {% if unread_notifications_count > 0 %}<span class="badge bg-danger ms-auto">{{ unread_notifications_count }}</span>{% endif %}
-        </a>
-    </div>
-    <div class="sidebar-section" style="margin-top:auto;padding-top:24px;border-top:1px solid var(--border);">
-        <a href="{% url 'logout' %}" class="sidebar-link" style="color:rgba(252,165,165,0.7);"><div class="sl-icon">🚪</div>Sign Out</a>
-    </div>
-</div>
+{% block extra_css %}
+<style>
+    .dao-wrap { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+    h2 { color: #ffffff; }
+    .page-sub { color: rgba(255,255,255,.65); }
+
+    .stat-row { display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-bottom:28px; }    .stat-box { background:#fff; border-radius:12px; padding:24px; text-align:center; border:1px solid #e5e7eb; }
+    .stat-box h3 { font-weight:700; margin-bottom:4px; font-size:2rem; }
+    .stat-box p  { color:#6b7280; margin:0; font-size:13px; }
+
+    .table-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; margin-top:24px; }
+    .table-card-header { background:#f9fafb; padding:16px 20px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; }
+    .table-card-header h5 { color:#111827; font-weight:700; margin:0; }
+    .table-card-header a  { font-size:13px; color:#2563eb; font-weight:600; text-decoration:none; }
+
+    @media(max-width:600px){ .stat-row { grid-template-columns:repeat(2,1fr); } }
+</style>
 {% endblock %}
 
-{% block dash_content %}
-<div class="page-header">
-    <div class="page-eyebrow">DAO Portal</div>
-    <h1 class="page-title">Welcome, {{ user.get_short_name }}</h1>
-    <p class="page-sub">Manage facility complaints — resolve directly or assign to staff, escalate serious issues to Head.</p>
-</div>
+{% block content %}
+<div class="container py-4">
 
-<div class="stat-grid">
-    <div class="stat-card blue"><div class="stat-icon">📋</div><div class="stat-number">{{ assigned_complaints }}</div><div class="stat-label">Assigned</div></div>
-    <div class="stat-card red"><div class="stat-icon">⏳</div><div class="stat-number">{{ pending_complaints }}</div><div class="stat-label">Pending</div></div>
-    <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-number">{{ resolved_complaints }}</div><div class="stat-label">Resolved</div></div>
-    <div class="stat-card gold"><div class="stat-icon">🚨</div><div class="stat-number">{{ escalated_complaints }}</div><div class="stat-label">Escalated</div></div>
-</div>
-
-<div class="content-card">
-    <div class="card-header-bar">
-        <div class="card-header-title">Recent Complaints</div>
-        <a href="{% url 'dao_complaints_list' %}" style="font-size:13px;color:var(--gold);">View all →</a>
+    <div class="mb-4">
+        <h2>🏛️ DAO Dashboard</h2>
+        <p class="page-sub">Welcome, {{ user.full_name }} — manage facility complaints, assign to staff, or escalate serious issues.</p>
     </div>
-    {% if recent_complaints %}
-    <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;background:#ffffff;border-radius:8px;">
-            <thead>
-                <tr style="background:#f1f5f9;border-bottom:2px solid #e2e8f0;">
-                    <th style="padding:12px 16px;text-align:left;color:#374151;font-weight:700;font-size:13px;">Tracking ID</th>
-                    <th style="padding:12px 16px;text-align:left;color:#374151;font-weight:700;font-size:13px;">Subject</th>
-                    <th style="padding:12px 16px;text-align:left;color:#374151;font-weight:700;font-size:13px;">Priority</th>
-                    <th style="padding:12px 16px;text-align:left;color:#374151;font-weight:700;font-size:13px;">Status</th>
-                    <th style="padding:12px 16px;text-align:left;color:#374151;font-weight:700;font-size:13px;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for c in recent_complaints %}
-            <tr style="border-bottom:1px solid #f1f5f9;background:#ffffff;">
-                <td style="padding:12px 16px;color:#111827;font-weight:700;font-size:13px;">{{ c.tracking_id }}</td>
-                <td style="padding:12px 16px;color:#111827;font-size:13px;">{{ c.subject|truncatechars:35 }}</td>
-                <td style="padding:12px 16px;">
-                    {% if c.priority == 'High' %}<span style="background:#fef3c7;color:#92400e;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">High</span>
-                    {% elif c.priority == 'Medium' %}<span style="background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Medium</span>
-                    {% elif c.priority == 'Low' %}<span style="background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Low</span>
-                    {% elif c.priority == 'Urgent' %}<span style="background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Urgent</span>
-                    {% endif %}
-                </td>
-                <td style="padding:12px 16px;">
-                    {% if c.status == 'Pending' %}<span style="background:#fef3c7;color:#92400e;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Pending</span>
-                    {% elif c.status == 'Under Investigation' %}<span style="background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Investigating</span>
-                    {% elif c.status == 'Resolved' %}<span style="background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Resolved</span>
-                    {% elif c.status == 'Escalated' %}<span style="background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Escalated</span>
-                    {% endif %}
-                </td>
-                <td style="padding:12px 16px;">
-                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                        <a href="{% url 'handle_complaint' c.id %}"
-                           style="font-size:12px;font-weight:600;color:#fff;background:#059669;padding:4px 12px;border-radius:6px;text-decoration:none;">Handle</a>
-                        {% if c.status != 'Escalated' and c.status != 'Resolved' %}
-                        <a href="{% url 'dao_escalate_complaint' c.id %}"
-                           onclick="return confirm('Escalate to Head?')"
-                           style="font-size:12px;font-weight:600;color:#fff;background:#dc2626;padding:4px 12px;border-radius:6px;text-decoration:none;">Escalate</a>
+
+   <!-- STAT CARDS -->
+<div class="stat-row">
+    <div class="stat-box" style="border-color:#bfdbfe;">
+        <h3 style="color:#1d4ed8;">{{ assigned_complaints }}</h3>
+        <p>Total</p>
+    </div>
+    <div class="stat-box" style="border-color:#fde68a;">
+        <h3 style="color:#92400e;">{{ pending_complaints }}</h3>
+        <p>Pending</p>
+    </div>
+    <div class="stat-box" style="border-color:#c7d2fe;">
+        <h3 style="color:#4338ca;">{{ assigned_to_staff }}</h3>
+        <p>Assigned to Staff</p>
+    </div>
+    <div class="stat-box" style="border-color:#bbf7d0;">
+        <h3 style="color:#065f46;">{{ resolved_complaints }}</h3>
+        <p>Resolved</p>
+    </div>
+    <div class="stat-box" style="border-color:#fecaca;">
+        <h3 style="color:#991b1b;">{{ escalated_complaints }}</h3>
+        <p>Escalated</p>
+    </div>
+</div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="mb-4 d-flex gap-2">
+        <a href="{% url 'dao_complaints_list' %}" class="btn btn-primary">📋 View All Complaints</a>
+        <a href="{% url 'notifications' %}" class="btn btn-outline-secondary">🔔 Notifications</a>
+    </div>
+
+    <!-- RECENT COMPLAINTS TABLE -->
+    <div class="table-card">
+        <div class="table-card-header">
+            <h5>Recent Complaints</h5>
+            <a href="{% url 'dao_complaints_list' %}">View all →</a>
+        </div>
+        {% if recent_complaints %}
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;background:#fff;">
+                <thead>
+                    <tr style="background:#f9fafb;border-bottom:2px solid #e5e7eb;">
+                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Tracking ID</th>
+                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Subject</th>
+                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Priority</th>
+                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Status</th>
+                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Reported</th>
+                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in recent_complaints %}
+                <tr style="border-bottom:1px solid #f1f5f9;">
+                    <td style="padding:13px 16px;color:#111827;font-weight:700;font-size:13px;">{{ c.tracking_id }}</td>
+                    <td style="padding:13px 16px;color:#111827;font-size:13px;">{{ c.subject|truncatechars:35 }}</td>
+                    <td style="padding:13px 16px;">
+                        {% if c.priority == 'High' %}<span style="background:#fef3c7;color:#92400e;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">High</span>
+                        {% elif c.priority == 'Medium' %}<span style="background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Medium</span>
+                        {% elif c.priority == 'Low' %}<span style="background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Low</span>
+                        {% elif c.priority == 'Urgent' %}<span style="background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Urgent</span>
                         {% endif %}
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                    </td>
+                    <td style="padding:13px 16px;">
+                        {% if c.status == 'Pending' %}<span style="background:#fef3c7;color:#92400e;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Pending</span>
+                        {% elif c.status == 'Under Investigation' %}<span style="background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Investigating</span>
+                        {% elif c.status == 'Resolved' %}<span style="background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Resolved</span>
+                        {% elif c.status == 'Escalated' %}<span style="background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Escalated</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding:13px 16px;color:#6b7280;font-size:12px;">{{ c.submitted_at|date:"M d, Y" }}</td>
+                    <td style="padding:13px 16px;">
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                            <a href="{% url 'handle_complaint' c.id %}"
+                               style="font-size:12px;font-weight:600;color:#fff;background:#059669;padding:4px 12px;border-radius:6px;text-decoration:none;">Handle</a>
+                            {% if c.status != 'Escalated' and c.status != 'Resolved' %}
+                            <a href="{% url 'dao_escalate_complaint' c.id %}"
+                               onclick="return confirm('Escalate to Head?')"
+                               style="font-size:12px;font-weight:600;color:#fff;background:#dc2626;padding:4px 12px;border-radius:6px;text-decoration:none;">Escalate</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:48px 24px;">
+            <div style="font-size:3rem;opacity:.3;">✅</div>
+            <h4 style="color:#111827;margin-top:12px;">All clear</h4>
+            <p style="color:#6b7280;">No complaints assigned to you yet.</p>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="empty-state">
-        <div class="empty-icon">✅</div>
-        <div class="empty-title">All clear</div>
-        <div class="empty-desc">No complaints assigned to you.</div>
-    </div>
-    {% endif %}
+
 </div>
 {% endblock %}

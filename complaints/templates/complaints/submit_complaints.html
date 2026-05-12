@@ -71,32 +71,69 @@
     }
 
     .card-body .form-control::placeholder,
-    .card-body textarea::placeholder { color: #9ca3af !important; }
+    .card-body textarea::placeholder {
+        color: #9ca3af !important;
+    }
 
     .card-body .form-text,
-    .card-body .text-muted { color: #6b7280 !important; }
+    .card-body .text-muted {
+        color: #6b7280 !important;
+    }
 
-    .card-body h3, .card-body h4,
-    .card-body h5, .card-body p { color: #1f2937; }
+    .card-body h3,
+    .card-body h4,
+    .card-body h5,
+    .card-body p {
+        color: #1f2937;
+    }
 
     .alert-info {
         background: #dbeafe !important;
         border-color: #93c5fd !important;
         color: #1e3a8a !important;
     }
+
     .alert-info strong,
-    .alert-info li { color: #1e3a8a !important; }
+    .alert-info li {
+        color: #1e3a8a !important;
+    }
 
-    .form-check-label { color: #1f2937 !important; font-size: 14px; font-weight: 500; }
-    .form-check-input { accent-color: #ef4444; width: 18px; height: 18px; cursor: pointer; }
+    .form-check-label {
+        color: #1f2937 !important;
+        font-size: 14px;
+        font-weight: 500;
+    }
 
-    .card-body .text-danger { color: #ef4444 !important; }
+    .form-check-input {
+        accent-color: #ef4444;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
 
-    .btn-outline-primary { color: #2563eb !important; border-color: #2563eb !important; }
-    .btn-outline-primary:hover { background: #2563eb !important; color: #fff !important; }
+    .card-body .text-danger {
+        color: #ef4444 !important;
+    }
 
-    .btn-outline-secondary { color: rgba(255,255,255,.7) !important; border-color: rgba(255,255,255,.3) !important; }
-    .btn-outline-secondary:hover { background: rgba(255,255,255,.1) !important; color: #fff !important; }
+    .btn-outline-primary {
+        color: #2563eb !important;
+        border-color: #2563eb !important;
+    }
+
+    .btn-outline-primary:hover {
+        background: #2563eb !important;
+        color: #fff !important;
+    }
+
+    .btn-outline-secondary {
+        color: rgba(255,255,255,.7) !important;
+        border-color: rgba(255,255,255,.3) !important;
+    }
+
+    .btn-outline-secondary:hover {
+        background: rgba(255,255,255,.1) !important;
+        color: #fff !important;
+    }
 
     /* Department badge shown next to Faculty/Staff label */
     .dept-badge {
@@ -137,19 +174,20 @@
                 </ul>
             </div>
 
-
-
             <form method="post">
                 {% csrf_token %}
 
                 <!-- Complaint Type -->
                 <div class="form-section">
                     <h5 class="section-title">Select Complaint Type</h5>
+
                     <div class="mb-3">
                         <label for="{{ form.complaint_type.id_for_label }}" class="form-label">
                             Type of Complaint <span class="text-danger">*</span>
                         </label>
+
                         {{ form.complaint_type }}
+
                         {% if form.complaint_type.errors %}
                             <div class="text-danger small mt-1">{{ form.complaint_type.errors }}</div>
                         {% endif %}
@@ -159,21 +197,30 @@
                 <!-- Complaint Details -->
                 <div class="form-section">
                     <h5 class="section-title">Complaint Details</h5>
+
                     <div class="mb-3">
                         <label for="{{ form.subject.id_for_label }}" class="form-label">
                             Subject <span class="text-danger">*</span>
                         </label>
+
                         {{ form.subject }}
+
                         {% if form.subject.errors %}
                             <div class="text-danger small mt-1">{{ form.subject.errors }}</div>
                         {% endif %}
                     </div>
+
                     <div class="mb-3">
                         <label for="{{ form.description.id_for_label }}" class="form-label">
                             Detailed Description <span class="text-danger">*</span>
                         </label>
+
                         {{ form.description }}
-                        <small class="form-text">Please provide as much detail as possible to help us address your concern</small>
+
+                        <small class="form-text">
+                            Please provide as much detail as possible to help us address your concern
+                        </small>
+
                         {% if form.description.errors %}
                             <div class="text-danger small mt-1">{{ form.description.errors }}</div>
                         {% endif %}
@@ -183,27 +230,35 @@
                 <!-- Additional Info -->
                 <div class="form-section">
                     <h5 class="section-title">Additional Information (Optional)</h5>
+
                     <div class="mb-3">
                         <label for="id_faculty_concerned" class="form-label">
                             Faculty/Staff Member (if applicable)
-                            <!-- ✅ Badge shows student's department for Faculty and Staff types -->
                             <span class="dept-badge" id="dept-badge" style="display:none;"></span>
                         </label>
-                        <!-- Controlled select — populated by JS using filtered backend data -->
+
                         <select id="id_faculty_concerned" name="faculty_concerned">
                             <option value="">— Select Member —</option>
                         </select>
+
                         <small class="form-text" id="member-help-text">
                             Select if your complaint is about a specific faculty or staff member
                         </small>
+
                         {% if form.faculty_concerned.errors %}
                             <div class="text-danger small mt-1">{{ form.faculty_concerned.errors }}</div>
                         {% endif %}
                     </div>
+
                     <div class="mb-3">
                         <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+
                         {{ form.location }}
-                        <small class="form-text">For facility issues, specify the location (e.g., Room 301, Library)</small>
+
+                        <small class="form-text">
+                            For facility issues, specify the location (e.g., Room 301, Library)
+                        </small>
+
                         {% if form.location.errors %}
                             <div class="text-danger small mt-1">{{ form.location.errors }}</div>
                         {% endif %}
@@ -213,17 +268,23 @@
                 <!-- Privacy -->
                 <div class="form-section">
                     <h5 class="section-title">Privacy Options</h5>
+
                     <div style="display:flex;align-items:flex-start;gap:12px;padding:4px 0;">
                         <input type="checkbox"
                                name="is_anonymous"
                                id="id_is_anonymous"
-                               class="form-check-input"
+                               style="width:20px;height:20px;cursor:pointer;accent-color:#ef4444;flex-shrink:0;margin-top:2px;display:inline-block!important;padding:0!important;"
                                {% if form.is_anonymous.value %}checked{% endif %}>
+
                         <div>
-                            <label for="id_is_anonymous" class="form-check-label" style="font-size:15px;cursor:pointer;">
+                            <label for="id_is_anonymous"
+                                   style="color:#1f2937;font-size:15px;font-weight:600;cursor:pointer;display:block;margin-bottom:4px;">
                                 Submit Anonymously
                             </label>
-                            <small class="form-text d-block mt-1">Your identity will be hidden from everyone except administrators</small>
+
+                            <small style="color:#6b7280;font-size:12.5px;">
+                                Your identity will be hidden from everyone except administrators
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -243,9 +304,9 @@
 
 {% block extra_js %}
 {{ users_by_role|json_script:"users-by-role-data" }}
+
 <script>
     const dataEl = document.getElementById('users-by-role-data');
-    // usersByRole has Faculty and Staff already filtered to the student's department (done in views.py)
     const usersByRole = dataEl ? JSON.parse(dataEl.textContent) : {};
 
     const typeSelect   = document.getElementById('id_complaint_type');
@@ -253,28 +314,28 @@
     const deptBadge    = document.getElementById('dept-badge');
     const helpText     = document.getElementById('member-help-text');
 
-    // Student's full department name rendered from the backend
     const studentDept = "{{ request.user.get_department_display_full }}";
 
     function clearOptions(sel) {
-        while (sel && sel.firstChild) sel.removeChild(sel.firstChild);
+        while (sel && sel.firstChild) {
+            sel.removeChild(sel.firstChild);
+        }
     }
 
     function updateMemberOptions(complaintType) {
         if (!memberSelect) return;
+
         clearOptions(memberSelect);
 
-        // Which roles populate the dropdown per complaint type
         const roleMap = {
-            'Faculty':  'Faculty',   // ✅ filtered to student's dept in backend
+            'Faculty':  'Faculty',
             'HOD':      'HOD',
-            'Staff':    'Staff',     // ✅ filtered to student's dept in backend
+            'Staff':    'Staff',
             'Facility': 'Staff'
         };
 
         const role = roleMap[complaintType];
 
-        // Show the department badge only for Faculty and Staff types
         if (deptBadge) {
             if (complaintType === 'Faculty' || complaintType === 'Staff') {
                 deptBadge.textContent = studentDept || 'Your Department';
@@ -284,7 +345,6 @@
             }
         }
 
-        // Update help text based on type
         if (helpText) {
             if (complaintType === 'Faculty') {
                 helpText.textContent = 'Showing faculty from your department only';

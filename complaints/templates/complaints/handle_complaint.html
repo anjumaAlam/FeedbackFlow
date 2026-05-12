@@ -97,7 +97,9 @@
     .card-body select {
         background-color: #ffffff !important;
         color: #212529 !important;
+        -webkit-text-fill-color: #212529 !important;
         border: 1px solid #ced4da !important;
+    opacity: 1 !important;
     }
 
     .card-body textarea::placeholder,
@@ -376,7 +378,7 @@
                 </div>
             </form>
             {% else %}
-            <div class="alert alert-success">
+            <div class="alert" style="background:#065f46;border:1px solid #34d399;color:#ffffff;font-weight:500;">
                 ✅ This complaint has been <strong>resolved</strong> and is now closed.
                 {% if complaint.final_action_note %}
                 <p class="mb-0 mt-2"><strong>Note sent to student:</strong> {{ complaint.final_action_note }}</p>

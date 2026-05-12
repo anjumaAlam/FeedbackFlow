@@ -72,7 +72,7 @@ def submit_complaint(request):
                         title=f'New Staff Complaint: {complaint.subject}',
                         message=f'A complaint has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
                         notification_type='complaint',
-                        link=f'/complaints/staff/handle/{complaint.id}/',
+                        link=f'/complaints/hod/handle/{complaint.id}/',
                     )
 
             elif complaint.complaint_type == 'Facility':
@@ -82,7 +82,7 @@ def submit_complaint(request):
                         title=f'New Facility Issue: {complaint.subject}',
                         message=f'A facility issue has been reported by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
                         notification_type='complaint',
-                        link=f'/complaints/staff/handle/{complaint.id}/',
+                        link=f'/complaints/hod/handle/{complaint.id}/',
                     )
 
             messages.success(request, f'Complaint submitted successfully! Tracking ID: {complaint.tracking_id}')
@@ -586,9 +586,16 @@ def dao_complaints_list(request):
         messages.error(request, 'Access denied.')
         return redirect('login')
 
+    from complaints.models import ComplaintUpdate
+    from django.db.models import Q
+
+    dao_handled_ids = ComplaintUpdate.objects.filter(
+        updated_by=request.user
+    ).values_list('complaint_id', flat=True)
+
     complaints_list = Complaint.objects.filter(
-        assigned_to=request.user
-    ).order_by('-submitted_at')
+        Q(assigned_to=request.user) | Q(id__in=dao_handled_ids)
+    ).distinct().order_by('-submitted_at')
 
     staff_list = User.objects.filter(role='Staff', is_active=True)
 
@@ -607,7 +614,6 @@ def dao_complaints_list(request):
         'page_title': 'DAO Complaints',
     }
     return render(request, 'complaints/dao_complaints_list.html', context)
-
 
 @login_required
 def dao_assign_staff(request, complaint_id):
@@ -689,7 +695,7 @@ def dao_escalate_complaint(request, complaint_id):
             title=f'Escalated Complaint: {complaint.tracking_id}',
             message=f'Complaint "{complaint.subject}" has been escalated to you by DAO {request.user.full_name}.',
             notification_type='complaint',
-            link=f'/complaints/detail/{complaint.id}/',
+            link=f'/complaints/hod/handle/{complaint.id}/',
         )
 
         # Notify student
