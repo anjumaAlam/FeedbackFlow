@@ -103,6 +103,24 @@
         }
         .btn-logout:hover { background: rgba(239,68,68,.28); color: #fff; }
 
+        /* Single login button for unauthenticated navbar */
+        .btn-login {
+            background: var(--gold);
+            border: 1px solid var(--gold);
+            color: #141827 !important;
+            font-size: 12.5px; font-weight: 700;
+            letter-spacing: .07em; text-transform: uppercase;
+            padding: 8px 22px; border-radius: 7px;
+            text-decoration: none; transition: all .25s;
+        }
+        .btn-login:hover {
+            background: var(--gold2);
+            border-color: var(--gold2);
+            color: #141827 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(201,168,76,.35);
+        }
+
         .alert { border-radius: 10px; border: 1px solid; font-size: 14px; padding: 12px 20px; }
         .alert-success { background: rgba(16,185,129,.1);  border-color: rgba(16,185,129,.28); color: #86efac; }
         .alert-error,
@@ -128,6 +146,20 @@
             backdrop-filter: blur(18px);
             box-shadow: 0 32px 80px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.07);
         }
+        .auth-ornament {
+            display: flex; align-items: center; gap: 10px;
+            justify-content: center; margin-bottom: 20px;
+        }
+        .auth-ornament-line { flex: 1; height: 1px; background: var(--border); max-width: 60px; }
+        .auth-ornament-diamond {
+            width: 8px; height: 8px;
+            background: var(--gold); transform: rotate(45deg);
+        }
+        .auth-eyebrow {
+            text-align: center; font-size: 11px; font-weight: 600;
+            letter-spacing: .15em; text-transform: uppercase;
+            color: var(--gold); margin-bottom: 10px;
+        }
         .auth-title {
             font-family: 'Playfair Display', serif;
             font-size: 34px; font-weight: 700;
@@ -139,6 +171,9 @@
             color: var(--dim);
             text-align: center; margin-bottom: 36px;
         }
+        .auth-divider { border-color: var(--border); margin: 24px 0; }
+        .auth-footnote { text-align: center; font-size: 13px; color: var(--dim); margin: 0; }
+        .auth-login-options { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 
         /* ── FORM ELEMENTS ── */
         .form-label {
@@ -205,6 +240,7 @@
         <span class="navbar-text d-none d-md-inline">University of Asia Pacific</span>
 
         {% if user.is_authenticated %}
+        <!-- Logged in: show username, bell, sign out -->
         <div class="ms-auto d-flex align-items-center gap-2">
             <span class="nav-user-info d-none d-md-inline">{{ user.get_short_name }}</span>
             <a href="{% url 'notifications' %}" class="btn-bell">
@@ -216,11 +252,9 @@
             <a href="{% url 'logout' %}" class="btn-logout">Sign Out</a>
         </div>
         {% else %}
-        <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
-            <a href="{% url 'student_login' %}" class="btn-role btn-role-student">Student</a>
-            <a href="{% url 'faculty_login' %}" class="btn-role btn-role-faculty">Faculty & HOD</a>
-            <a href="{% url 'staff_login' %}"   class="btn-role btn-role-staff">Staff</a>
-            <a href="{% url 'admin_login' %}"   class="btn-role btn-role-admin">Admin</a>
+        <!-- NOT logged in: single Login button — no role buttons -->
+        <div class="ms-auto">
+            <a href="{% url 'login' %}" class="btn-login">Login</a>
         </div>
         {% endif %}
     </div>

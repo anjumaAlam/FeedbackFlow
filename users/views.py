@@ -50,6 +50,43 @@ def register_view(request):
     return render(request, 'users/register.html', context)
 
 
+# ── UNIFIED LOGIN — one page, all roles ──────────────────────────────────────
+def unified_login_view(request):
+    """
+    Single login page for ALL roles.
+    No role selection needed — system detects role from credentials
+    and redirects automatically.
+    """
+    if request.user.is_authenticated:
+        return _redirect_by_role(request.user)
+
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email    = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+            user     = authenticate(request, username=email, password=password)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    messages.success(request, f'Welcome back, {user.get_short_name()}!')
+                    return _redirect_by_role(user)
+                else:
+                    messages.error(request, 'Your account has been deactivated. Please contact admin.')
+            else:
+                messages.error(request, 'Invalid email or password.')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = LoginForm()
+
+    return render(request, 'users/login.html', {
+        'form':       form,
+        'page_title': 'Login - FeedbackFlow',
+    })
+
+
+# ── ROLE-SPECIFIC LOGIN (kept for backward compat) ───────────────────────────
 def login_view(request, role='student', allowed_roles=None):
     if request.user.is_authenticated:
         return _redirect_by_role(request.user)
@@ -58,7 +95,7 @@ def login_view(request, role='student', allowed_roles=None):
         'student':   'Student',
         'faculty':   'Faculty',
         'staff':     'Staff',
-        'Dao': 'Dao',
+        'dao':       'DAO',
         'admin':     'Admin',
         'hod':       'HOD',
         'committee': 'Committee',
@@ -80,7 +117,7 @@ def login_view(request, role='student', allowed_roles=None):
                 if user.is_active:
                     if user.role not in allowed_roles:
                         roles_str = ' or '.join(allowed_roles)
-                        messages.error(request, f'This account is registered as {user.role}. This page is for {roles_str} login. Please go back and select the correct login page.')
+                        messages.error(request, f'This account is registered as {user.role}. This page is for {roles_str} login.')
                     else:
                         login(request, user)
                         messages.success(request, f'Welcome back, {user.get_short_name()}!')
@@ -107,10 +144,8 @@ def login_view(request, role='student', allowed_roles=None):
 def student_login_view(request):
     return login_view(request, role='student')
 
-
 def faculty_login_view(request):
     return login_view(request, role='faculty', allowed_roles=['Faculty', 'HOD'])
-
 
 def staff_login_view(request):
     return login_view(request, role='staff')
@@ -120,7 +155,6 @@ def dao_login_view(request):
 
 def admin_login_view(request):
     return login_view(request, role='admin')
-
 
 def committee_login_view(request):
     return login_view(request, role='committee', allowed_roles=['Committee'])
@@ -132,7 +166,7 @@ def _redirect_by_role(user):
         'Faculty':   'faculty_dashboard',
         'HOD':       'hod_dashboard',
         'Staff':     'staff_dashboard',
-        'DAO': 'dao_dashboard',
+        'DAO':       'dao_dashboard',
         'Admin':     'admin_dashboard',
         'Committee': 'committee_dashboard',
     }
@@ -146,6 +180,8 @@ def logout_view(request):
     messages.success(request, f'Goodbye, {user_name}! You have been logged out.')
     return redirect('login')
 
+
+# ── PASSWORD RESET ────────────────────────────────────────────────────────────
 
 def password_reset_request(request):
     if request.user.is_authenticated:
@@ -171,7 +207,7 @@ def password_reset_request(request):
                     html_message=email_body,
                     fail_silently=False,
                 )
-                messages.success(request, 'Password reset link has been sent to your email. Please check your inbox.')
+                messages.success(request, 'Password reset link has been sent to your email.')
             except User.DoesNotExist:
                 messages.success(request, 'If an account exists with this email, a password reset link has been sent.')
             return redirect('login')
@@ -197,16 +233,18 @@ def password_reset_confirm(request, uidb64, token):
                 new_password = form.cleaned_data.get('new_password')
                 user.set_password(new_password)
                 user.save()
-                messages.success(request, 'Your password has been reset successfully! Please login with your new password.')
+                messages.success(request, 'Password reset successfully! Please login.')
                 return redirect('login')
         else:
             form = PasswordResetConfirmForm()
         context = {'form': form, 'validlink': True, 'page_title': 'Set New Password'}
         return render(request, 'users/password_reset_confirm.html', context)
     else:
-        messages.error(request, 'Password reset link is invalid or has expired. Please request a new one.')
+        messages.error(request, 'Password reset link is invalid or has expired.')
         return redirect('password_reset_request')
 
+
+# ── STUDENT ───────────────────────────────────────────────────────────────────
 
 @login_required
 def student_dashboard(request):
@@ -230,23 +268,25 @@ def student_dashboard(request):
     ).order_by('-created_at')[:3]
 
     context = {
-        'page_title':        'Student Dashboard',
-        'user':              request.user,
-        'total_submissions': total_feedback + total_complaints,
-        'total_feedback':    total_feedback,
-        'total_complaints':  total_complaints,
-        'reviewed_count':    reviewed_count,
-        'pending_count':     pending_feedback + pending_complaints,
-        'active_complaints': all_complaints.exclude(status='Resolved').count(),
-        'recent_feedback':   recent_feedback,
-        'recent_complaints': recent_complaints,
-        'has_submissions':   (total_feedback + total_complaints) > 0,
-        'pending_tasks':     pending_tasks,
-        'done_tasks':        done_tasks,
-        'recent_appointments': recent_appointments,
+        'page_title':           'Student Dashboard',
+        'user':                 request.user,
+        'total_submissions':    total_feedback + total_complaints,
+        'total_feedback':       total_feedback,
+        'total_complaints':     total_complaints,
+        'reviewed_count':       reviewed_count,
+        'pending_count':        pending_feedback + pending_complaints,
+        'active_complaints':    all_complaints.exclude(status='Resolved').count(),
+        'recent_feedback':      recent_feedback,
+        'recent_complaints':    recent_complaints,
+        'has_submissions':      (total_feedback + total_complaints) > 0,
+        'pending_tasks':        pending_tasks,
+        'done_tasks':           done_tasks,
+        'recent_appointments':  recent_appointments,
     }
     return render(request, 'users/student_dashboard.html', context)
 
+
+# ── FACULTY ───────────────────────────────────────────────────────────────────
 
 @login_required
 def faculty_dashboard(request):
@@ -278,6 +318,8 @@ def faculty_dashboard(request):
     return render(request, 'users/faculty_dashboard.html', context)
 
 
+# ── HOD ───────────────────────────────────────────────────────────────────────
+
 @login_required
 def hod_dashboard(request):
     if request.user.role != 'HOD':
@@ -304,6 +346,8 @@ def hod_dashboard(request):
     return render(request, 'users/hod_dashboard.html', context)
 
 
+# ── STAFF ─────────────────────────────────────────────────────────────────────
+
 @login_required
 def staff_dashboard(request):
     if request.user.role != 'Staff':
@@ -329,6 +373,8 @@ def staff_dashboard(request):
     return render(request, 'users/staff_dashboard.html', context)
 
 
+# ── ADMIN ─────────────────────────────────────────────────────────────────────
+
 @login_required
 def admin_dashboard(request):
     if request.user.role != 'Admin':
@@ -340,23 +386,23 @@ def admin_dashboard(request):
     total_complaints   = Complaint.objects.count()
     pending_complaints = Complaint.objects.filter(status='Pending').count()
     context = {
-        'page_title':        'Admin Dashboard',
-        'user':              request.user,
-        'total_users':       User.objects.count(),
-        'total_courses':     Course.objects.count(),
-        'total_assignments': CourseAssignment.objects.count(),
-        'student_count':     role_counts.get('Student', 0),
-        'faculty_count':     role_counts.get('Faculty', 0),
-        'hod_count':         role_counts.get('HOD', 0),
-        'staff_count':       role_counts.get('Staff', 0),
-        'admin_count':       role_counts.get('Admin', 0),
-        'active_users':      User.objects.filter(is_active=True).count(),
-        'inactive_users':    User.objects.filter(is_active=False).count(),
-        'department_stats':  User.objects.filter(department__isnull=False).values('department').annotate(count=Count('id')),
-        'total_feedback':    total_feedback,
-        'total_complaints':  total_complaints,
+        'page_title':         'Admin Dashboard',
+        'user':               request.user,
+        'total_users':        User.objects.count(),
+        'total_courses':      Course.objects.count(),
+        'total_assignments':  CourseAssignment.objects.count(),
+        'student_count':      role_counts.get('Student', 0),
+        'faculty_count':      role_counts.get('Faculty', 0),
+        'hod_count':          role_counts.get('HOD', 0),
+        'staff_count':        role_counts.get('Staff', 0),
+        'admin_count':        role_counts.get('Admin', 0),
+        'active_users':       User.objects.filter(is_active=True).count(),
+        'inactive_users':     User.objects.filter(is_active=False).count(),
+        'department_stats':   User.objects.filter(department__isnull=False).values('department').annotate(count=Count('id')),
+        'total_feedback':     total_feedback,
+        'total_complaints':   total_complaints,
         'pending_complaints': pending_complaints,
-        'recent_users':      User.objects.order_by('-created_at')[:5],
+        'recent_users':       User.objects.order_by('-created_at')[:5],
     }
     return render(request, 'users/admin_dashboard.html', context)
 
@@ -525,6 +571,8 @@ def feedback_reports(request):
     return render(request, 'users/feedback_reports.html', context)
 
 
+# ── APPOINTMENTS ──────────────────────────────────────────────────────────────
+
 @login_required
 def appointment_view(request):
     if request.user.role != 'Student':
@@ -563,76 +611,21 @@ def appointment_view(request):
 
 
 @login_required
-def notifications_view(request):
-    notifications = Notification.objects.filter(
-        recipient=request.user
-    ).order_by('-created_at')
-    notifications.filter(is_read=False).update(is_read=True)
-    return render(request, 'users/notifications.html', {
-        'notifications': notifications,
-        'page_title':    'Notifications',
-    })
-
-
-@login_required
-def mark_notification_read(request, notif_id):
-    notif = get_object_or_404(Notification, id=notif_id, recipient=request.user)
-    notif.is_read = True
-    notif.save()
-    if notif.link:
-        return redirect(notif.link)
-    return redirect('notifications')
-
-@login_required
-def task_list(request):
+def my_appointments(request):
     if request.user.role != 'Student':
-        return redirect('home')
-    tasks  = Task.objects.filter(student=request.user)
-    daily  = tasks.filter(task_type='Daily')
-    weekly = tasks.filter(task_type='Weekly')
-    return render(request, 'users/task_list.html', {
-        'daily':  daily,
-        'weekly': weekly,
-    })
+        messages.error(request, 'Access denied.')
+        return redirect('login')
 
+    from .models import AppointmentUpdate
+    appointments = Appointment.objects.filter(
+        student=request.user
+    ).prefetch_related('updates').order_by('-created_at')
 
-@login_required
-@require_POST
-def task_add(request):
-    if request.user.role != 'Student':
-        return redirect('home')
-    title       = request.POST.get('title', '').strip()
-    description = request.POST.get('description', '').strip()
-    task_type   = request.POST.get('task_type', 'Daily')
-    priority    = request.POST.get('priority', 'Medium')
-    due_date    = request.POST.get('due_date') or None
-    if title:
-        Task.objects.create(
-            student=request.user,
-            title=title,
-            description=description,
-            task_type=task_type,
-            priority=priority,
-            due_date=due_date,
-        )
-        messages.success(request, 'Task added successfully.')
-    return redirect('task_list')
-
-
-@login_required
-def task_toggle(request, task_id):
-    task = get_object_or_404(Task, id=task_id, student=request.user)
-    task.is_done = not task.is_done
-    task.save()
-    return redirect('task_list')
-
-
-@login_required
-def task_delete(request, task_id):
-    task = get_object_or_404(Task, id=task_id, student=request.user)
-    task.delete()
-    messages.success(request, 'Task deleted.')
-    return redirect('task_list')
+    context = {
+        'appointments': appointments,
+        'page_title':   'My Appointments',
+    }
+    return render(request, 'users/my_appointments.html', context)
 
 
 @login_required
@@ -680,7 +673,6 @@ def admin_appointment_detail(request, appointment_id):
                 committee_type=appointment.appointment_with
             )
             if forward_form.is_valid():
-                # ✅ CHANGED: member_name is now a plain string (hardcoded choice)
                 member_name = forward_form.cleaned_data['committee_member']
                 note        = forward_form.cleaned_data['note']
 
@@ -690,24 +682,34 @@ def admin_appointment_detail(request, appointment_id):
                 AppointmentUpdate.objects.create(
                     appointment=appointment,
                     updated_by=request.user,
-                    # ✅ CHANGED: use member_name directly instead of member.full_name
                     message=f'Forwarded to {member_name} ({appointment.appointment_with}). Note: {note}',
                     status='Forwarded to Committee',
                 )
 
-                # ✅ REMOVED: Notification to committee member (no real user exists yet)
-                # When real committee users are created later, re-add this block.
+                # Notify matching committee members (users with committee_type matching)
+                committee_members = User.objects.filter(
+                    role='Committee',
+                    committee_type=appointment.appointment_with,
+                    is_active=True,
+                )
+                for member in committee_members:
+                    Notification.objects.create(
+                        recipient=member,
+                        title=f'New Appointment Assigned — {appointment.name}',
+                        message=f'Admin has forwarded an appointment from {appointment.name} ({appointment.roll_number}). Incident: {appointment.incident_type}. Note: {note}',
+                        notification_type='appointment',
+                        link=f'/committee/appointment/{appointment.id}/',
+                    )
 
                 Notification.objects.create(
                     recipient=appointment.student,
                     title='Appointment Forwarded ✅',
-                    message=f'Your appointment request has been forwarded to the {appointment.appointment_with}. You will be notified once they respond.',
+                    message=f'Your appointment has been forwarded to the {appointment.appointment_with}. You will be notified once they respond.',
                     notification_type='appointment',
                     link='/appointment/my/',
                 )
 
-                # ✅ CHANGED: use member_name instead of member.full_name
-                messages.success(request, f'Appointment forwarded to {member_name}.')
+                messages.success(request, f'Appointment forwarded to {appointment.appointment_with}.')
                 return redirect('admin_appointment_detail', appointment_id=appointment.id)
 
         elif action_type == 'notify_student':
@@ -742,6 +744,8 @@ def admin_appointment_detail(request, appointment_id):
     }
     return render(request, 'users/admin_appointment_detail.html', context)
 
+
+# ── COMMITTEE ─────────────────────────────────────────────────────────────────
 
 @login_required
 def committee_dashboard(request):
@@ -798,17 +802,27 @@ def committee_appointment_action(request, appointment_id):
                 status=action,
             )
 
+            # Notify all admins
             admins = User.objects.filter(role='Admin')
             for admin in admins:
                 Notification.objects.create(
                     recipient=admin,
                     title=f'Committee Update — {appointment.name}',
-                    message=f'{request.user.full_name} ({request.user.committee_type}) has responded to appointment from {appointment.name}. Decision: {action}. Message: {message}',
+                    message=f'{request.user.full_name} ({request.user.committee_type}) responded to appointment from {appointment.name}. Decision: {action}. Message: {message}',
                     notification_type='appointment',
                     link=f'/dashboard/appointments/{appointment.id}/',
                 )
 
-            messages.success(request, 'Response submitted. Admin has been notified.')
+            # Also notify student directly
+            Notification.objects.create(
+                recipient=appointment.student,
+                title=f'Appointment Update — {action}',
+                message=f'The {request.user.committee_type} has responded to your appointment. Decision: {action}. {message}',
+                notification_type='appointment',
+                link='/appointment/my/',
+            )
+
+            messages.success(request, 'Response submitted. Admin and student have been notified.')
             return redirect('committee_dashboard')
 
     context = {
@@ -820,22 +834,85 @@ def committee_appointment_action(request, appointment_id):
     return render(request, 'users/committee_appointment_action.html', context)
 
 
+# ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+
 @login_required
-def my_appointments(request):
+def notifications_view(request):
+    notifications = Notification.objects.filter(
+        recipient=request.user
+    ).order_by('-created_at')
+    notifications.filter(is_read=False).update(is_read=True)
+    return render(request, 'users/notifications.html', {
+        'notifications': notifications,
+        'page_title':    'Notifications',
+    })
+
+
+@login_required
+def mark_notification_read(request, notif_id):
+    notif = get_object_or_404(Notification, id=notif_id, recipient=request.user)
+    notif.is_read = True
+    notif.save()
+    if notif.link:
+        return redirect(notif.link)
+    return redirect('notifications')
+
+
+# ── TASKS ─────────────────────────────────────────────────────────────────────
+
+@login_required
+def task_list(request):
     if request.user.role != 'Student':
-        messages.error(request, 'Access denied.')
-        return redirect('login')
+        return redirect('home')
+    tasks  = Task.objects.filter(student=request.user)
+    daily  = tasks.filter(task_type='Daily')
+    weekly = tasks.filter(task_type='Weekly')
+    return render(request, 'users/task_list.html', {
+        'daily':  daily,
+        'weekly': weekly,
+    })
 
-    from .models import AppointmentUpdate
-    appointments = Appointment.objects.filter(
-        student=request.user
-    ).prefetch_related('updates').order_by('-created_at')
 
-    context = {
-        'appointments': appointments,
-        'page_title':   'My Appointments',
-    }
-    return render(request, 'users/my_appointments.html', context)
+@login_required
+@require_POST
+def task_add(request):
+    if request.user.role != 'Student':
+        return redirect('home')
+    title       = request.POST.get('title', '').strip()
+    description = request.POST.get('description', '').strip()
+    task_type   = request.POST.get('task_type', 'Daily')
+    priority    = request.POST.get('priority', 'Medium')
+    due_date    = request.POST.get('due_date') or None
+    if title:
+        Task.objects.create(
+            student=request.user,
+            title=title,
+            description=description,
+            task_type=task_type,
+            priority=priority,
+            due_date=due_date,
+        )
+        messages.success(request, 'Task added successfully.')
+    return redirect('task_list')
+
+
+@login_required
+def task_toggle(request, task_id):
+    task = get_object_or_404(Task, id=task_id, student=request.user)
+    task.is_done = not task.is_done
+    task.save()
+    return redirect('task_list')
+
+
+@login_required
+def task_delete(request, task_id):
+    task = get_object_or_404(Task, id=task_id, student=request.user)
+    task.delete()
+    messages.success(request, 'Task deleted.')
+    return redirect('task_list')
+
+
+# ── DAO ───────────────────────────────────────────────────────────────────────
 
 @login_required
 def dao_dashboard(request):
@@ -846,7 +923,6 @@ def dao_dashboard(request):
     from django.db.models import Q
     from complaints.models import Complaint, ComplaintUpdate
 
-    # Get all complaints DAO ever touched
     dao_handled_ids = ComplaintUpdate.objects.filter(
         updated_by=request.user
     ).values_list('complaint_id', flat=True)
@@ -855,25 +931,23 @@ def dao_dashboard(request):
         Q(assigned_to=request.user) | Q(id__in=dao_handled_ids)
     ).distinct()
 
-    # Stats
-    total     = all_complaints.count()
-    pending   = all_complaints.filter(status='Pending').count()
-    resolved  = all_complaints.filter(status='Resolved').count()
-    escalated = all_complaints.filter(status='Escalated').count()
+    total             = all_complaints.count()
+    pending           = all_complaints.filter(status='Pending').count()
+    resolved          = all_complaints.filter(status='Resolved').count()
+    escalated         = all_complaints.filter(status='Escalated').count()
     assigned_to_staff = all_complaints.filter(status='Under Investigation').count()
-
-    recent    = all_complaints.order_by('-submitted_at')[:5]
-    staff_list = User.objects.filter(role='Staff', is_active=True)
+    recent            = all_complaints.order_by('-submitted_at')[:5]
+    staff_list        = User.objects.filter(role='Staff', is_active=True)
 
     context = {
-        'page_title': 'DAO Dashboard',
-        'user': request.user,
+        'page_title':          'DAO Dashboard',
+        'user':                request.user,
         'assigned_complaints': total,
         'pending_complaints':  pending,
         'resolved_complaints': resolved,
         'escalated_complaints': escalated,
-        'assigned_to_staff': assigned_to_staff,
-        'recent_complaints': recent,
-        'staff_list': staff_list,
+        'assigned_to_staff':   assigned_to_staff,
+        'recent_complaints':   recent,
+        'staff_list':          staff_list,
     }
     return render(request, 'users/dao_dashboard.html', context)
