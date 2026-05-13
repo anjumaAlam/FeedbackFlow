@@ -1,6 +1,5 @@
 
 
-
 {% extends 'users/dashboard_base.html' %}
 
 {% block title %}Feedback Reports - FeedbackFlow{% endblock %}
@@ -40,7 +39,7 @@
    <div class="dashboard-header" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
        <div class="row align-items-center">
            <div class="col-md-8">
-               <h1>📊 Feedback Reports & Analytics</h1>
+               <h1>📊 Feedback Reports &amp; Analytics</h1>
                <p class="mb-0 opacity-75">
                    {% if request.user.role == 'Admin' %}
                    System-wide feedback analytics and trends
@@ -59,8 +58,8 @@
    <div class="card info-card mb-4">
        <div class="card-body">
            <form method="get" class="row g-3 align-items-end">
-               <div class="col-md-4">
-                   <label class="form-label fw-semibold">Filter by Course</label>
+               <div class="col-md-3">
+                   <label class="form-label fw-semibold text-dark">Filter by Course</label>
                    <select name="course" class="form-select">
                        <option value="">All Courses</option>
                        {% for course in courses %}
@@ -71,8 +70,8 @@
                    </select>
                </div>
                {% if request.user.role == 'Admin' %}
-               <div class="col-md-4">
-                   <label class="form-label fw-semibold">Filter by Department</label>
+               <div class="col-md-3">
+                   <label class="form-label fw-semibold text-dark">Filter by Department</label>
                    <select name="department" class="form-select">
                        <option value="">All Departments</option>
                        {% for value, label in department_choices %}
@@ -83,7 +82,18 @@
                    </select>
                </div>
                {% endif %}
-               <div class="col-md-4">
+               <div class="col-md-3">
+                   <label class="form-label fw-semibold text-dark">👨‍🏫 Filter by Faculty</label>
+                   <select name="faculty" class="form-select">
+                       <option value="">All Faculty</option>
+                       {% for fac in faculty_list %}
+                       <option value="{{ fac.id }}" {% if faculty_filter == fac.id|stringformat:"d" %}selected{% endif %}>
+                           {{ fac.full_name }}
+                       </option>
+                       {% endfor %}
+                   </select>
+               </div>
+               <div class="col-md-3">
                    <button type="submit" class="btn btn-primary me-2">🔍 Apply Filters</button>
                    <a href="{% url 'feedback_reports' %}" class="btn btn-outline-secondary">Clear</a>
                </div>

@@ -518,6 +518,7 @@ def feedback_reports(request):
     date_from     = request.GET.get('date_from', '')
     date_to       = request.GET.get('date_to', '')
     course_filter = request.GET.get('course', '')
+    faculty_filter = request.GET.get('faculty', '')
     feedbacks     = Feedback.objects.all()
     if request.user.role == 'HOD':
         feedbacks = feedbacks.filter(course__department=request.user.department)
@@ -529,6 +530,8 @@ def feedback_reports(request):
         feedbacks = feedbacks.filter(submitted_at__date__lte=date_to)
     if course_filter:
         feedbacks = feedbacks.filter(course_id=course_filter)
+    if faculty_filter:
+        feedbacks = feedbacks.filter(faculty_id=faculty_filter)
     avg_ratings = feedbacks.aggregate(
         avg_teaching=Avg('teaching_rating'),
         avg_content=Avg('content_rating'),
@@ -564,14 +567,348 @@ def feedback_reports(request):
         'date_from':          date_from,
         'date_to':            date_to,
         'course_filter':      course_filter,
+        'faculty_filter':     faculty_filter,
         'departments':        User.DEPARTMENT_CHOICES,
         'department_choices': User.DEPARTMENT_CHOICES,
         'courses':            Course.objects.filter(is_active=True).order_by('course_code'),
+        'faculty_list':       (User.objects.filter(role='Faculty', department=request.user.department) if request.user.role == 'HOD' else User.objects.filter(role='Faculty').order_by('full_name')),
     }
     return render(request, 'users/feedback_reports.html', context)
 
 
+# ── FEEDBACK ANALYTICS (Plotly Charts) ────────────────────────────────────────
+
+@login_required
+def feedback_analytics(request):
+    """
+    Graphical reports page with 5 interactive Plotly charts + faculty-specific analytics.
+    HOD sees only their department's faculty; Admin sees all.
+    """
+    if request.user.role not in ['Admin', 'HOD']:
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    import plotly.graph_objects as go
+    from plotly.offline import plot
+    from django.db.models.functions import TruncMonth
+
+    # ── Filters ───────────────────────────────────────────────────────────
+    dept_filter    = request.GET.get('department', '')
+    date_from      = request.GET.get('date_from', '')
+    date_to        = request.GET.get('date_to', '')
+    faculty_filter = request.GET.get('faculty', '')
+
+    # ── Determine department scope ────────────────────────────────────────
+    if request.user.role == 'HOD':
+        user_dept = request.user.department
+    else:
+        user_dept = None  # Admin = all departments
+
+    # ── Faculty list for dropdown (dept-scoped) ───────────────────────────
+    faculty_qs = User.objects.filter(role__in=['Faculty', 'HOD'], is_active=True)
+    if user_dept:
+        faculty_qs = faculty_qs.filter(department=user_dept)
+    elif dept_filter:
+        faculty_qs = faculty_qs.filter(department=dept_filter)
+    faculty_list = faculty_qs.order_by('full_name')
+
+    # ── Base queryset ─────────────────────────────────────────────────────
+    feedbacks = Feedback.objects.select_related('faculty', 'course').all()
+
+    if user_dept:
+        feedbacks = feedbacks.filter(course__department=user_dept)
+    if dept_filter and not user_dept:
+        feedbacks = feedbacks.filter(course__department=dept_filter)
+    if date_from:
+        feedbacks = feedbacks.filter(submitted_at__date__gte=date_from)
+    if date_to:
+        feedbacks = feedbacks.filter(submitted_at__date__lte=date_to)
+    if faculty_filter:
+        feedbacks = feedbacks.filter(faculty_id=faculty_filter)
+
+    total = feedbacks.count()
+
+    # ── Selected faculty info ─────────────────────────────────────────────
+    selected_faculty = None
+    if faculty_filter:
+        try:
+            selected_faculty = User.objects.get(id=faculty_filter)
+        except User.DoesNotExist:
+            pass
+
+    # ── Shared Plotly layout settings ─────────────────────────────────────
+    layout_defaults = dict(
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(family='Segoe UI, sans-serif', color='#374151'),
+        margin=dict(l=50, r=30, t=40, b=50),
+        hoverlabel=dict(bgcolor='#1e293b', font_color='white', bordercolor='#475569'),
+    )
+
+    chart_teacher  = ''
+    chart_trend    = ''
+    chart_sem      = ''
+    chart_dept     = ''
+    chart_dist     = ''
+    chart_faculty  = ''  # Individual faculty report card
+
+    if total > 0:
+        # ── CHART 1: Average Teacher Ratings ──────────────────────────────
+        faculty_data = (
+            feedbacks
+            .exclude(faculty__isnull=True)
+            .values('faculty__full_name')
+            .annotate(
+                avg_teaching=Avg('teaching_rating'),
+                avg_content=Avg('content_rating'),
+                avg_comm=Avg('communication_rating'),
+                count=Count('id'),
+            )
+            .order_by('-avg_teaching')[:10]
+        )
+        if faculty_data and not faculty_filter:
+            names = [d['faculty__full_name'] for d in faculty_data]
+            avgs  = [round(((d['avg_teaching'] or 0) + (d['avg_content'] or 0) + (d['avg_comm'] or 0)) / 3, 2) for d in faculty_data]
+            fig1  = go.Figure(go.Bar(
+                x=avgs, y=names, orientation='h',
+                marker=dict(
+                    color=avgs,
+                    colorscale=[[0, '#ef4444'], [0.5, '#f59e0b'], [1, '#10b981']],
+                    cmin=1, cmax=5,
+                ),
+                text=[f'{v:.1f}' for v in avgs], textposition='auto',
+                hovertemplate='<b>%{y}</b><br>Avg Rating: %{x:.2f}<extra></extra>',
+            ))
+            fig1.update_layout(
+                title='Average Teacher Ratings (Top 10)',
+                xaxis=dict(title='Average Rating', range=[0, 5], gridcolor='#f1f5f9'),
+                yaxis=dict(autorange='reversed'),
+                height=400,
+                **layout_defaults,
+            )
+            chart_teacher = plot(fig1, output_type='div', include_plotlyjs=False)
+
+        # ── CHART (FACULTY-SPECIFIC): Individual Report Card ─────────────
+        if faculty_filter and selected_faculty:
+            fac_agg = feedbacks.aggregate(
+                avg_teaching=Avg('teaching_rating'),
+                avg_content=Avg('content_rating'),
+                avg_comm=Avg('communication_rating'),
+            )
+            t_val = round(fac_agg['avg_teaching'] or 0, 2)
+            c_val = round(fac_agg['avg_content'] or 0, 2)
+            co_val = round(fac_agg['avg_comm'] or 0, 2)
+
+            # Radar chart
+            categories = ['Teaching Quality', 'Course Content', 'Communication', 'Teaching Quality']
+            values     = [t_val, c_val, co_val, t_val]  # close the polygon
+
+            fig_fac = go.Figure()
+            fig_fac.add_trace(go.Scatterpolar(
+                r=values, theta=categories,
+                fill='toself',
+                fillcolor='rgba(99,102,241,0.2)',
+                line=dict(color='#6366f1', width=3),
+                name=selected_faculty.full_name,
+                hovertemplate='%{theta}: %{r:.2f}<extra></extra>',
+            ))
+            fig_fac.update_layout(
+                title=f'Performance Report — {selected_faculty.full_name}',
+                polar=dict(
+                    radialaxis=dict(range=[0, 5], gridcolor='#e5e7eb', tickfont=dict(size=11)),
+                    angularaxis=dict(gridcolor='#e5e7eb'),
+                    bgcolor='rgba(0,0,0,0)',
+                ),
+                height=400,
+                **layout_defaults,
+            )
+            chart_faculty = plot(fig_fac, output_type='div', include_plotlyjs=False)
+
+            # Also generate per-course breakdown for this faculty
+            per_course = (
+                feedbacks
+                .values('course__course_code', 'course__course_name')
+                .annotate(
+                    count=Count('id'),
+                    avg_teaching=Avg('teaching_rating'),
+                    avg_content=Avg('content_rating'),
+                    avg_comm=Avg('communication_rating'),
+                )
+                .order_by('course__course_code')
+            )
+            if per_course:
+                codes = [d['course__course_code'] for d in per_course]
+                fig_fc = go.Figure()
+                fig_fc.add_trace(go.Bar(name='Teaching',      x=codes, y=[round(d['avg_teaching'] or 0, 2) for d in per_course], marker_color='#6366f1'))
+                fig_fc.add_trace(go.Bar(name='Content',       x=codes, y=[round(d['avg_content'] or 0, 2) for d in per_course], marker_color='#10b981'))
+                fig_fc.add_trace(go.Bar(name='Communication', x=codes, y=[round(d['avg_comm'] or 0, 2) for d in per_course], marker_color='#f59e0b'))
+                fig_fc.update_layout(
+                    title=f'Course-wise Ratings — {selected_faculty.full_name}',
+                    barmode='group',
+                    xaxis=dict(title='Course', gridcolor='#f1f5f9'),
+                    yaxis=dict(title='Avg Rating', range=[0, 5.5], gridcolor='#f1f5f9'),
+                    legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
+                    height=380,
+                    **layout_defaults,
+                )
+                chart_teacher = plot(fig_fc, output_type='div', include_plotlyjs=False)
+
+        # ── CHART 2: Course Satisfaction Trends (monthly) ─────────────────
+        monthly = (
+            feedbacks
+            .annotate(month=TruncMonth('submitted_at'))
+            .values('month')
+            .annotate(
+                avg_teaching=Avg('teaching_rating'),
+                avg_content=Avg('content_rating'),
+                avg_comm=Avg('communication_rating'),
+                count=Count('id'),
+            )
+            .order_by('month')
+        )
+        if monthly:
+            months = [d['month'].strftime('%b %Y') for d in monthly]
+            avg_t  = [round(d['avg_teaching'] or 0, 2) for d in monthly]
+            avg_c  = [round(d['avg_content']  or 0, 2) for d in monthly]
+            avg_co = [round(d['avg_comm']     or 0, 2) for d in monthly]
+            fig2   = go.Figure()
+            fig2.add_trace(go.Scatter(x=months, y=avg_t,  name='Teaching',      mode='lines+markers', line=dict(color='#6366f1', width=3), marker=dict(size=8)))
+            fig2.add_trace(go.Scatter(x=months, y=avg_c,  name='Content',       mode='lines+markers', line=dict(color='#10b981', width=3), marker=dict(size=8)))
+            fig2.add_trace(go.Scatter(x=months, y=avg_co, name='Communication', mode='lines+markers', line=dict(color='#f59e0b', width=3), marker=dict(size=8)))
+            trend_title = 'Course Satisfaction Trends (Monthly)'
+            if selected_faculty:
+                trend_title = f'Satisfaction Trends — {selected_faculty.full_name}'
+            fig2.update_layout(
+                title=trend_title,
+                xaxis=dict(title='Month', gridcolor='#f1f5f9'),
+                yaxis=dict(title='Avg Rating', range=[0, 5.5], gridcolor='#f1f5f9'),
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
+                height=380,
+                **layout_defaults,
+            )
+            chart_trend = plot(fig2, output_type='div', include_plotlyjs=False)
+
+        # ── CHART 3: Semester-wise Feedback ───────────────────────────────
+        sem_data = (
+            feedbacks
+            .exclude(course__semester__isnull=True)
+            .values('course__semester')
+            .annotate(count=Count('id'), avg_rating=Avg('teaching_rating'))
+            .order_by('course__semester')
+        )
+        if sem_data:
+            semesters = [d['course__semester'] for d in sem_data]
+            counts    = [d['count'] for d in sem_data]
+            fig3      = go.Figure(go.Bar(
+                x=semesters, y=counts,
+                marker=dict(color='#6366f1', line=dict(width=0)),
+                text=counts, textposition='outside',
+                hovertemplate='<b>%{x}</b><br>Feedback Count: %{y}<extra></extra>',
+            ))
+            fig3.update_layout(
+                title='Semester-wise Feedback Count',
+                xaxis=dict(title='Semester', gridcolor='#f1f5f9'),
+                yaxis=dict(title='Number of Feedbacks', gridcolor='#f1f5f9'),
+                height=380,
+                **layout_defaults,
+            )
+            chart_sem = plot(fig3, output_type='div', include_plotlyjs=False)
+
+        # ── CHART 4: Department Comparisons (Admin only) ──────────────────
+        if not user_dept and not faculty_filter:
+            dept_label_map = dict(User.DEPARTMENT_CHOICES)
+            dept_data = (
+                feedbacks
+                .exclude(course__department__isnull=True)
+                .values('course__department')
+                .annotate(
+                    avg_teaching=Avg('teaching_rating'),
+                    avg_content=Avg('content_rating'),
+                    avg_comm=Avg('communication_rating'),
+                )
+                .order_by('course__department')
+            )
+            if dept_data:
+                depts  = [dept_label_map.get(d['course__department'], d['course__department']) for d in dept_data]
+                fig4   = go.Figure()
+                fig4.add_trace(go.Bar(name='Teaching',      x=depts, y=[round(d['avg_teaching'] or 0, 2) for d in dept_data], marker_color='#6366f1'))
+                fig4.add_trace(go.Bar(name='Content',       x=depts, y=[round(d['avg_content']  or 0, 2) for d in dept_data], marker_color='#10b981'))
+                fig4.add_trace(go.Bar(name='Communication', x=depts, y=[round(d['avg_comm']     or 0, 2) for d in dept_data], marker_color='#f59e0b'))
+                fig4.update_layout(
+                    title='Department Comparisons — Avg Ratings',
+                    barmode='group',
+                    xaxis=dict(title='Department', gridcolor='#f1f5f9'),
+                    yaxis=dict(title='Avg Rating', range=[0, 5.5], gridcolor='#f1f5f9'),
+                    legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
+                    height=400,
+                    **layout_defaults,
+                )
+                chart_dept = plot(fig4, output_type='div', include_plotlyjs=False)
+
+        # ── CHART 5: Rating Distribution (pie) ───────────────────────────
+        dist = {star: feedbacks.filter(teaching_rating=star).count() for star in range(1, 6)}
+        labels = ['⭐ 1 Star', '⭐⭐ 2 Stars', '⭐⭐⭐ 3 Stars', '⭐⭐⭐⭐ 4 Stars', '⭐⭐⭐⭐⭐ 5 Stars']
+        values = [dist[1], dist[2], dist[3], dist[4], dist[5]]
+        colors = ['#ef4444', '#f97316', '#f59e0b', '#3b82f6', '#10b981']
+        fig5   = go.Figure(go.Pie(
+            labels=labels, values=values,
+            hole=0.45,
+            marker=dict(colors=colors, line=dict(color='#ffffff', width=2)),
+            textinfo='label+percent',
+            hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percent: %{percent}<extra></extra>',
+        ))
+        dist_title = 'Rating Distribution (Teaching)'
+        if selected_faculty:
+            dist_title = f'Rating Distribution — {selected_faculty.full_name}'
+        fig5.update_layout(
+            title=dist_title,
+            height=400,
+            **layout_defaults,
+        )
+        chart_dist = plot(fig5, output_type='div', include_plotlyjs=False)
+
+    # ── Faculty KPIs (when specific faculty selected) ─────────────────────
+    faculty_kpis = None
+    if selected_faculty and total > 0:
+        agg = feedbacks.aggregate(
+            avg_t=Avg('teaching_rating'),
+            avg_c=Avg('content_rating'),
+            avg_co=Avg('communication_rating'),
+        )
+        faculty_kpis = {
+            'total': total,
+            'avg_teaching': round(agg['avg_t'] or 0, 1),
+            'avg_content': round(agg['avg_c'] or 0, 1),
+            'avg_communication': round(agg['avg_co'] or 0, 1),
+            'overall': round(((agg['avg_t'] or 0) + (agg['avg_c'] or 0) + (agg['avg_co'] or 0)) / 3, 1),
+            'courses_count': feedbacks.values('course').distinct().count(),
+        }
+
+    context = {
+        'page_title':         'Feedback Analytics',
+        'total_feedback':     total,
+        'chart_teacher':      chart_teacher,
+        'chart_trend':        chart_trend,
+        'chart_semester':     chart_sem,
+        'chart_dept':         chart_dept,
+        'chart_dist':         chart_dist,
+        'chart_faculty':      chart_faculty,
+        'dept_filter':        dept_filter,
+        'date_from':          date_from,
+        'date_to':            date_to,
+        'faculty_filter':     faculty_filter,
+        'faculty_list':       faculty_list,
+        'selected_faculty':   selected_faculty,
+        'faculty_kpis':       faculty_kpis,
+        'department_choices': User.DEPARTMENT_CHOICES,
+        'is_hod':             request.user.role == 'HOD',
+        'user_dept':          user_dept,
+    }
+    return render(request, 'users/feedback_analytics.html', context)
+
+
 # ── APPOINTMENTS ──────────────────────────────────────────────────────────────
+
 
 @login_required
 def appointment_view(request):
