@@ -18,23 +18,11 @@
     .analytics-header h1 { font-size: 1.9rem; font-weight: 800; margin: 0 0 .3rem; }
 
     .filter-panel {
-        background: #ffffff !important;
+        background: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
         padding: 1.2rem 1.5rem;
         margin-bottom: 2rem;
-    }
-    .filter-panel .form-label {
-        color: #000000 !important;
-        font-weight: 700 !important;
-        font-size: .85rem !important;
-        letter-spacing: .02em;
-    }
-    .filter-panel .form-select,
-    .filter-panel .form-control {
-        color: #111827 !important;
-        background-color: #f9fafb !important;
-        border-color: #d1d5db !important;
     }
 
     .chart-panel {
@@ -142,7 +130,7 @@
             {% if not is_hod %}
             <!-- Admin: Department filter -->
             <div class="col-md-3">
-                <label class="form-label fw-semibold small">Department</label>
+                <label class="form-label fw-semibold small text-dark">Department</label>
                 <select name="department" class="form-select form-select-sm" id="deptSelect">
                     <option value="">All Departments</option>
                     {% for val, label in department_choices %}
@@ -155,7 +143,7 @@
             {% endif %}
             <!-- Faculty dropdown -->
             <div class="col-md-3">
-                <label class="form-label fw-semibold small">
+                <label class="form-label fw-semibold small text-dark">
                     👨‍🏫 {% if is_hod %}Select Faculty{% else %}Faculty{% endif %}
                 </label>
                 <select name="faculty" class="form-select form-select-sm" id="facultySelect">
@@ -168,11 +156,11 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-semibold small">Date From</label>
+                <label class="form-label fw-semibold small text-dark">Date From</label>
                 <input type="date" name="date_from" value="{{ date_from }}" class="form-control form-control-sm">
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-semibold small">Date To</label>
+                <label class="form-label fw-semibold small text-dark">Date To</label>
                 <input type="date" name="date_to" value="{{ date_to }}" class="form-control form-control-sm">
             </div>
             <div class="col-md-2 d-flex gap-2">
