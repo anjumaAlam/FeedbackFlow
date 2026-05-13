@@ -46,6 +46,7 @@ urlpatterns = [
     # ── Reports ───────────────────────────────────────────────────────────
     path('dashboard/feedback-reports/', views.feedback_reports, name='feedback_reports'),
     path('reports/feedback/',           views.feedback_reports, name='feedback_reports_alt'),
+    path('dashboard/feedback-analytics/', views.feedback_analytics, name='feedback_analytics'),
 
     # ── Appointments ──────────────────────────────────────────────────────
     path('appointment/',                                   views.appointment_view,             name='appointment'),
@@ -64,3 +65,4 @@ urlpatterns = [
     path('tasks/<int:task_id>/toggle/',  views.task_toggle, name='task_toggle'),
     path('tasks/<int:task_id>/delete/',  views.task_delete, name='task_delete'),
 ]
+

@@ -1,0 +1,217 @@
+import random
+from datetime import datetime, timedelta
+from django.utils import timezone
+from users.models import User
+from feedback.models import Course, CourseAssignment, Feedback
+
+print("=" * 60)
+print("GENERATING FEEDBACK DATA FOR ANALYTICS CHARTS")
+print("=" * 60)
+
+# ── Gather existing data ─────────────────────────────────────────
+students = list(User.objects.filter(role='Student', is_active=True))
+courses  = list(Course.objects.filter(is_active=True))
+
+if not students:
+    print("\n ERROR: No students found! Run auto_create.txt first.")
+    raise SystemExit
+
+if not courses:
+    print("\n ERROR: No courses found! Run auto_course.txt first.")
+    raise SystemExit
+
+print(f"\n  Found {len(students)} students")
+print(f"  Found {len(courses)} courses")
+
+# ── Delete old auto-generated feedback (optional — safe re-run) ──
+old_count = Feedback.objects.count()
+print(f"  Existing feedback in DB: {old_count}")
+
+created  = 0
+skipped  = 0
+errors   = 0
+
+# ── Comments pool ────────────────────────────────────────────────
+positive_comments = [
+    "Excellent teaching! Very well explained.",
+    "The lectures were very engaging and informative.",
+    "Great course content, learned a lot.",
+    "The faculty was very helpful and supportive.",
+    "One of the best courses I've taken at UAP.",
+    "Very interactive classes with practical examples.",
+    "Clear explanations and well-structured syllabus.",
+    "The professor is very knowledgeable and approachable.",
+    "Really enjoyed the hands-on projects in this course.",
+    "Good balance between theory and practical work.",
+]
+
+neutral_comments = [
+    "Decent course overall, could use more examples.",
+    "The course was okay, but assignments were too many.",
+    "Average experience. Some topics were rushed.",
+    "Teaching was adequate but could be more interactive.",
+    "Content was good but pacing needs improvement.",
+    "Reasonable course, met my expectations.",
+    "Some lectures were good, others felt repetitive.",
+    "Not bad, but would benefit from better materials.",
+]
+
+negative_comments = [
+    "The lectures were hard to follow at times.",
+    "Too much theory, not enough practical application.",
+    "Communication could be improved significantly.",
+    "Pace was too fast, hard to keep up with the content.",
+    "Needs more office hours and student support.",
+]
+
+sections = ['A', 'B', 'C', 'D']
+
+# ── Generate feedback spread across 6 months ────────────────────
+# This gives us data for the monthly satisfaction trends chart
+now = timezone.now()
+date_ranges = []
+for months_back in range(5, -1, -1):
+    month_start = (now - timedelta(days=months_back * 30)).replace(
+        day=1, hour=9, minute=0, second=0, microsecond=0
+    )
+    date_ranges.append(month_start)
+
+print(f"\n  Generating feedback across {len(date_ranges)} months:")
+for d in date_ranges:
+    print(f"    - {d.strftime('%B %Y')}")
+
+print("\n  Creating feedback entries...\n")
+
+for student in students:
+    # Each student gives feedback on 2-4 random courses from their dept
+    dept_courses = [c for c in courses if c.department == student.department]
+    if not dept_courses:
+        continue
+
+    num_courses = min(len(dept_courses), random.randint(2, 4))
+    selected_courses = random.sample(dept_courses, num_courses)
+
+    for course in selected_courses:
+        # Check if feedback already exists (unique_together = student + course)
+        if Feedback.objects.filter(student=student, course=course).exists():
+            skipped += 1
+            continue
+
+        # Find the assigned faculty for this course
+        assignment = CourseAssignment.objects.filter(course=course).first()
+        faculty = assignment.faculty if assignment else None
+
+        # Pick a random section
+        section = random.choice(sections)
+
+        # Generate ratings (weighted toward 3-5 for realistic distribution)
+        weights = [5, 10, 20, 35, 30]  # 1★=5%, 2★=10%, 3★=20%, 4★=35%, 5★=30%
+        teaching_rating      = random.choices([1, 2, 3, 4, 5], weights=weights, k=1)[0]
+        content_rating       = random.choices([1, 2, 3, 4, 5], weights=weights, k=1)[0]
+        communication_rating = random.choices([1, 2, 3, 4, 5], weights=weights, k=1)[0]
+
+        # Pick comment based on average rating
+        avg = (teaching_rating + content_rating + communication_rating) / 3
+        if avg >= 4:
+            comment = random.choice(positive_comments)
+        elif avg >= 2.5:
+            comment = random.choice(neutral_comments)
+        else:
+            comment = random.choice(negative_comments)
+
+        # Random anonymous flag (20% chance)
+        is_anonymous = random.random() < 0.2
+
+        # Random status
+        status = random.choices(
+            ['Pending', 'Reviewed', 'Responded'],
+            weights=[30, 40, 30],
+            k=1
+        )[0]
+
+        # Random date from the past 6 months
+        base_date = random.choice(date_ranges)
+        random_day_offset = random.randint(0, 28)
+        submitted_at = base_date + timedelta(
+            days=random_day_offset,
+            hours=random.randint(8, 20),
+            minutes=random.randint(0, 59),
+        )
+
+        try:
+            fb = Feedback(
+                student=student,
+                course=course,
+                faculty=faculty,
+                teaching_rating=teaching_rating,
+                content_rating=content_rating,
+                communication_rating=communication_rating,
+                comments=comment,
+                class_section=section,
+                is_anonymous=is_anonymous,
+                status=status,
+            )
+            fb.save()
+
+            # Override submitted_at (auto_now_add bypassed via update)
+            Feedback.objects.filter(id=fb.id).update(submitted_at=submitted_at)
+
+            if status in ['Reviewed', 'Responded']:
+                Feedback.objects.filter(id=fb.id).update(
+                    reviewed_at=submitted_at + timedelta(days=random.randint(1, 7))
+                )
+
+            created += 1
+            if created % 20 == 0:
+                print(f"    Created {created} feedback entries...")
+
+        except Exception as e:
+            errors += 1
+            if errors <= 5:
+                print(f"    Error: {student.email} → {course.course_code}: {e}")
+
+# ── Summary ──────────────────────────────────────────────────────
+print("\n" + "=" * 60)
+print("FEEDBACK GENERATION COMPLETE!")
+print("=" * 60)
+
+total_in_db = Feedback.objects.count()
+print(f"\n  Created this run : {created}")
+print(f"  Skipped (exists) : {skipped}")
+print(f"  Errors           : {errors}")
+print(f"  Total in DB      : {total_in_db}")
+
+# Rating distribution
+print("\n  RATING DISTRIBUTION (Teaching):")
+for star in range(1, 6):
+    count = Feedback.objects.filter(teaching_rating=star).count()
+    bar   = "█" * (count * 2 // max(total_in_db, 1) * 25 + 1) if count else ""
+    pct   = (count / total_in_db * 100) if total_in_db else 0
+    print(f"    {'⭐' * star:15s}  {count:3d}  ({pct:5.1f}%)  {bar}")
+
+# Per-department
+print("\n  FEEDBACK BY DEPARTMENT:")
+for dept_code, dept_name in User.DEPARTMENT_CHOICES:
+    count = Feedback.objects.filter(course__department=dept_code).count()
+    print(f"    {dept_code:15s}: {count:3d} feedback entries")
+
+# Per-semester
+print("\n  FEEDBACK BY SEMESTER:")
+semesters = Course.objects.values_list('semester', flat=True).distinct()
+for sem in sorted(semesters):
+    count = Feedback.objects.filter(course__semester=sem).count()
+    print(f"    {sem:20s}: {count:3d}")
+
+# Monthly trend
+print("\n  MONTHLY TREND:")
+for d in date_ranges:
+    next_m = (d + timedelta(days=32)).replace(day=1)
+    count  = Feedback.objects.filter(
+        submitted_at__gte=d, submitted_at__lt=next_m
+    ).count()
+    print(f"    {d.strftime('%B %Y'):15s}: {count:3d} submissions")
+
+print("\n" + "=" * 60)
+print("  NOW GO TO: /dashboard/feedback-analytics/")
+print("  LOGIN AS:  admin@uap-bd.edu / Admin@123")
+print("=" * 60)
