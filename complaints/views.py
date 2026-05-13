@@ -152,6 +152,8 @@ def hod_complaints_list(request):
         messages.error(request, 'Access denied. HOD only.')
         return redirect('login')
 
+    mode = request.GET.get('mode', 'all')
+
     complaints_list = Complaint.objects.filter(
         Q(assigned_to=request.user) |
         Q(faculty_concerned__department=request.user.department)
@@ -159,6 +161,7 @@ def hod_complaints_list(request):
 
     context = {
         'complaints_list': complaints_list,
+        'mode': mode,
         'total_complaints': complaints_list.count(),
         'pending': complaints_list.filter(status='Pending').count(),
         'investigating': complaints_list.filter(status='Under Investigation').count(),
