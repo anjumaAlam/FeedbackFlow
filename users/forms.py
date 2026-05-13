@@ -184,7 +184,7 @@ class AdminUserCreateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'role', 'department', 'student_id']
+        fields = ['full_name', 'email', 'role', 'department', 'student_id', 'committee_type']
         widgets = {
             'full_name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -203,6 +203,7 @@ class AdminUserCreateForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Student ID (students only)'
             }),
+            'committee_type': forms.Select(attrs={'class': 'form-select'}),
         }
 
     def clean_email(self):
@@ -244,7 +245,7 @@ class AdminUserCreateForm(forms.ModelForm):
 class AdminUserEditForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'role', 'department', 'student_id', 'is_active']
+        fields = ['full_name', 'email', 'role', 'department', 'student_id', 'committee_type', 'is_active']
         widgets = {
             'full_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
@@ -254,6 +255,7 @@ class AdminUserEditForm(forms.ModelForm):
                 attrs={'class': 'form-select'}
             ),
             'student_id': forms.TextInput(attrs={'class': 'form-control'}),
+            'committee_type': forms.Select(attrs={'class': 'form-select'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
@@ -404,17 +406,8 @@ class CommitteeUpdateForm(forms.Form):
 
 
 class AdminForwardForm(forms.Form):
-    COMMITTEE_MEMBER_CHOICES = [
-        ('', '---------'),
-        ('Sumon Mahmud', 'Sumon Mahmud'),
-        ('Rabeya Rahman', 'Rabeya Rahman'),
-        ('Mohiuddin Ahmed', 'Mohiuddin Ahmed'),
-        ('Kawser Ali', 'Kawser Ali'),
-        ('Parvin Jahan', 'Parvin Jahan'),
-    ]
-
-    committee_member = forms.ChoiceField(
-        choices=COMMITTEE_MEMBER_CHOICES,
+    committee_member = forms.ModelChoiceField(
+        queryset=None,
         label='Select Committee Member',
         widget=forms.Select(attrs={'class': 'form-select'})
     )
@@ -429,7 +422,6 @@ class AdminForwardForm(forms.Form):
 
     def __init__(self, *args, committee_type=None, **kwargs):
         super().__init__(*args, **kwargs)
-        from .models import User
         if committee_type:
             self.fields['committee_member'].queryset = User.objects.filter(
                 role='Committee',
