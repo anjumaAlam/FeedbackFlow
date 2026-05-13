@@ -81,6 +81,7 @@ class ComplaintUpdateForm(forms.ModelForm):
         self.fields['status_changed_to'].choices = status_choices
         self.fields['status_changed_to'].widget.choices = status_choices
         self.fields['status_changed_to'].required = False
+        self.fields['comment'].required = False
 
 
 class AssignInvestigationForm(forms.ModelForm):

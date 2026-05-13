@@ -1,0 +1,282 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Similar Complaints Detail - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <h2>🔍 Similar Complaints Detail</h2>
+        <p class="text-muted mb-0">
+            Analyzing a group of similar complaints against {{ faculty.full_name }}
+        </p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="card mb-4 bg-light">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>Group {{ group_index|add:1 }} of {{ total_groups }}</strong>
+                </span>
+                <div>
+                    {% if group_index > 0 %}
+                    <a href="{% url 'similar_complaints_detail' faculty.id group_index|add:-1 %}" 
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Previous Group
+                    </a>
+                    {% endif %}
+                    
+                    {% if group_index < total_groups|add:-1 %}
+                    <a href="{% url 'similar_complaints_detail' faculty.id group_index|add:1 %}" 
+                       class="btn btn-sm btn-outline-primary">
+                        Next Group <i class="fas fa-arrow-right"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Primary Complaint (Base for Similarity Grouping) -->
+    <div class="card mb-4 border-left border-danger">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-star"></i> Primary Complaint (Base for Grouping)
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <strong>Tracking ID:</strong> 
+                        <span class="badge badge-primary">{{ group.primary.tracking_id }}</span>
+                    </p>
+                    <p class="mb-2">
+                        <strong>Status:</strong> 
+                        {% if group.primary.status == 'Pending' %}
+                            <span class="badge badge-warning">{{ group.primary.status }}</span>
+                        {% elif group.primary.status == 'Under Investigation' %}
+                            <span class="badge badge-info">{{ group.primary.status }}</span>
+                        {% elif group.primary.status == 'Resolved' %}
+                            <span class="badge badge-success">{{ group.primary.status }}</span>
+                        {% else %}
+                            <span class="badge badge-secondary">{{ group.primary.status }}</span>
+                        {% endif %}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Priority:</strong>
+                        {% if group.primary.priority == 'Urgent' %}
+                            <span class="badge badge-danger">{{ group.primary.priority }}</span>
+                        {% elif group.primary.priority == 'High' %}
+                            <span class="badge badge-warning">{{ group.primary.priority }}</span>
+                        {% else %}
+                            <span class="badge badge-info">{{ group.primary.priority }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <strong>Submitted By:</strong> 
+                        {% if group.primary.is_anonymous %}
+                            <em>Anonymous Student</em>
+                        {% else %}
+                            {{ group.primary.student.full_name }}
+                        {% endif %}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Submitted Date:</strong> {{ group.primary.submitted_at|date:"M d, Y - H:i" }}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Assigned To:</strong> 
+                        {% if group.primary.assigned_to %}
+                            {{ group.primary.assigned_to.full_name }}
+                        {% else %}
+                            <em class="text-muted">Not assigned</em>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="border-top pt-3">
+                <p class="mb-2">
+                    <strong>Subject:</strong> {{ group.primary.subject }}
+                </p>
+                <p class="mb-0">
+                    <strong>Description:</strong>
+                </p>
+                <p class="bg-light p-3 rounded">
+                    {{ group.primary.description|linebreaks }}
+                </p>
+            </div>
+
+            <div class="text-right mt-3">
+                <a href="{% url 'complaint_detail' group.primary.id %}" 
+                   class="btn btn-outline-danger">
+                    <i class="fas fa-external-link-alt"></i> View Full Details
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Similar Complaints Found -->
+    {% if group.similar_complaints %}
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="fas fa-exclamation-triangle"></i> 
+                {{ group.count }} Similar Complaints Found (Similarity Score: ~{{ group.count }}/10)
+            </h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">
+                These complaints show similar patterns to the primary complaint.
+                This may indicate a systemic issue or repeated problem with the faculty member.
+            </p>
+
+            {% for similar_complaint in group.similar_complaints %}
+            <div class="card mb-3 border-left border-warning">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>Tracking ID:</strong> 
+                                <span class="badge badge-info">{{ similar_complaint.tracking_id }}</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong>Status:</strong> 
+                                {% if similar_complaint.status == 'Pending' %}
+                                    <span class="badge badge-warning">{{ similar_complaint.status }}</span>
+                                {% elif similar_complaint.status == 'Under Investigation' %}
+                                    <span class="badge badge-info">{{ similar_complaint.status }}</span>
+                                {% elif similar_complaint.status == 'Resolved' %}
+                                    <span class="badge badge-success">{{ similar_complaint.status }}</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">{{ similar_complaint.status }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong>Submitted By:</strong>
+                                {% if similar_complaint.is_anonymous %}
+                                    <em>Anonymous Student</em>
+                                {% else %}
+                                    {{ similar_complaint.student.full_name }}
+                                {% endif %}
+                            </p>
+                            <p class="mb-0">
+                                <strong>Submitted Date:</strong> {{ similar_complaint.submitted_at|date:"M d, Y" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <p class="mb-2">
+                            <strong>Subject:</strong> {{ similar_complaint.subject }}
+                        </p>
+                        <p class="mb-0">
+                            <strong>Description:</strong>
+                        </p>
+                        <p class="bg-light p-2 rounded small">
+                            {{ similar_complaint.description|truncatewords:50 }}
+                        </p>
+                    </div>
+
+                    <div class="text-right">
+                        <a href="{% url 'complaint_detail' similar_complaint.id %}" 
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i> View Full Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Analysis Summary -->
+    <div class="card mb-4 border-left border-success">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-chart-bar"></i> Pattern Analysis Summary
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Key Observations:</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <strong>Total Complaints in Group:</strong> {{ group.count }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-users"></i>
+                            <strong>Students Affected:</strong> {{ group.count }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-flag"></i>
+                            <strong>Pattern Type:</strong>
+                            {% if group.count > 5 %}
+                                <span class="badge badge-danger">CRITICAL</span> Multiple reports of same issue
+                            {% elif group.count > 2 %}
+                                <span class="badge badge-warning">SIGNIFICANT</span> Pattern confirmed
+                            {% else %}
+                                <span class="badge badge-info">MINOR</span> Similar complaints
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6>Recommended Actions:</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-arrow-right"></i>
+                            Escalate to formal investigation if pattern is significant
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-arrow-right"></i>
+                            Interview faculty member regarding repeated complaints
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-arrow-right"></i>
+                            Consider counseling or training if pattern indicates behavior issues
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-arrow-right"></i>
+                            Increase monitoring and follow-up on this faculty
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        This is the only complaint with this particular pattern. No similar complaints found.
+    </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{% url 'faculty_complaint_summary' %}?faculty_id={{ faculty.id }}" 
+           class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Analysis Dashboard
+        </a>
+    </div>
+
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+    }
+    .border-left {
+        border-left: 4px solid !important;
+    }
+</style>
+{% endblock %}

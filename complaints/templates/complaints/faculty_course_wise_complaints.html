@@ -1,0 +1,218 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Course-wise Complaints - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <h2>📚 Course-wise Complaint Breakdown</h2>
+        <p class="text-muted mb-0">
+            Complaints against {{ faculty.full_name }} organized by course
+        </p>
+    </div>
+
+    <!-- Faculty Info Card -->
+    <div class="card mb-4 border-info">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Faculty Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <strong>Name:</strong> {{ faculty.full_name }}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Department:</strong> {{ faculty.department }}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <strong>Total Complaints:</strong> 
+                        <span class="badge badge-danger" style="font-size:1rem;">{{ total_complaints }}</span>
+                    </p>
+                    <p class="mb-0">
+                        <strong>Role:</strong> {{ faculty.role }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses with Complaints -->
+    {% if course_complaint_data %}
+        {% for course_data in course_complaint_data %}
+        <div class="card mb-4 border-left border-primary">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">
+                            <i class="fas fa-book"></i> {{ course_data.course.course_code }} - {{ course_data.course.course_name }}
+                        </h5>
+                        <small>
+                            {% if course_data.assignment.class_section %}
+                                Section: {{ course_data.assignment.class_section }}
+                            {% else %}
+                                All Sections
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div class="text-right">
+                        <span class="badge badge-light text-dark" style="font-size:0.95rem;">
+                            {{ course_data.total_complaints }} Complaints
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Statistics for this course -->
+                <div class="row mb-4">
+                    <div class="col-md-2 mb-3">
+                        <div class="card border-danger">
+                            <div class="card-body text-center">
+                                <h4 class="mb-1 text-danger">{{ course_data.total_complaints }}</h4>
+                                <p class="text-muted mb-0" style="font-size:0.85rem;">Total</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <h4 class="mb-1 text-warning">{{ course_data.pending }}</h4>
+                                <p class="text-muted mb-0" style="font-size:0.85rem;">Pending</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <h4 class="mb-1 text-info">{{ course_data.investigating }}</h4>
+                                <p class="text-muted mb-0" style="font-size:0.85rem;">Investigating</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <h4 class="mb-1 text-success">{{ course_data.resolved }}</h4>
+                                <p class="text-muted mb-0" style="font-size:0.85rem;">Resolved</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-danger">
+                            <div class="card-body text-center">
+                                <h4 class="mb-1 text-danger">
+                                    {% if course_data.high_priority > 0 %}
+                                        <i class="fas fa-exclamation-triangle"></i> {{ course_data.high_priority }}
+                                    {% else %}
+                                        <i class="fas fa-check-circle text-success"></i> 0
+                                    {% endif %}
+                                </h4>
+                                <p class="text-muted mb-0" style="font-size:0.85rem;">High Priority</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complaints List for this Course -->
+                <h6 class="mb-3">
+                    <i class="fas fa-list"></i> All Complaints for this Course
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tracking ID</th>
+                                <th>Student</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Submitted</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for complaint in course_data.complaints %}
+                            <tr>
+                                <td>
+                                    <span class="badge badge-info">{{ complaint.tracking_id }}</span>
+                                </td>
+                                <td>
+                                    {% if complaint.is_anonymous %}
+                                        <em class="text-muted">Anonymous Student</em>
+                                    {% else %}
+                                        {{ complaint.student.full_name }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ complaint.subject|truncatewords:5 }}</strong>
+                                </td>
+                                <td>
+                                    {% if complaint.status == 'Pending' %}
+                                        <span class="badge badge-warning">{{ complaint.status }}</span>
+                                    {% elif complaint.status == 'Under Investigation' %}
+                                        <span class="badge badge-info">{{ complaint.status }}</span>
+                                    {% elif complaint.status == 'Resolved' %}
+                                        <span class="badge badge-success">{{ complaint.status }}</span>
+                                    {% elif complaint.status == 'Escalated' %}
+                                        <span class="badge badge-danger">{{ complaint.status }}</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">{{ complaint.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if complaint.priority == 'Urgent' %}
+                                        <span class="badge badge-danger">{{ complaint.priority }}</span>
+                                    {% elif complaint.priority == 'High' %}
+                                        <span class="badge badge-warning">{{ complaint.priority }}</span>
+                                    {% elif complaint.priority == 'Medium' %}
+                                        <span class="badge badge-info">{{ complaint.priority }}</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">{{ complaint.priority }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ complaint.submitted_at|date:"M d, Y" }}</small>
+                                </td>
+                                <td>
+                                    <a href="{% url 'complaint_detail' complaint.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            No courses have complaints for this faculty.
+        </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{% url 'faculty_complaint_summary' %}?faculty_id={{ faculty.id }}" 
+           class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Analysis
+        </a>
+    </div>
+
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+    }
+    .border-left {
+        border-left: 4px solid !important;
+    }
+</style>
+{% endblock %}
