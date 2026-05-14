@@ -570,7 +570,7 @@ def feedback_reports(request):
         'faculty_filter':     faculty_filter,
         'departments':        User.DEPARTMENT_CHOICES,
         'department_choices': User.DEPARTMENT_CHOICES,
-        'courses':            Course.objects.filter(is_active=True).order_by('course_code'),
+        'courses':            (Course.objects.filter(department=request.user.department, is_active=True).order_by('course_code') if request.user.role == 'HOD' else Course.objects.filter(is_active=True).order_by('course_code')),
         'faculty_list':       (User.objects.filter(role='Faculty', department=request.user.department) if request.user.role == 'HOD' else User.objects.filter(role='Faculty').order_by('full_name')),
     }
     return render(request, 'users/feedback_reports.html', context)
