@@ -961,3 +961,13 @@ def similar_complaints_detail(request, faculty_id, group_index):
     }
     
     return render(request, 'complaints/similar_complaints_detail.html', context)
+
+
+@login_required
+def public_log(request):
+    complaints = Complaint.objects.filter(status='Resolved', complaint_type='Facility').order_by('-resolved_at')[:50]
+    context = {
+        'complaints': complaints,
+        'page_title': 'Public Resolved Issues Log'
+    }
+    return render(request, 'complaints/public_log.html', context)
