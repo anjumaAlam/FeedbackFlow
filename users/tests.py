@@ -780,6 +780,161 @@ class DashboardRoleAccessTest(TestCase):
        def test_unauthenticated_redirected_from_staff_dashboard(self):
            self.assertEqual(self.client.get(reverse('staff_dashboard')).status_code, 302)
 
+class AppointmentModelTest(TestCase):
+    """Tests for the Appointment model"""
+
+    def setUp(self):
+        from users.models import Appointment
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101019')
+        self.committee = make_user('committee@uap-bd.edu', 'Committee', committee_type='Harassment Committee')
+        self.admin = make_user('admin@uap-bd.edu', 'Admin')
+
+    def test_appointment_creation(self):
+        """Can create an Appointment"""
+        from users.models import Appointment
+        appt = Appointment.objects.create(
+            requester=self.student,
+            status='Pending',
+            description='Request for meeting'
+        )
+        self.assertEqual(Appointment.objects.count(), 1)
+        self.assertEqual(appt.requester, self.student)
+
+    def test_appointment_status_choices(self):
+        """Appointment status defaults to Pending"""
+        from users.models import Appointment
+        appt = Appointment.objects.create(
+            requester=self.student,
+            description='Test appointment'
+        )
+        self.assertEqual(appt.status, 'Pending')
+
+    def test_appointment_assigned_to_committee(self):
+        """Appointment can be assigned to committee members"""
+        from users.models import Appointment
+        appt = Appointment.objects.create(
+            requester=self.student,
+            assigned_to=self.committee,
+            status='Pending',
+            description='Harassment complaint'
+        )
+        self.assertEqual(appt.assigned_to, self.committee)
+
+    def test_appointment_str(self):
+        """__str__ includes requester and status"""
+        from users.models import Appointment
+        appt = Appointment.objects.create(
+            requester=self.student,
+            status='Pending',
+            description='Test'
+        )
+        self.assertIn(self.student.full_name, str(appt))
+        self.assertIn('Pending', str(appt))
+
+    def test_appointment_forwarded_to_committee_status(self):
+        """Appointment status can be changed to Forwarded to Committee"""
+        from users.models import Appointment
+        appt = Appointment.objects.create(
+            requester=self.student,
+            status='Pending',
+            description='Test'
+        )
+        appt.status = 'Forwarded to Committee'
+        appt.save()
+        self.assertEqual(appt.status, 'Forwarded to Committee')
+
+    def test_appointment_meeting_scheduled_status(self):
+        """Appointment can be scheduled for meeting"""
+        from users.models import Appointment
+        from django.utils import timezone
+        appt = Appointment.objects.create(
+            requester=self.student,
+            status='Meeting Scheduled',
+            description='Test',
+            meeting_date=timezone.now() + timezone.timedelta(days=3)
+        )
+        self.assertIsNotNone(appt.meeting_date)
+
+    def test_appointment_closed_status(self):
+        """Appointment can be closed"""
+        from users.models import Appointment
+        appt = Appointment.objects.create(
+            requester=self.student,
+            status='Closed',
+            description='Test'
+        )
+        self.assertEqual(appt.status, 'Closed')
+
+
+class UserRolePermissionsTest(TestCase):
+    """Tests for role-based permissions"""
+
+    def setUp(self):
+        self.client = Client()
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101020')
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.hod = make_user('hod@uap-bd.edu', 'HOD')
+        self.admin = make_user('admin@uap-bd.edu', 'Admin')
+
+    def test_student_cannot_access_admin_panel(self):
+        """Student should not access admin functions"""
+        self.client.force_login(self.student)
+        response = self.client.get(reverse('admin_user_list'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_faculty_cannot_access_hod_dashboard(self):
+        """Faculty should not access HOD functions"""
+        self.client.force_login(self.faculty)
+        response = self.client.get(reverse('hod_dashboard'))
+        # Depending on implementation, could be 302 or 403
+        self.assertIn(response.status_code, [302, 403])
+
+    def test_admin_can_access_everything(self):
+        """Admin should access admin panel"""
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('admin_user_list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_department_is_set_correctly(self):
+        """User department is stored correctly"""
+        self.assertEqual(self.student.department, 'CSE')
+        self.assertEqual(self.faculty.department, 'CSE')
+        self.assertEqual(self.hod.department, 'CSE')
+
+
+class CommitteeUserTest(TestCase):
+    """Tests for Committee role with committee_type"""
+
+    def setUp(self):
+        self.harassment_committee = make_user(
+            'hc@uap-bd.edu', 'Committee',
+            committee_type='Harassment Committee'
+        )
+        self.proctorial_committee = make_user(
+            'pc@uap-bd.edu', 'Committee',
+            committee_type='Proctorial Committee'
+        )
+
+    def test_committee_user_has_committee_type(self):
+        """Committee users have committee_type set"""
+        self.assertEqual(
+            self.harassment_committee.committee_type,
+            'Harassment Committee'
+        )
+
+    def test_different_committee_types(self):
+        """Multiple committee types can exist"""
+        self.assertNotEqual(
+            self.harassment_committee.committee_type,
+            self.proctorial_committee.committee_type
+        )
+
+    def test_non_committee_user_no_committee_type(self):
+        """Non-committee users don't have committee_type"""
+        student = make_user('student@uap-bd.edu', 'Student', student_id='23101021')
+        self.assertIsNone(student.committee_type)
+
+
 class DashboardContextDataTest(TestCase):
 
 

@@ -76,11 +76,12 @@ class ComplaintModelTest(TestCase):
         self.assertIn(complaint.tracking_id, str(complaint))
         self.assertIn('AC not working', str(complaint))
 
-    def test_facility_complaint_assigned_to_staff(self):
-        """Facility complaint auto-assigns to a Staff user"""
-        staff = make_user('staff@uap-bd.edu', 'Staff')
+    def test_facility_complaint_assigned_to_dao(self):
+        """Facility complaint auto-assigns to DAO if available, else Admin"""
+        # Note: Facility complaints are assigned to DAO first, then Admin as fallback
         complaint = self._make_complaint(complaint_type='Facility')
-        self.assertEqual(complaint.assigned_to, staff)
+        # Since no DAO exists, it should assign to Admin (created in setUp)
+        self.assertEqual(complaint.assigned_to, self.admin)
 
     def test_hod_complaint_assigned_to_admin(self):
         """HOD complaint auto-assigns to Admin"""
@@ -253,3 +254,141 @@ class HandleComplaintViewTest(TestCase):
         })
         self.complaint.refresh_from_db()
         self.assertIsNotNone(self.complaint.resolved_at)
+
+
+class ComplaintInvestigationModelTest(TestCase):
+    """Unit tests for the ComplaintInvestigation model"""
+
+    def setUp(self):
+        self.admin = make_user('admin@uap-bd.edu', 'Admin')
+        self.faculty1 = make_user('faculty1@uap-bd.edu', 'Faculty')
+        self.faculty2 = make_user('faculty2@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student',
+                                 student_id='23101007')
+        self.complaint = Complaint.objects.create(
+            student=self.student,
+            complaint_type='Faculty',
+            subject='Unfair grading',
+            description='My grades seem unfair.',
+        )
+
+    def test_create_investigation(self):
+        """Can create ComplaintInvestigation"""
+        from .models import ComplaintInvestigation
+        investigation = ComplaintInvestigation.objects.create(
+            complaint=self.complaint,
+            assigned_by=self.admin,
+            description='Investigating grading practices.'
+        )
+        investigation.investigators.add(self.faculty1, self.faculty2)
+        self.assertEqual(investigation.investigators.count(), 2)
+
+    def test_investigation_str(self):
+        """__str__ displays tracking ID and investigator names"""
+        from .models import ComplaintInvestigation
+        investigation = ComplaintInvestigation.objects.create(
+            complaint=self.complaint,
+            assigned_by=self.admin,
+            description='Test investigation'
+        )
+        investigation.investigators.add(self.faculty1)
+        self.assertIn(self.complaint.tracking_id, str(investigation))
+        self.assertIn(self.faculty1.full_name, str(investigation))
+
+
+class InvestigationFindingModelTest(TestCase):
+    """Unit tests for the InvestigationFinding model"""
+
+    def setUp(self):
+        from .models import ComplaintInvestigation, InvestigationFinding
+        self.admin = make_user('admin@uap-bd.edu', 'Admin')
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student',
+                                 student_id='23101008')
+        self.complaint = Complaint.objects.create(
+            student=self.student,
+            complaint_type='Faculty',
+            subject='Test',
+            description='Test complaint.'
+        )
+        self.investigation = ComplaintInvestigation.objects.create(
+            complaint=self.complaint,
+            assigned_by=self.admin,
+            description='Investigation details.'
+        )
+        self.investigation.investigators.add(self.faculty)
+
+    def test_create_investigation_finding(self):
+        """Can submit InvestigationFinding"""
+        from .models import InvestigationFinding
+        finding = InvestigationFinding.objects.create(
+            investigation=self.investigation,
+            submitted_by=self.faculty,
+            verdict='Proven',
+            findings='The complaint is substantiated.'
+        )
+        self.assertEqual(finding.verdict, 'Proven')
+
+    def test_finding_verdict_choices(self):
+        """Verdict must be one of the valid choices"""
+        from .models import InvestigationFinding
+        finding = InvestigationFinding(
+            investigation=self.investigation,
+            submitted_by=self.faculty,
+            verdict='Unproven',
+            findings='No evidence found.'
+        )
+        finding.full_clean()  # Should not raise
+        self.assertEqual(finding.verdict, 'Unproven')
+
+    def test_duplicate_finding_from_same_investigator_blocked(self):
+        """Same investigator cannot submit findings twice"""
+        from .models import InvestigationFinding
+        InvestigationFinding.objects.create(
+            investigation=self.investigation,
+            submitted_by=self.faculty,
+            verdict='Proven',
+            findings='First finding'
+        )
+        with self.assertRaises(Exception):
+            InvestigationFinding.objects.create(
+                investigation=self.investigation,
+                submitted_by=self.faculty,
+                verdict='Unproven',
+                findings='Second finding'
+            )
+
+
+class ComplaintDetailViewTest(TestCase):
+    """Tests for complaint_detail view"""
+
+    def setUp(self):
+        self.client = Client()
+        self.admin = make_user('admin@uap-bd.edu', 'Admin')
+        self.student = make_user('student@uap-bd.edu', 'Student',
+                                 student_id='23101009')
+        self.complaint = Complaint.objects.create(
+            student=self.student,
+            complaint_type='Facility',
+            subject='Broken equipment',
+            description='Lab equipment broken.'
+        )
+        self.url = reverse('complaint_detail', args=[self.complaint.id])
+
+    def test_unauthenticated_user_redirected(self):
+        """Unauthenticated user cannot view complaint detail"""
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_student_can_view_own_complaint(self):
+        """Student can view their own complaint"""
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_student_cannot_view_others_complaint(self):
+        """Student cannot view another student's complaint"""
+        other = make_user('other@uap-bd.edu', 'Student', student_id='23101010')
+        self.client.login(username='other@uap-bd.edu', password='Test@1234')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
