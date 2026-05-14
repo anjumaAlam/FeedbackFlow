@@ -242,8 +242,11 @@
         {% if user.is_authenticated %}
         <!-- Logged in: show username, bell, sign out -->
         <div class="ms-auto d-flex align-items-center gap-2">
-            <span class="nav-user-info d-none d-md-inline">{{ user.get_short_name }}</span>
-            <a href="{% url 'notifications' %}" class="btn-bell">
+            <a href="{% url 'public_log' %}" class="btn-bell" style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; background:rgba(201,168,76,.15); color:var(--gold) !important; border-color:var(--gold) !important;">
+                📋 Public Log
+            </a>
+            <span class="nav-user-info d-none d-md-inline ms-2">{{ user.get_short_name }}</span>
+            <a href="{% url 'notifications' %}" class="btn-bell ms-1">
                 🔔
                 {% if unread_notifications_count > 0 %}
                 <span class="badge bg-danger" style="font-size:10px;padding:3px 7px;">{{ unread_notifications_count }}</span>
