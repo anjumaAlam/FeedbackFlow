@@ -1,0 +1,53 @@
+{% extends 'users/dashboard_base.html' %}
+
+{% block title %}Public Resolved Issues Log{% endblock %}
+
+{% block dash_content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <span class="page-eyebrow">Public Log</span>
+        <h1 class="page-title">Resolved Facility Issues</h1>
+        <p class="page-sub">A transparent, anonymized log of all facility and infrastructure issues that have been successfully resolved by our staff.</p>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header-bar">
+            <div class="card-header-title">Recently Fixed</div>
+        </div>
+        
+        {% if complaints %}
+        <div class="table-responsive">
+            <table class="dtable">
+                <thead>
+                    <tr>
+                        <th>Date Fixed</th>
+                        <th>Location</th>
+                        <th>Issue Subject</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr>
+                        <td style="color:#64748b; font-weight:600; font-size:13px;">{{ complaint.resolved_at|date:"M d, Y" }}</td>
+                        <td><span style="background:rgba(59,130,246,.1); color:#1d4ed8; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:600;">{{ complaint.location|default:"General Campus" }}</span></td>
+                        <td>
+                            <strong>{{ complaint.subject }}</strong><br>
+                            <small style="color:#64748b;">{{ complaint.description|truncatewords:15 }}</small>
+                        </td>
+                        <td><span class="badge-resolved">✅ Fixed</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">✅</div>
+            <h4 class="empty-title">No resolved issues yet</h4>
+            <p class="empty-desc">When facility issues are resolved, they will appear here publicly without names.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
