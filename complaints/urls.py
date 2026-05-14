@@ -34,4 +34,5 @@ urlpatterns = [
     path('hod/faculty-complaint-summary/', views.faculty_complaint_summary, name='faculty_complaint_summary'),
     path('hod/faculty-course-wise/<int:faculty_id>/', views.faculty_course_wise_complaints, name='faculty_course_wise_complaints'),
     path('hod/similar-complaints/<int:faculty_id>/<int:group_index>/', views.similar_complaints_detail, name='similar_complaints_detail'),
+    path('public-log/', views.public_log, name='public_log'),
 ]
