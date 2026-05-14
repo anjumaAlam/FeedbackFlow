@@ -152,6 +152,8 @@ def hod_complaints_list(request):
         messages.error(request, 'Access denied. HOD only.')
         return redirect('login')
 
+    mode = request.GET.get('mode', 'all')
+
     complaints_list = Complaint.objects.filter(
         Q(assigned_to=request.user) |
         Q(faculty_concerned__department=request.user.department)
@@ -159,6 +161,7 @@ def hod_complaints_list(request):
 
     context = {
         'complaints_list': complaints_list,
+        'mode': mode,
         'total_complaints': complaints_list.count(),
         'pending': complaints_list.filter(status='Pending').count(),
         'investigating': complaints_list.filter(status='Under Investigation').count(),
@@ -770,3 +773,191 @@ def staff_mark_fixed(request, complaint_id):
 
     messages.success(request, 'Complaint marked as resolved. Student has been notified.')
     return redirect('staff_task_list')
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FACULTY COMPLAINT ANALYSIS - NEW FEATURE
+# ─────────────────────────────────────────────────────────────────────────────
+
+@login_required
+def faculty_complaint_summary(request):
+    """
+    HOD view to see all complaints for a specific faculty and analyze patterns
+    """
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied. HOD only.')
+        return redirect('login')
+    
+    from .utils import (
+        get_faculty_complaints_summary,
+        group_similar_complaints,
+        get_complaint_statistics,
+        get_top_complaint_subjects,
+        get_department_complaint_comparison
+    )
+    from users.models import User
+    
+    # Get faculty ID from query parameter or request data
+    faculty_id = request.GET.get('faculty_id') or request.POST.get('faculty_id')
+    
+    # Get all faculty in the HOD's department
+    faculty_in_dept = User.objects.filter(
+        role='Faculty',
+        department=request.user.department,
+        is_active=True
+    ).order_by('full_name')
+    
+    context = {
+        'page_title': 'Faculty Complaint Analysis',
+        'faculty_list': faculty_in_dept,
+        'selected_faculty': None,
+        'summary_data': None,
+        'statistics': None,
+        'similar_groups': None,
+        'top_subjects': None,
+        'comparison_data': None,
+    }
+    
+    if faculty_id:
+        try:
+            selected_faculty = User.objects.get(id=faculty_id, role='Faculty')
+            
+            # Get summary data
+            summary_data = get_faculty_complaints_summary(selected_faculty)
+            
+            # Get all complaints
+            all_complaints = summary_data['all_complaints']
+            
+            # Always build department comparison data even if this faculty has no complaints.
+            comparison_data = get_department_complaint_comparison(selected_faculty)
+            
+            if all_complaints.exists():
+                # Group similar complaints
+                similar_groups = group_similar_complaints(list(all_complaints), similarity_threshold=0.55)
+                
+                # Get statistics
+                statistics = get_complaint_statistics(all_complaints)
+                
+                # Get top complaint subjects
+                top_subjects = get_top_complaint_subjects(all_complaints, limit=5)
+                
+                context.update({
+                    'selected_faculty': selected_faculty,
+                    'summary_data': summary_data,
+                    'statistics': statistics,
+                    'similar_groups': similar_groups,
+                    'top_subjects': top_subjects,
+                    'comparison_data': comparison_data,
+                })
+            else:
+                messages.info(request, f'No complaints found for {selected_faculty.full_name}')
+                context.update({
+                    'selected_faculty': selected_faculty,
+                    'comparison_data': comparison_data,
+                })
+        
+        except User.DoesNotExist:
+            messages.error(request, 'Faculty not found.')
+    
+    return render(request, 'complaints/faculty_complaint_summary.html', context)
+
+
+@login_required
+def faculty_course_wise_complaints(request, faculty_id):
+    """
+    Detailed view showing complaints for a faculty across different courses
+    """
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied. HOD only.')
+        return redirect('login')
+    
+    faculty = get_object_or_404(User, id=faculty_id, role='Faculty')
+    
+    if faculty.department != request.user.department:
+        messages.error(request, 'You can only view faculty from your department.')
+        return redirect('faculty_complaint_summary')
+    
+    from feedback.models import CourseAssignment
+    
+    # Get all courses taught by faculty
+    course_assignments = CourseAssignment.objects.filter(
+        faculty=faculty
+    ).select_related('course')
+    
+    course_complaint_data = []
+    
+    for assignment in course_assignments:
+        course = assignment.course
+        
+        # Get complaints related to this course
+        course_complaints = Complaint.objects.filter(
+            faculty_concerned=faculty,
+            complaint_type='Faculty',
+            student__department=course.department
+        )
+        
+        if course_complaints.exists():
+            # Get statistics for this course
+            course_stats = {
+                'course': course,
+                'assignment': assignment,
+                'total_complaints': course_complaints.count(),
+                'pending': course_complaints.filter(status='Pending').count(),
+                'resolved': course_complaints.filter(status='Resolved').count(),
+                'investigating': course_complaints.filter(status='Under Investigation').count(),
+                'high_priority': course_complaints.filter(priority__in=['High', 'Urgent']).count(),
+                'complaints': course_complaints.order_by('-submitted_at'),
+            }
+            course_complaint_data.append(course_stats)
+    
+    # Sort by total complaints descending
+    course_complaint_data.sort(key=lambda x: x['total_complaints'], reverse=True)
+    
+    context = {
+        'page_title': f'Course-wise Complaints - {faculty.full_name}',
+        'faculty': faculty,
+        'course_complaint_data': course_complaint_data,
+        'total_complaints': sum(c['total_complaints'] for c in course_complaint_data),
+    }
+    
+    return render(request, 'complaints/faculty_course_wise_complaints.html', context)
+
+
+@login_required
+def similar_complaints_detail(request, faculty_id, group_index):
+    """
+    Detailed view of a group of similar complaints
+    """
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied. HOD only.')
+        return redirect('login')
+    
+    from .utils import get_faculty_complaints_summary, group_similar_complaints
+    
+    faculty = get_object_or_404(User, id=faculty_id, role='Faculty')
+    
+    if faculty.department != request.user.department:
+        messages.error(request, 'You can only view faculty from your department.')
+        return redirect('faculty_complaint_summary')
+    
+    # Get summary and group complaints
+    summary_data = get_faculty_complaints_summary(faculty)
+    all_complaints = list(summary_data['all_complaints'])
+    similar_groups = group_similar_complaints(all_complaints, similarity_threshold=0.55)
+    
+    # Get the specific group
+    if 0 <= group_index < len(similar_groups):
+        group = similar_groups[group_index]
+    else:
+        messages.error(request, 'Group not found.')
+        return redirect('faculty_complaint_summary')
+    
+    context = {
+        'page_title': 'Similar Complaints Detail',
+        'faculty': faculty,
+        'group': group,
+        'group_index': group_index,
+        'total_groups': len(similar_groups),
+    }
+    
+    return render(request, 'complaints/similar_complaints_detail.html', context)

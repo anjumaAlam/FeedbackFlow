@@ -98,7 +98,7 @@ class Complaint(models.Model):
 class ComplaintUpdate(models.Model):
     complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='updates')
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    comment = models.TextField()
+    comment = models.TextField(blank=True, null=True)
     status_changed_to = models.CharField(max_length=30, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

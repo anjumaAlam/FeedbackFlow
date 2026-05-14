@@ -112,18 +112,18 @@
                             <td><small>{{ complaint.submitted_at|date:"M d, Y" }}</small></td>
                             <td>
                                 <a href="{% url 'complaint_detail' complaint.id %}" class="btn btn-sm btn-outline-primary">View</a>
-
-                                {% if complaint.complaint_type == 'Faculty' %}
-                                    {# Faculty complaints go through investigation flow #}
-                                    {% if complaint.status == 'Pending' or complaint.status == 'Under Investigation' %}
-                                        <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-sm btn-primary">Handle</a>
-                                        <a href="{% url 'assign_investigation' complaint.id %}" class="btn btn-sm btn-warning">🔍 Investigate</a>
-                                    {% elif complaint.status == 'Findings Submitted' %}
-                                        <a href="{% url 'hod_final_action' complaint.id %}" class="btn btn-sm btn-success">⚖️ Final Action</a>
-                                    {% endif %}
-                                {% else %}
-                                    {% if complaint.status != 'Resolved' %}
-                                        <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-sm btn-primary">Handle</a>
+                                {% if mode == 'pending' %}
+                                    {% if complaint.complaint_type == 'Faculty' %}
+                                        {% if complaint.status == 'Pending' or complaint.status == 'Under Investigation' %}
+                                            <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-sm btn-primary">Handle</a>
+                                            <a href="{% url 'assign_investigation' complaint.id %}" class="btn btn-sm btn-warning">🔍 Investigate</a>
+                                        {% elif complaint.status == 'Findings Submitted' %}
+                                            <a href="{% url 'hod_final_action' complaint.id %}" class="btn btn-sm btn-success">⚖️ Final Action</a>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if complaint.status != 'Resolved' %}
+                                            <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-sm btn-primary">Handle</a>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
                             </td>
