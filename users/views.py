@@ -788,27 +788,31 @@ def feedback_analytics(request):
             )
             chart_trend = plot(fig2, output_type='div', include_plotlyjs=False)
 
-        # ── CHART 3: Semester-wise Feedback ───────────────────────────────
+        # ── CHART 3: Semester-wise Feedback Comparison ───────────────────────────────
         sem_data = (
             feedbacks
             .exclude(course__semester__isnull=True)
             .values('course__semester')
-            .annotate(count=Count('id'), avg_rating=Avg('teaching_rating'))
+            .annotate(
+                count=Count('id'),
+                avg_teaching=Avg('teaching_rating'),
+                avg_content=Avg('content_rating'),
+                avg_comm=Avg('communication_rating')
+            )
             .order_by('course__semester')
         )
         if sem_data:
             semesters = [d['course__semester'] for d in sem_data]
-            counts    = [d['count'] for d in sem_data]
-            fig3      = go.Figure(go.Bar(
-                x=semesters, y=counts,
-                marker=dict(color='#6366f1', line=dict(width=0)),
-                text=counts, textposition='outside',
-                hovertemplate='<b>%{x}</b><br>Feedback Count: %{y}<extra></extra>',
-            ))
+            fig3      = go.Figure()
+            fig3.add_trace(go.Bar(name='Teaching',      x=semesters, y=[round(d['avg_teaching'] or 0, 2) for d in sem_data], marker_color='#6366f1'))
+            fig3.add_trace(go.Bar(name='Content',       x=semesters, y=[round(d['avg_content']  or 0, 2) for d in sem_data], marker_color='#10b981'))
+            fig3.add_trace(go.Bar(name='Communication', x=semesters, y=[round(d['avg_comm']     or 0, 2) for d in sem_data], marker_color='#f59e0b'))
             fig3.update_layout(
-                title='Semester-wise Feedback Count',
+                title='Semester-wise Ratings Comparison',
+                barmode='group',
                 xaxis=dict(title='Semester', gridcolor='#f1f5f9'),
-                yaxis=dict(title='Number of Feedbacks', gridcolor='#f1f5f9'),
+                yaxis=dict(title='Avg Rating', range=[0, 5.5], gridcolor='#f1f5f9'),
+                legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
                 height=380,
                 **layout_defaults,
             )
