@@ -11,6 +11,8 @@ class Complaint(models.Model):
         ('HOD', 'Complaint about HOD'),
         ('Staff', 'Complaint about Staff'),
         ('Facility', 'Facility Issue'),
+        ('Advice', 'General Advice'),
+        ('Opinion', 'Opinion/Suggestion'),
     )
 
     STATUS_CHOICES = (
@@ -34,6 +36,7 @@ class Complaint(models.Model):
         related_name='complaints_submitted'
     )
     complaint_type = models.CharField(max_length=20, choices=COMPLAINT_TYPE_CHOICES)
+    resolution_deadline = models.DateField(null=True, blank=True, help_text='Deadline for resolving this complaint')
     subject = models.CharField(max_length=200)
     description = models.TextField()
     faculty_concerned = models.ForeignKey(
@@ -76,6 +79,11 @@ class Complaint(models.Model):
             self.tracking_id = 'CMP' + ''.join(random.choices(string.digits, k=6))
         if not self.assigned_to:
             self.auto_assign_handler()
+        # FR 5.2: Auto-assign deadline if not set (7 days for normal, 3 for urgent)
+        if not self.resolution_deadline:
+            from datetime import timedelta
+            days = 3 if self.priority == 'Urgent' else 5 if self.priority == 'High' else 7
+            self.resolution_deadline = (timezone.now() + timedelta(days=days)).date()
         super().save(*args, **kwargs)
 
     def auto_assign_handler(self):
@@ -94,6 +102,10 @@ class Complaint(models.Model):
         elif self.complaint_type == 'Facility':
             dao = User.objects.filter(role='DAO').first()
             self.assigned_to = dao if dao else User.objects.filter(role='Admin').first()
+        elif self.complaint_type in ('Advice', 'Opinion'):
+            # Advice and opinions go to HOD of the student's department or Admin
+            hod = User.objects.filter(role='HOD', department=self.student.department).first()
+            self.assigned_to = hod or User.objects.filter(role='Admin').first()
 
 class ComplaintUpdate(models.Model):
     complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='updates')

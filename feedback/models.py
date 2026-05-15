@@ -3,6 +3,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 
 class Course(models.Model):
@@ -42,6 +43,12 @@ class CourseAssignment(models.Model):
         on_delete=models.CASCADE,
         related_name='course_assignments',
         limit_choices_to={'role__in': ['Faculty', 'HOD']}
+    )
+    SECTION_CHOICES = (
+        ('A', 'Section A'),
+        ('B', 'Section B'),
+        ('C', 'Section C'),
+        ('D', 'Section D'),
     )
     SECTION_CHOICES = (
         ('A', 'Section A'),
@@ -130,6 +137,14 @@ class Feedback(models.Model):
         default='Pending'
     )
 
+    feedback_period = models.ForeignKey(
+        'FeedbackPeriod',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='feedbacks',
+        help_text='The feedback period/round this was submitted during'
+    )
+
     submitted_at = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(blank=True, null=True)
 
@@ -137,13 +152,69 @@ class Feedback(models.Model):
         ordering = ['-submitted_at']
         verbose_name = 'Feedback'
         verbose_name_plural = 'Feedback'
-        unique_together = ['student', 'course']
+        unique_together = ['student', 'course', 'feedback_period']
 
     def __str__(self):
         return f"Feedback by {self.student.email} for {self.course.course_code}"
 
     def get_average_rating(self):
         return round((self.teaching_rating + self.content_rating + self.communication_rating) / 3, 1)
+
+
+# ─────────────────────────────────────────────────────────────
+# FEEDBACK PERIOD — FR 4.1 + OR 1.5
+# ─────────────────────────────────────────────────────────────
+
+class FeedbackPeriod(models.Model):
+    """Defines when feedback can be submitted — 2-3 windows per semester."""
+    PERIOD_CHOICES = (
+        ('Mid-Term', 'Mid-Term Feedback'),
+        ('End-Term', 'End-Term Feedback'),
+        ('Special', 'Special Feedback Round'),
+    )
+
+    name = models.CharField(max_length=100, help_text='e.g. Spring 2026 Mid-Term')
+    semester = models.CharField(max_length=50, help_text='e.g. Spring 2026')
+    period_type = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='Mid-Term')
+    start_date = models.DateField()
+    end_date = models.DateField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-start_date']
+        verbose_name = 'Feedback Period'
+        verbose_name_plural = 'Feedback Periods'
+
+    def __str__(self):
+        return f"{self.name} ({self.start_date} to {self.end_date})"
+
+    @property
+    def is_open(self):
+        """Check if the feedback period is currently open."""
+        today = timezone.localdate()
+        return self.is_active and self.start_date <= today <= self.end_date
+
+    @property
+    def status_display(self):
+        today = timezone.localdate()
+        if not self.is_active:
+            return "Inactive"
+        if today < self.start_date:
+            return "Upcoming"
+        if today > self.end_date:
+            return "Expired"
+        return "Active & Open"
+
+    @classmethod
+    def get_current_period(cls):
+        """Return the currently open feedback period, if any."""
+        today = timezone.localdate()
+        return cls.objects.filter(
+            is_active=True,
+            start_date__lte=today,
+            end_date__gte=today,
+        ).first()
 
 
 class FeedbackResponse(models.Model):
@@ -179,6 +250,7 @@ class CourseRegistration(models.Model):
                         related_name='registrations'
                     )
     is_confirmed = models.BooleanField(default=False)
+    attendance_percentage = models.FloatField(default=100.0, help_text='Student attendance percentage (0-100)')
     confirmed_at = models.DateTimeField(null=True, blank=True)
     registered_at= models.DateTimeField(auto_now_add=True)
 
@@ -189,3 +261,8 @@ class CourseRegistration(models.Model):
     def __str__(self):
         status = "Confirmed" if self.is_confirmed else "Pending"
         return f"{self.student.full_name} → {self.course.course_code} [{status}]"
+
+    @property
+    def meets_attendance_requirement(self):
+        """FR 4.3: Check if student meets minimum attendance requirement (75%)."""
+        return self.attendance_percentage >= 75.0
