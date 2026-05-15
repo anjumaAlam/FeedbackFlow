@@ -177,6 +177,8 @@ class Notification(models.Model):
         ('complaint', 'Complaint'),
         ('appointment', 'Appointment'),
         ('update', 'Complaint Update'),
+        ('feedback', 'Feedback'),
+        ('announcement', 'Announcement'),
     ]
 
     recipient         = models.ForeignKey('User', on_delete=models.CASCADE, related_name='notifications')
@@ -223,3 +225,53 @@ class Task(models.Model):
 
     def __str__(self):
         return f"{self.student.full_name} — {self.title}"
+
+
+# ─────────────────────────────────────────────────────────────
+# ANNOUNCEMENT — OR 2.11
+# ─────────────────────────────────────────────────────────────
+
+class Announcement(models.Model):
+    """System-wide announcements visible to all users or specific roles."""
+    PRIORITY_CHOICES = (
+        ('Low', 'Low'),
+        ('Normal', 'Normal'),
+        ('High', 'High'),
+        ('Critical', 'Critical'),
+    )
+
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Normal')
+    target_roles = models.CharField(
+        max_length=200, blank=True, default='',
+        help_text='Comma-separated roles (e.g. Student,Faculty). Leave blank for all.'
+    )
+    created_by = models.ForeignKey('User', on_delete=models.CASCADE, related_name='announcements_created')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Announcement'
+        verbose_name_plural = 'Announcements'
+
+    def __str__(self):
+        return f"{self.title} ({self.get_priority_display()})"
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+        if self.expires_at and timezone.now() > self.expires_at:
+            return True
+        return False
+
+    def is_visible_to(self, user):
+        """Check if announcement is visible to a specific user."""
+        if self.is_expired or not self.is_active:
+            return False
+        if not self.target_roles:
+            return True
+        allowed = [r.strip() for r in self.target_roles.split(',')]
+        return user.role in allowed
