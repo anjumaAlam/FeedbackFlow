@@ -93,6 +93,15 @@
                        {% endfor %}
                    </select>
                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold text-dark">Filter by Semester</label>
+                    <select name="semester" class="form-select">
+                        <option value="">All Semesters</option>
+                        {% for sem in semesters %}
+                        <option value="{{ sem }}" {% if semester_filter == sem %}selected{% endif %}>{{ sem }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                <div class="col-md-3">
                    <button type="submit" class="btn btn-primary me-2">🔍 Apply Filters</button>
                    <a href="{% url 'feedback_reports' %}" class="btn btn-outline-secondary">Clear</a>
@@ -271,6 +280,55 @@
                            <div class="rating-bar" style="width: 200px; display: inline-block;">
                                <div class="rating-bar-fill good" style="width: {% widthratio entry.count total_feedback 100 %}%;"></div>
                            </div>
+                       </td>
+                   </tr>
+                   {% endfor %}
+                   </tbody>
+               </table>
+           </div>
+       </div>
+   </div>
+   {% endif %}
+
+   <!-- Semester-wise Comparison (FR 7.2) -->
+   {% if semester_comparison %}
+   <div class="row mb-4">
+       <div class="col-12">
+           <h3 class="section-title">📊 Semester-wise Feedback Comparison</h3>
+           <div class="modern-table">
+               <table class="table table-hover mb-0">
+                   <thead>
+                   <tr>
+                       <th>Semester</th>
+                       <th class="text-center">Total Feedback</th>
+                       <th class="text-center">Avg Teaching</th>
+                       <th class="text-center">Avg Content</th>
+                       <th class="text-center">Avg Communication</th>
+                       <th class="text-center">Overall Avg</th>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   {% for sem in semester_comparison %}
+                   <tr>
+                       <td><strong>{{ sem.course__semester }}</strong></td>
+                       <td class="text-center"><span class="badge bg-primary">{{ sem.count }}</span></td>
+                       <td class="text-center">
+                           <span class="{% if sem.avg_teaching >= 4 %}text-success{% elif sem.avg_teaching >= 3 %}text-primary{% else %}text-danger{% endif %} fw-bold">
+                               {{ sem.avg_teaching|floatformat:1 }}
+                           </span>
+                       </td>
+                       <td class="text-center">
+                           <span class="{% if sem.avg_content >= 4 %}text-success{% elif sem.avg_content >= 3 %}text-primary{% else %}text-danger{% endif %} fw-bold">
+                               {{ sem.avg_content|floatformat:1 }}
+                           </span>
+                       </td>
+                       <td class="text-center">
+                           <span class="{% if sem.avg_communication >= 4 %}text-success{% elif sem.avg_communication >= 3 %}text-primary{% else %}text-danger{% endif %} fw-bold">
+                               {{ sem.avg_communication|floatformat:1 }}
+                           </span>
+                       </td>
+                       <td class="text-center">
+                           <strong>{{ sem.avg_teaching|floatformat:1 }}</strong>
                        </td>
                    </tr>
                    {% endfor %}

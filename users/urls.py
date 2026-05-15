@@ -42,7 +42,11 @@ urlpatterns = [
     path('dashboard/users/<int:user_id>/edit/',           views.admin_user_edit,          name='admin_user_edit'),
     path('dashboard/users/<int:user_id>/delete/',         views.admin_user_delete,        name='admin_user_delete'),
     path('dashboard/users/<int:user_id>/toggle-active/',  views.admin_user_toggle_active, name='admin_user_toggle_active'),
-
+    
+    # ── Announcements (Admin) ─────────────────────────────────────────────
+    path('dashboard/announcements/', views.admin_announcement_list, name='admin_announcement_list'),
+    path('dashboard/announcements/add/', views.admin_announcement_add, name='admin_announcement_add'),
+    path('dashboard/announcements/<int:announcement_id>/delete/', views.admin_announcement_delete, name='admin_announcement_delete'),
     # ── Reports ───────────────────────────────────────────────────────────
     path('dashboard/feedback-reports/', views.feedback_reports, name='feedback_reports'),
     path('reports/feedback/',           views.feedback_reports, name='feedback_reports_alt'),
