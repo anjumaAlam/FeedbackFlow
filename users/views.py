@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
@@ -514,12 +514,13 @@ def hod_faculty_list(request):
 def feedback_reports(request):
     if request.user.role not in ['Admin', 'HOD']:
         return redirect('login')
-    dept_filter   = request.GET.get('department', '')
-    date_from     = request.GET.get('date_from', '')
-    date_to       = request.GET.get('date_to', '')
-    course_filter = request.GET.get('course', '')
+    dept_filter    = request.GET.get('department', '')
+    date_from      = request.GET.get('date_from', '')
+    date_to        = request.GET.get('date_to', '')
+    course_filter  = request.GET.get('course', '')
     faculty_filter = request.GET.get('faculty', '')
-    feedbacks     = Feedback.objects.all()
+    semester_filter = request.GET.get('semester', '')  # FR 7.2: semester filter
+    feedbacks      = Feedback.objects.all()
     if request.user.role == 'HOD':
         feedbacks = feedbacks.filter(course__department=request.user.department)
     if dept_filter:
@@ -532,6 +533,8 @@ def feedback_reports(request):
         feedbacks = feedbacks.filter(course_id=course_filter)
     if faculty_filter:
         feedbacks = feedbacks.filter(faculty_id=faculty_filter)
+    if semester_filter:
+        feedbacks = feedbacks.filter(course__semester=semester_filter)
     avg_ratings = feedbacks.aggregate(
         avg_teaching=Avg('teaching_rating'),
         avg_content=Avg('content_rating'),
@@ -554,24 +557,55 @@ def feedback_reports(request):
         'Reviewed':  feedbacks.filter(status='Reviewed').count(),
         'Responded': feedbacks.filter(status='Responded').count(),
     }
+
+    # FR 7.2: Semester-wise comparison data
+    all_fb = Feedback.objects.all()
+    if request.user.role == 'HOD':
+        all_fb = all_fb.filter(course__department=request.user.department)
+    semester_comparison = (
+        all_fb
+        .exclude(course__semester__isnull=True)
+        .exclude(course__semester='')
+        .values('course__semester')
+        .annotate(
+            count=Count('id'),
+            avg_teaching=Avg('teaching_rating'),
+            avg_content=Avg('content_rating'),
+            avg_communication=Avg('communication_rating'),
+        )
+        .order_by('course__semester')
+    )
+
+    # Available semesters for filter dropdown
+    semesters = (
+        Course.objects.exclude(semester__isnull=True)
+        .exclude(semester='')
+        .values_list('semester', flat=True)
+        .distinct()
+        .order_by('semester')
+    )
+
     context = {
-        'feedbacks':          feedbacks,
-        'course_stats':       course_stats,
-        'total_feedback':     feedbacks.count(),
-        'avg_teaching':       avg_teaching,
-        'avg_content':        avg_content,
-        'avg_communication':  avg_communication,
-        'overall_avg':        overall_avg,
-        'status_counts':      status_counts,
-        'dept_filter':        dept_filter,
-        'date_from':          date_from,
-        'date_to':            date_to,
-        'course_filter':      course_filter,
-        'faculty_filter':     faculty_filter,
-        'departments':        User.DEPARTMENT_CHOICES,
-        'department_choices': User.DEPARTMENT_CHOICES,
-        'courses':            (Course.objects.filter(department=request.user.department, is_active=True).order_by('course_code') if request.user.role == 'HOD' else Course.objects.filter(is_active=True).order_by('course_code')),
-        'faculty_list':       (User.objects.filter(role='Faculty', department=request.user.department) if request.user.role == 'HOD' else User.objects.filter(role='Faculty').order_by('full_name')),
+        'feedbacks':            feedbacks,
+        'course_stats':         course_stats,
+        'total_feedback':       feedbacks.count(),
+        'avg_teaching':         avg_teaching,
+        'avg_content':          avg_content,
+        'avg_communication':    avg_communication,
+        'overall_avg':          overall_avg,
+        'status_counts':        status_counts,
+        'dept_filter':          dept_filter,
+        'date_from':            date_from,
+        'date_to':              date_to,
+        'course_filter':        course_filter,
+        'faculty_filter':       faculty_filter,
+        'semester_filter':      semester_filter,
+        'departments':          User.DEPARTMENT_CHOICES,
+        'department_choices':   User.DEPARTMENT_CHOICES,
+        'courses':              (Course.objects.filter(department=request.user.department, is_active=True).order_by('course_code') if request.user.role == 'HOD' else Course.objects.filter(is_active=True).order_by('course_code')),
+        'faculty_list':         (User.objects.filter(role='Faculty', department=request.user.department) if request.user.role == 'HOD' else User.objects.filter(role='Faculty').order_by('full_name')),
+        'semesters':            semesters,
+        'semester_comparison':  semester_comparison,
     }
     return render(request, 'users/feedback_reports.html', context)
 
@@ -1208,9 +1242,15 @@ def task_list(request):
     tasks  = Task.objects.filter(student=request.user)
     daily  = tasks.filter(task_type='Daily')
     weekly = tasks.filter(task_type='Weekly')
+    
+    total_tasks = tasks.count()
+    completed_tasks = tasks.filter(is_done=True).count()
+    
     return render(request, 'users/task_list.html', {
         'daily':  daily,
         'weekly': weekly,
+        'total_tasks': total_tasks,
+        'completed_tasks': completed_tasks,
     })
 
 
@@ -1292,3 +1332,53 @@ def dao_dashboard(request):
         'staff_list':          staff_list,
     }
     return render(request, 'users/dao_dashboard.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.role == 'Admin')
+def admin_announcement_list(request):
+    from .models import Announcement
+    announcements = Announcement.objects.all().order_by('-created_at')
+    context = {
+        'announcements': announcements,
+        'page_title': 'Announcements'
+    }
+    return render(request, 'users/admin_announcement_list.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.role == 'Admin')
+def admin_announcement_add(request):
+    from .forms import AnnouncementForm
+    if request.method == 'POST':
+        form = AnnouncementForm(request.POST)
+        if form.is_valid():
+            announcement = form.save(commit=False)
+            announcement.created_by = request.user
+            announcement.save()
+            messages.success(request, 'Announcement created successfully.')
+            return redirect('admin_announcement_list')
+    else:
+        form = AnnouncementForm()
+    context = {
+        'form': form,
+        'page_title': 'Add Announcement'
+    }
+    return render(request, 'users/admin_announcement_form.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.role == 'Admin')
+def admin_announcement_delete(request, announcement_id):
+    from .models import Announcement
+    announcement = get_object_or_404(Announcement, id=announcement_id)
+    if request.method == 'POST':
+        title = announcement.title
+        announcement.delete()
+        messages.success(request, f'Announcement "{title}" deleted.')
+        return redirect('admin_announcement_list')
+    context = {
+        'announcement': announcement,
+        'page_title': 'Delete Announcement'
+    }
+    return render(request, 'users/admin_announcement_delete.html', context)

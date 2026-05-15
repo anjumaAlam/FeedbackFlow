@@ -480,7 +480,7 @@
     <!-- SUMMARY STATS -->
     <div class="task-summary-row">
         <div class="task-summary-box summary-total">
-            <div class="task-summary-number">{{ daily|length|add:weekly|length }}</div>
+            <div class="task-summary-number">{{ total_tasks }}</div>
             <div class="task-summary-label">Total Tasks</div>
         </div>
         <div class="task-summary-box summary-daily">
@@ -492,13 +492,7 @@
             <div class="task-summary-label">Weekly Tasks</div>
         </div>
         <div class="task-summary-box summary-done">
-            <div class="task-summary-number">
-                {% with done_count=0 %}
-                {% for t in daily %}{% if t.is_done %}{% with done_count=done_count|add:1 %}{% endwith %}{% endif %}{% endfor %}
-                {% for t in weekly %}{% if t.is_done %}{% with done_count=done_count|add:1 %}{% endwith %}{% endif %}{% endfor %}
-                {% endwith %}
-                —
-            </div>
+            <div class="task-summary-number">{{ completed_tasks }}</div>
             <div class="task-summary-label">Completed</div>
         </div>
     </div>

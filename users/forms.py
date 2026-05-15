@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 import re
-from .models import User
+from .models import User, Announcement
 
 DEPARTMENT_CHOICES = [
     ('', 'Select Department'),
@@ -444,3 +444,34 @@ class AdminStudentUpdateForm(forms.Form):
             'placeholder': 'Write the update message for the student...'
         })
     )
+
+
+class AnnouncementForm(forms.ModelForm):
+    TARGET_ROLE_CHOICES = [
+        ('', 'All (Everyone)'),
+        ('Student', 'Student'),
+        ('Faculty', 'Faculty'),
+        ('HOD', 'Head of Department'),
+        ('Staff', 'Staff'),
+        ('DAO', 'Dean of Administration Office'),
+        ('Admin', 'Administrator'),
+        ('Committee', 'Committee Member'),
+    ]
+
+    target_roles = forms.ChoiceField(
+        choices=TARGET_ROLE_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        help_text='Select the specific role to target, or leave as All.'
+    )
+
+    class Meta:
+        model = Announcement
+        fields = ['title', 'content', 'priority', 'target_roles', 'is_active', 'expires_at']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Announcement Title'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Write announcement content here...'}),
+            'priority': forms.Select(attrs={'class': 'form-select'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'expires_at': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+        }
