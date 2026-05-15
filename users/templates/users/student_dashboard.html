@@ -49,7 +49,7 @@
             <div class="stat-card red">
                 <span class="stat-icon">🔔</span>
                 <h2 class="stat-number">{{ active_complaints }}</h2>
-                <p class="stat-label">Active Complaints</p>
+                <p class="stat-label">Active Issues</p>
             </div>
         </div>
     </div>
@@ -67,7 +67,7 @@
             <div class="stat-card indigo">
                 <span class="stat-icon">📢</span>
                 <h2 class="stat-number">{{ total_complaints }}</h2>
-                <p class="stat-label">Complaints Filed</p>
+                <p class="stat-label">Issues/Suggestions Filed</p>
             </div>
         </div>
         <!-- TASK STAT CARD -->
@@ -90,13 +90,13 @@
                     <i class="bi bi-pencil"></i> Submit Feedback
                 </a>
                 <a href="{% url 'submit_complaint' %}" class="btn btn-danger quick-action-btn">
-                    <i class="bi bi-megaphone"></i> File Complaint
+                    <i class="bi bi-megaphone"></i> Report Issue / Advice
                 </a>
                 <a href="{% url 'my_feedback' %}" class="btn btn-outline-primary quick-action-btn">
                     <i class="bi bi-list-check"></i> View My Feedback
                 </a>
                 <a href="{% url 'my_complaints' %}" class="btn btn-outline-danger quick-action-btn">
-                    <i class="bi bi-file-text"></i> View My Complaints
+                    <i class="bi bi-file-text"></i> View My Submissions
                 </a>
                 <a href="{% url 'course_registration' %}" class="btn btn-success quick-action-btn">
                     <i class="bi bi-journal-check"></i> Register Courses
