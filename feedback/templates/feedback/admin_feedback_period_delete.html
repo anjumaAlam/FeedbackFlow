@@ -1,0 +1,21 @@
+{% extends 'users/dashboard_base.html' %}
+
+{% block title %}Delete Feedback Period - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+    <div class="card info-card border-danger">
+        <div class="card-body p-4 text-center">
+            <h3 class="text-danger mb-3">⚠️ Confirm Deletion</h3>
+            <p>Are you sure you want to delete the feedback period <strong>"{{ period.name }}"</strong>?</p>
+            <p class="text-muted small">This action cannot be undone.</p>
+            
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <a href="{% url 'admin_feedback_period_list' %}" class="btn btn-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

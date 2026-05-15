@@ -1,0 +1,84 @@
+{% extends 'users/dashboard_base.html' %}
+
+{% block title %}Course Registrations - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1>📋 Course Registrations</h1>
+                <p class="mb-0 opacity-75">View and manage student course registrations</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'admin_registration_add' %}" class="btn btn-light btn-lg">
+                    ➕ Add Registration
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registrations Table -->
+    <div class="modern-table mt-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">Edit attendance percentages or confirm registrations directly below.</span>
+                <button type="submit" name="bulk_update" class="btn btn-primary">Save Changes</button>
+            </div>
+            <table class="table table-hover mb-0">
+                <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Semester</th>
+                    <th>Attendance %</th>
+                    <th>Confirmed?</th>
+                    <th>Date Confirmed</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for reg in registrations %}
+                <tr>
+                    <td><strong>{{ reg.student.full_name }}</strong><br><small class="text-muted">{{ reg.student.student_id }}</small></td>
+                    <td>{{ reg.course.course_code }}<br><small class="text-muted">{{ reg.course.course_name }}</small></td>
+                    <td>{{ reg.course.semester }}</td>
+                    <td>
+                        <input type="number" step="0.1" min="0" max="100" name="attendance_{{ reg.id }}" value="{{ reg.attendance_percentage }}" class="form-control form-control-sm" style="width: 80px; display: inline-block;">
+                        {% if reg.attendance_percentage < 75 %}
+                        <span class="badge bg-danger mt-1 d-inline-block shadow-sm">Low Attendance</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="form-check d-flex justify-content-center">
+                            <input class="form-check-input" type="checkbox" name="is_confirmed_{{ reg.id }}" id="confirm_{{ reg.id }}" style="transform: scale(1.5); cursor: pointer;" {% if reg.is_confirmed %}checked{% endif %}>
+                        </div>
+                    </td>
+                    <td>{{ reg.confirmed_at|date:"M d, Y"|default:"-" }}</td>
+                    <td>
+                        <a href="{% url 'admin_registration_delete' reg.id %}" class="btn btn-sm btn-outline-danger" title="Delete">🗑️</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        No course registrations found. <a href="{% url 'admin_registration_add' %}">Add one now</a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            
+            {% if registrations %}
+            <div class="text-end mt-3">
+                <button type="submit" name="bulk_update" class="btn btn-primary">Save Changes</button>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+</div>
+{% endblock %}

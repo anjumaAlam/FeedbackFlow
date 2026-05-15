@@ -2,7 +2,7 @@
 
 from django import forms
 from django.contrib.auth import get_user_model
-from .models import Feedback, FeedbackResponse, Course, CourseAssignment
+from .models import Feedback, FeedbackResponse, Course, CourseAssignment, FeedbackPeriod
 
 User = get_user_model()
 
@@ -98,10 +98,14 @@ class FeedbackSubmissionForm(forms.ModelForm):
 
         # Exclude courses already submitted feedback for
         if user:
-            already_submitted = Feedback.objects.filter(
-                student=user
-            ).values_list('course_id', flat=True)
-            qs = qs.exclude(id__in=already_submitted)
+            from .models import FeedbackPeriod
+            current_period = FeedbackPeriod.get_current_period()
+            if current_period:
+                already_submitted = Feedback.objects.filter(
+                    student=user,
+                    feedback_period=current_period
+                ).values_list('course_id', flat=True)
+                qs = qs.exclude(id__in=already_submitted)
 
         self.fields['course'].queryset = qs
 
@@ -191,4 +195,30 @@ class CourseForm(forms.ModelForm):
             'department': forms.Select(choices=User.DEPARTMENT_CHOICES, attrs={'class': 'form-select'}),
             'semester': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Spring 2026'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        }
+
+
+class FeedbackPeriodForm(forms.ModelForm):
+    class Meta:
+        model = FeedbackPeriod
+        fields = ['name', 'start_date', 'end_date', 'period_type', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Spring 2026 Feedback'}),
+            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'period_type': forms.Select(attrs={'class': 'form-select'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'})
+        }
+
+class CourseRegistrationForm(forms.ModelForm):
+    class Meta:
+        from .models import CourseRegistration
+        model = CourseRegistration
+        fields = ['student', 'course', 'is_confirmed', 'attendance_percentage', 'confirmed_at']
+        widgets = {
+            'student': forms.Select(attrs={'class': 'form-select'}),
+            'course': forms.Select(attrs={'class': 'form-select'}),
+            'is_confirmed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'attendance_percentage': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'min': '0', 'max': '100'}),
+            'confirmed_at': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
         }

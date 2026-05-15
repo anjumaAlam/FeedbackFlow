@@ -16,6 +16,7 @@
         <th>Faculty</th>
         <th>Primary</th>
         <th>Assigned At</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -26,6 +27,9 @@
         <td>{{ a.faculty.full_name }} ({{ a.faculty.email }})</td>
         <td>{% if a.is_primary %}Yes{% else %}No{% endif %}</td>
         <td>{{ a.assigned_at|date:"Y-m-d H:i" }}</td>
+        <td>
+            <a href="{% url 'admin_assignment_edit' a.id %}" class="btn btn-sm btn-outline-primary" title="Edit">✏️</a>
+        </td>
       </tr>
       {% empty %}
       <tr><td colspan="5">No assignments yet.</td></tr>
