@@ -45,47 +45,36 @@ def submit_complaint(request):
             complaint.student = request.user
             complaint.save()
 
-            if complaint.complaint_type == 'Faculty':
-                if complaint.assigned_to:
-                    create_notification(
-                        recipient=complaint.assigned_to,
-                        title=f'New Faculty Complaint: {complaint.subject}',
-                        message=f'A new complaint has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
-                        notification_type='complaint',
-                        link=f'/complaints/hod/handle/{complaint.id}/',
-                    )
-
-            elif complaint.complaint_type == 'HOD':
-                for admin in User.objects.filter(role='Admin'):
-                    create_notification(
-                        recipient=admin,
-                        title=f'New HOD Complaint: {complaint.subject}',
-                        message=f'A complaint against HOD has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
-                        notification_type='complaint',
-                        link=f'/complaints/admin/handle/{complaint.id}/',
-                    )
-
-            elif complaint.complaint_type == 'Staff':
-                if complaint.assigned_to:
-                    create_notification(
-                        recipient=complaint.assigned_to,
-                        title=f'New Staff Complaint: {complaint.subject}',
-                        message=f'A complaint has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
-                        notification_type='complaint',
-                        link=f'/complaints/hod/handle/{complaint.id}/',
-                    )
-
+            noun = 'Complaint'
+            if complaint.complaint_type in ['Advice', 'Opinion']:
+                noun = complaint.complaint_type
             elif complaint.complaint_type == 'Facility':
-                if complaint.assigned_to:
-                    create_notification(
-                        recipient=complaint.assigned_to,
-                        title=f'New Facility Issue: {complaint.subject}',
-                        message=f'A facility issue has been reported by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
-                        notification_type='complaint',
-                        link=f'/complaints/hod/handle/{complaint.id}/',
-                    )
+                noun = 'Issue'
 
-            messages.success(request, f'Complaint submitted successfully! Tracking ID: {complaint.tracking_id}')
+            if complaint.assigned_to:
+                # Notify the assigned handler
+                handler_link = f'/complaints/hod/handle/{complaint.id}/'
+                
+                create_notification(
+                    recipient=complaint.assigned_to,
+                    title=f'New {noun} Received: {complaint.subject}',
+                    message=f'A new {noun.lower()} has been submitted. Tracking ID: {complaint.tracking_id}',
+                    notification_type='complaint',
+                    link=handler_link,
+                )
+
+            # Acknowledgment to the student
+            create_notification(
+                recipient=request.user,
+                title=f'{noun} Submitted Successfully ✅',
+                message=f'Your {noun.lower()} "{complaint.subject}" has been received. '
+                        f'Tracking ID: {complaint.tracking_id}. '
+                        f'It has been assigned to the appropriate handler and you will be notified of any updates.',
+                notification_type='complaint',
+                link=f'/complaints/detail/{complaint.id}/',
+            )
+
+            messages.success(request, f'{noun} submitted successfully! Tracking ID: {complaint.tracking_id}')
             return redirect('my_complaints')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -204,12 +193,33 @@ def handle_complaint(request, complaint_id):
                 complaint.status = update.status_changed_to
                 if update.status_changed_to == 'Resolved':
                     complaint.resolved_at = timezone.now()
+                elif update.status_changed_to == 'Escalated':
+                    noun = 'Complaint'
+                    if complaint.complaint_type in ['Advice', 'Opinion']:
+                        noun = complaint.complaint_type
+                    elif complaint.complaint_type == 'Facility':
+                        noun = 'Issue'
+                    
+                    for admin in User.objects.filter(role='Admin'):
+                        create_notification(
+                            recipient=admin,
+                            title=f'{noun} Escalated: {complaint.tracking_id}',
+                            message=f'"{complaint.subject}" has been escalated by {request.user.full_name}.',
+                            notification_type='complaint',
+                            link=f'/complaints/hod/handle/{complaint.id}/',
+                        )
                 complaint.save()
+
+            noun = 'Complaint'
+            if complaint.complaint_type in ['Advice', 'Opinion']:
+                noun = complaint.complaint_type
+            elif complaint.complaint_type == 'Facility':
+                noun = 'Issue'
 
             create_notification(
                 recipient=complaint.student,
-                title=f'Update on your complaint: {complaint.tracking_id}',
-                message=f'Your complaint "{complaint.subject}" has been updated. New status: {complaint.status}',
+                title=f'Update on your {noun.lower()}: {complaint.tracking_id}',
+                message=f'Your {noun.lower()} "{complaint.subject}" has been updated. New status: {complaint.status}',
                 notification_type='update',
                 link=f'/complaints/detail/{complaint.id}/',
             )
@@ -488,7 +498,7 @@ def hod_final_action(request, complaint_id):
                         title=f'Escalated Complaint: {complaint.tracking_id}',
                         message=f'HOD {request.user.full_name} has escalated complaint {complaint.tracking_id} to you.',
                         notification_type='complaint',
-                        link=f'/complaints/admin/handle/{complaint.id}/',
+                        link=f'/complaints/hod/handle/{complaint.id}/',
                     )
 
             elif action == 'More Investigation':
@@ -579,6 +589,8 @@ def admin_complaints_list(request):
         'hod_complaints': complaints_list.filter(complaint_type='HOD').count(),
         'staff_complaints': complaints_list.filter(complaint_type='Staff').count(),
         'facility_complaints': complaints_list.filter(complaint_type='Facility').count(),
+        'advice_complaints': complaints_list.filter(complaint_type='Advice').count(),
+        'opinion_complaints': complaints_list.filter(complaint_type='Opinion').count(),
         'page_title': 'All Complaints'
     }
     return render(request, 'complaints/admins_complaints_list.html', context)
@@ -963,11 +975,30 @@ def similar_complaints_detail(request, faculty_id, group_index):
     return render(request, 'complaints/similar_complaints_detail.html', context)
 
 
-@login_required
 def public_log(request):
-    complaints = Complaint.objects.filter(status='Resolved', complaint_type='Facility').order_by('-resolved_at')[:50]
+    """FR 7.5: Public anonymized log of ALL resolved issues — no login required."""
+    type_filter = request.GET.get('type', '')
+    complaints = Complaint.objects.filter(status='Resolved').order_by('-resolved_at')
+    if type_filter:
+        complaints = complaints.filter(complaint_type=type_filter)
+    complaints = complaints[:50]
+
+    # Count by type for filter badges
+    all_resolved = Complaint.objects.filter(status='Resolved')
+    type_counts = {
+        'all': all_resolved.count(),
+        'Faculty': all_resolved.filter(complaint_type='Faculty').count(),
+        'HOD': all_resolved.filter(complaint_type='HOD').count(),
+        'Staff': all_resolved.filter(complaint_type='Staff').count(),
+        'Facility': all_resolved.filter(complaint_type='Facility').count(),
+        'Advice': all_resolved.filter(complaint_type='Advice').count(),
+        'Opinion': all_resolved.filter(complaint_type='Opinion').count(),
+    }
+
     context = {
         'complaints': complaints,
+        'type_filter': type_filter,
+        'type_counts': type_counts,
         'page_title': 'Public Resolved Issues Log'
     }
     return render(request, 'complaints/public_log.html', context)

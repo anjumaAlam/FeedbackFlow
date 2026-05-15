@@ -1,5 +1,5 @@
 {% extends 'users/base.html' %}
-{% block title %}Submit Complaint - FeedbackFlow{% endblock %}
+{% block title %}Submit Complaint / Advice / Opinion - FeedbackFlow{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -159,13 +159,13 @@
 
     <div class="card complaint-form-card">
         <div class="card-header bg-danger text-white">
-            <h3 class="mb-0">📢 Submit Complaint</h3>
+            <h3 class="mb-0">📨 Submit Complaint / Advice / Opinion</h3>
         </div>
 
         <div class="card-body p-4">
 
             <div class="alert alert-info mb-4">
-                <strong>📝 Important:</strong> Your complaint will be automatically routed to the appropriate authority:
+                <strong>📝 Important:</strong> Your submission will be automatically routed to the appropriate authority:
                 <ul class="mb-0 mt-2">
                     <li><strong>Faculty Complaint</strong> → Your HOD</li>
                     <li><strong>HOD Complaint</strong> → Higher Authority</li>
@@ -174,16 +174,28 @@
                 </ul>
             </div>
 
+            <!-- APPOINTMENT SECTION BANNER -->
+            <div class="alert mb-4" style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:16px;">
+                <div class="d-flex align-items-center">
+                    <div style="font-size:32px; margin-right:16px;">⚠️</div>
+                    <div>
+                        <h5 style="color:#b45309; margin-bottom:4px; font-weight:700;">Urgent Incident or Harassment?</h5>
+                        <p style="color:#92400e; margin-bottom:10px; font-size:14px;">If you are facing harassment, discrimination, or abuse, please book a direct appointment with the Harassment or Proctorial Committee instead of filing a general complaint.</p>
+                        <a href="{% url 'appointment' %}" class="btn btn-warning btn-sm fw-bold">📅 Book an Appointment</a>
+                    </div>
+                </div>
+            </div>
+
             <form method="post">
                 {% csrf_token %}
 
                 <!-- Complaint Type -->
                 <div class="form-section">
-                    <h5 class="section-title">Select Complaint Type</h5>
+                    <h5 class="section-title">Category</h5>
 
                     <div class="mb-3">
                         <label for="{{ form.complaint_type.id_for_label }}" class="form-label">
-                            Type of Complaint <span class="text-danger">*</span>
+                            Type of Submission <span class="text-danger">*</span>
                         </label>
 
                         {{ form.complaint_type }}
@@ -196,7 +208,7 @@
 
                 <!-- Complaint Details -->
                 <div class="form-section">
-                    <h5 class="section-title">Complaint Details</h5>
+                    <h5 class="section-title">Details</h5>
 
                     <div class="mb-3">
                         <label for="{{ form.subject.id_for_label }}" class="form-label">
@@ -218,7 +230,7 @@
                         {{ form.description }}
 
                         <small class="form-text">
-                            Please provide as much detail as possible to help us address your concern
+                            Please provide as much detail as possible to help us address your concern or understand your suggestion
                         </small>
 
                         {% if form.description.errors %}
@@ -242,7 +254,7 @@
                         </select>
 
                         <small class="form-text" id="member-help-text">
-                            Select if your complaint is about a specific faculty or staff member
+                            Select if your submission is about a specific faculty or staff member
                         </small>
 
                         {% if form.faculty_concerned.errors %}
@@ -291,7 +303,7 @@
 
                 <!-- Actions -->
                 <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-danger btn-lg">📤 Submit Complaint</button>
+                    <button type="submit" class="btn btn-danger btn-lg">📤 Submit Securely</button>
                     <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
                 </div>
             </form>
