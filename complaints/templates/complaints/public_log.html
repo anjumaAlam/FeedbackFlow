@@ -6,15 +6,16 @@
 <div class="container-fluid">
     <div class="page-header">
         <span class="page-eyebrow">Public Log</span>
-        <h1 class="page-title">Resolved Facility Issues</h1>
-        <p class="page-sub">A transparent, anonymized log of all facility and infrastructure issues that have been successfully resolved by our staff.</p>
+        <h1 class="page-title" style="color: #ffffff !important;">Resolved Facility Issues</h1>
+        <p class="page-sub" style="color: #e2e8f0 !important; font-size: 15px;">A transparent, anonymized log of all
+            facility and infrastructure issues that have been successfully resolved by our staff.</p>
     </div>
 
     <div class="content-card">
         <div class="card-header-bar">
             <div class="card-header-title">Recently Fixed</div>
         </div>
-        
+
         {% if complaints %}
         <div class="table-responsive">
             <table class="dtable">
@@ -29,8 +30,11 @@
                 <tbody>
                     {% for complaint in complaints %}
                     <tr>
-                        <td style="color:#64748b; font-weight:600; font-size:13px;">{{ complaint.resolved_at|date:"M d, Y" }}</td>
-                        <td><span style="background:rgba(59,130,246,.1); color:#1d4ed8; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:600;">{{ complaint.location|default:"General Campus" }}</span></td>
+                        <td style="color:#64748b; font-weight:600; font-size:13px;">{{ complaint.resolved_at|date:"M d,
+                            Y" }}</td>
+                        <td><span
+                                style="background:rgba(59,130,246,.1); color:#1d4ed8; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:600;">{{
+                                complaint.location|default:"General Campus" }}</span></td>
                         <td>
                             <strong>{{ complaint.subject }}</strong><br>
                             <small style="color:#64748b;">{{ complaint.description|truncatewords:15 }}</small>

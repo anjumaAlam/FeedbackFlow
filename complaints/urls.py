@@ -24,6 +24,7 @@ urlpatterns = [
 
     # ── Admin ─────────────────────────────────────────────────────────────
     path('admin/list/', views.admin_complaints_list, name='admin_complaints_list'),
+    path('admin/handle/<int:complaint_id>/', views.handle_complaint, name='admin_handle_complaint'),
     path('dao/list/', views.dao_complaints_list, name='dao_complaints_list'),
     path('dao/escalate/<int:complaint_id>/', views.dao_escalate_complaint, name='dao_escalate_complaint'),
     path('dao/assign-staff/<int:complaint_id>/', views.dao_assign_staff, name='dao_assign_staff'),
