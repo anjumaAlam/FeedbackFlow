@@ -5,9 +5,6 @@
 <style>
 
 
-
-
-
     /* Page wrapper — centered with max width */
     .dao-wrap {
         max-width: 960px;
@@ -663,11 +660,11 @@
 
         {% if recent_complaints %}
 
-        <!-- Responsive Table Wrapper -->
+
         <div class="table-responsive-wrap">
             <table class="dao-table">
 
-                <!-- Table Head -->
+
                 <thead>
                     <tr>
                         <th>Tracking ID</th>
@@ -679,22 +676,22 @@
                     </tr>
                 </thead>
 
-                <!-- Table Body -->
+
                 <tbody>
                 {% for c in recent_complaints %}
                 <tr>
 
-                    <!-- Tracking ID -->
+
                     <td>
                         <span class="dao-table-tracking">{{ c.tracking_id }}</span>
                     </td>
 
-                    <!-- Subject -->
+
                     <td>
                         <span class="dao-table-subject">{{ c.subject|truncatechars:35 }}</span>
                     </td>
 
-                    <!-- Priority Badge -->
+
                     <td>
                         {% if c.priority == 'High' %}
                             <span class="priority-badge priority-high">High</span>
@@ -709,7 +706,7 @@
                         {% endif %}
                     </td>
 
-                    <!-- Status Badge -->
+
                     <td>
                         {% if c.status == 'Pending' %}
                             <span class="status-badge status-pending">Pending</span>
@@ -724,22 +721,22 @@
                         {% endif %}
                     </td>
 
-                    <!-- Reported Date -->
+
                     <td>
                         <span class="dao-table-date">{{ c.submitted_at|date:"M d, Y" }}</span>
                     </td>
 
-                    <!-- Action Buttons -->
+
                     <td>
                         <div class="dao-table-actions">
 
-                            <!-- Handle Button — always visible -->
+
                             <a href="{% url 'handle_complaint' c.id %}"
                                class="btn-handle">
                                 ✏️ Handle
                             </a>
 
-                            <!-- Escalate Button — only if not already escalated or resolved -->
+
                             {% if c.status != 'Escalated' and c.status != 'Resolved' %}
                             <a href="{% url 'dao_escalate_complaint' c.id %}"
                                onclick="return confirm('Escalate this complaint to the Head? The student will be notified.')"
