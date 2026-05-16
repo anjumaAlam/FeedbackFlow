@@ -68,5 +68,6 @@ urlpatterns = [
     path('tasks/add/',                   views.task_add,    name='task_add'),
     path('tasks/<int:task_id>/toggle/',  views.task_toggle, name='task_toggle'),
     path('tasks/<int:task_id>/delete/',  views.task_delete, name='task_delete'),
+    path('timeline/', views.academic_timeline, name='academic_timeline'),
 ]
 

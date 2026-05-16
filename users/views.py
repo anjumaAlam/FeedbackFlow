@@ -1416,3 +1416,86 @@ def admin_announcement_delete(request, announcement_id):
         'page_title': 'Delete Announcement'
     }
     return render(request, 'users/admin_announcement_delete.html', context)
+
+@login_required
+def academic_timeline(request):
+    if request.user.role != 'Student':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    from complaints.models import Complaint, ComplaintUpdate
+    from feedback.models import Feedback
+    from users.models import Appointment, Notification
+
+    timeline_items = []
+
+    # Complaints submitted
+    for c in Complaint.objects.filter(student=request.user).order_by('-submitted_at'):
+        timeline_items.append({
+            'type': 'complaint',
+            'date': c.submitted_at,
+            'title': f'Complaint Filed — {c.tracking_id}',
+            'subtitle': c.subject,
+            'detail': c.get_complaint_type_display(),
+            'status': c.status,
+            'link': f'/complaints/detail/{c.id}/',
+            'icon': '📢',
+            'color': 'red',
+        })
+
+    # Complaint updates
+    for u in ComplaintUpdate.objects.filter(
+        complaint__student=request.user
+    ).order_by('-created_at'):
+        timeline_items.append({
+            'type': 'update',
+            'date': u.created_at,
+            'title': f'Complaint Update — {u.complaint.tracking_id}',
+            'subtitle': u.status_changed_to if u.status_changed_to else 'Comment added',
+            'detail': u.comment[:100] if u.comment else '',
+            'status': u.status_changed_to or '',
+            'link': f'/complaints/detail/{u.complaint.id}/',
+            'icon': '🔔',
+            'color': 'amber',
+        })
+
+    # Feedback submitted
+    for f in Feedback.objects.filter(student=request.user).order_by('-submitted_at'):
+        timeline_items.append({
+            'type': 'feedback',
+            'date': f.submitted_at,
+            'title': f'Feedback Submitted — {f.course.course_code}',
+            'subtitle': f.course.course_name,
+            'detail': f'Rating: {f.get_average_rating}/5 ⭐',
+            'status': f.status if hasattr(f, 'status') else 'Submitted',
+            'link': '',
+            'icon': '📝',
+            'color': 'blue',
+        })
+
+    # Appointments booked
+    for a in Appointment.objects.filter(student=request.user).order_by('-created_at'):
+        timeline_items.append({
+            'type': 'appointment',
+            'date': a.created_at,
+            'title': f'Appointment Booked',
+            'subtitle': f'With: {a.faculty.full_name if hasattr(a, "faculty") and a.faculty else "Faculty"}',
+            'detail': a.status,
+            'status': a.status,
+            'link': '',
+            'icon': '📅',
+            'color': 'green',
+        })
+
+    # Sort all items by date newest first
+    timeline_items.sort(key=lambda x: x['date'], reverse=True)
+
+    context = {
+        'page_title': 'My Academic Timeline',
+        'timeline_items': timeline_items,
+        'total': len(timeline_items),
+        'complaints_count': Complaint.objects.filter(student=request.user).count(),
+        'feedback_count': Feedback.objects.filter(student=request.user).count(),
+        'resolved_count': Complaint.objects.filter(student=request.user, status='Resolved').count(),
+    }
+    return render(request, 'users/academic_timeline.html', context)

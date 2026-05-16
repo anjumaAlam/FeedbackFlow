@@ -3440,3 +3440,46 @@ django.template.exceptions.TemplateDoesNotExist: complaints/staff_task_list.html
 [2026-05-16 19:15:48,576] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
 [2026-05-16 19:16:12,242] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject48\FeedbackFlow\users\views.py changed, reloading.
 [2026-05-16 19:16:12,720] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 19:29:08,081] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 19:29:12,206] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 19:29:12,278] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 45841
+[2026-05-16 19:29:15,012] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 19:29:15,025] INFO django.server log "GET /login/ HTTP/1.1" 200 19436
+[2026-05-16 19:29:42,567] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 19:29:42,592] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 39466
+[2026-05-16 19:29:48,155] INFO django.server log "GET /tasks/ HTTP/1.1" 200 68702
+[2026-05-16 19:37:34,948] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject49\FeedbackFlow\users\views.py changed, reloading.
+[2026-05-16 19:37:37,387] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 19:41:47,579] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject49\FeedbackFlow\users\urls.py changed, reloading.
+[2026-05-16 19:41:48,186] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 19:41:48,687] INFO django.server log "GET /complaints/public-log/ HTTP/1.1" 200 31549
+[2026-05-16 19:42:40,205] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject49\FeedbackFlow\users\urls.py changed, reloading.
+[2026-05-16 19:42:40,894] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 19:56:51,906] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 19:56:54,170] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 19:56:54,261] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38993
+[2026-05-16 19:56:57,161] INFO django.server log "GET /timeline/ HTTP/1.1" 200 83859
+[2026-05-16 19:57:07,677] INFO django.server log "GET /complaints/detail/4/ HTTP/1.1" 200 22445
+[2026-05-16 19:57:10,210] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 26532
+[2026-05-16 19:57:18,594] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 19:57:18,615] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38993
+[2026-05-16 19:57:29,192] INFO django.server log "GET /timeline/ HTTP/1.1" 200 83859
+[2026-05-16 19:57:41,676] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 19:57:41,697] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38993
+[2026-05-16 19:57:47,603] INFO django.server log "GET /notifications/ HTTP/1.1" 200 26190
+[2026-05-16 19:57:51,233] INFO django.server log "GET /notifications/mark-read/27/ HTTP/1.1" 302 0
+[2026-05-16 19:57:51,252] INFO django.server log "GET /complaints/detail/5/ HTTP/1.1" 200 22339
+[2026-05-16 19:57:54,347] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 26412
+[2026-05-16 19:57:56,628] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 19:57:56,647] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38873
+[2026-05-16 19:59:41,137] INFO django.server log "GET /timeline/ HTTP/1.1" 200 83739
+[2026-05-16 19:59:45,942] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 19:59:45,963] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38873
+[2026-05-16 20:00:16,970] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 20:00:17,218] INFO django.server log "GET /timeline/ HTTP/1.1" 200 83739
+[2026-05-16 20:00:18,251] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 20:00:18,318] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38873
+[2026-05-16 20:00:19,883] INFO django.server log "GET /timeline/ HTTP/1.1" 200 83739
+[2026-05-16 20:00:21,880] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 20:00:21,899] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38873
+[2026-05-16 20:00:23,537] INFO django.server log "GET /timeline/ HTTP/1.1" 200 83739
