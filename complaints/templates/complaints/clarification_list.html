@@ -1,0 +1,109 @@
+{% extends 'users/base.html' %}
+{% block title %}Clarification Requests - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card { background: #ffffff !important; color: #212529; }
+    .card p, .card strong, .card h5 { color: #212529 !important; }
+    .clarification-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #3b82f6;
+    }
+    .clarification-card.responded {
+        border-left-color: #22c55e;
+        background: #f0fdf4;
+    }
+    .questions-box {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.75rem 0;
+        color: #212529;
+        white-space: pre-line;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 900px;">
+
+    <div class="mb-3">
+        {% if request.user.role == 'Student' %}
+            <a href="{% url 'my_complaints' %}" class="btn btn-outline-secondary">← Back to My Complaints</a>
+        {% else %}
+            <a href="{% url 'investigator_dashboard' %}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+        {% endif %}
+    </div>
+
+    <div class="mb-4">
+        <h2 style="color:#fff; font-weight:800;">📋 Clarification Requests</h2>
+        <p style="color:rgba(255,255,255,.6);">
+            {% if request.user.role == 'Student' %}
+                Investigators have requested additional information from you regarding your complaints.
+            {% else %}
+                Investigators have requested a statement from you regarding a complaint.
+            {% endif %}
+        </p>
+    </div>
+
+    {% if pending_count > 0 %}
+    <div class="alert" style="background:#fef3c7; border:1px solid #fcd34d; color:#92400e; border-radius:10px;">
+        ⚠️ You have <strong>{{ pending_count }}</strong> pending clarification request{{ pending_count|pluralize }} that require your response.
+    </div>
+    {% endif %}
+
+    {% if clarification_requests %}
+        {% for req in clarification_requests %}
+        <div class="clarification-card {% if req.status == 'Responded' %}responded{% endif %}">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h5 style="color:#1e3a8a; font-weight:700; margin-bottom:0.25rem;">
+                        Complaint: {{ req.finding.investigation.complaint.tracking_id }}
+                    </h5>
+                    <p style="color:#6b7280; font-size:0.88rem; margin:0;">
+                        {{ req.finding.investigation.complaint.subject }}
+                    </p>
+                </div>
+                <span class="badge {% if req.status == 'Responded' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                    {{ req.status }}
+                </span>
+            </div>
+
+            <p style="color:#374151;"><strong>Requested by:</strong> {{ req.requested_by.full_name }} (Investigator)</p>
+            <p style="color:#374151;"><strong>Requested on:</strong> {{ req.created_at|date:"M d, Y - h:i A" }}</p>
+
+            <div class="questions-box">
+                <strong style="color:#1e3a8a;">📝 Questions / Information Needed:</strong><br><br>
+                {{ req.questions }}
+            </div>
+
+            {% if req.status == 'Responded' %}
+            <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:1rem; margin-top:0.75rem;">
+                <strong style="color:#166534;">✅ Your Response (submitted {{ req.responded_at|date:"M d, Y" }}):</strong>
+                <p style="color:#212529; margin-top:0.5rem; margin-bottom:0; white-space:pre-line;">{{ req.response_text }}</p>
+            </div>
+            {% else %}
+            <div class="mt-3">
+                <a href="{% url 'respond_clarification' req.id %}" class="btn btn-primary">
+                    📝 Respond to Request
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <div style="font-size:3rem; opacity:0.3;">📭</div>
+            <h5 class="mt-3" style="color:#6b7280;">No clarification requests</h5>
+            <p style="color:#9ca3af;">You have no pending clarification requests at this time.</p>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

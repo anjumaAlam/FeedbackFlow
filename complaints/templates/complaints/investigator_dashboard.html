@@ -85,6 +85,13 @@
                                     <a href="{% url 'submit_findings' inv.id %}" class="btn btn-sm btn-primary">📝 Submit Findings</a>
                                 {% else %}
                                     <a href="{% url 'submit_findings' inv.id %}" class="btn btn-sm btn-outline-secondary">View Submission</a>
+                                    {% with finding=inv.findings.all|first %}
+                                        {% if finding and finding.verdict == 'Needs More Info' %}
+                                            <a href="{% url 'view_clarification_responses' finding.id %}" class="btn btn-sm btn-warning">
+                                                🔍 View Responses
+                                            </a>
+                                        {% endif %}
+                                    {% endwith %}
                                 {% endif %}
                             </td>
                         </tr>

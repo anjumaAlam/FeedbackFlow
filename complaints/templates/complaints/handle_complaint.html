@@ -99,7 +99,7 @@
         color: #212529 !important;
         -webkit-text-fill-color: #212529 !important;
         border: 1px solid #ced4da !important;
-    opacity: 1 !important;
+        opacity: 1 !important;
     }
 
     .card-body textarea::placeholder,
@@ -251,6 +251,7 @@
                         {% endif %}
                     </p>
 
+                    {# ✅ UPDATED — Findings display with clarification panel #}
                     {% if findings %}
                     <div class="mt-3">
                         <strong class="d-block mb-2">Submitted Findings:</strong>
@@ -268,6 +269,47 @@
                             </div>
                             <p class="mb-1" style="font-size:0.9rem;">{{ finding.findings }}</p>
                             <small class="text-muted">{{ finding.submitted_at|date:"M d, Y - h:i A" }}</small>
+
+                            {% if finding.verdict == 'Needs More Info' %}
+                            <div class="mt-3" style="background:#fef9c3; border:1px solid #fcd34d; border-radius:8px; padding:1rem;">
+                                <p style="color:#854d0e; font-weight:600; margin-bottom:0.5rem;">
+                                    🔍 Investigator needs clarification from:
+                                    {% if finding.needs_student_clarification %}
+                                        <span class="badge bg-info ms-1">Student</span>
+                                    {% endif %}
+                                    {% if finding.needs_faculty_statement %}
+                                        <span class="badge bg-warning text-dark ms-1">Accused Faculty</span>
+                                    {% endif %}
+                                </p>
+                                <p style="color:#854d0e; font-size:0.88rem; margin-bottom:0.75rem;">
+                                    <strong>Questions:</strong><br>
+                                    <span style="white-space:pre-line;">{{ finding.clarification_questions }}</span>
+                                </p>
+
+                                {% with sent=finding.clarification_requests.all %}
+                                {% if sent %}
+                                    <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:6px; padding:0.6rem 0.85rem;">
+                                        ✅ <strong style="color:#166534;">Clarification request already sent.</strong>
+                                        <span style="color:#166534; font-size:0.85rem;">
+                                            Waiting for responses from the relevant parties.
+                                        </span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <a href="{% url 'view_clarification_responses' finding.id %}"
+                                           class="btn btn-sm btn-outline-success">
+                                            👁 View Responses
+                                        </a>
+                                    </div>
+                                {% else %}
+                                    <a href="{% url 'hod_send_clarification' finding.id %}"
+                                       class="btn btn-warning btn-sm">
+                                        📤 Send Clarification Request to Parties
+                                    </a>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                            {% endif %}
+
                         </div>
                         {% endfor %}
                     </div>
@@ -276,6 +318,7 @@
                             ⏳ Waiting for investigators to submit their findings.
                         </p>
                     {% endif %}
+
                 {% else %}
                     <p class="text-muted mb-0" style="font-size:0.9rem;">
                         No investigator assigned yet. Click "Assign Investigators" to get started.

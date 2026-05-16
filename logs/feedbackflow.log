@@ -2942,3 +2942,167 @@ django.db.utils.OperationalError: no such table: django_session
 [2026-05-16 10:35:50,347] INFO django.server log "GET /tasks/ HTTP/1.1" 200 70874
 [2026-05-16 10:35:55,386] INFO django.server log "POST /tasks/1/toggle/ HTTP/1.1" 302 0
 [2026-05-16 10:35:55,399] INFO django.server log "GET /tasks/ HTTP/1.1" 200 70533
+[2026-05-16 13:49:27,835] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 13:54:54,267] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 13:55:02,700] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-16 13:55:05,449] WARNING django.request log Not Found: /favicon.ico
+[2026-05-16 13:55:05,561] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 14522
+[2026-05-16 13:55:07,722] INFO django.server log "GET /login/ HTTP/1.1" 200 19123
+[2026-05-16 13:55:14,175] INFO django.server log "POST /login/ HTTP/1.1" 200 19463
+[2026-05-16 13:55:19,113] INFO django.server log "GET /login/ HTTP/1.1" 200 19123
+[2026-05-16 13:55:26,392] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 13:55:26,550] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 44361
+[2026-05-16 13:55:35,742] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 13:55:35,755] INFO django.server log "GET /login/ HTTP/1.1" 200 19435
+[2026-05-16 13:57:22,964] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\models.py changed, reloading.
+[2026-05-16 13:57:33,327] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 13:58:46,897] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\models.py changed, reloading.
+[2026-05-16 14:41:18,786] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 14:41:34,149] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-16 14:41:34,261] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-16 14:41:36,400] WARNING django.request log Not Found: /favicon.ico
+[2026-05-16 14:41:36,401] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 14522
+[2026-05-16 14:42:00,927] INFO django.server log "GET /complaints/investigator/submit-findings/3/ HTTP/1.1" 302 0
+[2026-05-16 14:42:00,985] INFO django.server log "GET /login/?next=/complaints/investigator/submit-findings/3/ HTTP/1.1" 200 19123
+[2026-05-16 14:42:09,241] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-16 14:42:09,498] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-16 14:42:11,063] WARNING django.request log Not Found: /favicon.ico
+[2026-05-16 14:42:11,067] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 14522
+[2026-05-16 14:42:13,242] INFO django.server log "GET /login/ HTTP/1.1" 200 19123
+[2026-05-16 14:42:24,930] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 14:42:25,072] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38660
+[2026-05-16 14:42:27,421] ERROR django.request log Internal Server Error: /complaints/clarifications/
+Traceback (most recent call last):
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\views.py", line 1256, in clarification_list
+    from .models import ClarificationRequest
+ImportError: cannot import name 'ClarificationRequest' from 'complaints.models' (C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\models.py)
+[2026-05-16 14:42:27,454] ERROR django.server log "GET /complaints/clarifications/ HTTP/1.1" 500 72495
+[2026-05-16 14:43:03,866] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38122
+[2026-05-16 14:43:10,808] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 31536
+[2026-05-16 14:44:37,637] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\models.py changed, reloading.
+[2026-05-16 14:44:49,895] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 14:46:02,214] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\models.py changed, reloading.
+[2026-05-16 14:46:11,971] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 14:46:59,537] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\models.py changed, reloading.
+[2026-05-16 14:47:51,361] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 14:47:55,881] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 14:47:56,064] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 14:47:56,126] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 14:47:56,360] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38122
+[2026-05-16 14:47:56,413] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38122
+[2026-05-16 14:47:56,505] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38122
+[2026-05-16 14:48:01,760] INFO django.server log "GET /complaints/clarifications/ HTTP/1.1" 200 16921
+[2026-05-16 14:48:06,696] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 31536
+[2026-05-16 14:50:34,508] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 14:50:35,044] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38122
+[2026-05-16 14:50:35,936] WARNING django.request log Not Found: /favicon.ico
+[2026-05-16 14:50:35,938] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 14522
+[2026-05-16 14:50:36,047] WARNING django.request log Not Found: /favicon.ico
+[2026-05-16 14:50:36,049] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 14522
+[2026-05-16 14:50:47,293] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 14:50:47,383] INFO django.server log "GET /login/ HTTP/1.1" 200 19432
+[2026-05-16 14:53:30,039] INFO django.server log "POST /login/ HTTP/1.1" 200 19463
+[2026-05-16 14:53:35,748] INFO django.server log "GET /register/ HTTP/1.1" 200 20096
+[2026-05-16 14:54:33,581] ERROR django.request log Internal Server Error: /register/
+Traceback (most recent call last):
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-simpot\users\views.py", line 41, in register_view
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\forms\forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\forms\forms.py", line 201, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\forms\forms.py", line 337, in full_clean
+    self._clean_fields()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\forms\forms.py", line 347, in _clean_fields
+    value = getattr(self, "clean_%s" % name)()
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-simpot\users\forms.py", line 72, in clean_student_id
+    student_id = self.cleaned_data.get('student_id', '').strip()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'strip'
+[2026-05-16 14:54:33,873] ERROR django.server log "POST /register/ HTTP/1.1" 500 88281
+[2026-05-16 14:57:47,356] INFO django.server log "POST /register/ HTTP/1.1" 200 20879
+[2026-05-16 14:58:04,991] INFO django.server log "POST /register/ HTTP/1.1" 302 0
+[2026-05-16 14:58:05,038] INFO django.server log "GET /login/ HTTP/1.1" 200 19454
+[2026-05-16 14:58:17,218] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 14:58:17,329] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 39388
+[2026-05-16 14:58:23,349] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29898
+[2026-05-16 14:58:41,633] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38848
+[2026-05-16 14:58:44,239] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22159
+[2026-05-16 14:58:48,810] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 14:58:48,863] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38848
+[2026-05-16 14:58:51,974] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29898
+[2026-05-16 14:59:40,353] INFO django.server log "POST /complaints/submit/ HTTP/1.1" 302 0
+[2026-05-16 14:59:40,431] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 21329
+[2026-05-16 14:59:44,010] INFO django.server log "GET /notifications/ HTTP/1.1" 200 16583
+[2026-05-16 14:59:49,142] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 14:59:49,203] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38802
+[2026-05-16 14:59:51,172] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 14:59:51,183] INFO django.server log "GET /login/ HTTP/1.1" 200 19434
+[2026-05-16 15:00:08,230] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 15:00:08,308] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 35900
+[2026-05-16 15:00:11,507] INFO django.server log "GET /notifications/ HTTP/1.1" 200 16470
+[2026-05-16 15:00:13,068] INFO django.server log "GET /notifications/mark-read/1/ HTTP/1.1" 302 0
+[2026-05-16 15:00:13,138] INFO django.server log "GET /complaints/hod/handle/1/ HTTP/1.1" 200 25841
+[2026-05-16 15:00:18,946] INFO django.server log "GET /complaints/hod/assign-investigation/1/ HTTP/1.1" 200 23113
+[2026-05-16 15:00:33,487] INFO django.server log "POST /complaints/hod/assign-investigation/1/ HTTP/1.1" 302 0
+[2026-05-16 15:00:33,565] INFO django.server log "GET /complaints/hod/handle/1/ HTTP/1.1" 200 28369
+[2026-05-16 15:01:08,410] INFO django.server log "POST /complaints/hod/handle/1/ HTTP/1.1" 302 0
+[2026-05-16 15:01:08,490] INFO django.server log "GET /complaints/hod/list/ HTTP/1.1" 200 20061
+[2026-05-16 15:01:12,933] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 15:01:12,948] INFO django.server log "GET /login/ HTTP/1.1" 200 19434
+[2026-05-16 15:01:18,928] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 15:01:18,990] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 39462
+[2026-05-16 15:01:21,607] INFO django.server log "GET /notifications/ HTTP/1.1" 200 18342
+[2026-05-16 15:01:56,437] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 15:01:56,461] INFO django.server log "GET /login/ HTTP/1.1" 200 19434
+[2026-05-16 15:02:05,207] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 15:02:05,289] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38780
+[2026-05-16 15:02:07,027] INFO django.server log "GET /notifications/ HTTP/1.1" 200 16737
+[2026-05-16 15:02:08,802] INFO django.server log "GET /notifications/mark-read/3/ HTTP/1.1" 302 0
+[2026-05-16 15:02:08,848] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 32859
+[2026-05-16 15:02:11,769] INFO django.server log "GET /complaints/investigator/submit-findings/1/ HTTP/1.1" 200 28437
+[2026-05-16 15:03:40,866] INFO django.server log "POST /complaints/investigator/submit-findings/1/ HTTP/1.1" 302 0
+[2026-05-16 15:03:40,924] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 33855
+[2026-05-16 15:03:46,805] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 15:03:46,866] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38122
+[2026-05-16 15:03:48,542] INFO django.server log "GET /complaints/clarifications/ HTTP/1.1" 200 16921
+[2026-05-16 15:03:51,356] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 33276
+[2026-05-16 15:03:54,790] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 15:03:54,811] INFO django.server log "GET /login/ HTTP/1.1" 200 19432
+[2026-05-16 15:04:01,904] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 15:04:01,942] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 35903
+[2026-05-16 15:04:03,875] INFO django.server log "GET /notifications/ HTTP/1.1" 200 18499
+[2026-05-16 15:04:06,709] INFO django.server log "GET /notifications/mark-read/7/ HTTP/1.1" 302 0
+[2026-05-16 15:04:06,808] INFO django.server log "GET /complaints/hod/handle/1/ HTTP/1.1" 200 31738
+[2026-05-16 15:04:12,287] WARNING django.request log Not Found: /complaints/investigator/clarification/1/responses/
+[2026-05-16 15:04:12,288] WARNING django.server log "GET /complaints/investigator/clarification/1/responses/ HTTP/1.1" 404 21998
+[2026-05-16 15:43:53,384] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\forms.py changed, reloading.
+[2026-05-16 15:44:05,937] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 15:45:26,804] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\forms.py changed, reloading.
+[2026-05-16 15:45:32,269] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 15:47:01,998] WARNING django.request log Not Found: /complaints/investigator/clarification/1/responses/
+[2026-05-16 15:47:02,001] WARNING django.server log "GET /complaints/investigator/clarification/1/responses/ HTTP/1.1" 404 21998
+[2026-05-16 16:01:07,381] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\views.py changed, reloading.
+[2026-05-16 16:01:16,507] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 16:01:54,662] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-simpot\complaints\urls.py changed, reloading.
+[2026-05-16 16:02:04,154] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 16:02:58,923] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 16:03:05,227] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 16:03:05,836] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 35243
+[2026-05-16 16:03:17,325] INFO django.server log "GET /dashboard/feedback-reports/ HTTP/1.1" 200 44608
+[2026-05-16 16:03:19,731] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 16:03:19,784] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 35243

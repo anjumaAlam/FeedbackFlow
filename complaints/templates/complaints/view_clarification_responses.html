@@ -1,0 +1,123 @@
+{% extends 'users/base.html' %}
+{% block title %}Clarification Responses - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card { background: #ffffff !important; color: #212529; }
+    .card p, .card strong, .card h5 { color: #212529 !important; }
+    .response-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .response-card.pending { border-left: 4px solid #f59e0b; }
+    .response-card.responded { border-left: 4px solid #22c55e; background: #f0fdf4; }
+    .questions-box {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 1rem;
+        color: #212529;
+        white-space: pre-line;
+        margin-bottom: 0.75rem;
+    }
+    .response-box {
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: 8px;
+        padding: 1rem;
+        color: #212529;
+        white-space: pre-line;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 900px;">
+
+    <div class="mb-3">
+        <a href="{% url 'investigator_dashboard' %}" class="btn btn-outline-secondary">← Back to My Investigations</a>
+    </div>
+
+    <div class="mb-4">
+        <h2 style="color:#fff; font-weight:800;">🔍 Clarification Responses</h2>
+        <p style="color:rgba(255,255,255,.6);">
+            Complaint: <strong style="color:rgba(255,255,255,.85);">{{ complaint.tracking_id }}</strong>
+            — {{ complaint.subject }}
+        </p>
+    </div>
+
+    {% if all_responded %}
+    <div class="alert" style="background:#f0fdf4; border:1px solid #86efac; color:#166534; border-radius:10px;">
+        ✅ <strong>All clarification responses received.</strong>
+        You can now review the responses and submit your final verdict.
+        <div class="mt-2">
+            <a href="{% url 'submit_findings' finding.investigation.id %}" class="btn btn-success btn-sm">
+                📝 Submit Final Verdict
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert" style="background:#fef9c3; border:1px solid #fcd34d; color:#92400e; border-radius:10px;">
+        ⏳ <strong>Waiting for responses.</strong>
+        Some parties have not yet responded. You will be notified when all responses are received.
+    </div>
+    {% endif %}
+
+    {% for clarification in clarifications %}
+    <div class="response-card {% if clarification.status == 'Responded' %}responded{% else %}pending{% endif %}">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 style="color:#1e3a8a; font-weight:700; margin-bottom:0;">
+                {% if clarification.request_type == 'Student' %}
+                    👤 Student Clarification Request
+                {% else %}
+                    👨‍🏫 Faculty Statement Request
+                {% endif %}
+            </h5>
+            <span class="badge {% if clarification.status == 'Responded' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                {{ clarification.status }}
+            </span>
+        </div>
+
+        <p style="color:#374151;"><strong>Sent to:</strong>
+            {% if clarification.request_type == 'Student' %}
+                {{ complaint.student.full_name }} (Student)
+            {% else %}
+                {{ complaint.faculty_concerned.full_name }} (Accused Faculty)
+            {% endif %}
+        </p>
+        <p style="color:#374151;"><strong>Requested on:</strong> {{ clarification.created_at|date:"M d, Y - h:i A" }}</p>
+
+        <div class="questions-box">
+            <strong style="color:#1e3a8a;">📝 Questions Asked:</strong><br><br>
+            {{ clarification.questions }}
+        </div>
+
+        {% if clarification.status == 'Responded' %}
+        <div class="response-box">
+            <strong style="color:#166534;">✅ Response from {{ clarification.responded_by.full_name }}
+                ({{ clarification.responded_at|date:"M d, Y - h:i A" }}):</strong><br><br>
+            {{ clarification.response_text }}
+        </div>
+        {% else %}
+        <p style="color:#f59e0b;"><strong>⏳ Awaiting response...</strong></p>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% if all_responded %}
+<div class="alert" style="background:#f0fdf4; border:1px solid #86efac; color:#166534; border-radius:10px;">
+    ✅ <strong>All responses received.</strong>
+    <div class="mt-2">
+        <form method="post" action="{% url 'hod_forward_to_investigator' finding.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">
+                📤 Forward Responses to Investigator
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+</div>
+{% endblock %}

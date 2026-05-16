@@ -1,0 +1,93 @@
+{% extends 'users/base.html' %}
+{% block title %}Respond to Clarification - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card { background: #ffffff !important; color: #212529; }
+    .card p, .card strong, .card h5, .card label { color: #212529 !important; }
+    .card textarea {
+        background: #fff !important;
+        color: #212529 !important;
+        border: 1px solid #d1d5db !important;
+        border-radius: 8px !important;
+    }
+    .card textarea::placeholder { color: #9ca3af !important; }
+    .questions-box {
+        background: #fef9c3;
+        border: 1px solid #fcd34d;
+        border-radius: 8px;
+        padding: 1.25rem;
+        color: #92400e;
+        white-space: pre-line;
+    }
+    .complaint-info {
+        background: #f9fafb;
+        border-left: 4px solid #3b82f6;
+        border-radius: 8px;
+        padding: 1.25rem;
+        color: #212529;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 800px;">
+
+    <div class="mb-3">
+        <a href="{% url 'clarification_list' %}" class="btn btn-outline-secondary">← Back to Clarification Requests</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">📝 Respond to Clarification Request</h4>
+        </div>
+        <div class="card-body p-4">
+
+            <!-- Complaint Info -->
+            <h5 class="text-primary mb-3">Complaint Reference</h5>
+            <div class="complaint-info mb-4">
+                <p class="mb-1"><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
+                <p class="mb-1"><strong>Subject:</strong> {{ complaint.subject }}</p>
+                <p class="mb-0"><strong>Submitted:</strong> {{ complaint.submitted_at|date:"M d, Y" }}</p>
+            </div>
+
+            <!-- Questions -->
+            <h5 class="text-primary mb-3">📋 Investigator's Questions</h5>
+            <div class="questions-box mb-4">
+                <strong>The investigator needs the following information:</strong><br><br>
+                {{ clarification.questions }}
+            </div>
+
+            <div class="alert" style="background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a5f; border-radius:8px;">
+                <strong>🔒 Privacy Note:</strong> Your response will only be seen by the investigator.
+                {% if clarification.request_type == 'Student' %}
+                The accused faculty will not see your response.
+                {% else %}
+                The student will not see your response.
+                {% endif %}
+            </div>
+
+            <!-- Response Form -->
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label fw-bold">
+                        Your Response <span class="text-danger">*</span>
+                    </label>
+                    {{ form.response_text }}
+                    {% if form.response_text.errors %}
+                        <div class="text-danger small mt-1">{{ form.response_text.errors }}</div>
+                    {% endif %}
+                    <small style="color:#6b7280;">Be detailed and factual in your response.</small>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">📤 Submit Response</button>
+                    <a href="{% url 'clarification_list' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -251,6 +251,7 @@ def student_dashboard(request):
     if request.user.role != 'Student':
         messages.error(request, 'Access denied. Students only.')
         return redirect('login')
+
     all_feedback       = Feedback.objects.filter(student=request.user)
     total_feedback     = all_feedback.count()
     reviewed_count     = all_feedback.filter(status__in=['Reviewed', 'Responded']).count()
@@ -267,24 +268,31 @@ def student_dashboard(request):
         student=request.user
     ).order_by('-created_at')[:3]
 
+    from complaints.models import ClarificationRequest
+    pending_clarifications = ClarificationRequest.objects.filter(
+        finding__investigation__complaint__student=request.user,
+        request_type='Student',
+        status='Pending'
+    ).count()
+
     context = {
-        'page_title':           'Student Dashboard',
-        'user':                 request.user,
-        'total_submissions':    total_feedback + total_complaints,
-        'total_feedback':       total_feedback,
-        'total_complaints':     total_complaints,
-        'reviewed_count':       reviewed_count,
-        'pending_count':        pending_feedback + pending_complaints,
-        'active_complaints':    all_complaints.exclude(status='Resolved').count(),
-        'recent_feedback':      recent_feedback,
-        'recent_complaints':    recent_complaints,
-        'has_submissions':      (total_feedback + total_complaints) > 0,
-        'pending_tasks':        pending_tasks,
-        'done_tasks':           done_tasks,
-        'recent_appointments':  recent_appointments,
+        'page_title':              'Student Dashboard',
+        'user':                    request.user,
+        'total_submissions':       total_feedback + total_complaints,
+        'total_feedback':          total_feedback,
+        'total_complaints':        total_complaints,
+        'reviewed_count':          reviewed_count,
+        'pending_count':           pending_feedback + pending_complaints,
+        'active_complaints':       all_complaints.exclude(status='Resolved').count(),
+        'recent_feedback':         recent_feedback,
+        'recent_complaints':       recent_complaints,
+        'has_submissions':         (total_feedback + total_complaints) > 0,
+        'pending_tasks':           pending_tasks,
+        'done_tasks':              done_tasks,
+        'recent_appointments':     recent_appointments,
+        'pending_clarifications':  pending_clarifications,
     }
     return render(request, 'users/student_dashboard.html', context)
-
 
 # ── FACULTY ───────────────────────────────────────────────────────────────────
 

@@ -142,26 +142,70 @@ class AssignInvestigationForm(forms.ModelForm):
 
 
 class InvestigationFindingsForm(forms.ModelForm):
-    """Faculty investigator submits findings and verdict back to HOD."""
     class Meta:
         model = InvestigationFinding
-        fields = ['verdict', 'findings']
+        fields = ['verdict', 'findings', 'needs_student_clarification', 'needs_faculty_statement', 'clarification_questions']
         widgets = {
             'verdict': forms.Select(attrs={'class': 'form-select'}),
             'findings': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 7,
-                'placeholder': 'Describe your investigation findings in detail — evidence gathered, people spoken to, observations made...'
+                'placeholder': 'Describe your investigation findings in detail...'
+            }),
+            'needs_student_clarification': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'needs_student'}),
+            'needs_faculty_statement': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'needs_faculty'}),
+            'clarification_questions': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Specify exactly what information you need — be clear and specific so the student/faculty can respond accurately...',
+                'id': 'clarification_questions_field'
             }),
         }
         labels = {
             'verdict': 'Your Verdict',
             'findings': 'Detailed Findings',
+            'needs_student_clarification': 'Request clarification from Student',
+            'needs_faculty_statement': 'Request statement from Accused Faculty',
+            'clarification_questions': 'Specific Questions / Information Needed',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['verdict'].choices = [('', '-- Select Verdict --')] + list(InvestigationFinding.VERDICT_CHOICES)
+        self.fields['findings'].required = False
+        self.fields['needs_student_clarification'].required = False
+        self.fields['needs_faculty_statement'].required = False
+        self.fields['clarification_questions'].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        verdict = cleaned_data.get('verdict')
+        findings = cleaned_data.get('findings', '').strip()
+        needs_student = cleaned_data.get('needs_student_clarification')
+        needs_faculty = cleaned_data.get('needs_faculty_statement')
+        questions = cleaned_data.get('clarification_questions', '').strip()
+
+        if verdict != 'Needs More Info' and not findings:
+            raise forms.ValidationError('Please provide your detailed findings.')
+
+        if verdict == 'Needs More Info':
+            if not needs_student and not needs_faculty:
+                raise forms.ValidationError('Please select who you need clarification from.')
+            if not questions:
+                raise forms.ValidationError('Please specify what information you need.')
+
+        return cleaned_data
+
+
+class ClarificationResponseForm(forms.Form):
+    response_text = forms.CharField(
+        label='Your Response',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 6,
+            'placeholder': 'Provide your detailed response to the investigator\'s questions...'
+        })
+    )
 
 
 class HODFinalActionForm(forms.Form):

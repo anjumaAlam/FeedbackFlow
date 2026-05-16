@@ -36,4 +36,12 @@ urlpatterns = [
     path('hod/faculty-course-wise/<int:faculty_id>/', views.faculty_course_wise_complaints, name='faculty_course_wise_complaints'),
     path('hod/similar-complaints/<int:faculty_id>/<int:group_index>/', views.similar_complaints_detail, name='similar_complaints_detail'),
     path('public-log/', views.public_log, name='public_log'),
+    path('clarifications/', views.clarification_list, name='clarification_list'),
+    path('clarifications/respond/<int:clarification_id>/', views.respond_clarification, name='respond_clarification'),
+    path('investigator/clarification/<int:finding_id>/responses/', views.view_clarification_responses, name='view_clarification_responses'),
+    path('hod/send-clarification/<int:finding_id>/', views.hod_send_clarification, name='hod_send_clarification'),
+    path('clarifications/', views.clarification_list, name='clarification_list'),
+    path('clarifications/respond/<int:clarification_id>/', views.respond_clarification, name='respond_clarification'),
+    path('investigator/clarification/<int:finding_id>/responses/', views.view_clarification_responses, name='view_clarification_responses'),
+    path('hod/forward-to-investigator/<int:finding_id>/', views.hod_forward_to_investigator, name='hod_forward_to_investigator'),
 ]

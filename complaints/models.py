@@ -152,22 +152,23 @@ class ComplaintInvestigation(models.Model):
 
 
 class InvestigationFinding(models.Model):
-    """Faculty investigator submits findings back to HOD."""
     VERDICT_CHOICES = (
         ('Proven', 'Complaint is Proven'),
         ('Unproven', 'Complaint is Unproven'),
         ('Needs More Info', 'Needs More Info'),
     )
 
-    investigation = models.ForeignKey(
-        ComplaintInvestigation, on_delete=models.CASCADE, related_name='findings'
-    )
-    submitted_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='investigation_findings'
-    )
-    verdict = models.CharField(max_length=30, choices=VERDICT_CHOICES)
-    findings = models.TextField()
-    submitted_at = models.DateTimeField(auto_now_add=True)
+    investigation  = models.ForeignKey(ComplaintInvestigation, on_delete=models.CASCADE, related_name='findings')
+    submitted_by   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='investigation_findings')
+    verdict        = models.CharField(max_length=30, choices=VERDICT_CHOICES)
+    findings       = models.TextField()
+
+    # ── NEW clarification fields ──
+    needs_student_clarification = models.BooleanField(default=False)
+    needs_faculty_statement     = models.BooleanField(default=False)
+    clarification_questions     = models.TextField(blank=True, null=True)
+
+    submitted_at   = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-submitted_at']
@@ -175,3 +176,39 @@ class InvestigationFinding(models.Model):
 
     def __str__(self):
         return f"Finding by {self.submitted_by.full_name} on {self.investigation.complaint.tracking_id}"
+
+
+class ClarificationRequest(models.Model):
+        """Investigator requests clarification from student or accused faculty."""
+
+        REQUEST_TYPE_CHOICES = (
+            ('Student', 'Student Clarification'),
+            ('Faculty', 'Faculty Statement'),
+        )
+
+        STATUS_CHOICES = (
+            ('Pending', 'Pending Response'),
+            ('Responded', 'Responded'),
+        )
+
+        finding = models.ForeignKey('InvestigationFinding', on_delete=models.CASCADE,
+                                    related_name='clarification_requests')
+        requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                         related_name='clarifications_requested')
+        request_type = models.CharField(max_length=10, choices=REQUEST_TYPE_CHOICES)
+        questions = models.TextField(help_text='Specific questions or information needed')
+        status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+        response_text = models.TextField(blank=True, null=True)
+        responded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+                                         related_name='clarifications_responded')
+        responded_at = models.DateTimeField(null=True, blank=True)
+        created_at = models.DateTimeField(auto_now_add=True)
+
+        class Meta:
+            ordering = ['-created_at']
+
+        def __str__(self):
+            return f"Clarification ({self.request_type}) for {self.finding.investigation.complaint.tracking_id}"
+
+
+
