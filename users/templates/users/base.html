@@ -522,10 +522,12 @@
             {% else %}
             <!-- NOT logged in: single Login button — no role buttons -->
             <div class="ms-auto d-flex align-items-center gap-2">
+                {% if request.resolver_match.url_name != 'login' %}
                 <a href="{% url 'public_log' %}" class="btn-bell"
                     style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; background:rgba(201,168,76,.15); color:var(--gold) !important; border-color:var(--gold) !important;">
                     📋 Public Log
                 </a>
+                {% endif %}
                 <a href="{% url 'login' %}" class="btn-login ms-2">Login</a>
             </div>
             {% endif %}

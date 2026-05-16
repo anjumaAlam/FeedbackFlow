@@ -30,11 +30,9 @@
                 <tbody>
                     {% for complaint in complaints %}
                     <tr>
-                        <td style="color:#64748b; font-weight:600; font-size:13px;">{{ complaint.resolved_at|date:"M d,
-                            Y" }}</td>
+                        <td style="color:#64748b; font-weight:600; font-size:13px;">{{ complaint.resolved_at|date:"M d, Y" }}</td>
                         <td><span
-                                style="background:rgba(59,130,246,.1); color:#1d4ed8; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:600;">{{
-                                complaint.location|default:"General Campus" }}</span></td>
+                                style="background:rgba(59,130,246,.1); color:#1d4ed8; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:600;">{{ complaint.location|default:"General Campus" }}</span></td>
                         <td>
                             <strong>{{ complaint.subject }}</strong><br>
                             <small style="color:#64748b;">{{ complaint.description|truncatewords:15 }}</small>

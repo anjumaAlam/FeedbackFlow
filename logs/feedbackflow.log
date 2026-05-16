@@ -3562,3 +3562,22 @@ django.template.exceptions.TemplateDoesNotExist: complaints/staff_task_list.html
 [2026-05-16 22:53:20,307] INFO django.server log "GET /login/ HTTP/1.1" 200 19123
 [2026-05-16 22:53:27,849] INFO django.server log "GET /appointment/ HTTP/1.1" 302 0
 [2026-05-16 22:53:27,948] INFO django.server log "GET /login/?next=/appointment/ HTTP/1.1" 200 19123
+[2026-05-16 23:14:36,426] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 23:14:54,477] INFO django.server basehttp "GET / HTTP/1.1" 200 37093
+[2026-05-16 23:14:55,084] WARNING django.request log Not Found: /favicon.ico
+[2026-05-16 23:14:55,085] WARNING django.server basehttp "GET /favicon.ico HTTP/1.1" 404 14790
+[2026-05-16 23:14:57,299] INFO django.server basehttp "GET /login/ HTTP/1.1" 200 19123
+[2026-05-16 23:15:07,695] INFO django.server basehttp "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 23:15:07,730] INFO django.server basehttp "GET /hod/dashboard/ HTTP/1.1" 200 36623
+[2026-05-16 23:15:09,850] INFO django.server basehttp "GET /complaints/public-log/ HTTP/1.1" 200 31426
+[2026-05-16 23:17:53,723] INFO django.server basehttp "GET / HTTP/1.1" 200 37093
+[2026-05-16 23:17:54,383] WARNING django.request log Not Found: /favicon.ico
+[2026-05-16 23:17:54,384] WARNING django.server basehttp "GET /favicon.ico HTTP/1.1" 404 14790
+[2026-05-16 23:18:01,053] INFO django.server basehttp "GET /login/ HTTP/1.1" 200 19123
+[2026-05-16 23:18:11,572] INFO django.server basehttp "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 23:18:11,589] INFO django.server basehttp "GET /hod/dashboard/ HTTP/1.1" 200 34813
+[2026-05-16 23:18:19,864] INFO django.server basehttp "GET /complaints/hod/faculty-complaint-summary/ HTTP/1.1" 200 19373
+[2026-05-16 23:19:57,811] INFO django.server basehttp "GET /complaints/public-log/ HTTP/1.1" 200 31036
+[2026-05-16 23:20:59,862] INFO django.server basehttp "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 23:20:59,870] INFO django.server basehttp "GET /login/ HTTP/1.1" 200 19116
+[2026-05-16 23:21:00,944] INFO django.server basehttp "GET /login/ HTTP/1.1" 200 18805
