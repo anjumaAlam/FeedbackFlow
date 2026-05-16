@@ -420,7 +420,7 @@ def admin_user_list(request):
     if request.user.role != 'Admin':
         return redirect('login')
     users         = User.objects.all().order_by('-created_at')
-    search        = request.GET.get('search', '')
+    search        = request.GET.get('q', '')
     role_filter   = request.GET.get('role', '')
     dept_filter   = request.GET.get('department', '')
     status_filter = request.GET.get('status', '')
@@ -436,7 +436,7 @@ def admin_user_list(request):
         users = users.filter(is_active=False)
     context = {
         'users':              users,
-        'search':             search,
+        'search_query':       search,
         'role_filter':        role_filter,
         'dept_filter':        dept_filter,
         'status_filter':      status_filter,

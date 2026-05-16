@@ -3106,3 +3106,34 @@ AttributeError: 'NoneType' object has no attribute 'strip'
 [2026-05-16 16:03:17,325] INFO django.server log "GET /dashboard/feedback-reports/ HTTP/1.1" 200 44608
 [2026-05-16 16:03:19,731] INFO django.server log "GET / HTTP/1.1" 302 0
 [2026-05-16 16:03:19,784] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 35243
+[2026-05-16 16:13:54,333] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 16:14:01,619] INFO django.server basehttp "GET / HTTP/1.1" 200 37093
+[2026-05-16 16:14:04,636] INFO django.server basehttp "GET /login/ HTTP/1.1" 200 19123
+[2026-05-16 16:14:34,208] INFO django.server basehttp "POST /login/ HTTP/1.1" 200 19463
+[2026-05-16 16:15:05,436] INFO django.server basehttp "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 16:15:05,480] INFO django.server basehttp "GET /dashboard/admin/ HTTP/1.1" 200 44366
+[2026-05-16 16:15:12,047] INFO django.server basehttp "GET /dashboard/users/ HTTP/1.1" 200 120905
+[2026-05-16 16:15:14,860] INFO django.server basehttp "GET /dashboard/users/create/ HTTP/1.1" 200 34180
+[2026-05-16 16:15:54,917] INFO django.server basehttp "POST /dashboard/users/create/ HTTP/1.1" 302 0
+[2026-05-16 16:15:54,944] INFO django.server basehttp "GET /dashboard/users/ HTTP/1.1" 200 122428
+[2026-05-16 16:16:15,014] INFO django.server basehttp "GET /dashboard/users/?q=aunjolee&role=Student&department=CSE&status=active HTTP/1.1" 200 39398
+[2026-05-16 16:26:56,802] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject42\FeedbackFlow\users\views.py changed, reloading.
+[2026-05-16 16:26:58,458] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 16:27:17,233] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject42\FeedbackFlow\users\views.py changed, reloading.
+[2026-05-16 16:27:17,762] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 16:27:30,927] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 16:27:32,741] INFO django.server basehttp "GET / HTTP/1.1" 302 0
+[2026-05-16 16:27:32,789] INFO django.server basehttp "GET /dashboard/admin/ HTTP/1.1" 200 43827
+[2026-05-16 16:27:40,019] INFO django.server basehttp "GET /dashboard/users/ HTTP/1.1" 200 121882
+[2026-05-16 16:27:53,717] INFO django.server basehttp "GET /dashboard/users/?q=aunjolee&role=Student&department=CSE&status=active HTTP/1.1" 200 33478
+[2026-05-16 16:28:06,817] INFO django.server basehttp "GET /dashboard/users/?q=&role=Student&department=CE&status=active HTTP/1.1" 200 37354
+[2026-05-16 16:28:45,762] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject42\FeedbackFlow\users\views.py changed, reloading.
+[2026-05-16 16:28:46,585] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 16:29:10,184] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject42\FeedbackFlow\users\views.py changed, reloading.
+[2026-05-16 16:29:10,638] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 16:29:13,597] INFO django.server basehttp "GET / HTTP/1.1" 302 0
+[2026-05-16 16:29:13,653] INFO django.server basehttp "GET /dashboard/admin/ HTTP/1.1" 200 43827
+[2026-05-16 16:29:15,466] INFO django.server basehttp "GET /dashboard/users/ HTTP/1.1" 200 121882
+[2026-05-16 16:29:22,684] INFO django.server basehttp "GET /dashboard/users/?q=&role=Faculty&department=Pharmacy&status=active HTTP/1.1" 200 35382
+[2026-05-16 16:29:27,791] INFO django.server basehttp "GET / HTTP/1.1" 302 0
+[2026-05-16 16:29:27,809] INFO django.server basehttp "GET /dashboard/admin/ HTTP/1.1" 200 43827
