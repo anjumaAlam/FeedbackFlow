@@ -3,18 +3,135 @@
 
 {% block extra_css %}
 <style>
-    .page-card { max-width: 860px; margin: 2rem auto; }
-    .question-box {
-        background: #eff6ff;
+    .page-card {
+        max-width: 860px;
+        margin: 2rem auto;
+        border-radius: 16px !important;
+        overflow: hidden;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important;
+    }
+
+    .complaint-meta {
+        background: #f1f5ff;
+        border-radius: 10px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
         border-left: 4px solid #3b82f6;
-        border-radius: 8px;
+    }
+    .complaint-meta p { color: #1e3a8a !important; margin-bottom: 0.25rem; }
+    .complaint-meta p:last-child { margin-bottom: 0; }
+    .complaint-meta strong { color: #1e3a8a !important; }
+
+    .question-box {
+        background: #fef9c3;
+        border: 1px solid #fcd34d;
+        border-radius: 10px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
+        color: #92400e;
+        white-space: pre-line;
+        font-size: 0.95rem;
+        line-height: 1.7;
     }
-    .question-box p, .question-box strong { color: #1a1a1a !important; }
-    .complaint-meta { background: #f9fafb; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
-    .complaint-meta p, .complaint-meta strong { color: #111 !important; }
-    .form-label { font-weight: 600; color: #1f2937; font-size: 13.5px; }
+    .question-box strong { color: #78350f !important; }
+
+    .privacy-note {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        color: #1e3a5f;
+        font-size: 0.9rem;
+    }
+    .privacy-note strong { color: #1e3a5f !important; }
+
+    .card { background: #ffffff !important; }
+    .card p, .card strong, .card h5, .card label { color: #212529 !important; }
+    .card-header { padding: 1.25rem 1.75rem !important; border-bottom: 1px solid #e5e7eb; }
+    .card-body { padding: 2rem !important; }
+
+    /* Force textarea visible */
+    .card-body textarea,
+    .card-body textarea.form-control {
+        background: #ffffff !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+        border: 1.5px solid #d1d5db !important;
+        border-radius: 10px !important;
+        padding: 1rem 1.25rem !important;
+        font-size: 0.95rem !important;
+        min-height: 200px !important;
+        width: 100% !important;
+        resize: vertical !important;
+        opacity: 1 !important;
+        display: block !important;
+    }
+    .card-body textarea:focus,
+    .card-body textarea.form-control:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12) !important;
+        outline: none !important;
+        color: #111827 !important;
+        background: #ffffff !important;
+    }
+    .card-body textarea::placeholder {
+        color: #9ca3af !important;
+    }
+
+    .form-label-custom {
+        font-weight: 700;
+        color: #1f2937 !important;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .char-hint {
+        font-size: 0.82rem;
+        color: #6b7280;
+        margin-top: 0.4rem;
+    }
+
+    .step-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 20px;
+        padding: 0.3rem 0.85rem;
+        font-size: 0.82rem;
+        color: #1e3a8a;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+    }
+
+    .btn-submit-response {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        transition: all 0.15s;
+        cursor: pointer;
+    }
+    .btn-submit-response:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+    }
+
+    .alert-info {
+        background-color: #eff6ff !important;
+        border-color: #bfdbfe !important;
+        color: #1e3a5f !important;
+    }
+    .alert-info strong { color: #1e3a5f !important; }
+    .alert-info li { color: #1e3a5f !important; }
 </style>
 {% endblock %}
 
@@ -33,26 +150,48 @@
         <div class="card-header bg-info text-white">
             <h4 class="mb-0">💬 Respond to Clarification Request</h4>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body">
+
+            <!-- Step indicator -->
+            <div class="step-badge">
+                📋 Your response → HOD reviews → Forwarded to Investigator
+            </div>
 
             <!-- Complaint context -->
-            <div class="complaint-meta">
-                <p class="mb-1"><strong>Complaint:</strong> {{ complaint.tracking_id }} — {{ complaint.subject }}</p>
-                <p class="mb-0"><strong>Forwarded by HOD:</strong> {{ clarification.forwarded_by.full_name }}
-                    &nbsp;|&nbsp; <strong>On:</strong> {{ clarification.created_at|date:"M d, Y - h:i A" }}</p>
+            <h5 class="text-primary mb-3">📁 Complaint Reference</h5>
+            <div class="complaint-meta mb-4">
+                <p><strong>Complaint ID:</strong> {{ complaint.tracking_id }}</p>
+                <p><strong>Subject:</strong> {{ complaint.subject }}</p>
+                <p><strong>Forwarded by HOD:</strong> {{ clarification.requested_by.full_name }}</p>
+                <p><strong>Request Date:</strong> {{ clarification.created_at|date:"M d, Y - h:i A" }}</p>
             </div>
 
-            <!-- The question -->
-            <div class="mb-4">
-                <h5 class="text-primary mb-3">❓ Clarification Needed</h5>
-                <div class="question-box">
-                    <p class="mb-0" style="white-space: pre-line;">{{ clarification.question }}</p>
-                </div>
+            <!-- The questions -->
+            <h5 class="text-primary mb-3">❓ Information Required from You</h5>
+            <div class="question-box mb-4">
+                <strong>The investigator needs the following information:</strong><br><br>
+                {{ clarification.questions }}
             </div>
 
+            <!-- Privacy note -->
+            <div class="privacy-note mb-4">
+                🔒 <strong>Privacy Note:</strong> Your response will only be seen by the HOD and investigator.
+                {% if clarification.request_type == 'Student' %}
+                The accused faculty will not see your response.
+                {% else %}
+                The student will not see your response.
+                {% endif %}
+            </div>
+
+            <!-- How it works -->
             <div class="alert alert-info mb-4">
-                <strong>📌 Note:</strong> Your response will be reviewed by the HOD and then forwarded to the investigator handling this complaint.
-                Please be factual, honest, and detailed.
+                <strong>📌 How this works:</strong>
+                <ol class="mb-0 mt-2" style="padding-left:1.25rem;">
+                    <li>You write your response below and submit</li>
+                    <li>HOD reviews your response</li>
+                    <li>HOD forwards it to the investigator</li>
+                    <li>Investigator reviews and submits final verdict</li>
+                </ol>
             </div>
 
             <!-- Response form -->
@@ -60,21 +199,30 @@
                 {% csrf_token %}
 
                 <div class="mb-4">
-                    <label class="form-label">{{ form.response.label }} <span class="text-danger">*</span></label>
-                    {{ form.response }}
-                    {% if form.response.errors %}
-                        <div class="text-danger small mt-1">{{ form.response.errors }}</div>
+                    <label class="form-label-custom">
+                        Your Response <span class="text-danger">*</span>
+                    </label>
+                    {{ form.response_text }}
+                    {% if form.response_text.errors %}
+                        <div class="text-danger small mt-1">{{ form.response_text.errors }}</div>
                     {% endif %}
+                    <div class="char-hint">
+                        Be detailed and factual. Your response will help the investigator reach a fair conclusion.
+                        Once submitted, your response cannot be edited.
+                    </div>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg">📨 Submit Response</button>
+                <div class="d-flex gap-3 align-items-center flex-wrap">
+                    <button type="submit" class="btn-submit-response">
+                        📨 Submit Response
+                    </button>
                     {% if request.user.role == 'Student' %}
                         <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
                     {% else %}
                         <a href="{% url 'faculty_dashboard' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
                     {% endif %}
                 </div>
+
             </form>
 
         </div>

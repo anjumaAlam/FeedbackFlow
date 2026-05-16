@@ -6,10 +6,11 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q, Count
 
-from .models import Complaint, ComplaintUpdate, ComplaintInvestigation, InvestigationFinding
+from .models import Complaint, ComplaintUpdate, ComplaintInvestigation, InvestigationFinding, ClarificationRequest
 from .forms import (
     ComplaintSubmissionForm, ComplaintUpdateForm, AssignInvestigationForm,
     InvestigationFindingsForm, HODFinalActionForm,
+    ClarificationResponseForm,
 )
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
@@ -175,10 +176,8 @@ def handle_complaint(request, complaint_id):
             return redirect('hod_complaints_list')
 
     elif request.user.role == 'DAO':
-        # DAO can handle any complaint they ever touched
         dao_touched = ComplaintUpdate.objects.filter(
-            complaint=complaint,
-            updated_by=request.user
+            complaint=complaint, updated_by=request.user
         ).exists()
         if complaint.assigned_to != request.user and not dao_touched:
             messages.error(request, 'This complaint is not assigned to you.')
@@ -212,7 +211,6 @@ def handle_complaint(request, complaint_id):
                         noun = complaint.complaint_type
                     elif complaint.complaint_type == 'Facility':
                         noun = 'Issue'
-
                     for admin in User.objects.filter(role='Admin'):
                         create_notification(
                             recipient=admin,
@@ -250,23 +248,37 @@ def handle_complaint(request, complaint_id):
     else:
         form = ComplaintUpdateForm()
 
+    # ── Build findings_with_status for clarification panel ──
     try:
         investigation = complaint.investigation
-        findings = investigation.findings.all()
+        raw_findings  = investigation.findings.all()
+        findings_with_status = []
+        for finding in raw_findings:
+            clarifications = ClarificationRequest.objects.filter(finding=finding)
+            all_responded  = clarifications.exists() and all(
+                c.status == 'Responded' for c in clarifications
+            )
+            findings_with_status.append({
+                'finding':        finding,
+                'clarifications': clarifications,
+                'all_responded':  all_responded,
+                'any_sent':       clarifications.exists(),
+            })
     except ComplaintInvestigation.DoesNotExist:
-        investigation = None
-        findings = []
+        investigation        = None
+        findings_with_status = []
 
     updates = complaint.updates.all().order_by('created_at')
     context = {
-        'form': form,
-        'complaint': complaint,
-        'updates': updates,
-        'investigation': investigation,
-        'findings': findings,
-        'page_title': f'Handle Complaint {complaint.tracking_id}'
+        'form':                 form,
+        'complaint':            complaint,
+        'updates':              updates,
+        'investigation':        investigation,
+        'findings_with_status': findings_with_status,
+        'page_title':           f'Handle Complaint {complaint.tracking_id}'
     }
     return render(request, 'complaints/handle_complaint.html', context)
+
 
 @login_required
 def assign_investigation(request, complaint_id):
@@ -293,14 +305,11 @@ def assign_investigation(request, complaint_id):
 
     if request.method == 'POST':
         form = AssignInvestigationForm(
-            request.POST,
-            instance=existing,
-            complaint=complaint,
-            hod_user=request.user,
+            request.POST, instance=existing, complaint=complaint, hod_user=request.user,
         )
         if form.is_valid():
             investigation = form.save(commit=False)
-            investigation.complaint = complaint
+            investigation.complaint   = complaint
             investigation.assigned_by = request.user
             investigation.save()
             form.save_m2m()
@@ -325,7 +334,7 @@ def assign_investigation(request, complaint_id):
             create_notification(
                 recipient=complaint.student,
                 title=f'Your complaint {complaint.tracking_id} is under investigation',
-                message=f'Your complaint "{complaint.subject}" has been assigned for investigation. You will be notified when there is an update.',
+                message=f'Your complaint "{complaint.subject}" has been assigned for investigation.',
                 notification_type='complaint',
                 link=f'/complaints/detail/{complaint.id}/',
             )
@@ -335,17 +344,13 @@ def assign_investigation(request, complaint_id):
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
-        form = AssignInvestigationForm(
-            instance=existing,
-            complaint=complaint,
-            hod_user=request.user,
-        )
+        form = AssignInvestigationForm(instance=existing, complaint=complaint, hod_user=request.user)
 
     context = {
-        'form': form,
-        'complaint': complaint,
+        'form':                   form,
+        'complaint':              complaint,
         'existing_investigation': existing,
-        'page_title': f'Assign Investigation – {complaint.tracking_id}',
+        'page_title':             f'Assign Investigation – {complaint.tracking_id}',
     }
     return render(request, 'complaints/assign_investigation.html', context)
 
@@ -390,10 +395,10 @@ def investigator_dashboard(request):
 
     context = {
         'investigations': investigations,
-        'total': investigations.count(),
-        'pending': sum(1 for i in investigations if not i.user_submitted),
-        'submitted': len(already_submitted_ids),
-        'page_title': 'My Investigations',
+        'total':          investigations.count(),
+        'pending':        sum(1 for i in investigations if not i.user_submitted),
+        'submitted':      len(already_submitted_ids),
+        'page_title':     'My Investigations',
     }
     return render(request, 'complaints/investigator_dashboard.html', context)
 
@@ -420,58 +425,25 @@ def submit_findings(request, investigation_id):
 
         form = InvestigationFindingsForm(request.POST)
         if form.is_valid():
-            finding = form.save(commit=False)
+            finding               = form.save(commit=False)
             finding.investigation = investigation
-            finding.submitted_by = request.user
+            finding.submitted_by  = request.user
             finding.save()
 
-            # ✅ UPDATED — Clarification block with HOD notification
             if finding.verdict == 'Needs More Info':
-                from .models import ClarificationRequest
-
                 clarification_needed = []
-
                 if finding.needs_student_clarification:
                     clarification_needed.append('Student')
-                    ClarificationRequest.objects.create(
-                        finding=finding,
-                        requested_by=request.user,
-                        request_type='Student',
-                        questions=finding.clarification_questions,
-                    )
-                    create_notification(
-                        recipient=complaint.student,
-                        title=f'Clarification Needed on Your Complaint — {complaint.tracking_id}',
-                        message=f'The investigator reviewing your complaint "{complaint.subject}" needs additional information from you. Please check your clarification requests.',
-                        notification_type='complaint',
-                        link='/complaints/clarifications/',
-                    )
-
                 if finding.needs_faculty_statement:
                     clarification_needed.append('Accused Faculty')
-                    if complaint.faculty_concerned:
-                        ClarificationRequest.objects.create(
-                            finding=finding,
-                            requested_by=request.user,
-                            request_type='Faculty',
-                            questions=finding.clarification_questions,
-                        )
-                        create_notification(
-                            recipient=complaint.faculty_concerned,
-                            title=f'Statement Required — Complaint {complaint.tracking_id}',
-                            message=f'A statement is required from you regarding complaint "{complaint.subject}". Please check your clarification requests.',
-                            notification_type='complaint',
-                            link='/complaints/clarifications/',
-                        )
 
-                # ✅ NEW — Notify HOD about clarification needed
                 create_notification(
                     recipient=investigation.assigned_by,
                     title=f'⚠️ Clarification Needed — {complaint.tracking_id}',
                     message=(
                         f'{request.user.full_name} needs clarification from: {", ".join(clarification_needed)}.\n\n'
-                        f'Questions to be sent:\n{finding.clarification_questions}\n\n'
-                        f'Please review and send the clarification request from the complaint handle page.'
+                        f'Questions:\n{finding.clarification_questions}\n\n'
+                        f'Please review and forward the clarification request from the complaint handle page.'
                     ),
                     notification_type='complaint',
                     link=f'/complaints/hod/handle/{complaint.id}/',
@@ -508,11 +480,11 @@ def submit_findings(request, investigation_id):
         form = InvestigationFindingsForm()
 
     context = {
-        'form': form,
-        'investigation': investigation,
-        'complaint': complaint,
+        'form':             form,
+        'investigation':    investigation,
+        'complaint':        complaint,
         'existing_finding': existing_finding,
-        'page_title': f'Submit Findings — {complaint.tracking_id}',
+        'page_title':       f'Submit Findings — {complaint.tracking_id}',
     }
     return render(request, 'complaints/submit_findings.html', context)
 
@@ -531,10 +503,10 @@ def hod_final_action(request, complaint_id):
 
     try:
         investigation = complaint.investigation
-        findings = investigation.findings.all()
+        findings      = investigation.findings.all()
     except ComplaintInvestigation.DoesNotExist:
         investigation = None
-        findings = []
+        findings      = []
 
     if request.method == 'POST':
         form = HODFinalActionForm(request.POST)
@@ -545,17 +517,17 @@ def hod_final_action(request, complaint_id):
             complaint.final_action_note = note
 
             if action == 'Resolve':
-                complaint.status = 'Resolved'
+                complaint.status      = 'Resolved'
                 complaint.resolved_at = timezone.now()
                 student_title = 'Your complaint has been resolved'
                 student_msg   = f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been resolved. Note from HOD: {note}'
 
             elif action == 'Escalate':
-                complaint.status = 'Escalated'
-                admin = User.objects.filter(role='Admin').first()
+                complaint.status      = 'Escalated'
+                admin                 = User.objects.filter(role='Admin').first()
                 complaint.assigned_to = admin
                 student_title = 'Your complaint has been escalated'
-                student_msg   = f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been escalated to Admin for further action.'
+                student_msg   = f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been escalated to Admin.'
                 if admin:
                     create_notification(
                         recipient=admin,
@@ -571,7 +543,7 @@ def hod_final_action(request, complaint_id):
                     investigation.findings.all().delete()
                     _notify_investigators(complaint, investigation, request.user)
                 student_title = 'Further investigation requested on your complaint'
-                student_msg   = f'The HOD has reviewed the findings for "{complaint.subject}" and requested further investigation. You will be notified when complete.'
+                student_msg   = f'The HOD has reviewed the findings for "{complaint.subject}" and requested further investigation.'
 
             complaint.save()
 
@@ -598,11 +570,11 @@ def hod_final_action(request, complaint_id):
         form = HODFinalActionForm()
 
     context = {
-        'form': form,
-        'complaint': complaint,
+        'form':          form,
+        'complaint':     complaint,
         'investigation': investigation,
-        'findings': findings,
-        'page_title': f'Final Action — {complaint.tracking_id}',
+        'findings':      findings,
+        'page_title':    f'Final Action — {complaint.tracking_id}',
     }
     return render(request, 'complaints/hod_final_action.html', context)
 
@@ -620,12 +592,12 @@ def staff_complaints_list(request):
     complaints_list = Complaint.objects.filter(assigned_to=request.user).order_by('-submitted_at')
 
     context = {
-        'complaints_list': complaints_list,
+        'complaints_list':  complaints_list,
         'total_complaints': complaints_list.count(),
-        'pending': complaints_list.filter(status='Pending').count(),
-        'investigating': complaints_list.filter(status='Under Investigation').count(),
-        'resolved': complaints_list.filter(status='Resolved').count(),
-        'page_title': 'Staff & Facility Complaints'
+        'pending':          complaints_list.filter(status='Pending').count(),
+        'investigating':    complaints_list.filter(status='Under Investigation').count(),
+        'resolved':         complaints_list.filter(status='Resolved').count(),
+        'page_title':       'Staff & Facility Complaints'
     }
     return render(request, 'complaints/staff_complaints_list.html', context)
 
@@ -643,19 +615,19 @@ def admin_complaints_list(request):
     complaints_list = Complaint.objects.all().order_by('-submitted_at')
 
     context = {
-        'complaints_list': complaints_list,
-        'total_complaints': complaints_list.count(),
-        'pending': complaints_list.filter(status='Pending').count(),
-        'investigating': complaints_list.filter(status='Under Investigation').count(),
-        'resolved': complaints_list.filter(status='Resolved').count(),
-        'escalated': complaints_list.filter(status='Escalated').count(),
+        'complaints_list':    complaints_list,
+        'total_complaints':   complaints_list.count(),
+        'pending':            complaints_list.filter(status='Pending').count(),
+        'investigating':      complaints_list.filter(status='Under Investigation').count(),
+        'resolved':           complaints_list.filter(status='Resolved').count(),
+        'escalated':          complaints_list.filter(status='Escalated').count(),
         'faculty_complaints': complaints_list.filter(complaint_type='Faculty').count(),
-        'hod_complaints': complaints_list.filter(complaint_type='HOD').count(),
-        'staff_complaints': complaints_list.filter(complaint_type='Staff').count(),
-        'facility_complaints': complaints_list.filter(complaint_type='Facility').count(),
-        'advice_complaints': complaints_list.filter(complaint_type='Advice').count(),
+        'hod_complaints':     complaints_list.filter(complaint_type='HOD').count(),
+        'staff_complaints':   complaints_list.filter(complaint_type='Staff').count(),
+        'facility_complaints':complaints_list.filter(complaint_type='Facility').count(),
+        'advice_complaints':  complaints_list.filter(complaint_type='Advice').count(),
         'opinion_complaints': complaints_list.filter(complaint_type='Opinion').count(),
-        'page_title': 'All Complaints'
+        'page_title':         'All Complaints'
     }
     return render(request, 'complaints/admins_complaints_list.html', context)
 
@@ -665,9 +637,6 @@ def dao_complaints_list(request):
     if request.user.role != 'DAO':
         messages.error(request, 'Access denied.')
         return redirect('login')
-
-    from complaints.models import ComplaintUpdate
-    from django.db.models import Q
 
     dao_handled_ids = ComplaintUpdate.objects.filter(
         updated_by=request.user
@@ -679,19 +648,14 @@ def dao_complaints_list(request):
 
     staff_list = User.objects.filter(role='Staff', is_active=True)
 
-    total_complaints = complaints_list.count()
-    pending   = complaints_list.filter(status='Pending').count()
-    resolved  = complaints_list.filter(status='Resolved').count()
-    escalated = complaints_list.filter(status='Escalated').count()
-
     context = {
-        'complaints_list': complaints_list,
-        'staff_list': staff_list,
-        'total_complaints': total_complaints,
-        'pending': pending,
-        'resolved': resolved,
-        'escalated': escalated,
-        'page_title': 'DAO Complaints',
+        'complaints_list':  complaints_list,
+        'staff_list':       staff_list,
+        'total_complaints': complaints_list.count(),
+        'pending':          complaints_list.filter(status='Pending').count(),
+        'resolved':         complaints_list.filter(status='Resolved').count(),
+        'escalated':        complaints_list.filter(status='Escalated').count(),
+        'page_title':       'DAO Complaints',
     }
     return render(request, 'complaints/dao_complaints_list.html', context)
 
@@ -711,21 +675,18 @@ def dao_assign_staff(request, complaint_id):
 
     staff = get_object_or_404(User, id=staff_id, role='Staff')
 
-    # No staff name in the comment — student cannot see who is handling
     ComplaintUpdate.objects.create(
         complaint=complaint,
         updated_by=request.user,
-        comment=f'Complaint assigned to a staff member for physical resolution.',
+        comment='Complaint assigned to a staff member for physical resolution.',
         status_changed_to='Under Investigation',
     )
 
-    complaint.status = 'Under Investigation'
+    complaint.status      = 'Under Investigation'
     complaint.assigned_to = staff
     complaint.save()
 
     from users.models import Notification
-
-    # Notify staff — full details shown to staff
     Notification.objects.create(
         recipient=staff,
         title=f'New Task Assigned: {complaint.tracking_id}',
@@ -733,17 +694,15 @@ def dao_assign_staff(request, complaint_id):
         notification_type='complaint',
         link=f'/complaints/detail/{complaint.id}/',
     )
-
-    # Notify student — no names, generic message only
     Notification.objects.create(
         recipient=complaint.student,
-        title=f'Your complaint is being handled',
-        message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) is currently being handled by our team. You will be notified once it is resolved.',
+        title='Your complaint is being handled',
+        message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) is currently being handled by our team.',
         notification_type='update',
         link=f'/complaints/detail/{complaint.id}/',
     )
 
-    messages.success(request, f'Complaint assigned to {staff.full_name}. Both staff and student have been notified.')
+    messages.success(request, f'Complaint assigned to {staff.full_name}.')
     return redirect('dao_complaints_list')
 
 
@@ -762,39 +721,34 @@ def dao_escalate_complaint(request, complaint_id):
         ComplaintUpdate.objects.create(
             complaint=complaint,
             updated_by=request.user,
-            comment=f'Complaint escalated to Head for higher authority review.',
+            comment='Complaint escalated to Head for higher authority review.',
             status_changed_to='Escalated',
         )
-
         complaint.assigned_to = head
-        complaint.status = 'Escalated'
+        complaint.status      = 'Escalated'
         complaint.save()
 
         from users.models import Notification
-
-        # Notify head — full details shown
         Notification.objects.create(
             recipient=head,
             title=f'Escalated Complaint: {complaint.tracking_id}',
-            message=f'Complaint "{complaint.subject}" has been escalated to you by DAO {request.user.full_name}. Please review and take action.',
+            message=f'Complaint "{complaint.subject}" has been escalated to you by DAO {request.user.full_name}.',
             notification_type='complaint',
             link=f'/complaints/hod/handle/{complaint.id}/',
         )
-
-        # Notify student — no names, no details about who is handling
         Notification.objects.create(
             recipient=complaint.student,
-            title=f'Your complaint is being reviewed',
-            message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) is currently being reviewed by our team. You will be notified once there is an update.',
+            title='Your complaint is being reviewed',
+            message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) is currently being reviewed.',
             notification_type='update',
             link=f'/complaints/detail/{complaint.id}/',
         )
-
-        messages.success(request, f'Complaint escalated to {head.full_name}. Student has been notified.')
+        messages.success(request, f'Complaint escalated to {head.full_name}.')
     else:
         messages.error(request, 'No head found to escalate to.')
 
     return redirect('dao_complaints_list')
+
 
 @login_required
 def staff_task_list(request):
@@ -803,28 +757,20 @@ def staff_task_list(request):
         return redirect('login')
 
     status_filter = request.GET.get('status', '')
-
-    tasks = Complaint.objects.filter(
-        assigned_to=request.user
-    ).order_by('-submitted_at')
-
+    tasks = Complaint.objects.filter(assigned_to=request.user).order_by('-submitted_at')
     if status_filter == 'pending':
         tasks = tasks.filter(status='Pending')
 
-    total    = tasks.count()
-    pending  = tasks.filter(status='Pending').count()
-    active   = tasks.filter(status='Under Investigation').count()
-    resolved = tasks.filter(status='Resolved').count()
-
     context = {
-        'tasks': tasks,
-        'total': total,
-        'pending': pending,
-        'active': active,
-        'resolved': resolved,
+        'tasks':         tasks,
+        'total':         tasks.count(),
+        'pending':       tasks.filter(status='Pending').count(),
+        'active':        tasks.filter(status='Under Investigation').count(),
+        'resolved':      tasks.filter(status='Resolved').count(),
         'status_filter': status_filter,
     }
     return render(request, 'complaints/staff_task_list.html', context)
+
 
 @login_required
 def staff_mark_fixed(request, complaint_id):
@@ -837,23 +783,21 @@ def staff_mark_fixed(request, complaint_id):
     ComplaintUpdate.objects.create(
         complaint=complaint,
         updated_by=request.user,
-        comment='Staff has completed the physical work. Marked as Fixed — awaiting DAO final review.',
+        comment='Staff has completed the physical work. Marked as Fixed.',
         status_changed_to='Resolved',
     )
-
-    complaint.status = 'Resolved'
+    complaint.status      = 'Resolved'
     complaint.resolved_at = timezone.now()
     complaint.save()
 
     from users.models import Notification
     Notification.objects.create(
         recipient=complaint.student,
-        title=f'Your complaint has been resolved',
-        message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been resolved by our staff team.',
+        title='Your complaint has been resolved',
+        message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been resolved.',
         notification_type='update',
         link=f'/complaints/detail/{complaint.id}/',
     )
-
     messages.success(request, 'Complaint marked as resolved. Student has been notified.')
     return redirect('staff_task_list')
 
@@ -869,60 +813,52 @@ def faculty_complaint_summary(request):
         return redirect('login')
 
     from .utils import (
-        get_faculty_complaints_summary,
-        group_similar_complaints,
-        get_complaint_statistics,
-        get_top_complaint_subjects,
+        get_faculty_complaints_summary, group_similar_complaints,
+        get_complaint_statistics, get_top_complaint_subjects,
         get_department_complaint_comparison
     )
-    from users.models import User
 
-    faculty_id = request.GET.get('faculty_id') or request.POST.get('faculty_id')
-
+    faculty_id      = request.GET.get('faculty_id') or request.POST.get('faculty_id')
     faculty_in_dept = User.objects.filter(
-        role='Faculty',
-        department=request.user.department,
-        is_active=True
+        role='Faculty', department=request.user.department, is_active=True
     ).order_by('full_name')
 
     context = {
-        'page_title': 'Faculty Complaint Analysis',
-        'faculty_list': faculty_in_dept,
+        'page_title':       'Faculty Complaint Analysis',
+        'faculty_list':     faculty_in_dept,
         'selected_faculty': None,
-        'summary_data': None,
-        'statistics': None,
-        'similar_groups': None,
-        'top_subjects': None,
-        'comparison_data': None,
+        'summary_data':     None,
+        'statistics':       None,
+        'similar_groups':   None,
+        'top_subjects':     None,
+        'comparison_data':  None,
     }
 
     if faculty_id:
         try:
             selected_faculty = User.objects.get(id=faculty_id, role='Faculty')
-            summary_data = get_faculty_complaints_summary(selected_faculty)
-            all_complaints = summary_data['all_complaints']
-            comparison_data = get_department_complaint_comparison(selected_faculty)
+            summary_data     = get_faculty_complaints_summary(selected_faculty)
+            all_complaints   = summary_data['all_complaints']
+            comparison_data  = get_department_complaint_comparison(selected_faculty)
 
             if all_complaints.exists():
                 similar_groups = group_similar_complaints(list(all_complaints), similarity_threshold=0.55)
-                statistics = get_complaint_statistics(all_complaints)
-                top_subjects = get_top_complaint_subjects(all_complaints, limit=5)
-
+                statistics     = get_complaint_statistics(all_complaints)
+                top_subjects   = get_top_complaint_subjects(all_complaints, limit=5)
                 context.update({
                     'selected_faculty': selected_faculty,
-                    'summary_data': summary_data,
-                    'statistics': statistics,
-                    'similar_groups': similar_groups,
-                    'top_subjects': top_subjects,
-                    'comparison_data': comparison_data,
+                    'summary_data':     summary_data,
+                    'statistics':       statistics,
+                    'similar_groups':   similar_groups,
+                    'top_subjects':     top_subjects,
+                    'comparison_data':  comparison_data,
                 })
             else:
                 messages.info(request, f'No complaints found for {selected_faculty.full_name}')
                 context.update({
                     'selected_faculty': selected_faculty,
-                    'comparison_data': comparison_data,
+                    'comparison_data':  comparison_data,
                 })
-
         except User.DoesNotExist:
             messages.error(request, 'Faculty not found.')
 
@@ -936,49 +872,40 @@ def faculty_course_wise_complaints(request, faculty_id):
         return redirect('login')
 
     faculty = get_object_or_404(User, id=faculty_id, role='Faculty')
-
     if faculty.department != request.user.department:
         messages.error(request, 'You can only view faculty from your department.')
         return redirect('faculty_complaint_summary')
 
     from feedback.models import CourseAssignment
-
-    course_assignments = CourseAssignment.objects.filter(
-        faculty=faculty
-    ).select_related('course')
-
+    course_assignments    = CourseAssignment.objects.filter(faculty=faculty).select_related('course')
     course_complaint_data = []
 
     for assignment in course_assignments:
-        course = assignment.course
+        course            = assignment.course
         course_complaints = Complaint.objects.filter(
-            faculty_concerned=faculty,
-            complaint_type='Faculty',
+            faculty_concerned=faculty, complaint_type='Faculty',
             student__department=course.department
         )
-
         if course_complaints.exists():
-            course_stats = {
-                'course': course,
-                'assignment': assignment,
+            course_complaint_data.append({
+                'course':           course,
+                'assignment':       assignment,
                 'total_complaints': course_complaints.count(),
-                'pending': course_complaints.filter(status='Pending').count(),
-                'resolved': course_complaints.filter(status='Resolved').count(),
-                'investigating': course_complaints.filter(status='Under Investigation').count(),
-                'high_priority': course_complaints.filter(priority__in=['High', 'Urgent']).count(),
-                'complaints': course_complaints.order_by('-submitted_at'),
-            }
-            course_complaint_data.append(course_stats)
+                'pending':          course_complaints.filter(status='Pending').count(),
+                'resolved':         course_complaints.filter(status='Resolved').count(),
+                'investigating':    course_complaints.filter(status='Under Investigation').count(),
+                'high_priority':    course_complaints.filter(priority__in=['High', 'Urgent']).count(),
+                'complaints':       course_complaints.order_by('-submitted_at'),
+            })
 
     course_complaint_data.sort(key=lambda x: x['total_complaints'], reverse=True)
 
     context = {
-        'page_title': f'Course-wise Complaints - {faculty.full_name}',
-        'faculty': faculty,
+        'page_title':            f'Course-wise Complaints - {faculty.full_name}',
+        'faculty':               faculty,
         'course_complaint_data': course_complaint_data,
-        'total_complaints': sum(c['total_complaints'] for c in course_complaint_data),
+        'total_complaints':      sum(c['total_complaints'] for c in course_complaint_data),
     }
-
     return render(request, 'complaints/faculty_course_wise_complaints.html', context)
 
 
@@ -991,12 +918,11 @@ def similar_complaints_detail(request, faculty_id, group_index):
     from .utils import get_faculty_complaints_summary, group_similar_complaints
 
     faculty = get_object_or_404(User, id=faculty_id, role='Faculty')
-
     if faculty.department != request.user.department:
         messages.error(request, 'You can only view faculty from your department.')
         return redirect('faculty_complaint_summary')
 
-    summary_data = get_faculty_complaints_summary(faculty)
+    summary_data   = get_faculty_complaints_summary(faculty)
     all_complaints = list(summary_data['all_complaints'])
     similar_groups = group_similar_complaints(all_complaints, similarity_threshold=0.55)
 
@@ -1007,197 +933,64 @@ def similar_complaints_detail(request, faculty_id, group_index):
         return redirect('faculty_complaint_summary')
 
     context = {
-        'page_title': 'Similar Complaints Detail',
-        'faculty': faculty,
-        'group': group,
-        'group_index': group_index,
+        'page_title':   'Similar Complaints Detail',
+        'faculty':      faculty,
+        'group':        group,
+        'group_index':  group_index,
         'total_groups': len(similar_groups),
     }
-
     return render(request, 'complaints/similar_complaints_detail.html', context)
 
 
 def public_log(request):
     type_filter = request.GET.get('type', '')
-    complaints = Complaint.objects.filter(status='Resolved').order_by('-resolved_at')
+    complaints  = Complaint.objects.filter(status='Resolved').order_by('-resolved_at')
     if type_filter:
         complaints = complaints.filter(complaint_type=type_filter)
     complaints = complaints[:50]
 
     all_resolved = Complaint.objects.filter(status='Resolved')
-    type_counts = {
-        'all': all_resolved.count(),
-        'Faculty': all_resolved.filter(complaint_type='Faculty').count(),
-        'HOD': all_resolved.filter(complaint_type='HOD').count(),
-        'Staff': all_resolved.filter(complaint_type='Staff').count(),
+    type_counts  = {
+        'all':      all_resolved.count(),
+        'Faculty':  all_resolved.filter(complaint_type='Faculty').count(),
+        'HOD':      all_resolved.filter(complaint_type='HOD').count(),
+        'Staff':    all_resolved.filter(complaint_type='Staff').count(),
         'Facility': all_resolved.filter(complaint_type='Facility').count(),
-        'Advice': all_resolved.filter(complaint_type='Advice').count(),
-        'Opinion': all_resolved.filter(complaint_type='Opinion').count(),
+        'Advice':   all_resolved.filter(complaint_type='Advice').count(),
+        'Opinion':  all_resolved.filter(complaint_type='Opinion').count(),
     }
-
     context = {
-        'complaints': complaints,
+        'complaints':  complaints,
         'type_filter': type_filter,
         'type_counts': type_counts,
-        'page_title': 'Public Resolved Issues Log'
+        'page_title':  'Public Resolved Issues Log'
     }
     return render(request, 'complaints/public_log.html', context)
 
 
-@login_required
-def clarification_list(request):
-    from .models import ClarificationRequest
-
-    if request.user.role == 'Student':
-        requests = ClarificationRequest.objects.filter(
-            finding__investigation__complaint__student=request.user,
-            request_type='Student'
-        ).select_related('finding__investigation__complaint').order_by('-created_at')
-    elif request.user.role in ['Faculty', 'HOD']:
-        requests = ClarificationRequest.objects.filter(
-            finding__investigation__complaint__faculty_concerned=request.user,
-            request_type='Faculty'
-        ).select_related('finding__investigation__complaint').order_by('-created_at')
-    else:
-        messages.error(request, 'Access denied.')
-        return redirect('login')
-
-    context = {
-        'clarification_requests': requests,
-        'pending_count': requests.filter(status='Pending').count(),
-        'page_title': 'Clarification Requests',
-    }
-    return render(request, 'complaints/clarification_list.html', context)
-
-
-@login_required
-def respond_clarification(request, clarification_id):
-    from .models import ClarificationRequest
-    from .forms import ClarificationResponseForm
-
-    clarification = get_object_or_404(ClarificationRequest, id=clarification_id)
-
-    if request.user.role == 'Student':
-        if clarification.finding.investigation.complaint.student != request.user:
-            messages.error(request, 'Access denied.')
-            return redirect('clarification_list')
-        if clarification.request_type != 'Student':
-            messages.error(request, 'Access denied.')
-            return redirect('clarification_list')
-    elif request.user.role in ['Faculty', 'HOD']:
-        if clarification.finding.investigation.complaint.faculty_concerned != request.user:
-            messages.error(request, 'Access denied.')
-            return redirect('clarification_list')
-        if clarification.request_type != 'Faculty':
-            messages.error(request, 'Access denied.')
-            return redirect('clarification_list')
-    else:
-        messages.error(request, 'Access denied.')
-        return redirect('login')
-
-    if clarification.status == 'Responded':
-        messages.info(request, 'You have already responded to this request.')
-        return redirect('clarification_list')
-
-    complaint = clarification.finding.investigation.complaint
-    investigator = clarification.requested_by
-
-    if request.method == 'POST':
-        form = ClarificationResponseForm(request.POST)
-        if form.is_valid():
-            clarification.response_text = form.cleaned_data['response_text']
-            clarification.responded_by = request.user
-            clarification.responded_at = timezone.now()
-            clarification.status = 'Responded'
-            clarification.save()
-
-            finding = clarification.finding
-            all_responded = True
-            if finding.needs_student_clarification:
-                student_req = ClarificationRequest.objects.filter(
-                    finding=finding, request_type='Student'
-                ).first()
-                if not student_req or student_req.status != 'Responded':
-                    all_responded = False
-            if finding.needs_faculty_statement:
-                faculty_req = ClarificationRequest.objects.filter(
-                    finding=finding, request_type='Faculty'
-                ).first()
-                if not faculty_req or faculty_req.status != 'Responded':
-                    all_responded = False
-
-            if all_responded:
-                notify_msg = f'All clarification responses have been received for complaint "{complaint.subject}" (ID: {complaint.tracking_id}). Please review and submit your final verdict.'
-            else:
-                notify_msg = f'{request.user.full_name} has responded to your clarification request for complaint "{complaint.subject}" (ID: {complaint.tracking_id}). Check your investigations dashboard.'
-
-            create_notification(
-                recipient=investigator,
-                title=f'Clarification Response Received — {complaint.tracking_id}',
-                message=notify_msg,
-                notification_type='complaint',
-                link=f'/complaints/investigator/clarification/{clarification.finding.id}/responses/',
-            )
-
-            messages.success(request, 'Your response has been submitted. The investigator has been notified.')
-            return redirect('clarification_list')
-    else:
-        form = ClarificationResponseForm()
-
-    context = {
-        'clarification': clarification,
-        'complaint': complaint,
-        'form': form,
-        'page_title': 'Respond to Clarification Request',
-    }
-    return render(request, 'complaints/respond_clarification.html', context)
-
-
-@login_required
-def view_clarification_responses(request, finding_id):
-    from .models import ClarificationRequest
-
-    if request.user.role not in ['Faculty', 'HOD']:
-        messages.error(request, 'Access denied.')
-        return redirect('login')
-
-    finding = get_object_or_404(InvestigationFinding, id=finding_id, submitted_by=request.user)
-    clarifications = ClarificationRequest.objects.filter(finding=finding)
-
-    all_responded = all(c.status == 'Responded' for c in clarifications)
-
-    context = {
-        'finding': finding,
-        'complaint': finding.investigation.complaint,
-        'clarifications': clarifications,
-        'all_responded': all_responded,
-        'page_title': 'Clarification Responses',
-    }
-    return render(request, 'complaints/view_clarification_responses.html', context)
-
+# ─────────────────────────────────────────────────────────────────────────────
+# CLARIFICATION FLOW
+# ─────────────────────────────────────────────────────────────────────────────
 
 @login_required
 def hod_send_clarification(request, finding_id):
-    """HOD reviews investigator's clarification request and forwards to student/faculty."""
+    """HOD reviews investigator's request and forwards to student/faculty."""
     if request.user.role != 'HOD':
         messages.error(request, 'Access denied.')
         return redirect('login')
 
-    from .models import ClarificationRequest
-
-    finding     = get_object_or_404(InvestigationFinding, id=finding_id)
-    complaint   = finding.investigation.complaint
+    finding       = get_object_or_404(InvestigationFinding, id=finding_id)
+    complaint     = finding.investigation.complaint
     investigation = finding.investigation
 
-    # Make sure this HOD owns this complaint
     if investigation.assigned_by != request.user:
         messages.error(request, 'Access denied.')
         return redirect('hod_complaints_list')
 
-    # Check if already sent
     already_sent = ClarificationRequest.objects.filter(finding=finding).exists()
 
     if request.method == 'POST' and not already_sent:
+        parties = []
 
         if finding.needs_student_clarification:
             ClarificationRequest.objects.create(
@@ -1205,66 +998,60 @@ def hod_send_clarification(request, finding_id):
                 requested_by=request.user,
                 request_type='Student',
                 questions=finding.clarification_questions,
+                target_user=complaint.student,
             )
             create_notification(
                 recipient=complaint.student,
                 title=f'📋 Clarification Needed — Complaint {complaint.tracking_id}',
                 message=(
-                    f'The HOD has forwarded a request for additional information regarding '
-                    f'your complaint "{complaint.subject}".\n\n'
+                    f'The HOD has forwarded a request for additional information '
+                    f'regarding your complaint "{complaint.subject}". '
                     f'Please check your clarification requests and respond promptly.'
                 ),
                 notification_type='complaint',
                 link='/complaints/clarifications/',
             )
+            parties.append('Student')
 
-        if finding.needs_faculty_statement:
-            if complaint.faculty_concerned:
-                ClarificationRequest.objects.create(
-                    finding=finding,
-                    requested_by=request.user,
-                    request_type='Faculty',
-                    questions=finding.clarification_questions,
-                )
-                create_notification(
-                    recipient=complaint.faculty_concerned,
-                    title=f'📋 Statement Required — Complaint {complaint.tracking_id}',
-                    message=(
-                        f'The HOD requires a statement from you regarding complaint '
-                        f'"{complaint.subject}" (ID: {complaint.tracking_id}).\n\n'
-                        f'Please check your clarification requests and respond promptly.'
-                    ),
-                    notification_type='complaint',
-                    link='/complaints/clarifications/',
-                )
+        if finding.needs_faculty_statement and complaint.faculty_concerned:
+            ClarificationRequest.objects.create(
+                finding=finding,
+                requested_by=request.user,
+                request_type='Faculty',
+                questions=finding.clarification_questions,
+                target_user=complaint.faculty_concerned,
+            )
+            create_notification(
+                recipient=complaint.faculty_concerned,
+                title=f'📋 Statement Required — Complaint {complaint.tracking_id}',
+                message=(
+                    f'The HOD requires a statement from you regarding complaint '
+                    f'"{complaint.subject}" (ID: {complaint.tracking_id}). '
+                    f'Please check your clarification requests and respond promptly.'
+                ),
+                notification_type='complaint',
+                link='/complaints/clarifications/',
+            )
+            parties.append('Accused Faculty')
 
-        # Notify investigator that HOD has sent the requests
         create_notification(
             recipient=finding.submitted_by,
             title=f'✅ Clarification Requests Sent — {complaint.tracking_id}',
             message=(
                 f'HOD {request.user.full_name} has forwarded your clarification request '
-                f'to the relevant parties for complaint "{complaint.subject}". '
-                f'You will be notified once they respond.'
+                f'to: {", ".join(parties)}. You will be notified once they respond.'
             ),
             notification_type='complaint',
             link=f'/complaints/investigator/clarification/{finding.id}/responses/',
         )
 
-        # Add complaint update
-        parties = []
-        if finding.needs_student_clarification:
-            parties.append('Student')
-        if finding.needs_faculty_statement:
-            parties.append('Accused Faculty')
-
         ComplaintUpdate.objects.create(
             complaint=complaint,
             updated_by=request.user,
-            comment=f'Clarification request sent to: {", ".join(parties)}. Awaiting responses before final verdict.',
+            comment=f'Clarification request sent to: {", ".join(parties)}. Awaiting responses.',
         )
 
-        messages.success(request, f'Clarification request sent to {", ".join(parties)}. All parties have been notified.')
+        messages.success(request, f'Clarification request sent to {", ".join(parties)}.')
         return redirect('handle_complaint', complaint_id=complaint.id)
 
     context = {
@@ -1277,19 +1064,23 @@ def hod_send_clarification(request, finding_id):
 
 
 @login_required
-def clarification_list(request):
-    """Student or Faculty sees their pending clarification requests."""
-    from .models import ClarificationRequest
+def hod_forward_clarification(request, finding_id):
+    """Kept for backward compatibility — redirects to hod_send_clarification."""
+    return redirect('hod_send_clarification', finding_id=finding_id)
 
+
+@login_required
+def clarification_list(request):
+    """Student or Faculty sees their clarification requests."""
     if request.user.role == 'Student':
         clarification_requests = ClarificationRequest.objects.filter(
-            finding__investigation__complaint__student=request.user,
-            request_type='Student'
+            target_user=request.user,
+            request_type='Student',
         ).select_related('finding__investigation__complaint').order_by('-created_at')
     elif request.user.role in ['Faculty', 'HOD']:
         clarification_requests = ClarificationRequest.objects.filter(
-            finding__investigation__complaint__faculty_concerned=request.user,
-            request_type='Faculty'
+            target_user=request.user,
+            request_type='Faculty',
         ).select_related('finding__investigation__complaint').order_by('-created_at')
     else:
         messages.error(request, 'Access denied.')
@@ -1297,8 +1088,8 @@ def clarification_list(request):
 
     context = {
         'clarification_requests': clarification_requests,
-        'pending_count': clarification_requests.filter(status='Pending').count(),
-        'page_title': 'Clarification Requests',
+        'pending_count':          clarification_requests.filter(status='Pending').count(),
+        'page_title':             'Clarification Requests',
     }
     return render(request, 'complaints/clarification_list.html', context)
 
@@ -1306,25 +1097,18 @@ def clarification_list(request):
 @login_required
 def respond_clarification(request, clarification_id):
     """Student or Faculty responds to a clarification request."""
-    from .models import ClarificationRequest
-    from .forms import ClarificationResponseForm
-
-    clarification = get_object_or_404(ClarificationRequest, id=clarification_id)
-    complaint     = clarification.finding.investigation.complaint
-    investigator  = clarification.finding.submitted_by
-
-    # Access control
-    if request.user.role == 'Student':
-        if complaint.student != request.user or clarification.request_type != 'Student':
-            messages.error(request, 'Access denied.')
-            return redirect('clarification_list')
-    elif request.user.role in ['Faculty', 'HOD']:
-        if complaint.faculty_concerned != request.user or clarification.request_type != 'Faculty':
-            messages.error(request, 'Access denied.')
-            return redirect('clarification_list')
-    else:
+    if request.user.role not in ['Student', 'Faculty', 'HOD']:
         messages.error(request, 'Access denied.')
         return redirect('login')
+
+    clarification = get_object_or_404(
+        ClarificationRequest,
+        id=clarification_id,
+        target_user=request.user,
+    )
+
+    complaint    = clarification.finding.investigation.complaint
+    investigator = clarification.finding.submitted_by
 
     if clarification.status == 'Responded':
         messages.info(request, 'You have already responded to this request.')
@@ -1339,8 +1123,7 @@ def respond_clarification(request, clarification_id):
             clarification.status        = 'Responded'
             clarification.save()
 
-            # Check if all expected clarifications are now responded
-            finding = clarification.finding
+            finding       = clarification.finding
             all_responded = True
 
             if finding.needs_student_clarification:
@@ -1359,18 +1142,17 @@ def respond_clarification(request, clarification_id):
 
             if all_responded:
                 notif_msg = (
-                    f'All clarification responses have been received for complaint '
-                    f'"{complaint.subject}" (ID: {complaint.tracking_id}). '
-                    f'Please review the responses and submit your final verdict.'
+                    f'All clarification responses received for complaint '
+                    f'"{complaint.subject}" ({complaint.tracking_id}). '
+                    f'Please review responses and forward to the investigator.'
                 )
             else:
                 notif_msg = (
-                    f'{request.user.full_name} has responded to the clarification request '
-                    f'for complaint "{complaint.subject}" (ID: {complaint.tracking_id}). '
+                    f'{request.user.full_name} has responded to the clarification for '
+                    f'complaint "{complaint.subject}" ({complaint.tracking_id}). '
                     f'Waiting for remaining responses.'
                 )
 
-            # Notify investigator
             create_notification(
                 recipient=investigator,
                 title=f'💬 Clarification Response Received — {complaint.tracking_id}',
@@ -1379,16 +1161,15 @@ def respond_clarification(request, clarification_id):
                 link=f'/complaints/investigator/clarification/{finding.id}/responses/',
             )
 
-            # Also notify HOD
             create_notification(
                 recipient=finding.investigation.assigned_by,
                 title=f'💬 Clarification Response — {complaint.tracking_id}',
-                message=f'{request.user.full_name} has responded to the clarification request for complaint "{complaint.subject}".',
+                message=f'{request.user.full_name} has responded to the clarification for complaint "{complaint.subject}".',
                 notification_type='complaint',
                 link=f'/complaints/hod/handle/{complaint.id}/',
             )
 
-            messages.success(request, 'Your response has been submitted. The investigator has been notified.')
+            messages.success(request, 'Your response has been submitted.')
             return redirect('clarification_list')
     else:
         form = ClarificationResponseForm()
@@ -1404,16 +1185,16 @@ def respond_clarification(request, clarification_id):
 
 @login_required
 def view_clarification_responses(request, finding_id):
-    """Investigator views all clarification responses for their finding."""
-    from .models import ClarificationRequest
-
+    """Investigator or HOD views all clarification responses."""
     if request.user.role not in ['Faculty', 'HOD']:
         messages.error(request, 'Access denied.')
         return redirect('login')
 
-    finding        = get_object_or_404(InvestigationFinding, id=finding_id, submitted_by=request.user)
+    finding        = get_object_or_404(InvestigationFinding, id=finding_id)
     clarifications = ClarificationRequest.objects.filter(finding=finding)
-    all_responded  = all(c.status == 'Responded' for c in clarifications) and clarifications.exists()
+    all_responded  = clarifications.exists() and all(
+        c.status == 'Responded' for c in clarifications
+    )
 
     context = {
         'finding':        finding,
@@ -1424,288 +1205,49 @@ def view_clarification_responses(request, finding_id):
     }
     return render(request, 'complaints/view_clarification_responses.html', context)
 
+
 @login_required
 def hod_forward_to_investigator(request, finding_id):
-    """HOD forwards clarification responses to the investigator."""
+    """HOD forwards all clarification responses to the investigator."""
     if request.user.role != 'HOD':
         messages.error(request, 'Access denied.')
         return redirect('login')
 
-    from .models import ClarificationRequest
-
-    finding     = get_object_or_404(InvestigationFinding, id=finding_id)
-    complaint   = finding.investigation.complaint
-    investigator = finding.submitted_by
+    finding        = get_object_or_404(InvestigationFinding, id=finding_id)
+    complaint      = finding.investigation.complaint
+    investigator   = finding.submitted_by
     clarifications = ClarificationRequest.objects.filter(finding=finding)
 
     if request.method == 'POST':
-        # Build response summary
         response_summary = ''
         for c in clarifications:
             party = 'Student' if c.request_type == 'Student' else 'Accused Faculty'
-            response_summary += f'\n--- {party} Response ---\n{c.response_text}\n'
+            response_summary += f'\n--- {party} Response ---\n{c.response_text or "(no response)"}\n'
 
         create_notification(
             recipient=investigator,
             title=f'📋 Clarification Responses Ready — {complaint.tracking_id}',
             message=(
                 f'HOD {request.user.full_name} has forwarded all clarification responses '
-                f'for complaint "{complaint.subject}" (ID: {complaint.tracking_id}).\n\n'
-                f'Please review the responses and submit your final verdict.\n'
+                f'for complaint "{complaint.subject}" ({complaint.tracking_id}).\n\n'
+                f'Please review and submit your final verdict.\n'
                 f'{response_summary}'
             ),
             notification_type='complaint',
             link=f'/complaints/investigator/clarification/{finding.id}/responses/',
         )
 
-        messages.success(request, f'Responses forwarded to {investigator.full_name}. They have been notified.')
-        return redirect('handle_complaint', complaint_id=complaint.id)
+        messages.success(request, f'Responses forwarded to {investigator.full_name}.')
 
     return redirect('handle_complaint', complaint_id=complaint.id)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ADD these imports at the top of complaints/views.py (merge with existing):
-#
-#   from .models import Complaint, ComplaintUpdate, ComplaintInvestigation,
-#                       InvestigationFinding, ClarificationRequest
-#   from .forms  import (ComplaintSubmissionForm, ComplaintUpdateForm,
-#                        AssignInvestigationForm, InvestigationFindingsForm,
-#                        HODFinalActionForm, ForwardClarificationForm,
-#                        ClarificationResponseForm)
-#
-# Then paste the 4 views below into complaints/views.py
-# ─────────────────────────────────────────────────────────────────────────────
-
-
-@login_required
-def hod_forward_clarification(request, finding_id):
-    """
-    STEP 1 of clarification flow.
-    HOD reads the investigator's 'Needs More Info' finding and forwards
-    the question to either the Student or the accused Faculty.
-    The recipient is auto-detected from the finding (ask_from).
-    """
-    if request.user.role != 'HOD':
-        messages.error(request, 'Access denied.')
-        return redirect('login')
-
-    from .models import InvestigationFinding, ClarificationRequest
-    from .forms  import ForwardClarificationForm
-
-    finding     = get_object_or_404(InvestigationFinding, id=finding_id)
-    investigation = finding.investigation
-    complaint   = investigation.complaint
-
-    # Determine target automatically:
-    # "Needs More Info" from student → ask student
-    # We read the finding text to decide, but HOD confirms in the form.
-    # Default target = student; HOD can override via the ask_from radio.
-
-    # Check if a clarification already exists for this finding
-    existing = ClarificationRequest.objects.filter(
-        investigation=investigation
-    ).order_by('-created_at').first()
-
-    if request.method == 'POST':
-        form = ForwardClarificationForm(request.POST)
-        ask_from = request.POST.get('ask_from', 'Student')
-
-        if form.is_valid():
-            question = form.cleaned_data['question']
-
-            # Determine target user
-            if ask_from == 'Student':
-                target = complaint.student
-            else:
-                target = complaint.faculty_concerned
-
-            if not target:
-                messages.error(request, 'Cannot forward — target user not found.')
-                return redirect('handle_complaint', complaint_id=complaint.id)
-
-            # Create clarification request
-            clarification = ClarificationRequest.objects.create(
-                investigation=investigation,
-                question=question,
-                ask_from=ask_from,
-                target_user=target,
-                forwarded_by=request.user,
-                status='Pending',
-            )
-
-            # Notify target user
-            create_notification(
-                recipient=target,
-                title=f'Clarification Needed — Complaint {complaint.tracking_id}',
-                message=f'The HOD has forwarded a clarification request regarding complaint "{complaint.subject}". Please respond as soon as possible.',
-                notification_type='complaint',
-                link=f'/complaints/clarification/{clarification.id}/respond/',
-            )
-
-            # Log update on complaint
-            ComplaintUpdate.objects.create(
-                complaint=complaint,
-                updated_by=request.user,
-                comment=f'Clarification request forwarded to {ask_from} ({target.full_name}): "{question[:100]}..."',
-            )
-
-            messages.success(request, f'Clarification request sent to {target.full_name}.')
-            return redirect('handle_complaint', complaint_id=complaint.id)
-    else:
-        # Pre-fill question from the finding's content
-        form = ForwardClarificationForm(initial={'question': finding.findings})
-
-    context = {
-        'form':          form,
-        'finding':       finding,
-        'investigation': investigation,
-        'complaint':     complaint,
-        'existing':      existing,
-        'page_title':    f'Forward Clarification — {complaint.tracking_id}',
-    }
-    return render(request, 'complaints/hod_forward_clarification.html', context)
-
-
-@login_required
-def respond_clarification(request, clarification_id):
-    """
-    STEP 2 of clarification flow.
-    Student or accused Faculty responds to the clarification request.
-    Accessible from their dashboard's 'Pending Clarifications' section.
-    """
-    if request.user.role not in ['Student', 'Faculty']:
-        messages.error(request, 'Access denied.')
-        return redirect('login')
-
-    from .models import ClarificationRequest
-    from .forms  import ClarificationResponseForm
-
-    clarification = get_object_or_404(
-        ClarificationRequest, id=clarification_id, target_user=request.user
-    )
-
-    if clarification.status != 'Pending':
-        messages.info(request, 'You have already responded to this clarification.')
-        return redirect('student_dashboard' if request.user.role == 'Student' else 'faculty_dashboard')
-
-    if request.method == 'POST':
-        form = ClarificationResponseForm(request.POST)
-        if form.is_valid():
-            clarification.response     = form.cleaned_data['response']
-            clarification.status       = 'Responded'
-            clarification.responded_at = timezone.now()
-            clarification.save()
-
-            # Notify HOD
-            create_notification(
-                recipient=clarification.forwarded_by,
-                title=f'Clarification Response Received — {clarification.investigation.complaint.tracking_id}',
-                message=f'{request.user.full_name} has responded to the clarification request for complaint "{clarification.investigation.complaint.subject}".',
-                notification_type='complaint',
-                link=f'/complaints/hod/handle/{clarification.investigation.complaint.id}/',
-            )
-
-            messages.success(request, 'Your response has been submitted. The HOD has been notified.')
-
-            if request.user.role == 'Student':
-                return redirect('student_dashboard')
-            else:
-                return redirect('faculty_dashboard')
-    else:
-        form = ClarificationResponseForm()
-
-    context = {
-        'form':          form,
-        'clarification': clarification,
-        'complaint':     clarification.investigation.complaint,
-        'page_title':    'Respond to Clarification',
-    }
-    return render(request, 'complaints/clarification_respond.html', context)
-
-
-@login_required
-def hod_view_clarification_responses(request, complaint_id):
-    """
-    STEP 3 of clarification flow.
-    HOD reviews responses and forwards them to the investigator.
-    Clicking 'Forward to Investigator' marks the clarification as Forwarded
-    and notifies the investigator to re-submit findings.
-    """
-    if request.user.role != 'HOD':
-        messages.error(request, 'Access denied.')
-        return redirect('login')
-
-    from .models import ClarificationRequest
-
-    complaint     = get_object_or_404(Complaint, id=complaint_id)
-    investigation = complaint.investigation
-    clarifications = ClarificationRequest.objects.filter(
-        investigation=investigation
-    ).order_by('-created_at')
-
-    if request.method == 'POST':
-        clarification_id = request.POST.get('clarification_id')
-        clarification    = get_object_or_404(ClarificationRequest, id=clarification_id)
-
-        # Mark as forwarded
-        clarification.status = 'Forwarded'
-        clarification.save()
-
-        # Delete the old finding so investigator can re-submit
-        from .models import InvestigationFinding
-        InvestigationFinding.objects.filter(
-            investigation=investigation,
-            submitted_by__in=investigation.investigators.all()
-        ).delete()
-
-        # Reset complaint status to Under Investigation
-        complaint.status = 'Under Investigation'
-        complaint.save()
-
-        # Notify each investigator
-        for investigator in investigation.investigators.all():
-            create_notification(
-                recipient=investigator,
-                title=f'Clarification Response Available — {complaint.tracking_id}',
-                message=(
-                    f'The HOD has forwarded the clarification response from '
-                    f'{clarification.target_user.full_name} for complaint '
-                    f'"{complaint.subject}". Please review and submit your final verdict.'
-                ),
-                notification_type='complaint',
-                link=f'/complaints/investigator/submit-findings/{investigation.id}/',
-            )
-
-        ComplaintUpdate.objects.create(
-            complaint=complaint,
-            updated_by=request.user,
-            comment=f'Clarification response from {clarification.target_user.full_name} forwarded to investigators.',
-        )
-
-        messages.success(request, 'Response forwarded to investigators. They can now submit their final verdict.')
-        return redirect('handle_complaint', complaint_id=complaint.id)
-
-    context = {
-        'complaint':      complaint,
-        'investigation':  investigation,
-        'clarifications': clarifications,
-        'page_title':     f'Clarification Responses — {complaint.tracking_id}',
-    }
-    return render(request, 'complaints/hod_clarification_responses.html', context)
-
-
 @login_required
 def my_clarifications(request):
-    """
-    Student or Faculty sees all pending clarification requests on their dashboard.
-    Linked from the dashboard notification widget.
-    """
+    """Student or Faculty sees all clarification requests sent to them."""
     if request.user.role not in ['Student', 'Faculty']:
         messages.error(request, 'Access denied.')
         return redirect('login')
-
-    from .models import ClarificationRequest
 
     clarifications = ClarificationRequest.objects.filter(
         target_user=request.user
@@ -1717,3 +1259,30 @@ def my_clarifications(request):
         'page_title':     'My Clarification Requests',
     }
     return render(request, 'complaints/my_clarifications.html', context)
+
+
+@login_required
+def hod_view_clarification_responses(request, complaint_id):
+    """HOD views all clarification responses for a complaint."""
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    complaint = get_object_or_404(Complaint, id=complaint_id)
+
+    try:
+        investigation  = complaint.investigation
+        clarifications = ClarificationRequest.objects.filter(
+            finding__investigation=investigation
+        ).order_by('-created_at')
+    except ComplaintInvestigation.DoesNotExist:
+        investigation  = None
+        clarifications = []
+
+    context = {
+        'complaint':      complaint,
+        'investigation':  investigation,
+        'clarifications': clarifications,
+        'page_title':     f'Clarification Responses — {complaint.tracking_id}',
+    }
+    return render(request, 'complaints/hod_clarification_responses.html', context)

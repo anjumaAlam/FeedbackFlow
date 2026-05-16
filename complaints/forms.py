@@ -10,7 +10,6 @@ User = get_user_model()
 
 
 class ComplaintSubmissionForm(forms.ModelForm):
-    """Form for students to submit complaints."""
     class Meta:
         model = Complaint
         fields = ['complaint_type', 'subject', 'description', 'faculty_concerned', 'location', 'is_anonymous']
@@ -36,12 +35,12 @@ class ComplaintSubmissionForm(forms.ModelForm):
         from users.models import User
 
         role_map = {
-            'Faculty': ['Faculty'],
-            'HOD': ['HOD'],
-            'Staff': ['Staff'],
+            'Faculty':  ['Faculty'],
+            'HOD':      ['HOD'],
+            'Staff':    ['Staff'],
             'Facility': ['Staff'],
-            'Advice': [],
-            'Opinion': [],
+            'Advice':   [],
+            'Opinion':  [],
         }
 
         selected_type = None
@@ -64,7 +63,6 @@ class ComplaintSubmissionForm(forms.ModelForm):
 
 
 class ComplaintUpdateForm(forms.ModelForm):
-    """Form for HOD/Staff/Admin to update complaints."""
     class Meta:
         model = ComplaintUpdate
         fields = ['comment', 'status_changed_to']
@@ -87,8 +85,6 @@ class ComplaintUpdateForm(forms.ModelForm):
 
 
 class AssignInvestigationForm(forms.ModelForm):
-    """HOD uses this form to assign one or more faculty investigators."""
-
     investigators = forms.ModelMultipleChoiceField(
         queryset=User.objects.none(),
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'investigation-checkbox'}),
@@ -116,7 +112,7 @@ class AssignInvestigationForm(forms.ModelForm):
         }
         labels = {
             'description': 'Investigation Brief / Forwarded Details',
-            'due_date': 'Expected Completion Date (optional)',
+            'due_date':    'Expected Completion Date (optional)',
         }
 
     def __init__(self, *args, complaint=None, hod_user=None, **kwargs):
@@ -152,21 +148,25 @@ class InvestigationFindingsForm(forms.ModelForm):
                 'rows': 7,
                 'placeholder': 'Describe your investigation findings in detail...'
             }),
-            'needs_student_clarification': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'needs_student'}),
-            'needs_faculty_statement': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'needs_faculty'}),
+            'needs_student_clarification': forms.CheckboxInput(attrs={
+                'class': 'form-check-input', 'id': 'needs_student'
+            }),
+            'needs_faculty_statement': forms.CheckboxInput(attrs={
+                'class': 'form-check-input', 'id': 'needs_faculty'
+            }),
             'clarification_questions': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Specify exactly what information you need — be clear and specific so the student/faculty can respond accurately...',
+                'placeholder': 'Specify exactly what information you need — be clear and specific...',
                 'id': 'clarification_questions_field'
             }),
         }
         labels = {
-            'verdict': 'Your Verdict',
-            'findings': 'Detailed Findings',
+            'verdict':                     'Your Verdict',
+            'findings':                    'Detailed Findings',
             'needs_student_clarification': 'Request clarification from Student',
-            'needs_faculty_statement': 'Request statement from Accused Faculty',
-            'clarification_questions': 'Specific Questions / Information Needed',
+            'needs_faculty_statement':     'Request statement from Accused Faculty',
+            'clarification_questions':     'Specific Questions / Information Needed',
         }
 
     def __init__(self, *args, **kwargs):
@@ -178,12 +178,12 @@ class InvestigationFindingsForm(forms.ModelForm):
         self.fields['clarification_questions'].required = False
 
     def clean(self):
-        cleaned_data = super().clean()
-        verdict = cleaned_data.get('verdict')
-        findings = cleaned_data.get('findings', '').strip()
+        cleaned_data  = super().clean()
+        verdict       = cleaned_data.get('verdict')
+        findings      = (cleaned_data.get('findings') or '').strip()
         needs_student = cleaned_data.get('needs_student_clarification')
         needs_faculty = cleaned_data.get('needs_faculty_statement')
-        questions = cleaned_data.get('clarification_questions', '').strip()
+        questions     = (cleaned_data.get('clarification_questions') or '').strip()
 
         if verdict != 'Needs More Info' and not findings:
             raise forms.ValidationError('Please provide your detailed findings.')
@@ -197,24 +197,11 @@ class InvestigationFindingsForm(forms.ModelForm):
         return cleaned_data
 
 
-class ClarificationResponseForm(forms.Form):
-    response_text = forms.CharField(
-        label='Your Response',
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'rows': 6,
-            'placeholder': 'Provide your detailed response to the investigator\'s questions...'
-        })
-    )
-
-
 class HODFinalActionForm(forms.Form):
-    """HOD takes final action after reviewing investigator findings."""
-
     ACTION_CHOICES = (
-        ('Resolve', '✅  Resolve — Mark complaint as resolved'),
-        ('Escalate', '⬆️  Escalate — Send to Admin for further action'),
-        ('More Investigation', '🔍  Request More Investigation — Send back to investigators'),
+        ('Resolve',           '✅  Resolve — Mark complaint as resolved'),
+        ('Escalate',          '⬆️  Escalate — Send to Admin for further action'),
+        ('More Investigation','🔍  Request More Investigation — Send back to investigators'),
     )
 
     action = forms.ChoiceField(
@@ -222,7 +209,6 @@ class HODFinalActionForm(forms.Form):
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
         label='Final Action'
     )
-
     note = forms.CharField(
         widget=forms.Textarea(attrs={
             'class': 'form-control',
@@ -233,29 +219,25 @@ class HODFinalActionForm(forms.Form):
     )
 
 
-# ADD these two forms to your existing complaints/forms.py
-# (paste at the bottom of the file)
-
 class ForwardClarificationForm(forms.Form):
-    """HOD uses this to forward investigator's question to student or faculty."""
-    question = forms.CharField(
-        label='Question / Clarification Needed',
+    questions = forms.CharField(
+        label='Questions / Clarification to Forward',
         widget=forms.Textarea(attrs={
             'class': 'form-control',
             'rows': 5,
-            'placeholder': 'Enter the question or clarification the investigator needs answered...'
+            'placeholder': 'Enter the exact question or clarification the investigator needs answered...'
         }),
         help_text='This will be sent directly to the student or accused faculty.'
     )
 
 
 class ClarificationResponseForm(forms.Form):
-    """Student or Faculty uses this to respond to a clarification request."""
-    response = forms.CharField(
+    response_text = forms.CharField(
         label='Your Response',
         widget=forms.Textarea(attrs={
             'class': 'form-control',
-            'rows': 6,
-            'placeholder': 'Provide your response to the clarification request in detail...'
+            'rows': 8,
+            'placeholder': 'Write your detailed response here...\n\nBe specific and factual:\n- Describe what happened from your perspective\n- Mention relevant dates, times, or locations\n- Include names of any witnesses if applicable',
+            'style': 'background:#ffffff !important; color:#111827 !important; -webkit-text-fill-color:#111827 !important; min-height:200px; resize:vertical; border:1.5px solid #d1d5db !important; border-radius:10px !important; padding:1rem 1.25rem !important; font-size:0.95rem !important; opacity:1 !important;'
         })
     )
