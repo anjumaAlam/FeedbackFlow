@@ -3329,3 +3329,13 @@ django.template.exceptions.TemplateDoesNotExist: complaints/staff_task_list.html
 [2026-05-16 17:33:22,820] INFO django.server log "GET /complaints/staff/list/ HTTP/1.1" 200 21734
 [2026-05-16 17:33:25,008] INFO django.server log "GET / HTTP/1.1" 302 0
 [2026-05-16 17:33:25,021] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 34818
+[2026-05-16 17:37:53,830] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:37:55,215] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:37:55,315] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 34818
+[2026-05-16 17:45:18,176] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:45:19,701] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:45:19,774] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 45856
+[2026-05-16 17:45:31,614] INFO django.server log "GET /complaints/hod/handle/5/ HTTP/1.1" 200 24565
+[2026-05-16 17:45:34,800] INFO django.server log "GET /complaints/staff/my-tasks/ HTTP/1.1" 200 34256
+[2026-05-16 17:45:36,514] INFO django.server log "GET /complaints/detail/4/ HTTP/1.1" 200 22642
+[2026-05-16 17:45:41,799] INFO django.server log "GET /complaints/staff/list/ HTTP/1.1" 200 21734

@@ -2,10 +2,591 @@
 
 {% block title %}Staff Dashboard - FeedbackFlow{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ══════════════════════════════════════════════════════════════════════════
+       STAFF DASHBOARD PAGE STYLES
+       FeedbackFlow — University of Asia Pacific
+       ══════════════════════════════════════════════════════════════════════════
+
+       TABLE OF CONTENTS
+       ─────────────────────────────────────────────────────────────────────────
+       1.  Dashboard Header
+       2.  Stat Cards
+       3.  Performance Metrics Card
+       4.  Quick Actions
+       5.  Complaints Table
+       6.  Status Badges
+       7.  Priority Badges
+       8.  Action Buttons
+       9.  Empty State
+       10. Info Cards
+       11. Guidelines List
+       12. Profile Card
+       13. Responsive Breakpoints
+       ═════════════════════════════════════════════════════════════════════════ */
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       1. DASHBOARD HEADER
+       The header displays the welcome message, role label, and last login time.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .dashboard-header h1 {
+        font-size: 26px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 4px;
+        line-height: 1.3;
+    }
+
+    .dashboard-header p {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 13px;
+        margin-bottom: 0;
+    }
+
+    .dashboard-header .text-white small {
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .dashboard-header .text-white strong {
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       2. STAT CARDS
+       Four colored stat cards showing key complaint counts at a glance.
+       Colors: blue (assigned), yellow (pending), purple (in-progress), green (resolved)
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .stat-card {
+        border-radius: 12px;
+        padding: 24px 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        pointer-events: none;
+    }
+
+    .stat-icon {
+        font-size: 28px;
+        display: block;
+        margin-bottom: 8px;
+        line-height: 1;
+    }
+
+    .stat-number {
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 4px;
+        line-height: 1;
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.75);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 0;
+        display: block;
+    }
+
+    /* Blue stat card — Assigned */
+    .stat-card.blue {
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    }
+
+    /* Yellow stat card — Pending */
+    .stat-card.yellow {
+        background: linear-gradient(135deg, #b45309, #d97706);
+    }
+
+    /* Purple stat card — In Progress */
+    .stat-card.purple {
+        background: linear-gradient(135deg, #6d28d9, #7c3aed);
+    }
+
+    /* Green stat card — Resolved */
+    .stat-card.green {
+        background: linear-gradient(135deg, #047857, #059669);
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       3. PERFORMANCE METRICS CARD
+       Shows average resolution time for the logged-in staff member.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .info-card {
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        transition: box-shadow 0.2s ease;
+    }
+
+    .info-card:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+    }
+
+    .info-card .card-body {
+        padding: 20px 24px;
+    }
+
+    .info-card h5 {
+        color: #111827;
+        font-weight: 700;
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .info-card .text-muted {
+        color: #6b7280 !important;
+        font-size: 13px;
+    }
+
+    .info-card strong {
+        color: #111827;
+        font-weight: 700;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       4. QUICK ACTIONS
+       Buttons for fast navigation to the task list.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 14px;
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .quick-action-btn {
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 10px 20px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .quick-action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .quick-action-btn:active {
+        transform: translateY(0);
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       5. COMPLAINTS TABLE
+       The modern-table wrapper styles the complaint list table with hover rows.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .modern-table {
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+    }
+
+    .modern-table .table {
+        margin-bottom: 0;
+        border-collapse: collapse;
+    }
+
+    .modern-table .table thead tr {
+        background: #f9fafb;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .modern-table .table thead th {
+        color: #374151;
+        font-weight: 700;
+        font-size: 13px;
+        padding: 14px 16px;
+        text-align: left;
+        white-space: nowrap;
+        border: none;
+    }
+
+    .modern-table .table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.15s ease;
+    }
+
+    .modern-table .table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .modern-table .table tbody tr:hover {
+        background-color: #f8faff;
+    }
+
+    .modern-table .table tbody td {
+        padding: 13px 16px;
+        vertical-align: middle;
+        border: none;
+        color: #111827;
+        font-size: 13px;
+    }
+
+    .modern-table .table tbody td strong {
+        color: #111827;
+        font-weight: 700;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       6. STATUS BADGES
+       Colored pill badges showing complaint status.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .badge-pending {
+        background: #fef3c7;
+        color: #92400e;
+        padding: 3px 12px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .badge-investigating {
+        background: #dbeafe;
+        color: #1d4ed8;
+        padding: 3px 12px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .badge-resolved {
+        background: #d1fae5;
+        color: #065f46;
+        padding: 3px 12px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .badge-escalated {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 3px 12px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .badge-default {
+        background: #e5e7eb;
+        color: #374151;
+        padding: 3px 12px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       7. PRIORITY BADGES
+       Colored pill badges showing complaint priority level.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .badge-low {
+        background: #e5e7eb;
+        color: #374151;
+        padding: 2px 10px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .badge-medium {
+        background: #dbeafe;
+        color: #1d4ed8;
+        padding: 2px 10px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .badge-high {
+        background: #fef3c7;
+        color: #92400e;
+        padding: 2px 10px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .badge-urgent {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 2px 10px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       8. ACTION BUTTONS
+       Small outline buttons in the actions column of the complaints table.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .btn-sm {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 6px;
+        transition: all 0.15s ease;
+    }
+
+    .btn-outline-primary {
+        color: #2563eb;
+        border-color: #2563eb;
+        background: transparent;
+    }
+
+    .btn-outline-primary:hover {
+        background: #2563eb;
+        color: #ffffff;
+        border-color: #2563eb;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       9. EMPTY STATE
+       Shown when no complaints are assigned to the staff member.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        opacity: 0.25;
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    .empty-state h4 {
+        color: #111827;
+        font-weight: 700;
+        font-size: 17px;
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        color: #6b7280;
+        font-size: 13px;
+        margin: 0;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       10. INFO CARDS (Guidelines + Profile)
+       Two side-by-side cards at the bottom of the dashboard.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .info-card .card-header {
+        padding: 14px 20px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .info-card .card-header h5 {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .info-card .card-body ul {
+        padding-left: 18px;
+        margin-bottom: 0;
+    }
+
+    .info-card .card-body ul li {
+        font-size: 13px;
+        color: #374151;
+        line-height: 1.5;
+    }
+
+    .info-card .card-body p {
+        font-size: 13px;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .info-card .card-body p strong {
+        color: #111827;
+        font-weight: 700;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       11. GUIDELINES LIST
+       Bullet list of staff responsibilities in the guidelines card.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .info-card .card-body ul li {
+        padding: 4px 0;
+        font-size: 13px;
+        color: #374151;
+        line-height: 1.6;
+    }
+
+    .info-card .card-body ul li:last-child {
+        margin-bottom: 0;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       12. PROFILE CARD
+       Displays name, email, role, department of the logged-in staff member.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    .profile-field {
+        font-size: 13px;
+        color: #374151;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .profile-field:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .profile-field strong {
+        color: #111827;
+        font-weight: 700;
+        min-width: 100px;
+        display: inline-block;
+    }
+
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       13. RESPONSIVE BREAKPOINTS
+       Layout adjustments for tablet and mobile screens.
+       ───────────────────────────────────────────────────────────────────────── */
+
+    /* Large tablet */
+    @media (max-width: 1024px) {
+        .stat-number {
+            font-size: 2rem;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+        }
+    }
+
+    /* Tablet */
+    @media (max-width: 768px) {
+        .dashboard-header h1 {
+            font-size: 20px;
+        }
+
+        .quick-action-btn {
+            font-size: 12px;
+            padding: 8px 14px;
+        }
+
+        .modern-table .table thead th,
+        .modern-table .table tbody td {
+            padding: 10px 12px;
+            font-size: 12px;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+        .stat-number {
+            font-size: 1.6rem;
+        }
+
+        .stat-label {
+            font-size: 10px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 18px;
+        }
+
+        .section-title {
+            font-size: 14px;
+        }
+    }
+
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
 
-
+    <!-- ════════════════════════════════════════════════════════════════════
+         DASHBOARD HEADER
+         Displays welcome message, role label and last login time
+         ════════════════════════════════════════════════════════════════════ -->
     <div class="dashboard-header">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -24,7 +605,13 @@
     </div>
 
 
+    <!-- ════════════════════════════════════════════════════════════════════
+         STAT CARDS
+         Shows: Assigned, Pending, In Progress, Resolved counts
+         ════════════════════════════════════════════════════════════════════ -->
     <div class="row mb-4">
+
+        <!-- Assigned to You -->
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="stat-card blue">
                 <span class="stat-icon">📋</span>
@@ -33,6 +620,7 @@
             </div>
         </div>
 
+        <!-- Pending -->
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="stat-card yellow">
                 <span class="stat-icon">⏳</span>
@@ -41,6 +629,7 @@
             </div>
         </div>
 
+        <!-- In Progress -->
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="stat-card purple">
                 <span class="stat-icon">🔄</span>
@@ -49,6 +638,7 @@
             </div>
         </div>
 
+        <!-- Resolved -->
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="stat-card green">
                 <span class="stat-icon">✅</span>
@@ -56,42 +646,60 @@
                 <p class="stat-label">Resolved</p>
             </div>
         </div>
+
     </div>
 
 
+    <!-- ════════════════════════════════════════════════════════════════════
+         PERFORMANCE METRICS
+         Shows average resolution time for this staff member
+         ════════════════════════════════════════════════════════════════════ -->
     <div class="row mb-4">
-    <div class="col-12">
-        <div class="card info-card border-success">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h5 class="mb-1">⏱️ Performance Metrics</h5>
-                        <p class="text-muted mb-0">Average resolution time: <strong>{{ avg_resolution_time }}
-                            hours</strong></p>
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <a href="{% url 'staff_task_list' %}" class="btn btn-success">View Detailed Stats</a>
+        <div class="col-12">
+            <div class="card info-card border-success">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-1">⏱️ Performance Metrics</h5>
+                            <p class="text-muted mb-0">
+                                Average resolution time: <strong>{{ avg_resolution_time }} hours</strong>
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{% url 'staff_task_list' %}" class="btn btn-success">
+                                View Detailed Stats
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row mb-4">
-    <div class="col-12">
-        <h3 class="section-title">Quick Actions</h3>
-        <div>
-            <a href="{% url 'staff_task_list' %}" class="btn btn-primary quick-action-btn">
-                <i class="bi bi-list"></i> View All Tasks
-            </a>
-            <a href="{% url 'staff_task_list' %}" class="btn btn-warning quick-action-btn">
-                <i class="bi bi-hourglass-split"></i> Pending Tasks
-            </a>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         QUICK ACTIONS
+         Fast navigation buttons for staff
+         ════════════════════════════════════════════════════════════════════ -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="section-title">Quick Actions</h3>
+            <div>
+                <a href="{% url 'staff_task_list' %}" class="btn btn-primary quick-action-btn">
+                    <i class="bi bi-list"></i> View All Tasks
+                </a>
+                <a href="{% url 'staff_task_list' %}" class="btn btn-warning quick-action-btn">
+                    <i class="bi bi-hourglass-split"></i> Pending Tasks
+                </a>
+            </div>
         </div>
     </div>
-</div>
 
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         FACILITY COMPLAINTS TABLE
+         Shows recent complaints assigned to this staff member
+         ════════════════════════════════════════════════════════════════════ -->
     <div class="row mb-4">
         <div class="col-12">
             <h3 class="section-title">Facility Complaints</h3>
@@ -100,60 +708,103 @@
             <div class="modern-table">
                 <table class="table table-hover mb-0">
                     <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Issue</th>
-                        <th>Location</th>
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <th>Reported</th>
-                        <th>Action</th>
-                    </tr>
+                        <tr>
+                            <th>ID</th>
+                            <th>Issue</th>
+                            <th>Location</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Reported</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody>
                     {% for complaint in recent_complaints %}
                     <tr>
+
+                        <!-- Complaint ID -->
                         <td><strong>{{ complaint.id }}</strong></td>
-                        <td>{{ complaint.issue }}</td>
-                        <td>{{ complaint.location }}</td>
+
+                        <!-- Subject / Issue -->
+                        <td>{{ complaint.subject }}</td>
+
+                        <!-- Location -->
+                        <td>{{ complaint.location|default:"-" }}</td>
+
+                        <!-- Priority Badge -->
                         <td>
-                                <span class="badge bg-{{ complaint.priority_color }}">
-                                    {{ complaint.priority }}
-                                </span>
+                            {% if complaint.priority == 'Low' %}
+                                <span style="background:#e5e7eb;color:#374151;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Low</span>
+                            {% elif complaint.priority == 'Medium' %}
+                                <span style="background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Medium</span>
+                            {% elif complaint.priority == 'High' %}
+                                <span style="background:#fef3c7;color:#92400e;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">High</span>
+                            {% elif complaint.priority == 'Urgent' %}
+                                <span style="background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Urgent</span>
+                            {% else %}
+                                <span style="background:#e5e7eb;color:#374151;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">{{ complaint.priority }}</span>
+                            {% endif %}
                         </td>
+
+                        <!-- Status Badge -->
                         <td>
-                                <span class="badge-{{ complaint.status_class }}">
-                                    {{ complaint.status }}
-                                </span>
+                            {% if complaint.status == 'Pending' %}
+                                <span style="background:#fef3c7;color:#92400e;padding:3px 12px;border-radius:40px;font-size:11px;font-weight:700;">Pending</span>
+                            {% elif complaint.status == 'Under Investigation' %}
+                                <span style="background:#dbeafe;color:#1d4ed8;padding:3px 12px;border-radius:40px;font-size:11px;font-weight:700;">In Progress</span>
+                            {% elif complaint.status == 'Resolved' %}
+                                <span style="background:#d1fae5;color:#065f46;padding:3px 12px;border-radius:40px;font-size:11px;font-weight:700;">Resolved</span>
+                            {% elif complaint.status == 'Escalated' %}
+                                <span style="background:#fee2e2;color:#991b1b;padding:3px 12px;border-radius:40px;font-size:11px;font-weight:700;">Escalated</span>
+                            {% else %}
+                                <span style="background:#e5e7eb;color:#374151;padding:3px 12px;border-radius:40px;font-size:11px;font-weight:700;">{{ complaint.status }}</span>
+                            {% endif %}
                         </td>
-                        <td>{{ complaint.date|date:"M d, Y" }}</td>
+
+                        <!-- Reported Date -->
+                        <td>{{ complaint.submitted_at|date:"M d, Y" }}</td>
+
+                        <!-- Action Button -->
                         <td>
-                            <a href="#" class="btn btn-sm btn-outline-primary">Handle</a>
+                            <a href="{% url 'handle_complaint' complaint.id %}"
+                               class="btn btn-sm btn-outline-primary">
+                                Handle
+                            </a>
                         </td>
+
                     </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
+
             {% else %}
 
+            <!-- Empty State — no complaints assigned -->
             <div class="card info-card">
                 <div class="card-body">
                     <div class="empty-state">
                         <div class="empty-state-icon">📭</div>
                         <h4>No facility complaints</h4>
                         <p class="text-muted mb-0">
-                            Facility-related complaints from students will appear here
+                            Facility-related complaints assigned to you will appear here.
                         </p>
                     </div>
                 </div>
             </div>
+
             {% endif %}
         </div>
     </div>
 
 
+    <!-- ════════════════════════════════════════════════════════════════════
+         BOTTOM INFO CARDS
+         Guidelines + Profile side by side
+         ════════════════════════════════════════════════════════════════════ -->
     <div class="row">
+
+        <!-- Staff Guidelines Card -->
         <div class="col-md-6 mb-3">
             <div class="card info-card border-primary">
                 <div class="card-header bg-primary text-white">
@@ -171,6 +822,7 @@
             </div>
         </div>
 
+        <!-- Your Profile Card -->
         <div class="col-md-6 mb-3">
             <div class="card info-card border-info">
                 <div class="card-header bg-info text-white">
@@ -180,11 +832,13 @@
                     <p class="mb-2"><strong>Name:</strong> {{ user.full_name }}</p>
                     <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
                     <p class="mb-2"><strong>Role:</strong> Facilities Staff</p>
-                    <p class="mb-0"><strong>Department:</strong> {{ user.department|default:"Facilities Management" }}
+                    <p class="mb-0">
+                        <strong>Department:</strong> {{ user.department|default:"Facilities Management" }}
                     </p>
                 </div>
             </div>
         </div>
+
     </div>
 
 </div>
