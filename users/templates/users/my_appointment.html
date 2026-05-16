@@ -26,7 +26,7 @@
         <a href="{% url 'appointment' %}" class="btn btn-primary">+ New Appointment</a>
     </div>
 
-    <!-- Quick nav -->
+
     <div class="mb-4 d-flex gap-2">
         <a href="{% url 'submit_complaint' %}"  class="btn btn-outline-primary">💬 Complaint</a>
         <a href="{% url 'appointment' %}"        class="btn btn-outline-primary">📅 Book Appointment</a>
@@ -37,7 +37,7 @@
         {% for appt in appointments %}
         <div class="card shadow-sm mb-4">
 
-            <!-- Card header -->
+
             <div class="card-header d-flex justify-content-between align-items-center"
                  style="background:#f1f5ff;border-bottom:1px solid #e5e7eb;padding:12px 20px;">
                 <strong style="color:#1e3a8a;">{{ appt.appointment_with }} — {{ appt.incident_type }}</strong>
@@ -63,7 +63,7 @@
                     </div>
                 </div>
 
-                <!-- Updates timeline -->
+
                 {% with updates=appt.updates.all %}
                 {% if updates %}
                 <hr>
