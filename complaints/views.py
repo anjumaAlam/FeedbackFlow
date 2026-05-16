@@ -45,47 +45,36 @@ def submit_complaint(request):
             complaint.student = request.user
             complaint.save()
 
-            if complaint.complaint_type == 'Faculty':
-                if complaint.assigned_to:
-                    create_notification(
-                        recipient=complaint.assigned_to,
-                        title=f'New Faculty Complaint: {complaint.subject}',
-                        message=f'A new complaint has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
-                        notification_type='complaint',
-                        link=f'/complaints/hod/handle/{complaint.id}/',
-                    )
-
-            elif complaint.complaint_type == 'HOD':
-                for admin in User.objects.filter(role='Admin'):
-                    create_notification(
-                        recipient=admin,
-                        title=f'New HOD Complaint: {complaint.subject}',
-                        message=f'A complaint against HOD has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
-                        notification_type='complaint',
-                        link=f'/complaints/admin/handle/{complaint.id}/',
-                    )
-
-            elif complaint.complaint_type == 'Staff':
-                if complaint.assigned_to:
-                    create_notification(
-                        recipient=complaint.assigned_to,
-                        title=f'New Staff Complaint: {complaint.subject}',
-                        message=f'A complaint has been submitted by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
-                        notification_type='complaint',
-                        link=f'/complaints/hod/handle/{complaint.id}/',
-                    )
-
+            noun = 'Complaint'
+            if complaint.complaint_type in ['Advice', 'Opinion']:
+                noun = complaint.complaint_type
             elif complaint.complaint_type == 'Facility':
-                if complaint.assigned_to:
-                    create_notification(
-                        recipient=complaint.assigned_to,
-                        title=f'New Facility Issue: {complaint.subject}',
-                        message=f'A facility issue has been reported by {complaint.student.full_name}. Tracking ID: {complaint.tracking_id}',
-                        notification_type='complaint',
-                        link=f'/complaints/hod/handle/{complaint.id}/',
-                    )
+                noun = 'Issue'
 
-            messages.success(request, f'Complaint submitted successfully! Tracking ID: {complaint.tracking_id}')
+            if complaint.assigned_to:
+                # Notify the assigned handler
+                handler_link = f'/complaints/hod/handle/{complaint.id}/'
+                
+                create_notification(
+                    recipient=complaint.assigned_to,
+                    title=f'New {noun} Received: {complaint.subject}',
+                    message=f'A new {noun.lower()} has been submitted. Tracking ID: {complaint.tracking_id}',
+                    notification_type='complaint',
+                    link=handler_link,
+                )
+
+            # Acknowledgment to the student
+            create_notification(
+                recipient=request.user,
+                title=f'{noun} Submitted Successfully ✅',
+                message=f'Your {noun.lower()} "{complaint.subject}" has been received. '
+                        f'Tracking ID: {complaint.tracking_id}. '
+                        f'It has been assigned to the appropriate handler and you will be notified of any updates.',
+                notification_type='complaint',
+                link=f'/complaints/detail/{complaint.id}/',
+            )
+
+            messages.success(request, f'{noun} submitted successfully! Tracking ID: {complaint.tracking_id}')
             return redirect('my_complaints')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -152,6 +141,8 @@ def hod_complaints_list(request):
         messages.error(request, 'Access denied. HOD only.')
         return redirect('login')
 
+    mode = request.GET.get('mode', 'all')
+
     complaints_list = Complaint.objects.filter(
         Q(assigned_to=request.user) |
         Q(faculty_concerned__department=request.user.department)
@@ -159,6 +150,7 @@ def hod_complaints_list(request):
 
     context = {
         'complaints_list': complaints_list,
+        'mode': mode,
         'total_complaints': complaints_list.count(),
         'pending': complaints_list.filter(status='Pending').count(),
         'investigating': complaints_list.filter(status='Under Investigation').count(),
@@ -201,12 +193,33 @@ def handle_complaint(request, complaint_id):
                 complaint.status = update.status_changed_to
                 if update.status_changed_to == 'Resolved':
                     complaint.resolved_at = timezone.now()
+                elif update.status_changed_to == 'Escalated':
+                    noun = 'Complaint'
+                    if complaint.complaint_type in ['Advice', 'Opinion']:
+                        noun = complaint.complaint_type
+                    elif complaint.complaint_type == 'Facility':
+                        noun = 'Issue'
+                    
+                    for admin in User.objects.filter(role='Admin'):
+                        create_notification(
+                            recipient=admin,
+                            title=f'{noun} Escalated: {complaint.tracking_id}',
+                            message=f'"{complaint.subject}" has been escalated by {request.user.full_name}.',
+                            notification_type='complaint',
+                            link=f'/complaints/hod/handle/{complaint.id}/',
+                        )
                 complaint.save()
+
+            noun = 'Complaint'
+            if complaint.complaint_type in ['Advice', 'Opinion']:
+                noun = complaint.complaint_type
+            elif complaint.complaint_type == 'Facility':
+                noun = 'Issue'
 
             create_notification(
                 recipient=complaint.student,
-                title=f'Update on your complaint: {complaint.tracking_id}',
-                message=f'Your complaint "{complaint.subject}" has been updated. New status: {complaint.status}',
+                title=f'Update on your {noun.lower()}: {complaint.tracking_id}',
+                message=f'Your {noun.lower()} "{complaint.subject}" has been updated. New status: {complaint.status}',
                 notification_type='update',
                 link=f'/complaints/detail/{complaint.id}/',
             )
@@ -485,7 +498,7 @@ def hod_final_action(request, complaint_id):
                         title=f'Escalated Complaint: {complaint.tracking_id}',
                         message=f'HOD {request.user.full_name} has escalated complaint {complaint.tracking_id} to you.',
                         notification_type='complaint',
-                        link=f'/complaints/admin/handle/{complaint.id}/',
+                        link=f'/complaints/hod/handle/{complaint.id}/',
                     )
 
             elif action == 'More Investigation':
@@ -576,6 +589,8 @@ def admin_complaints_list(request):
         'hod_complaints': complaints_list.filter(complaint_type='HOD').count(),
         'staff_complaints': complaints_list.filter(complaint_type='Staff').count(),
         'facility_complaints': complaints_list.filter(complaint_type='Facility').count(),
+        'advice_complaints': complaints_list.filter(complaint_type='Advice').count(),
+        'opinion_complaints': complaints_list.filter(complaint_type='Opinion').count(),
         'page_title': 'All Complaints'
     }
     return render(request, 'complaints/admins_complaints_list.html', context)
@@ -770,3 +785,220 @@ def staff_mark_fixed(request, complaint_id):
 
     messages.success(request, 'Complaint marked as resolved. Student has been notified.')
     return redirect('staff_task_list')
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FACULTY COMPLAINT ANALYSIS - NEW FEATURE
+# ─────────────────────────────────────────────────────────────────────────────
+
+@login_required
+def faculty_complaint_summary(request):
+    """
+    HOD view to see all complaints for a specific faculty and analyze patterns
+    """
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied. HOD only.')
+        return redirect('login')
+    
+    from .utils import (
+        get_faculty_complaints_summary,
+        group_similar_complaints,
+        get_complaint_statistics,
+        get_top_complaint_subjects,
+        get_department_complaint_comparison
+    )
+    from users.models import User
+    
+    # Get faculty ID from query parameter or request data
+    faculty_id = request.GET.get('faculty_id') or request.POST.get('faculty_id')
+    
+    # Get all faculty in the HOD's department
+    faculty_in_dept = User.objects.filter(
+        role='Faculty',
+        department=request.user.department,
+        is_active=True
+    ).order_by('full_name')
+    
+    context = {
+        'page_title': 'Faculty Complaint Analysis',
+        'faculty_list': faculty_in_dept,
+        'selected_faculty': None,
+        'summary_data': None,
+        'statistics': None,
+        'similar_groups': None,
+        'top_subjects': None,
+        'comparison_data': None,
+    }
+    
+    if faculty_id:
+        try:
+            selected_faculty = User.objects.get(id=faculty_id, role='Faculty')
+            
+            # Get summary data
+            summary_data = get_faculty_complaints_summary(selected_faculty)
+            
+            # Get all complaints
+            all_complaints = summary_data['all_complaints']
+            
+            # Always build department comparison data even if this faculty has no complaints.
+            comparison_data = get_department_complaint_comparison(selected_faculty)
+            
+            if all_complaints.exists():
+                # Group similar complaints
+                similar_groups = group_similar_complaints(list(all_complaints), similarity_threshold=0.55)
+                
+                # Get statistics
+                statistics = get_complaint_statistics(all_complaints)
+                
+                # Get top complaint subjects
+                top_subjects = get_top_complaint_subjects(all_complaints, limit=5)
+                
+                context.update({
+                    'selected_faculty': selected_faculty,
+                    'summary_data': summary_data,
+                    'statistics': statistics,
+                    'similar_groups': similar_groups,
+                    'top_subjects': top_subjects,
+                    'comparison_data': comparison_data,
+                })
+            else:
+                messages.info(request, f'No complaints found for {selected_faculty.full_name}')
+                context.update({
+                    'selected_faculty': selected_faculty,
+                    'comparison_data': comparison_data,
+                })
+        
+        except User.DoesNotExist:
+            messages.error(request, 'Faculty not found.')
+    
+    return render(request, 'complaints/faculty_complaint_summary.html', context)
+
+
+@login_required
+def faculty_course_wise_complaints(request, faculty_id):
+    """
+    Detailed view showing complaints for a faculty across different courses
+    """
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied. HOD only.')
+        return redirect('login')
+    
+    faculty = get_object_or_404(User, id=faculty_id, role='Faculty')
+    
+    if faculty.department != request.user.department:
+        messages.error(request, 'You can only view faculty from your department.')
+        return redirect('faculty_complaint_summary')
+    
+    from feedback.models import CourseAssignment
+    
+    # Get all courses taught by faculty
+    course_assignments = CourseAssignment.objects.filter(
+        faculty=faculty
+    ).select_related('course')
+    
+    course_complaint_data = []
+    
+    for assignment in course_assignments:
+        course = assignment.course
+        
+        # Get complaints related to this course
+        course_complaints = Complaint.objects.filter(
+            faculty_concerned=faculty,
+            complaint_type='Faculty',
+            student__department=course.department
+        )
+        
+        if course_complaints.exists():
+            # Get statistics for this course
+            course_stats = {
+                'course': course,
+                'assignment': assignment,
+                'total_complaints': course_complaints.count(),
+                'pending': course_complaints.filter(status='Pending').count(),
+                'resolved': course_complaints.filter(status='Resolved').count(),
+                'investigating': course_complaints.filter(status='Under Investigation').count(),
+                'high_priority': course_complaints.filter(priority__in=['High', 'Urgent']).count(),
+                'complaints': course_complaints.order_by('-submitted_at'),
+            }
+            course_complaint_data.append(course_stats)
+    
+    # Sort by total complaints descending
+    course_complaint_data.sort(key=lambda x: x['total_complaints'], reverse=True)
+    
+    context = {
+        'page_title': f'Course-wise Complaints - {faculty.full_name}',
+        'faculty': faculty,
+        'course_complaint_data': course_complaint_data,
+        'total_complaints': sum(c['total_complaints'] for c in course_complaint_data),
+    }
+    
+    return render(request, 'complaints/faculty_course_wise_complaints.html', context)
+
+
+@login_required
+def similar_complaints_detail(request, faculty_id, group_index):
+    """
+    Detailed view of a group of similar complaints
+    """
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied. HOD only.')
+        return redirect('login')
+    
+    from .utils import get_faculty_complaints_summary, group_similar_complaints
+    
+    faculty = get_object_or_404(User, id=faculty_id, role='Faculty')
+    
+    if faculty.department != request.user.department:
+        messages.error(request, 'You can only view faculty from your department.')
+        return redirect('faculty_complaint_summary')
+    
+    # Get summary and group complaints
+    summary_data = get_faculty_complaints_summary(faculty)
+    all_complaints = list(summary_data['all_complaints'])
+    similar_groups = group_similar_complaints(all_complaints, similarity_threshold=0.55)
+    
+    # Get the specific group
+    if 0 <= group_index < len(similar_groups):
+        group = similar_groups[group_index]
+    else:
+        messages.error(request, 'Group not found.')
+        return redirect('faculty_complaint_summary')
+    
+    context = {
+        'page_title': 'Similar Complaints Detail',
+        'faculty': faculty,
+        'group': group,
+        'group_index': group_index,
+        'total_groups': len(similar_groups),
+    }
+    
+    return render(request, 'complaints/similar_complaints_detail.html', context)
+
+
+def public_log(request):
+    """FR 7.5: Public anonymized log of ALL resolved issues — no login required."""
+    type_filter = request.GET.get('type', '')
+    complaints = Complaint.objects.filter(status='Resolved').order_by('-resolved_at')
+    if type_filter:
+        complaints = complaints.filter(complaint_type=type_filter)
+    complaints = complaints[:50]
+
+    # Count by type for filter badges
+    all_resolved = Complaint.objects.filter(status='Resolved')
+    type_counts = {
+        'all': all_resolved.count(),
+        'Faculty': all_resolved.filter(complaint_type='Faculty').count(),
+        'HOD': all_resolved.filter(complaint_type='HOD').count(),
+        'Staff': all_resolved.filter(complaint_type='Staff').count(),
+        'Facility': all_resolved.filter(complaint_type='Facility').count(),
+        'Advice': all_resolved.filter(complaint_type='Advice').count(),
+        'Opinion': all_resolved.filter(complaint_type='Opinion').count(),
+    }
+
+    context = {
+        'complaints': complaints,
+        'type_filter': type_filter,
+        'type_counts': type_counts,
+        'page_title': 'Public Resolved Issues Log'
+    }
+    return render(request, 'complaints/public_log.html', context)

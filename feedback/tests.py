@@ -200,6 +200,183 @@ class FacultyFeedbackListViewTest(TestCase):
         self.url = reverse('faculty_feedback_list')
 
     def test_unauthenticated_user_redirected(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_faculty_can_view_feedback(self):
+        """Faculty can view feedback assigned to them"""
+        self.client.login(username='faculty@uap-bd.edu', password='Test@1234')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.fb, response.context.get('feedback_list', []))
+
+
+class CourseRegistrationModelTest(TestCase):
+    """Tests for CourseRegistration model"""
+
+    def setUp(self):
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101014')
+        self.course = make_course(self.faculty)
+
+    def test_course_registration_created(self):
+        """CourseRegistration can be created and linked"""
+        reg = CourseRegistration.objects.create(
+            student=self.student,
+            course=self.course,
+            is_confirmed=True
+        )
+        self.assertEqual(CourseRegistration.objects.count(), 1)
+        self.assertEqual(reg.student, self.student)
+
+    def test_duplicate_registration_blocked(self):
+        """Student cannot register for same course twice"""
+        CourseRegistration.objects.create(
+            student=self.student,
+            course=self.course,
+            is_confirmed=True
+        )
+        with self.assertRaises(Exception):
+            CourseRegistration.objects.create(
+                student=self.student,
+                course=self.course,
+                is_confirmed=True
+            )
+
+    def test_registration_str(self):
+        """__str__ includes student and course info"""
+        reg = CourseRegistration.objects.create(
+            student=self.student,
+            course=self.course,
+            is_confirmed=True
+        )
+        self.assertIn(self.student.full_name, str(reg))
+        self.assertIn(self.course.course_code, str(reg))
+
+
+class FeedbackRatingValidationTest(TestCase):
+    """Tests for rating validation in Feedback model"""
+
+    def setUp(self):
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101015')
+        self.course = make_course(self.faculty)
+
+    def test_rating_min_value_enforced(self):
+        """Ratings cannot be less than 1"""
+        with self.assertRaises(Exception):
+            Feedback.objects.create(
+                student=self.student,
+                course=self.course,
+                teaching_rating=0,  # Invalid
+                content_rating=3,
+                communication_rating=3
+            )
+
+    def test_rating_max_value_enforced(self):
+        """Ratings cannot exceed 5"""
+        with self.assertRaises(Exception):
+            Feedback.objects.create(
+                student=self.student,
+                course=self.course,
+                teaching_rating=6,  # Invalid
+                content_rating=3,
+                communication_rating=3
+            )
+
+
+class CourseAssignmentTest(TestCase):
+    """Tests for CourseAssignment model"""
+
+    def setUp(self):
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.course = make_course(self.faculty)
+
+    def test_primary_assignment_flag(self):
+        """Can mark a CourseAssignment as primary"""
+        assignment = CourseAssignment.objects.get(course=self.course)
+        self.assertTrue(assignment.is_primary)
+
+    def test_section_assignment(self):
+        """Can assign faculty to specific section"""
+        assignment = CourseAssignment.objects.create(
+            course=self.course,
+            faculty=self.faculty,
+            class_section='B',
+            is_primary=False
+        )
+        self.assertEqual(assignment.class_section, 'B')
+
+    def test_get_primary_faculty_method(self):
+        """Course.get_primary_faculty returns primary faculty"""
+        primary = self.course.get_primary_faculty()
+        self.assertEqual(primary, self.faculty)
+
+    def test_get_faculty_names_method(self):
+        """Course.get_faculty_names returns comma-separated faculty names"""
+        names = self.course.get_faculty_names()
+        self.assertIn(self.faculty.full_name, names)
+
+
+class MyFeedbackViewTest(TestCase):
+    """Tests for my_feedback view"""
+
+    def setUp(self):
+        self.client = Client()
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101016')
+        self.course = make_course(self.faculty)
+        self.feedback = make_feedback(self.student, self.course)
+        self.url = reverse('my_feedback')
+
+    def test_unauthenticated_user_redirected(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_student_sees_own_feedback(self):
+        """Student can view their own feedback"""
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_only_students_can_access(self):
+        """Non-students are denied access"""
+        self.client.login(username='faculty@uap-bd.edu', password='Test@1234')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+
+class FeedbackDetailViewTest(TestCase):
+    """Tests for feedback_detail view"""
+
+    def setUp(self):
+        self.client = Client()
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101017')
+        self.other_student = make_user('other@uap-bd.edu', 'Student', student_id='23101018')
+        self.course = make_course(self.faculty)
+        self.feedback = make_feedback(self.student, self.course)
+
+    def test_unauthenticated_user_redirected(self):
+        url = reverse('feedback_detail', args=[self.feedback.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_student_can_view_own_feedback(self):
+        """Student can view their own feedback"""
+        self.client.login(username='student@uap-bd.edu', password='Test@1234')
+        url = reverse('feedback_detail', args=[self.feedback.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_student_cannot_view_others_feedback(self):
+        """Student cannot view another student's feedback"""
+        self.client.login(username='other@uap-bd.edu', password='Test@1234')
+        url = reverse('feedback_detail', args=[self.feedback.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_unauthenticated_user_redirected(self):
         self.assertEqual(self.client.get(self.url).status_code, 302)
 
     def test_faculty_can_access_list(self):

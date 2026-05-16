@@ -42,10 +42,15 @@ urlpatterns = [
     path('dashboard/users/<int:user_id>/edit/',           views.admin_user_edit,          name='admin_user_edit'),
     path('dashboard/users/<int:user_id>/delete/',         views.admin_user_delete,        name='admin_user_delete'),
     path('dashboard/users/<int:user_id>/toggle-active/',  views.admin_user_toggle_active, name='admin_user_toggle_active'),
-
+    
+    # ── Announcements (Admin) ─────────────────────────────────────────────
+    path('dashboard/announcements/', views.admin_announcement_list, name='admin_announcement_list'),
+    path('dashboard/announcements/add/', views.admin_announcement_add, name='admin_announcement_add'),
+    path('dashboard/announcements/<int:announcement_id>/delete/', views.admin_announcement_delete, name='admin_announcement_delete'),
     # ── Reports ───────────────────────────────────────────────────────────
     path('dashboard/feedback-reports/', views.feedback_reports, name='feedback_reports'),
     path('reports/feedback/',           views.feedback_reports, name='feedback_reports_alt'),
+    path('dashboard/feedback-analytics/', views.feedback_analytics, name='feedback_analytics'),
 
     # ── Appointments ──────────────────────────────────────────────────────
     path('appointment/',                                   views.appointment_view,             name='appointment'),
@@ -64,3 +69,4 @@ urlpatterns = [
     path('tasks/<int:task_id>/toggle/',  views.task_toggle, name='task_toggle'),
     path('tasks/<int:task_id>/delete/',  views.task_delete, name='task_delete'),
 ]
+

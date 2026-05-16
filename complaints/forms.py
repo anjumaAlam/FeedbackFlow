@@ -16,14 +16,14 @@ class ComplaintSubmissionForm(forms.ModelForm):
         fields = ['complaint_type', 'subject', 'description', 'faculty_concerned', 'location', 'is_anonymous']
         widgets = {
             'complaint_type': forms.Select(attrs={'class': 'form-select', 'required': True}),
-            'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Brief description of the issue'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Provide detailed information about your complaint...'}),
+            'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Brief title of the issue or advice'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Provide detailed information about your complaint, advice, or suggestion...'}),
             'faculty_concerned': forms.Select(attrs={'class': 'form-select'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Room 301, Library, Cafeteria'}),
             'is_anonymous': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }
         labels = {
-            'complaint_type': 'Type of Complaint',
+            'complaint_type': 'Category',
             'subject': 'Subject',
             'description': 'Detailed Description',
             'faculty_concerned': 'Faculty/Staff Member (if applicable)',
@@ -40,6 +40,8 @@ class ComplaintSubmissionForm(forms.ModelForm):
             'HOD': ['HOD'],
             'Staff': ['Staff'],
             'Facility': ['Staff'],
+            'Advice': [],
+            'Opinion': [],
         }
 
         selected_type = None
@@ -81,6 +83,7 @@ class ComplaintUpdateForm(forms.ModelForm):
         self.fields['status_changed_to'].choices = status_choices
         self.fields['status_changed_to'].widget.choices = status_choices
         self.fields['status_changed_to'].required = False
+        self.fields['comment'].required = False
 
 
 class AssignInvestigationForm(forms.ModelForm):

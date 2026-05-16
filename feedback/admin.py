@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from .models import Course, CourseAssignment, Feedback, FeedbackResponse
-from .models import Feedback, Course, CourseAssignment, FeedbackResponse, CourseRegistration
+from .models import Feedback, Course, CourseAssignment, FeedbackResponse, CourseRegistration, FeedbackPeriod
 
 
 
@@ -35,8 +35,8 @@ class CourseAssignmentAdmin(admin.ModelAdmin):
 
 @admin.register(Feedback)
 class FeedbackAdmin(admin.ModelAdmin):
-    list_display = ['id', 'course', 'faculty', 'student', 'class_section', 'get_average_rating', 'status', 'submitted_at']
-    list_filter = ['status', 'is_anonymous', 'class_section', 'submitted_at', 'course__department']
+    list_display = ['id', 'course', 'faculty', 'student', 'class_section', 'get_average_rating', 'status', 'feedback_period', 'submitted_at']
+    list_filter = ['status', 'is_anonymous', 'class_section', 'submitted_at', 'course__department', 'feedback_period']
     search_fields = ['course__course_code', 'course__course_name', 'student__email', 'faculty__full_name']
     readonly_fields = ['submitted_at', 'reviewed_at']
     ordering = ['-submitted_at']
@@ -56,6 +56,16 @@ class FeedbackResponseAdmin(admin.ModelAdmin):
 
 @admin.register(CourseRegistration)
 class CourseRegistrationAdmin(admin.ModelAdmin):
-    list_display  = ['student', 'course', 'is_confirmed', 'confirmed_at']
+    list_display  = ['student', 'course', 'is_confirmed', 'attendance_percentage', 'confirmed_at']
     list_filter   = ['is_confirmed']
     search_fields = ['student__full_name', 'student__student_id', 'course__course_code']
+    list_editable = ['attendance_percentage']
+
+
+@admin.register(FeedbackPeriod)
+class FeedbackPeriodAdmin(admin.ModelAdmin):
+    list_display = ['name', 'semester', 'period_type', 'start_date', 'end_date', 'is_active', 'is_open']
+    list_filter = ['semester', 'period_type', 'is_active']
+    search_fields = ['name', 'semester']
+    list_editable = ['is_active']
+    ordering = ['-start_date']

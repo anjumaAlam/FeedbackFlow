@@ -1,0 +1,414 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Faculty Complaint Analysis - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-4 faculty-complaint-analysis-root">
+    <!-- Header -->
+    <div class="mb-4">
+        <h2>📊 Faculty Complaint Analysis</h2>
+        <p class="text-muted mb-0">Analyze complaints against faculty members in your department</p>
+    </div>
+
+    <!-- Faculty Selection Form -->
+    <div class="card mb-4 faculty-complaint-analysis">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Select Faculty Member</h5>
+        </div>
+        <div class="card-body">
+            <style>
+                .faculty-complaint-analysis-root label,
+                .faculty-complaint-analysis-root .form-label,
+                .faculty-complaint-analysis-root .form-select,
+                .faculty-complaint-analysis-root .form-control,
+                .faculty-complaint-analysis-root .table-info,
+                .faculty-complaint-analysis-root .table-info td,
+                .faculty-complaint-analysis-root .table-info th,
+                .faculty-complaint-analysis-root .badge {
+                    color: #111827 !important;
+                }
+                .faculty-complaint-analysis-root .badge.badge-info,
+                .faculty-complaint-analysis-root .badge.badge-warning,
+                .faculty-complaint-analysis-root .badge.badge-danger,
+                .faculty-complaint-analysis-root .badge.badge-success,
+                .faculty-complaint-analysis-root .badge.badge-secondary,
+                .faculty-complaint-analysis-root .badge.badge-light {
+                    color: #111827 !important;
+                    background-color: rgba(255,255,255,0.95) !important;
+                    border: 1px solid #ced4da !important;
+                }
+                .faculty-complaint-analysis-root .form-select,
+                .faculty-complaint-analysis-root .form-control {
+                    background: #ffffff !important;
+                    border: 1px solid #ced4da !important;
+                }
+                .faculty-complaint-analysis-root .form-select option {
+                    background: #ffffff !important;
+                    color: #111827 !important;
+                }
+                .faculty-complaint-analysis-root .table-info {
+                    background-color: #dbefff !important;
+                }
+            </style>
+            <form method="GET" action="{% url 'faculty_complaint_summary' %}" class="form-inline">
+                <div class="form-group mb-2 mr-2">
+                    <label for="faculty_select" class="mr-2">Faculty:</label>
+                    <select name="faculty_id" id="faculty_select" class="form-select mr-2" required>
+                        <option value="">-- Select a Faculty --</option>
+                        {% for faculty in faculty_list %}
+                            <option value="{{ faculty.id }}" {% if selected_faculty.id == faculty.id %}selected{% endif %}>
+                                {{ faculty.full_name }} ({{ faculty.role }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">
+                    <i class="fas fa-search"></i> Analyze
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if selected_faculty and statistics %}
+        <!-- Selected Faculty Info -->
+        <div class="alert alert-info">
+            <strong>Selected Faculty:</strong> {{ selected_faculty.full_name }}
+            | <strong>Department:</strong> {{ selected_faculty.department }}
+            | <strong>Total Complaints:</strong> <span class="badge badge-danger">{{ statistics.total }}</span>
+        </div>
+
+        <!-- Overall Statistics Row -->
+        <div class="row mb-4">
+            <div class="col-md-2 mb-3">
+                <div class="card border-danger">
+                    <div class="card-body text-center">
+                        <h3 class="mb-1 text-danger">{{ statistics.total }}</h3>
+                        <p class="text-muted mb-0" style="font-size:0.85rem;">Total Complaints</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <h3 class="mb-1 text-warning">{{ statistics.pending_count }}</h3>
+                        <p class="text-muted mb-0" style="font-size:0.85rem;">Pending</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="card border-info">
+                    <div class="card-body text-center">
+                        <h3 class="mb-1 text-info">{{ statistics.under_investigation }}</h3>
+                        <p class="text-muted mb-0" style="font-size:0.85rem;">Under Investigation</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <h3 class="mb-1 text-success">{{ statistics.resolved_count }}</h3>
+                        <p class="text-muted mb-0" style="font-size:0.85rem;">Resolved</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="card border-secondary">
+                    <div class="card-body text-center">
+                        <h3 class="mb-1">{{ statistics.anonymous_count }}</h3>
+                        <p class="text-muted mb-0" style="font-size:0.85rem;">Anonymous</p>
+                    </div>
+                </div>
+            </div>
+            {% if statistics.average_time_to_resolution %}
+            <div class="col-md-2 mb-3">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <h3 class="mb-1 text-primary">{{ statistics.average_time_to_resolution }}</h3>
+                        <p class="text-muted mb-0" style="font-size:0.85rem;">Avg Resolution Time</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Status and Priority Distribution -->
+        <div class="row mb-4">
+            <!-- Status Breakdown -->
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">📈 Complaints by Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Count</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for status, count in statistics.by_status.items %}
+                                <tr>
+                                    <td>
+                                        {% if status == 'Pending' %}
+                                            <span class="badge badge-warning">{{ status }}</span>
+                                        {% elif status == 'Under Investigation' %}
+                                            <span class="badge badge-info">{{ status }}</span>
+                                        {% elif status == 'Resolved' %}
+                                            <span class="badge badge-success">{{ status }}</span>
+                                        {% elif status == 'Escalated' %}
+                                            <span class="badge badge-danger">{{ status }}</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">{{ status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ count }}</strong></td>
+                                    <td>
+                                        {% widthratio count statistics.total 100 %}%
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Priority Breakdown -->
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0">⚠️ Complaints by Priority</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Priority</th>
+                                    <th>Count</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for priority, count in statistics.by_priority.items %}
+                                <tr>
+                                    <td>
+                                        {% if priority == 'Urgent' %}
+                                            <span class="badge badge-danger">{{ priority }}</span>
+                                        {% elif priority == 'High' %}
+                                            <span class="badge badge-warning">{{ priority }}</span>
+                                        {% elif priority == 'Medium' %}
+                                            <span class="badge badge-info">{{ priority }}</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">{{ priority }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ count }}</strong></td>
+                                    <td>
+                                        {% widthratio count statistics.total 100 %}%
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Complaint Subjects -->
+        {% if top_subjects %}
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">🎯 Top Complaint Subjects (Most Frequent)</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for subject, data in top_subjects %}
+                    <div class="col-md-12 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ subject }}</strong>
+                                <br>
+                                <small class="text-muted">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    {% if data.count > 3 %}
+                                        <span class="badge badge-danger">Critical Pattern - {{ data.count }} occurrences</span>
+                                    {% elif data.count > 1 %}
+                                        <span class="badge badge-warning">Pattern - {{ data.count }} occurrences</span>
+                                    {% else %}
+                                        <span class="badge badge-info">{{ data.count }} occurrence</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <a href="#" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#subjectModal{{ forloop.counter }}">
+                                View Details
+                            </a>
+                        </div>
+                        <hr>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Similar Complaints Grouping -->
+        {% if similar_groups %}
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">🔍 Grouped Similar Complaints (Pattern Analysis)</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    These complaints have been grouped based on similarity in subject and description.
+                    Multiple complaints in one group indicate a potential pattern or systemic issue.
+                </p>
+                <div class="row">
+                    {% for group in similar_groups %}
+                    {% if group.count > 1 %}
+                    <div class="col-md-12 mb-3">
+                        <div class="card border-left border-danger">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="card-title">
+                                            <span class="badge badge-danger">{{ group.count }} Similar Complaints</span>
+                                        </h6>
+                                        <p class="mb-2">
+                                            <strong>Primary Subject:</strong> {{ group.primary.subject }}
+                                        </p>
+                                        <p class="mb-2" style="font-size:0.9rem;">
+                                            <strong>Description:</strong> 
+                                            {{ group.primary.description|truncatewords:20 }}
+                                        </p>
+                                        <small class="text-muted">
+                                            <strong>Students Affected:</strong> 
+                                            {% for complaint in group.similar_complaints|add:group.primary %}
+                                                {{ complaint.student.full_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </small>
+                                    </div>
+                                    <div class="text-right">
+                                        <a href="{% url 'similar_complaints_detail' selected_faculty.id forloop.counter0 %}" 
+                                           class="btn btn-sm btn-danger">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Department Comparison -->
+        {% if comparison_data %}
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">📊 Department Faculty Comparison</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">How {{ selected_faculty.full_name }} compares to other faculty in the department:</p>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Faculty Name</th>
+                                <th>Total Complaints</th>
+                                <th>Resolved</th>
+                                <th>Pending</th>
+                                <th>High Priority</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for faculty_data in comparison_data %}
+                            <tr {% if faculty_data.faculty.id == selected_faculty.id %}class="table-info"{% endif %}>
+                                <td>
+                                    <strong>{{ faculty_data.faculty.full_name }}</strong>
+                                    {% if faculty_data.faculty.id == selected_faculty.id %}
+                                        <span class="badge badge-light text-dark" style="background:#ffffff; color:#111827; border:1px solid #ced4da;">
+                                            Currently Selected
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-light text-dark" style="background:#ffffff; color:#111827; border:1px solid #ced4da;">
+                                        {{ faculty_data.total_complaints }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-light text-dark" style="background:#ffffff; color:#111827; border:1px solid #ced4da;">
+                                        {{ faculty_data.resolved }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-light text-dark" style="background:#ffffff; color:#111827; border:1px solid #ced4da;">
+                                        {{ faculty_data.pending }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if faculty_data.high_priority > 0 %}
+                                        <span class="badge badge-light text-dark" style="background:#ffffff; color:#111827; border:1px solid #ced4da;">
+                                            {{ faculty_data.high_priority }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-light text-dark" style="background:#ffffff; color:#111827; border:1px solid #ced4da;">
+                                            0
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="mb-4">
+            <a href="{% url 'faculty_course_wise_complaints' selected_faculty.id %}" 
+               class="btn btn-primary">
+                <i class="fas fa-book"></i> View Course-wise Breakdown
+            </a>
+            <a href="{% url 'hod_complaints_list' %}" 
+               class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Complaints List
+            </a>
+        </div>
+
+    {% elif selected_faculty %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> 
+            No complaints found for {{ selected_faculty.full_name }}. This faculty has no complaints on record.
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-lightbulb"></i>
+            Select a faculty member from the dropdown above to view and analyze complaints against them.
+        </div>
+    {% endif %}
+
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: none;
+    }
+    .border-left {
+        border-left: 4px solid !important;
+    }
+    .border-danger {
+        border: 1px solid #dc3545 !important;
+    }
+</style>
+{% endblock %}

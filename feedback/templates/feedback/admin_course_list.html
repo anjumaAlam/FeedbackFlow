@@ -79,9 +79,13 @@
                 <td>
                     {% with assignments=course.assignments.all %}
                         {% if assignments %}
-                            <span class="badge bg-info">{{ assignments.count }} assigned</span>
+                            <a href="{% url 'admin_assignments' %}?course_id={{ course.id }}" style="text-decoration: none;">
+                                <span class="badge bg-info">{{ assignments.count }} assigned</span>
+                            </a>
                         {% else %}
-                            <span class="badge bg-warning">Not assigned</span>
+                            <a href="{% url 'admin_assignment_add' %}?course_id={{ course.id }}" style="text-decoration: none;">
+                                <span class="badge bg-warning text-dark">Not assigned</span>
+                            </a>
                         {% endif %}
                     {% endwith %}
                 </td>
@@ -94,7 +98,13 @@
                 </td>
                 <td>{{ course.created_at|date:"M d, Y" }}</td>
                 <td>
-                    <a href="{% url 'admin_course_delete' course.id %}" class="btn btn-sm btn-outline-danger" title="Delete">🗑️</a>
+                    <form action="{% url 'admin_course_toggle' course.id %}" method="post" class="d-inline" title="{% if course.is_active %}Deactivate Course{% else %}Activate Course{% endif %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm {% if course.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}" style="padding: 2px 8px;">
+                            {% if course.is_active %}⏸️{% else %}▶️{% endif %}
+                        </button>
+                    </form>
+                    <a href="{% url 'admin_course_delete' course.id %}" class="btn btn-sm btn-outline-danger" title="Delete Course" style="padding: 2px 8px;">🗑️</a>
                 </td>
             </tr>
             {% empty %}

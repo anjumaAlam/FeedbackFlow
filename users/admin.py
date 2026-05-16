@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Appointment, Notification
+from .models import User, Appointment, Notification, Announcement
 
 
 
@@ -55,3 +55,12 @@ class UserAdmin(BaseUserAdmin):
         list_filter = ['notification_type', 'is_read']
         search_fields = ['recipient__full_name', 'title']
         ordering = ['-created_at']
+
+
+@admin.register(Announcement)
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ['title', 'priority', 'target_roles', 'is_active', 'created_by', 'created_at', 'expires_at']
+    list_filter = ['priority', 'is_active']
+    search_fields = ['title', 'content']
+    list_editable = ['is_active']
+    ordering = ['-created_at']

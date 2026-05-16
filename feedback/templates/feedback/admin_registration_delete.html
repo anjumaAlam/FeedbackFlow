@@ -1,0 +1,21 @@
+{% extends 'users/dashboard_base.html' %}
+
+{% block title %}Delete Registration - FeedbackFlow{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+    <div class="card info-card border-danger">
+        <div class="card-body p-4 text-center">
+            <h3 class="text-danger mb-3">⚠️ Confirm Deletion</h3>
+            <p>Are you sure you want to delete the registration for <strong>{{ reg.student.full_name }}</strong> in <strong>{{ reg.course.course_code }}</strong>?</p>
+            <p class="text-muted small">This will remove the student from the course.</p>
+            
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <a href="{% url 'admin_registration_list' %}" class="btn btn-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
