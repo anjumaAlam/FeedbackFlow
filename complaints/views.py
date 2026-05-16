@@ -696,10 +696,11 @@ def dao_assign_staff(request, complaint_id):
 
     staff = get_object_or_404(User, id=staff_id, role='Staff')
 
+    # No staff name in the comment — student cannot see who is handling
     ComplaintUpdate.objects.create(
         complaint=complaint,
         updated_by=request.user,
-        comment=f'Complaint assigned to Staff member {staff.full_name} for physical resolution.',
+        comment=f'Complaint assigned to a staff member for physical resolution.',
         status_changed_to='Under Investigation',
     )
 
@@ -708,18 +709,21 @@ def dao_assign_staff(request, complaint_id):
     complaint.save()
 
     from users.models import Notification
+
+    # Notify staff — full details shown to staff
     Notification.objects.create(
         recipient=staff,
         title=f'New Task Assigned: {complaint.tracking_id}',
-        message=f'DAO has assigned you a facility complaint "{complaint.subject}". Please attend to it promptly.',
+        message=f'You have been assigned a facility complaint "{complaint.subject}". Please attend to it promptly.',
         notification_type='complaint',
         link=f'/complaints/detail/{complaint.id}/',
     )
 
+    # Notify student — no names, generic message only
     Notification.objects.create(
         recipient=complaint.student,
         title=f'Your complaint is being handled',
-        message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been assigned to a staff member for resolution.',
+        message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) is currently being handled by our team. You will be notified once it is resolved.',
         notification_type='update',
         link=f'/complaints/detail/{complaint.id}/',
     )
@@ -743,7 +747,7 @@ def dao_escalate_complaint(request, complaint_id):
         ComplaintUpdate.objects.create(
             complaint=complaint,
             updated_by=request.user,
-            comment=f'Complaint escalated to Head ({head.full_name}) by DAO as it requires higher authority attention.',
+            comment=f'Complaint escalated to Head for higher authority review.',
             status_changed_to='Escalated',
         )
 
@@ -752,18 +756,21 @@ def dao_escalate_complaint(request, complaint_id):
         complaint.save()
 
         from users.models import Notification
+
+        # Notify head — full details shown
         Notification.objects.create(
             recipient=head,
             title=f'Escalated Complaint: {complaint.tracking_id}',
-            message=f'Complaint "{complaint.subject}" has been escalated to you by DAO {request.user.full_name}.',
+            message=f'Complaint "{complaint.subject}" has been escalated to you by DAO {request.user.full_name}. Please review and take action.',
             notification_type='complaint',
             link=f'/complaints/hod/handle/{complaint.id}/',
         )
 
+        # Notify student — no names, no details about who is handling
         Notification.objects.create(
             recipient=complaint.student,
-            title=f'Your complaint has been escalated',
-            message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) has been escalated to the Head for review as it requires higher authority attention.',
+            title=f'Your complaint is being reviewed',
+            message=f'Your complaint "{complaint.subject}" (ID: {complaint.tracking_id}) is currently being reviewed by our team. You will be notified once there is an update.',
             notification_type='update',
             link=f'/complaints/detail/{complaint.id}/',
         )
@@ -773,7 +780,6 @@ def dao_escalate_complaint(request, complaint_id):
         messages.error(request, 'No head found to escalate to.')
 
     return redirect('dao_complaints_list')
-
 
 @login_required
 def staff_task_list(request):

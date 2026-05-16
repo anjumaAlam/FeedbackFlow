@@ -107,6 +107,7 @@ class Complaint(models.Model):
             hod = User.objects.filter(role='HOD', department=self.student.department).first()
             self.assigned_to = hod or User.objects.filter(role='Admin').first()
 
+
 class ComplaintUpdate(models.Model):
     complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='updates')
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

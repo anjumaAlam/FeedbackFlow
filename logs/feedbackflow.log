@@ -3137,3 +3137,195 @@ AttributeError: 'NoneType' object has no attribute 'strip'
 [2026-05-16 16:29:22,684] INFO django.server basehttp "GET /dashboard/users/?q=&role=Faculty&department=Pharmacy&status=active HTTP/1.1" 200 35382
 [2026-05-16 16:29:27,791] INFO django.server basehttp "GET / HTTP/1.1" 302 0
 [2026-05-16 16:29:27,809] INFO django.server basehttp "GET /dashboard/admin/ HTTP/1.1" 200 43827
+[2026-05-16 17:03:24,558] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:03:26,197] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-16 17:03:27,919] INFO django.server log "GET /login/ HTTP/1.1" 200 19123
+[2026-05-16 17:03:32,536] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:03:32,566] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 35783
+[2026-05-16 17:03:34,001] INFO django.server log "GET /notifications/ HTTP/1.1" 200 18499
+[2026-05-16 17:03:40,293] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:03:40,299] INFO django.server log "GET /login/ HTTP/1.1" 200 19434
+[2026-05-16 17:03:58,399] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:03:58,419] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 39392
+[2026-05-16 17:03:59,962] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29901
+[2026-05-16 17:04:23,876] INFO django.server log "POST /complaints/submit/ HTTP/1.1" 302 0
+[2026-05-16 17:04:23,889] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 21294
+[2026-05-16 17:04:26,504] INFO django.server log "GET /notifications/ HTTP/1.1" 200 16593
+[2026-05-16 17:04:28,408] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:04:28,415] INFO django.server log "GET /login/ HTTP/1.1" 200 19437
+[2026-05-16 17:04:58,966] INFO django.server log "POST /login/ HTTP/1.1" 200 19462
+[2026-05-16 17:05:21,237] INFO django.server log "POST /login/ HTTP/1.1" 200 19462
+[2026-05-16 17:05:51,993] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:05:52,012] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 44368
+[2026-05-16 17:05:58,672] INFO django.server log "GET /dashboard/users/ HTTP/1.1" 200 121882
+[2026-05-16 17:06:01,456] INFO django.server log "GET /dashboard/users/create/ HTTP/1.1" 200 34180
+[2026-05-16 17:06:41,577] INFO django.server log "POST /dashboard/users/create/ HTTP/1.1" 302 0
+[2026-05-16 17:06:41,607] INFO django.server log "GET /dashboard/users/ HTTP/1.1" 200 123354
+[2026-05-16 17:06:46,477] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:06:46,483] INFO django.server log "GET /login/ HTTP/1.1" 200 19435
+[2026-05-16 17:07:01,012] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:07:01,029] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 39346
+[2026-05-16 17:07:02,785] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29901
+[2026-05-16 17:07:19,410] INFO django.server log "POST /complaints/submit/ HTTP/1.1" 302 0
+[2026-05-16 17:07:19,424] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 23238
+[2026-05-16 17:07:21,226] INFO django.server log "GET /notifications/ HTTP/1.1" 200 17568
+[2026-05-16 17:07:25,242] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:07:25,248] INFO django.server log "GET /login/ HTTP/1.1" 200 19437
+[2026-05-16 17:07:39,071] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:07:39,088] INFO django.server log "GET /dao/dashboard/ HTTP/1.1" 200 21413
+[2026-05-16 17:07:45,227] INFO django.server log "GET /complaints/dao/escalate/3/ HTTP/1.1" 302 0
+[2026-05-16 17:07:45,243] INFO django.server log "GET /complaints/dao/list/ HTTP/1.1" 200 21063
+[2026-05-16 17:07:52,549] INFO django.server log "GET /notifications/ HTTP/1.1" 200 16476
+[2026-05-16 17:07:54,930] INFO django.server log "GET /notifications/mark-read/11/ HTTP/1.1" 302 0
+[2026-05-16 17:07:54,940] INFO django.server log "GET /complaints/hod/handle/3/ HTTP/1.1" 302 0
+[2026-05-16 17:07:54,947] INFO django.server log "GET /login/ HTTP/1.1" 302 0
+[2026-05-16 17:07:54,959] INFO django.server log "GET /dao/dashboard/ HTTP/1.1" 200 20972
+[2026-05-16 17:07:59,882] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:07:59,889] INFO django.server log "GET /login/ HTTP/1.1" 200 19433
+[2026-05-16 17:08:19,726] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:08:19,740] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 36743
+[2026-05-16 17:08:21,635] INFO django.server log "GET /notifications/ HTTP/1.1" 200 19385
+[2026-05-16 17:08:28,247] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:08:28,262] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 36083
+[2026-05-16 17:08:35,531] INFO django.server log "GET /complaints/hod/handle/3/ HTTP/1.1" 200 25517
+[2026-05-16 17:08:47,940] INFO django.server log "POST /complaints/hod/handle/3/ HTTP/1.1" 302 0
+[2026-05-16 17:08:47,957] INFO django.server log "GET /complaints/hod/list/ HTTP/1.1" 200 21377
+[2026-05-16 17:08:54,694] INFO django.server log "GET /complaints/detail/3/ HTTP/1.1" 200 21755
+[2026-05-16 17:09:00,526] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:09:00,535] INFO django.server log "GET /login/ HTTP/1.1" 200 19434
+[2026-05-16 17:09:14,039] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:09:14,055] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 39466
+[2026-05-16 17:09:15,316] INFO django.server log "GET /notifications/ HTTP/1.1" 200 19272
+[2026-05-16 17:11:52,816] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject44\FeedbackFlow\complaints\models.py changed, reloading.
+[2026-05-16 17:11:54,456] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:12:08,828] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject44\FeedbackFlow\complaints\models.py changed, reloading.
+[2026-05-16 17:12:10,542] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:12:13,872] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject44\FeedbackFlow\complaints\models.py changed, reloading.
+[2026-05-16 17:12:14,431] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:14:13,269] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject44\FeedbackFlow\complaints\views.py changed, reloading.
+[2026-05-16 17:14:13,814] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:19:53,372] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject44\FeedbackFlow\complaints\views.py changed, reloading.
+[2026-05-16 17:19:53,884] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:20:27,699] INFO django.utils.autoreload autoreload C:\Users\Lenovo\PycharmProjects\PythonProject44\FeedbackFlow\complaints\views.py changed, reloading.
+[2026-05-16 17:20:28,188] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:20:32,458] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:20:33,750] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:20:33,806] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38803
+[2026-05-16 17:20:36,170] INFO django.server log "GET /notifications/ HTTP/1.1" 200 19272
+[2026-05-16 17:20:42,198] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:20:42,216] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38803
+[2026-05-16 17:20:43,977] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29901
+[2026-05-16 17:20:57,563] INFO django.server log "POST /complaints/submit/ HTTP/1.1" 302 0
+[2026-05-16 17:20:57,578] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 25168
+[2026-05-16 17:20:59,510] INFO django.server log "GET /notifications/ HTTP/1.1" 200 20233
+[2026-05-16 17:21:00,639] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:21:00,646] INFO django.server log "GET /login/ HTTP/1.1" 200 19437
+[2026-05-16 17:21:22,126] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:21:22,144] INFO django.server log "GET /dao/dashboard/ HTTP/1.1" 200 22771
+[2026-05-16 17:21:24,562] INFO django.server log "GET /complaints/hod/handle/4/ HTTP/1.1" 200 24268
+[2026-05-16 17:21:39,830] INFO django.server log "POST /complaints/hod/handle/4/ HTTP/1.1" 302 0
+[2026-05-16 17:21:39,848] INFO django.server log "GET /complaints/dao/list/ HTTP/1.1" 200 27620
+[2026-05-16 17:21:51,209] INFO django.server log "POST /complaints/dao/assign-staff/4/ HTTP/1.1" 302 0
+[2026-05-16 17:21:51,226] INFO django.server log "GET /complaints/dao/list/ HTTP/1.1" 200 27668
+[2026-05-16 17:21:56,632] INFO django.server log "GET /notifications/ HTTP/1.1" 200 17324
+[2026-05-16 17:21:58,606] INFO django.server log "GET /notifications/mark-read/16/ HTTP/1.1" 302 0
+[2026-05-16 17:21:58,615] INFO django.server log "GET /complaints/hod/handle/4/ HTTP/1.1" 302 0
+[2026-05-16 17:21:58,622] INFO django.server log "GET /login/ HTTP/1.1" 302 0
+[2026-05-16 17:21:58,634] INFO django.server log "GET /dao/dashboard/ HTTP/1.1" 200 22676
+[2026-05-16 17:22:01,725] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:22:01,731] INFO django.server log "GET /login/ HTTP/1.1" 200 19433
+[2026-05-16 17:22:17,704] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:22:17,720] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 39466
+[2026-05-16 17:22:19,652] INFO django.server log "GET /notifications/ HTTP/1.1" 200 21915
+[2026-05-16 17:22:28,620] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:22:28,625] INFO django.server log "GET /login/ HTTP/1.1" 200 19437
+[2026-05-16 17:22:59,350] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:22:59,366] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 34711
+[2026-05-16 17:23:01,528] INFO django.server log "GET /notifications/ HTTP/1.1" 200 16499
+[2026-05-16 17:23:05,752] INFO django.server log "GET /notifications/mark-read/19/ HTTP/1.1" 302 0
+[2026-05-16 17:23:05,768] INFO django.server log "GET /complaints/detail/4/ HTTP/1.1" 200 21775
+[2026-05-16 17:23:09,872] INFO django.server log "GET /complaints/hod/handle/4/ HTTP/1.1" 200 26422
+[2026-05-16 17:23:21,081] INFO django.server log "POST /complaints/hod/handle/4/ HTTP/1.1" 302 0
+[2026-05-16 17:23:21,113] ERROR django.request log Internal Server Error: /complaints/staff/my-tasks/
+Traceback (most recent call last):
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject44\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject44\.venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject44\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject44\Feedbackflow\complaints\views.py", line 806, in staff_task_list
+    return render(request, 'complaints/staff_task_list.html', context)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject44\.venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject44\.venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject44\.venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: complaints/staff_task_list.html
+[2026-05-16 17:23:21,116] ERROR django.server log "GET /complaints/staff/my-tasks/ HTTP/1.1" 500 92058
+[2026-05-16 17:29:19,546] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:29:20,672] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:29:20,723] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 34589
+[2026-05-16 17:29:25,151] INFO django.server log "GET /notifications/ HTTP/1.1" 200 16499
+[2026-05-16 17:29:26,977] INFO django.server log "GET /notifications/mark-read/19/ HTTP/1.1" 302 0
+[2026-05-16 17:29:26,995] INFO django.server log "GET /complaints/detail/4/ HTTP/1.1" 200 22642
+[2026-05-16 17:29:31,381] INFO django.server log "GET /complaints/hod/handle/4/ HTTP/1.1" 200 24551
+[2026-05-16 17:29:36,449] INFO django.server log "GET /complaints/staff/my-tasks/ HTTP/1.1" 200 19884
+[2026-05-16 17:29:39,183] INFO django.server log "GET /complaints/detail/4/ HTTP/1.1" 200 22642
+[2026-05-16 17:30:11,792] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:30:14,657] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:30:14,712] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 34038
+[2026-05-16 17:30:23,960] INFO django.server log "GET /notifications/ HTTP/1.1" 200 16499
+[2026-05-16 17:30:25,073] INFO django.server log "GET /notifications/mark-read/19/ HTTP/1.1" 302 0
+[2026-05-16 17:30:25,089] INFO django.server log "GET /complaints/detail/4/ HTTP/1.1" 200 22642
+[2026-05-16 17:30:27,911] INFO django.server log "GET /complaints/hod/handle/4/ HTTP/1.1" 200 24551
+[2026-05-16 17:30:30,555] INFO django.server log "GET /complaints/staff/my-tasks/ HTTP/1.1" 200 32597
+[2026-05-16 17:30:38,793] INFO django.server log "GET /complaints/detail/4/ HTTP/1.1" 200 22642
+[2026-05-16 17:30:41,945] INFO django.server log "GET /complaints/staff/list/ HTTP/1.1" 200 19931
+[2026-05-16 17:30:43,308] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:30:43,321] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 34038
+[2026-05-16 17:30:46,915] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:30:46,924] INFO django.server log "GET /login/ HTTP/1.1" 200 19436
+[2026-05-16 17:31:05,771] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:31:05,792] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 39466
+[2026-05-16 17:31:06,982] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 30021
+[2026-05-16 17:31:31,385] INFO django.server log "POST /complaints/submit/ HTTP/1.1" 302 0
+[2026-05-16 17:31:31,402] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 27107
+[2026-05-16 17:31:33,390] INFO django.server log "GET /notifications/ HTTP/1.1" 200 23686
+[2026-05-16 17:31:35,358] INFO django.server log "GET /notifications/mark-read/23/ HTTP/1.1" 302 0
+[2026-05-16 17:31:35,369] INFO django.server log "GET /complaints/detail/5/ HTTP/1.1" 200 19554
+[2026-05-16 17:31:38,965] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:31:38,973] INFO django.server log "GET /login/ HTTP/1.1" 200 19437
+[2026-05-16 17:31:50,224] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:31:50,242] INFO django.server log "GET /dao/dashboard/ HTTP/1.1" 200 24135
+[2026-05-16 17:31:53,509] INFO django.server log "GET /complaints/hod/handle/5/ HTTP/1.1" 200 24282
+[2026-05-16 17:32:01,535] INFO django.server log "POST /complaints/hod/handle/5/ HTTP/1.1" 302 0
+[2026-05-16 17:32:01,553] INFO django.server log "GET /complaints/dao/list/ HTTP/1.1" 200 29368
+[2026-05-16 17:32:07,489] INFO django.server log "POST /complaints/dao/assign-staff/5/ HTTP/1.1" 302 0
+[2026-05-16 17:32:07,506] INFO django.server log "GET /complaints/dao/list/ HTTP/1.1" 200 29416
+[2026-05-16 17:32:10,190] INFO django.server log "GET /notifications/ HTTP/1.1" 200 18178
+[2026-05-16 17:32:11,373] INFO django.server log "GET /notifications/mark-read/22/ HTTP/1.1" 302 0
+[2026-05-16 17:32:11,382] INFO django.server log "GET /complaints/hod/handle/5/ HTTP/1.1" 302 0
+[2026-05-16 17:32:11,389] INFO django.server log "GET /login/ HTTP/1.1" 302 0
+[2026-05-16 17:32:11,401] INFO django.server log "GET /dao/dashboard/ HTTP/1.1" 200 24040
+[2026-05-16 17:32:12,988] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:32:12,995] INFO django.server log "GET /login/ HTTP/1.1" 200 19433
+[2026-05-16 17:32:29,454] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:32:29,466] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 35491
+[2026-05-16 17:32:32,160] INFO django.server log "GET /notifications/ HTTP/1.1" 200 17387
+[2026-05-16 17:32:34,215] INFO django.server log "GET /notifications/mark-read/25/ HTTP/1.1" 302 0
+[2026-05-16 17:32:34,228] INFO django.server log "GET /complaints/detail/5/ HTTP/1.1" 200 21789
+[2026-05-16 17:32:37,709] INFO django.server log "GET /complaints/hod/handle/5/ HTTP/1.1" 200 26436
+[2026-05-16 17:32:54,736] INFO django.server log "POST /complaints/hod/handle/5/ HTTP/1.1" 302 0
+[2026-05-16 17:32:54,749] INFO django.server log "GET /complaints/staff/my-tasks/ HTTP/1.1" 200 34807
+[2026-05-16 17:32:58,379] INFO django.server log "GET /complaints/detail/5/ HTTP/1.1" 200 22656
+[2026-05-16 17:33:01,502] INFO django.server log "GET /complaints/hod/handle/5/ HTTP/1.1" 200 24565
+[2026-05-16 17:33:07,874] INFO django.server log "GET /complaints/staff/my-tasks/ HTTP/1.1" 200 34256
+[2026-05-16 17:33:09,917] INFO django.server log "GET /complaints/detail/5/ HTTP/1.1" 200 22656
+[2026-05-16 17:33:14,157] INFO django.server log "GET /complaints/hod/handle/5/ HTTP/1.1" 200 24565
+[2026-05-16 17:33:16,588] INFO django.server log "GET /complaints/staff/my-tasks/ HTTP/1.1" 200 34256
+[2026-05-16 17:33:19,941] INFO django.server log "GET /complaints/detail/5/ HTTP/1.1" 200 22656
+[2026-05-16 17:33:22,820] INFO django.server log "GET /complaints/staff/list/ HTTP/1.1" 200 21734
+[2026-05-16 17:33:25,008] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:33:25,021] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 34818

@@ -1,0 +1,641 @@
+{% extends 'users/base.html' %}
+{% block title %}My Tasks - Staff{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ══════════════════════════════════════════════════════════════════════
+       STAFF TASK LIST PAGE — FeedbackFlow
+       University of Asia Pacific
+       ══════════════════════════════════════════════════════════════════════
+       This stylesheet controls the complete visual design of the Staff
+       Task List page. Staff members can view, handle and mark tasks fixed.
+       ══════════════════════════════════════════════════════════════════════ */
+
+    /* ── PAGE HEADER ── */
+    .staff-page-header {
+        margin-bottom: 28px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .staff-page-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        line-height: 1.2;
+    }
+
+    .staff-page-subtitle {
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 14px;
+        font-weight: 300;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    /* ── STAT CARDS ── */
+    .staff-stat-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .staff-stat-box {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px 20px;
+        text-align: center;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .staff-stat-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .staff-stat-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
+    }
+
+    .staff-stat-box.blue::before   { background-color: #2563eb; }
+    .staff-stat-box.amber::before  { background-color: #d97706; }
+    .staff-stat-box.purple::before { background-color: #7c3aed; }
+    .staff-stat-box.green::before  { background-color: #059669; }
+
+    .staff-stat-number {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 4px;
+        line-height: 1;
+        display: block;
+    }
+
+    .staff-stat-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        display: block;
+        margin-top: 2px;
+    }
+
+    /* ── TASK TABLE CARD ── */
+    .staff-table-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 28px;
+    }
+
+    .staff-table-card-header {
+        background: #f9fafb;
+        padding: 16px 20px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .staff-table-card-title {
+        color: #111827;
+        font-weight: 700;
+        font-size: 15px;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .staff-task-count-pill {
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 9999px;
+        line-height: 1.6;
+    }
+
+    /* ── TABLE ── */
+    .staff-task-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #ffffff;
+    }
+
+    .staff-task-table thead tr {
+        background: #f9fafb;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .staff-task-table thead th {
+        color: #374151;
+        font-weight: 700;
+        padding: 14px 18px;
+        text-align: left;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .staff-task-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.15s ease;
+    }
+
+    .staff-task-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .staff-task-table tbody tr:hover {
+        background-color: #f8faff;
+    }
+
+    .staff-task-table tbody td {
+        padding: 14px 18px;
+        vertical-align: middle;
+    }
+
+    /* ── TRACKING ID ── */
+    .staff-tracking-id {
+        color: #111827;
+        font-weight: 700;
+        font-size: 13px;
+        font-family: monospace;
+        letter-spacing: 0.03em;
+    }
+
+    /* ── SUBJECT ── */
+    .staff-subject {
+        color: #111827;
+        font-size: 13px;
+        font-weight: 500;
+        max-width: 200px;
+        word-break: break-word;
+    }
+
+    /* ── LOCATION ── */
+    .staff-location {
+        color: #374151;
+        font-size: 13px;
+    }
+
+    /* ── DATE ── */
+    .staff-date {
+        color: #6b7280;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    /* ── PRIORITY BADGES ── */
+    .badge-priority {
+        padding: 3px 12px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .badge-priority-low    { background: #e5e7eb; color: #374151; }
+    .badge-priority-medium { background: #dbeafe; color: #1d4ed8; }
+    .badge-priority-high   { background: #fef3c7; color: #92400e; }
+    .badge-priority-urgent { background: #fee2e2; color: #991b1b; }
+
+    /* ── STATUS BADGES ── */
+    .badge-status {
+        padding: 3px 12px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .badge-status-pending     { background: #fef3c7; color: #92400e; }
+    .badge-status-inprogress  { background: #dbeafe; color: #1d4ed8; }
+    .badge-status-resolved    { background: #d1fae5; color: #065f46; }
+
+    /* ── ACTION BUTTONS ── */
+    .staff-action-group {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .btn-staff-view {
+        font-size: 12px;
+        font-weight: 600;
+        color: #2563eb;
+        border: 1px solid #2563eb;
+        padding: 4px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        background: #ffffff;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-staff-view:hover {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #1d4ed8;
+    }
+
+    .btn-staff-handle {
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        background: #059669;
+        border: 1px solid #059669;
+        padding: 4px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-staff-handle:hover {
+        background: #047857;
+        border-color: #047857;
+        color: #ffffff;
+    }
+
+    .btn-staff-fixed {
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        background: #0369a1;
+        border: 1px solid #0369a1;
+        padding: 4px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-staff-fixed:hover {
+        background: #0284c7;
+        border-color: #0284c7;
+        color: #ffffff;
+    }
+
+    /* ── EMPTY STATE ── */
+    .staff-empty-state {
+        text-align: center;
+        padding: 64px 24px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+    }
+
+    .staff-empty-icon {
+        font-size: 4rem;
+        opacity: 0.25;
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    .staff-empty-title {
+        color: #111827;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .staff-empty-desc {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    /* ── GUIDELINES CARD ── */
+    .staff-guidelines-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 28px;
+    }
+
+    .staff-guidelines-header {
+        background: linear-gradient(135deg, #1e3a5f, #2563eb);
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .staff-guidelines-header h6 {
+        color: #ffffff;
+        font-weight: 700;
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .staff-guidelines-body {
+        padding: 20px;
+    }
+
+    .staff-guideline-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13px;
+        color: #374151;
+        line-height: 1.5;
+    }
+
+    .staff-guideline-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .staff-guideline-dot {
+        width: 6px;
+        height: 6px;
+        background: #2563eb;
+        border-radius: 50%;
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+        .staff-stat-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .staff-page-title {
+            font-size: 22px;
+        }
+
+        .staff-task-table thead th,
+        .staff-task-table tbody td {
+            padding: 10px 12px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .staff-stat-row {
+            grid-template-columns: 1fr;
+        }
+
+        .staff-action-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- ════════════════════════════════════════════════
+         PAGE HEADER
+         ════════════════════════════════════════════════ -->
+    <div class="staff-page-header">
+        <div class="staff-page-title">
+            🔧 My Assigned Tasks
+        </div>
+        <p class="staff-page-subtitle">
+            Tasks assigned to you — handle each one carefully and mark as fixed when complete.
+            Students will be notified automatically upon resolution.
+        </p>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         SUMMARY STAT CARDS
+         ════════════════════════════════════════════════ -->
+    <div class="staff-stat-row">
+
+        <!-- Total Tasks -->
+        <div class="staff-stat-box blue">
+            <span class="staff-stat-number" style="color:#1d4ed8;">{{ total }}</span>
+            <span class="staff-stat-label">Total Tasks</span>
+        </div>
+
+        <!-- Pending Tasks -->
+        <div class="staff-stat-box amber">
+            <span class="staff-stat-number" style="color:#92400e;">{{ pending }}</span>
+            <span class="staff-stat-label">Pending</span>
+        </div>
+
+        <!-- In Progress Tasks -->
+        <div class="staff-stat-box purple">
+            <span class="staff-stat-number" style="color:#4338ca;">{{ active }}</span>
+            <span class="staff-stat-label">In Progress</span>
+        </div>
+
+        <!-- Completed Tasks -->
+        <div class="staff-stat-box green">
+            <span class="staff-stat-number" style="color:#065f46;">{{ resolved }}</span>
+            <span class="staff-stat-label">Completed</span>
+        </div>
+
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         STAFF GUIDELINES CARD
+         ════════════════════════════════════════════════ -->
+    <div class="staff-guidelines-card">
+        <div class="staff-guidelines-header">
+            <span>💡</span>
+            <h6>Staff Guidelines</h6>
+        </div>
+        <div class="staff-guidelines-body">
+            <div class="staff-guideline-item">
+                <div class="staff-guideline-dot"></div>
+                <span>Review each assigned task carefully before taking action.</span>
+            </div>
+            <div class="staff-guideline-item">
+                <div class="staff-guideline-dot"></div>
+                <span>Use the <strong>Handle</strong> button to update the status and add comments.</span>
+            </div>
+            <div class="staff-guideline-item">
+                <div class="staff-guideline-dot"></div>
+                <span>Once the physical work is complete, click <strong>Mark Fixed</strong> — the student will be notified automatically.</span>
+            </div>
+            <div class="staff-guideline-item">
+                <div class="staff-guideline-dot"></div>
+                <span>Do not reveal any internal details to students — keep communications professional and generic.</span>
+            </div>
+            <div class="staff-guideline-item">
+                <div class="staff-guideline-dot"></div>
+                <span>Urgent and High priority tasks must be attended to first.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         TASK TABLE
+         ════════════════════════════════════════════════ -->
+    {% if tasks %}
+    <div class="staff-table-card">
+
+        <!-- Table Header Bar -->
+        <div class="staff-table-card-header">
+            <div class="staff-table-card-title">
+                📋 Assigned Tasks
+                <span class="staff-task-count-pill">{{ total }}</span>
+            </div>
+            <small style="color:#6b7280;font-size:12px;">
+                Showing {{ tasks|length }} task{{ tasks|length|pluralize }}
+            </small>
+        </div>
+
+        <!-- Responsive Table Wrapper -->
+        <div class="table-responsive">
+            <table class="staff-task-table">
+
+                <!-- Table Head -->
+                <thead>
+                    <tr>
+                        <th>Tracking ID</th>
+                        <th>Subject</th>
+                        <th>Location</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <!-- Table Body -->
+                <tbody>
+                {% for task in tasks %}
+                <tr>
+
+                    <!-- Tracking ID -->
+                    <td>
+                        <span class="staff-tracking-id">{{ task.tracking_id }}</span>
+                    </td>
+
+                    <!-- Subject -->
+                    <td>
+                        <span class="staff-subject">{{ task.subject }}</span>
+                    </td>
+
+                    <!-- Location -->
+                    <td>
+                        <span class="staff-location">{{ task.location|default:"-" }}</span>
+                    </td>
+
+                    <!-- Priority Badge -->
+                    <td>
+                        {% if task.priority == 'Low' %}
+                            <span class="badge-priority badge-priority-low">Low</span>
+                        {% elif task.priority == 'Medium' %}
+                            <span class="badge-priority badge-priority-medium">Medium</span>
+                        {% elif task.priority == 'High' %}
+                            <span class="badge-priority badge-priority-high">High</span>
+                        {% elif task.priority == 'Urgent' %}
+                            <span class="badge-priority badge-priority-urgent">Urgent</span>
+                        {% else %}
+                            <span class="badge-priority badge-priority-low">{{ task.priority }}</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Status Badge -->
+                    <td>
+                        {% if task.status == 'Pending' %}
+                            <span class="badge-status badge-status-pending">Pending</span>
+                        {% elif task.status == 'Under Investigation' %}
+                            <span class="badge-status badge-status-inprogress">In Progress</span>
+                        {% elif task.status == 'Resolved' %}
+                            <span class="badge-status badge-status-resolved">Completed</span>
+                        {% else %}
+                            <span class="badge-status badge-status-pending">{{ task.status }}</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Assigned Date -->
+                    <td>
+                        <span class="staff-date">{{ task.submitted_at|date:"M d, Y" }}</span>
+                    </td>
+
+                    <!-- Action Buttons -->
+                    <td>
+                        <div class="staff-action-group">
+
+                            <!-- View Button — always visible -->
+                            <a href="{% url 'complaint_detail' task.id %}"
+                               class="btn-staff-view">
+                                👁 View
+                            </a>
+
+                            {% if task.status != 'Resolved' %}
+
+                            <!-- Handle Button -->
+                            <a href="{% url 'handle_complaint' task.id %}"
+                               class="btn-staff-handle">
+                                ✏️ Handle
+                            </a>
+
+                            <!-- Mark Fixed Button -->
+                            <a href="{% url 'staff_mark_fixed' task.id %}"
+                               onclick="return confirm('Mark this task as completed? The student will be notified automatically.')"
+                               class="btn-staff-fixed">
+                                ✅ Mark Fixed
+                            </a>
+
+                            {% endif %}
+                        </div>
+                    </td>
+
+                </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <!-- ════════════════════════════════════════════════
+         EMPTY STATE
+         ════════════════════════════════════════════════ -->
+    <div class="staff-empty-state">
+        <span class="staff-empty-icon">✅</span>
+        <h4 class="staff-empty-title">No Tasks Assigned</h4>
+        <p class="staff-empty-desc">
+            Tasks assigned by DAO will appear here. Check back later.
+        </p>
+    </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}
