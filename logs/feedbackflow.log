@@ -3892,3 +3892,21 @@ django.template.exceptions.TemplateDoesNotExist: complaints/staff_task_list.html
 [2026-05-17 01:23:27,485] INFO django.server log "GET /complaints/hod/handle/11/ HTTP/1.1" 200 24425
 [2026-05-17 01:23:29,809] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
 [2026-05-17 01:23:29,816] INFO django.server log "GET /login/ HTTP/1.1" 200 19115
+[2026-05-17 01:43:54,870] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-17 01:44:02,162] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-17 01:44:03,857] INFO django.server log "GET /login/ HTTP/1.1" 200 18805
+[2026-05-17 01:44:06,019] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-17 01:44:06,050] INFO django.server log "GET /dao/dashboard/ HTTP/1.1" 200 39794
+[2026-05-17 01:44:07,609] INFO django.server log "GET /complaints/hod/handle/11/ HTTP/1.1" 200 24425
+[2026-05-17 01:44:10,147] INFO django.server log "GET /complaints/dao/list/ HTTP/1.1" 200 34236
+[2026-05-17 01:47:41,986] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-17 01:47:43,200] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-17 01:47:43,212] INFO django.server log "GET /login/ HTTP/1.1" 302 0
+[2026-05-17 01:47:43,274] INFO django.server log "GET /dao/dashboard/ HTTP/1.1" 200 39255
+[2026-05-17 01:47:45,035] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-17 01:47:45,043] INFO django.server log "GET /login/ HTTP/1.1" 200 19115
+[2026-05-17 01:48:02,554] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-17 01:48:02,570] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39082
+[2026-05-17 01:48:15,829] INFO django.server log "GET /complaints/hod/list/ HTTP/1.1" 200 44563
+[2026-05-17 01:48:24,557] INFO django.server log "GET /complaints/detail/11/ HTTP/1.1" 200 36474
+[2026-05-17 01:48:28,301] INFO django.server log "GET /complaints/hod/list/ HTTP/1.1" 200 44563

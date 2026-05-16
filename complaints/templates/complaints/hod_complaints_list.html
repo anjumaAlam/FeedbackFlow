@@ -2,67 +2,546 @@
 
 {% block title %}Faculty Complaints - FeedbackFlow{% endblock %}
 
+{% block extra_css %}
+<style>
+
+
+    /* ── PAGE HEADER ── */
+
+    /* Page header wrapper */
+    .hod-page-header {
+        margin-bottom: 28px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Page title */
+    .hod-page-title {
+        font-size: 26px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        line-height: 1.2;
+    }
+
+    /* Page subtitle */
+    .hod-page-subtitle {
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 14px;
+        font-weight: 300;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+
+    /* ── STAT CARDS ── */
+
+    /* Stat card base */
+    .hod-stat-card {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        border-radius: 12px !important;
+        border-width: 1px !important;
+        border-style: solid !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        overflow: hidden !important;
+        position: relative !important;
+    }
+
+    /* Stat card top accent */
+    .hod-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        border-radius: 12px 12px 0 0;
+    }
+
+    /* Stat card hover */
+    .hod-stat-card:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10) !important;
+    }
+
+    /* Stat card body */
+    .hod-stat-card .card-body {
+        padding-top: 20px !important;
+        padding-right: 16px !important;
+        padding-bottom: 20px !important;
+        padding-left: 16px !important;
+        text-align: center !important;
+        background-color: #ffffff !important;
+    }
+
+    /* Stat number */
+    .hod-stat-card h3 {
+        font-size: 2rem !important;
+        font-weight: 800 !important;
+        color: #111827 !important;
+        margin-bottom: 4px !important;
+        line-height: 1 !important;
+        display: block !important;
+    }
+
+    /* Stat label */
+    .hod-stat-card p {
+        color: #6b7280 !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.06em !important;
+        margin: 0 !important;
+    }
+
+    /* Red stat — Total */
+    .hod-stat-card.border-danger::before { background-color: #dc2626; }
+    .hod-stat-card.border-danger h3      { color: #dc2626 !important; }
+
+    /* Amber stat — Pending */
+    .hod-stat-card.border-warning::before { background-color: #d97706; }
+    .hod-stat-card.border-warning h3      { color: #92400e !important; }
+
+    /* Blue stat — Investigating */
+    .hod-stat-card.border-info::before { background-color: #0ea5e9; }
+    .hod-stat-card.border-info h3      { color: #0369a1 !important; }
+
+    /* Indigo stat — Findings Submitted */
+    .hod-stat-card.border-primary::before { background-color: #2563eb; }
+    .hod-stat-card.border-primary h3      { color: #1d4ed8 !important; }
+
+    /* Green stat — Resolved */
+    .hod-stat-card.border-success::before { background-color: #059669; }
+    .hod-stat-card.border-success h3      { color: #065f46 !important; }
+
+
+    /* ── COMPLAINTS TABLE CARD ── */
+
+    /* Table card wrapper */
+    .hod-table-card {
+        background-color: #ffffff !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+        border: 1px solid #e5e7eb !important;
+        transition: box-shadow 0.3s ease !important;
+    }
+
+    /* Table card hover */
+    .hod-table-card:hover {
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.10) !important;
+    }
+
+    /* Table card header */
+    .hod-table-card .card-header {
+        background-color: #f9fafb !important;
+        background: #f9fafb !important;
+        padding-top: 16px !important;
+        padding-right: 20px !important;
+        padding-bottom: 16px !important;
+        padding-left: 20px !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    /* Table card header title */
+    .hod-table-card .card-header h5 {
+        color: #111827 !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        margin: 0 !important;
+    }
+
+    /* Table card body */
+    .hod-table-card .card-body {
+        padding: 0 !important;
+        background-color: #ffffff !important;
+    }
+
+    /* Table responsive */
+    .hod-table-card .table-responsive {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Table base */
+    .hod-table-card .table {
+        margin-bottom: 0 !important;
+        border-collapse: collapse !important;
+        width: 100% !important;
+    }
+
+    /* Table head */
+    .hod-table-card .table thead th {
+        background-color: #f9fafb !important;
+        color: #374151 !important;
+        font-weight: 700 !important;
+        font-size: 12px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        padding-top: 13px !important;
+        padding-right: 16px !important;
+        padding-bottom: 13px !important;
+        padding-left: 16px !important;
+        border-bottom: 2px solid #e5e7eb !important;
+        white-space: nowrap !important;
+    }
+
+    /* Table body rows */
+    .hod-table-card .table tbody tr {
+        border-bottom: 1px solid #f1f5f9 !important;
+        transition: background-color 0.15s ease !important;
+    }
+
+    /* Table body row hover */
+    .hod-table-card .table tbody tr:hover {
+        background-color: #f8faff !important;
+    }
+
+    /* Last row no border */
+    .hod-table-card .table tbody tr:last-child {
+        border-bottom: none !important;
+    }
+
+    /* Table body cells */
+    .hod-table-card .table tbody td {
+        padding-top: 13px !important;
+        padding-right: 16px !important;
+        padding-bottom: 13px !important;
+        padding-left: 16px !important;
+        vertical-align: middle !important;
+        color: #111827 !important;
+        font-size: 13px !important;
+        border: none !important;
+    }
+
+    /* Tracking ID cell */
+    .hod-table-card .table tbody td strong {
+        color: #111827 !important;
+        font-weight: 700 !important;
+        font-size: 13px !important;
+    }
+
+    /* Small date text */
+    .hod-table-card .table tbody td small {
+        color: #6b7280 !important;
+        font-size: 12px !important;
+    }
+
+
+    /* ── STATUS BADGES ── */
+
+    /* Badge base */
+    .hod-table-card .badge {
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        padding: 3px 10px !important;
+        border-radius: 6px !important;
+        letter-spacing: 0.03em !important;
+    }
+
+    /* Pending */
+    .hod-table-card .bg-warning {
+        background-color: #fef3c7 !important;
+        color: #92400e !important;
+    }
+
+    /* Investigating */
+    .hod-table-card .bg-info {
+        background-color: #dbeafe !important;
+        color: #1d4ed8 !important;
+    }
+
+    /* Findings Submitted */
+    .hod-table-card .bg-primary {
+        background-color: #ede9fe !important;
+        color: #6d28d9 !important;
+    }
+
+    /* Resolved */
+    .hod-table-card .bg-success {
+        background-color: #d1fae5 !important;
+        color: #065f46 !important;
+    }
+
+    /* Escalated */
+    .hod-table-card .bg-danger {
+        background-color: #fee2e2 !important;
+        color: #991b1b !important;
+    }
+
+    /* Secondary */
+    .hod-table-card .bg-secondary {
+        background-color: #e5e7eb !important;
+        color: #374151 !important;
+    }
+
+    /* Text dark override */
+    .hod-table-card .text-dark {
+        color: #111827 !important;
+    }
+
+
+    /* ── ACTION BUTTONS IN TABLE ── */
+
+    /* View button */
+    .hod-table-card .btn-outline-primary {
+        color: #2563eb !important;
+        border-color: #2563eb !important;
+        background-color: #ffffff !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        padding: 4px 12px !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* View button hover */
+    .hod-table-card .btn-outline-primary:hover {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Handle button */
+    .hod-table-card .btn-primary {
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
+        color: #ffffff !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        padding: 4px 12px !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Handle button hover */
+    .hod-table-card .btn-primary:hover {
+        background-color: #1d4ed8 !important;
+        border-color: #1d4ed8 !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Investigate button */
+    .hod-table-card .btn-warning {
+        background-color: #d97706 !important;
+        border-color: #d97706 !important;
+        color: #ffffff !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        padding: 4px 12px !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Investigate button hover */
+    .hod-table-card .btn-warning:hover {
+        background-color: #b45309 !important;
+        border-color: #b45309 !important;
+        color: #ffffff !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Final Action button */
+    .hod-table-card .btn-success {
+        background-color: #059669 !important;
+        border-color: #059669 !important;
+        color: #ffffff !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        padding: 4px 12px !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Final Action button hover */
+    .hod-table-card .btn-success:hover {
+        background-color: #047857 !important;
+        border-color: #047857 !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Button group spacing */
+    .hod-table-card td .btn + .btn {
+        margin-left: 4px !important;
+    }
+
+
+    /* ── EMPTY STATE ── */
+
+    /* Empty state card */
+    .hod-empty-card {
+        background-color: #ffffff !important;
+        border-radius: 12px !important;
+        border: 1px solid #e5e7eb !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    /* Empty state body */
+    .hod-empty-card .card-body {
+        text-align: center !important;
+        padding-top: 64px !important;
+        padding-right: 24px !important;
+        padding-bottom: 64px !important;
+        padding-left: 24px !important;
+        background-color: #ffffff !important;
+    }
+
+    /* Empty state icon */
+    .hod-empty-icon {
+        font-size: 4rem;
+        opacity: 0.25;
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    /* Empty state title */
+    .hod-empty-title {
+        color: #111827 !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        margin-bottom: 8px !important;
+    }
+
+    /* Empty state description */
+    .hod-empty-desc {
+        color: #6b7280 !important;
+        font-size: 13px !important;
+        margin: 0 !important;
+    }
+
+
+    /* ── RESPONSIVE ── */
+
+    /* Tablet */
+    @media (max-width: 768px) {
+        .hod-page-title {
+            font-size: 20px;
+        }
+
+        .hod-stat-card h3 {
+            font-size: 1.6rem !important;
+        }
+
+        .hod-table-card .table thead th,
+        .hod-table-card .table tbody td {
+            padding: 10px 12px !important;
+            font-size: 12px !important;
+        }
+
+        .hod-table-card .btn-sm {
+            font-size: 11px !important;
+            padding: 3px 8px !important;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+        .hod-page-title {
+            font-size: 18px;
+        }
+
+        .hod-stat-card h3 {
+            font-size: 1.4rem !important;
+        }
+
+        .hod-stat-card p {
+            font-size: 10px !important;
+        }
+    }
+
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
 
-    <div class="mb-4">
-        <h2>📋 Faculty Complaints</h2>
-        <p class="text-muted mb-0">Review and handle complaints about faculty members in your department</p>
+
+
+    <div class="hod-page-header mb-4">
+        <h2 class="hod-page-title">📋 Faculty Complaints</h2>
+        <p class="hod-page-subtitle">
+            Review and handle complaints about faculty members in your department.
+            Assign investigators, take final action, or escalate as needed.
+        </p>
     </div>
 
-    {# ── Stats ── #}
     <div class="row mb-4">
+
+        <!-- Total Complaints -->
         <div class="col-md-2 mb-3">
-            <div class="card border-danger">
+            <div class="card hod-stat-card border-danger">
                 <div class="card-body text-center">
                     <h3 class="mb-1">{{ total_complaints }}</h3>
                     <p class="text-muted mb-0" style="font-size:0.85rem;">Total</p>
                 </div>
             </div>
         </div>
+
+        <!-- Pending Complaints -->
         <div class="col-md-2 mb-3">
-            <div class="card border-warning">
+            <div class="card hod-stat-card border-warning">
                 <div class="card-body text-center">
                     <h3 class="mb-1">{{ pending }}</h3>
                     <p class="text-muted mb-0" style="font-size:0.85rem;">Pending</p>
                 </div>
             </div>
         </div>
+
+        <!-- Under Investigation -->
         <div class="col-md-2 mb-3">
-            <div class="card border-info">
+            <div class="card hod-stat-card border-info">
                 <div class="card-body text-center">
                     <h3 class="mb-1">{{ investigating }}</h3>
                     <p class="text-muted mb-0" style="font-size:0.85rem;">Investigating</p>
                 </div>
             </div>
         </div>
+
+        <!-- Findings Submitted -->
         <div class="col-md-3 mb-3">
-            <div class="card border-primary">
+            <div class="card hod-stat-card border-primary">
                 <div class="card-body text-center">
                     <h3 class="mb-1">{{ findings_submitted }}</h3>
                     <p class="text-muted mb-0" style="font-size:0.85rem;">Findings Submitted</p>
                 </div>
             </div>
         </div>
+
+        <!-- Resolved Complaints -->
         <div class="col-md-3 mb-3">
-            <div class="card border-success">
+            <div class="card hod-stat-card border-success">
                 <div class="card-body text-center">
                     <h3 class="mb-1">{{ resolved }}</h3>
                     <p class="text-muted mb-0" style="font-size:0.85rem;">Resolved</p>
                 </div>
             </div>
         </div>
+
     </div>
 
-    {# ── Table ── #}
+
     {% if complaints_list %}
-    <div class="card">
+    <div class="card hod-table-card">
+
+        <!-- Table Card Header -->
         <div class="card-header bg-light">
             <h5 class="mb-0">All Complaints</h5>
         </div>
+
+        <!-- Table Card Body -->
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
+
+                    <!-- Table Head -->
                     <thead class="table-light">
                         <tr>
                             <th>Tracking ID</th>
@@ -75,11 +554,21 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
+
+                    <!-- Table Body -->
                     <tbody>
                         {% for complaint in complaints_list %}
                         <tr>
-                            <td><strong>{{ complaint.tracking_id }}</strong></td>
+
+                            <!-- Tracking ID -->
+                            <td>
+                                <strong>{{ complaint.tracking_id }}</strong>
+                            </td>
+
+                            <!-- Subject -->
                             <td>{{ complaint.subject|truncatewords:5 }}</td>
+
+                            <!-- Student — anonymous or named -->
                             <td>
                                 {% if complaint.is_anonymous %}
                                     <span class="badge bg-secondary">Anonymous</span>
@@ -87,7 +576,13 @@
                                     {{ complaint.student.full_name }}
                                 {% endif %}
                             </td>
-                            <td>{{ complaint.faculty_concerned.full_name|default:"-" }}</td>
+
+                            <!-- Faculty Concerned -->
+                            <td>
+                                {{ complaint.faculty_concerned.full_name|default:"-" }}
+                            </td>
+
+                            <!-- Status Badge -->
                             <td>
                                 <span class="badge
                                     {% if complaint.status == 'Pending' %}bg-warning text-dark
@@ -95,53 +590,108 @@
                                     {% elif complaint.status == 'Findings Submitted' %}bg-primary
                                     {% elif complaint.status == 'Resolved' %}bg-success
                                     {% elif complaint.status == 'Escalated' %}bg-danger
+                                    {% else %}bg-secondary
                                     {% endif %}">
                                     {{ complaint.status }}
                                 </span>
                             </td>
+
+                            <!-- Priority Badge -->
                             <td>
                                 <span class="badge
                                     {% if complaint.priority == 'Low' %}bg-secondary
                                     {% elif complaint.priority == 'Medium' %}bg-primary
                                     {% elif complaint.priority == 'High' %}bg-warning text-dark
                                     {% elif complaint.priority == 'Urgent' %}bg-danger
+                                    {% else %}bg-secondary
                                     {% endif %}">
                                     {{ complaint.priority }}
                                 </span>
                             </td>
-                            <td><small>{{ complaint.submitted_at|date:"M d, Y" }}</small></td>
+
+                            <!-- Submitted Date -->
                             <td>
-                                <a href="{% url 'complaint_detail' complaint.id %}" class="btn btn-sm btn-outline-primary">View</a>
-                                {% if mode == 'pending' %}
-                                    {% if complaint.complaint_type == 'Faculty' %}
-                                        {% if complaint.status == 'Pending' or complaint.status == 'Under Investigation' %}
-                                            <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-sm btn-primary">Handle</a>
-                                            <a href="{% url 'assign_investigation' complaint.id %}" class="btn btn-sm btn-warning">🔍 Investigate</a>
-                                        {% elif complaint.status == 'Findings Submitted' %}
-                                            <a href="{% url 'hod_final_action' complaint.id %}" class="btn btn-sm btn-success">⚖️ Final Action</a>
-                                        {% endif %}
-                                    {% else %}
-                                        {% if complaint.status != 'Resolved' %}
-                                            <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-sm btn-primary">Handle</a>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endif %}
+                                <small>{{ complaint.submitted_at|date:"M d, Y" }}</small>
                             </td>
+
+                            <!-- Action Buttons -->
+                            <td>
+
+                                <!-- View Detail Button — always visible -->
+                                <a href="{% url 'complaint_detail' complaint.id %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View
+                                </a>
+
+                                <!-- Conditional action buttons based on mode and status -->
+                                {% if mode == 'pending' %}
+
+                                    {% if complaint.complaint_type == 'Faculty' %}
+
+                                        {% if complaint.status == 'Pending' or complaint.status == 'Under Investigation' %}
+
+                                            <!-- Handle Button -->
+                                            <a href="{% url 'handle_complaint' complaint.id %}"
+                                               class="btn btn-sm btn-primary">
+                                                Handle
+                                            </a>
+
+                                            <!-- Assign Investigation Button -->
+                                            <a href="{% url 'assign_investigation' complaint.id %}"
+                                               class="btn btn-sm btn-warning">
+                                                🔍 Investigate
+                                            </a>
+
+                                        {% elif complaint.status == 'Findings Submitted' %}
+
+                                            <!-- Final Action Button -->
+                                            <a href="{% url 'hod_final_action' complaint.id %}"
+                                               class="btn btn-sm btn-success">
+                                                ⚖️ Final Action
+                                            </a>
+
+                                        {% endif %}
+
+                                    {% else %}
+
+                                        {% if complaint.status != 'Resolved' %}
+
+                                            <!-- Handle Button for non-faculty complaints -->
+                                            <a href="{% url 'handle_complaint' complaint.id %}"
+                                               class="btn btn-sm btn-primary">
+                                                Handle
+                                            </a>
+
+                                        {% endif %}
+
+                                    {% endif %}
+
+                                {% endif %}
+
+                            </td>
+
                         </tr>
                         {% endfor %}
                     </tbody>
+
                 </table>
             </div>
         </div>
     </div>
+
     {% else %}
-    <div class="card">
+
+
+    <div class="card hod-empty-card">
         <div class="card-body text-center py-5">
-            <div style="font-size: 4rem; opacity: 0.3;">📭</div>
-            <h4 class="mt-3">No Complaints Assigned</h4>
-            <p class="text-muted mb-0">Complaints about faculty members will appear here for your review</p>
+            <div class="hod-empty-icon">📭</div>
+            <h4 class="hod-empty-title">No Complaints Assigned</h4>
+            <p class="hod-empty-desc">
+                Complaints about faculty members in your department will appear here for your review.
+            </p>
         </div>
     </div>
+
     {% endif %}
 
 </div>
