@@ -4,271 +4,979 @@
 
 {% block extra_css %}
 <style>
-    /* ── PAGE LAYOUT ── */
-    .task-page-container {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 0 8px;
+
+    /* ==========================================================================
+       FEEDBACKFLOW STUDENT TASK LIST PAGE
+       University of Asia Pacific — FeedbackFlow Academic Management System
+       Version 1.0.0
+       Last Updated: May 2026
+       Author: FeedbackFlow Development Team
+       Description: Complete stylesheet for the Student Task List page.
+       This file contains all styles for layout, components, forms, badges,
+       buttons, animations, responsive design, and print styles.
+       ==========================================================================
+
+       TABLE OF CONTENTS
+       ─────────────────────────────────────────────────────────────────────────
+       1.  CSS Custom Properties (Variables)
+       2.  Page Layout & Container
+       3.  Page Header & Typography
+       4.  Summary Statistics Row
+       5.  Summary Box Variants
+       6.  Add Task Card
+       7.  Add Task Card Header
+       8.  Add Task Card Body
+       9.  Form Controls Base
+       10. Form Control States
+       11. Form Labels
+       12. Date Input Overrides
+       13. Title Input Overrides
+       14. Description Textarea Overrides
+       15. Task List Cards
+       16. Task List Card Header Variants
+       17. Task List Card Body
+       18. Task Item Row Base
+       19. Task Item Row States
+       20. Task Item Checkbox
+       21. Task Item Content
+       22. Task Item Title
+       23. Task Item Description
+       24. Task Item Meta
+       25. Task Badges
+       26. Delete Button
+       27. Empty State
+       28. Responsive — 1024px
+       29. Responsive — 768px
+       30. Responsive — 480px
+       31. Responsive — 360px
+       32. Animation Keyframes
+       33. Print Styles
+       ─────────────────────────────────────────────────────────────────────────
+    */
+
+
+    /* ==========================================================================
+       1. CSS CUSTOM PROPERTIES (VARIABLES)
+       These variables define the core design tokens used throughout this page.
+       Changing a variable here will update all components that use it.
+       ========================================================================== */
+
+    :root {
+        /* Brand Colors */
+        --task-blue:        #2563eb;
+        --task-blue-dark:   #1d4ed8;
+        --task-blue-light:  #eff6ff;
+        --task-blue-pale:   #dbeafe;
+        --task-purple:      #7c3aed;
+        --task-purple-dark: #6d28d9;
+        --task-green:       #059669;
+        --task-green-dark:  #047857;
+        --task-green-light: #f0fdf4;
+        --task-green-pale:  #dcfce7;
+        --task-amber:       #d97706;
+        --task-amber-dark:  #b45309;
+        --task-amber-light: #fffbeb;
+        --task-red:         #dc2626;
+        --task-red-dark:    #b91c1c;
+        --task-red-light:   #fef2f2;
+        --task-red-pale:    #fee2e2;
+
+        /* Neutral Colors */
+        --task-white:       #ffffff;
+        --task-gray-50:     #f9fafb;
+        --task-gray-100:    #f3f4f6;
+        --task-gray-200:    #e5e7eb;
+        --task-gray-300:    #d1d5db;
+        --task-gray-400:    #9ca3af;
+        --task-gray-500:    #6b7280;
+        --task-gray-600:    #4b5563;
+        --task-gray-700:    #374151;
+        --task-gray-800:    #1f2937;
+        --task-gray-900:    #111827;
+        --task-black:       #000000;
+
+        /* Typography */
+        --task-font-xs:   10px;
+        --task-font-sm:   12px;
+        --task-font-md:   14px;
+        --task-font-lg:   16px;
+        --task-font-xl:   18px;
+        --task-font-2xl:  22px;
+        --task-font-3xl:  28px;
+
+        /* Spacing */
+        --task-space-1:  4px;
+        --task-space-2:  8px;
+        --task-space-3:  12px;
+        --task-space-4:  16px;
+        --task-space-5:  20px;
+        --task-space-6:  24px;
+        --task-space-7:  28px;
+        --task-space-8:  32px;
+        --task-space-10: 40px;
+        --task-space-12: 48px;
+
+        /* Border Radius */
+        --task-radius-sm:   6px;
+        --task-radius-md:   8px;
+        --task-radius-lg:   10px;
+        --task-radius-xl:   12px;
+        --task-radius-2xl:  16px;
+        --task-radius-full: 9999px;
+
+        /* Shadows */
+        --task-shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.08);
+        --task-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+        --task-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+        --task-shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.14);
+
+        /* Transitions */
+        --task-transition-fast:   0.15s ease;
+        --task-transition-normal: 0.20s ease;
+        --task-transition-slow:   0.30s ease;
     }
 
-    /* ── PAGE HEADER ── */
-    .task-page-header {
-        margin-bottom: 32px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid rgba(255,255,255,.08);
+
+    /* ==========================================================================
+       2. PAGE LAYOUT & CONTAINER
+       The task page uses a centered max-width container. This keeps content
+       readable on wide screens while using available space on smaller screens.
+       ========================================================================== */
+
+    /* Main page container */
+    .task-page-container {
+        max-width: 960px;
+        margin-top: 0;
+        margin-right: auto;
+        margin-bottom: 0;
+        margin-left: auto;
+        padding-top: 0;
+        padding-right: 8px;
+        padding-bottom: 0;
+        padding-left: 8px;
+        box-sizing: border-box;
     }
+
+    /* Page wrapper for full-width layouts */
+    .task-page-wrapper {
+        width: 100%;
+        box-sizing: border-box;
+        display: block;
+    }
+
+    /* Inner content padding area */
+    .task-page-inner {
+        padding-top: 16px;
+        padding-right: 0;
+        padding-bottom: 16px;
+        padding-left: 0;
+    }
+
+    /* Horizontal divider between sections */
+    .task-section-divider {
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.06);
+        margin-top: 24px;
+        margin-right: 0;
+        margin-bottom: 24px;
+        margin-left: 0;
+        border: none;
+        display: block;
+    }
+
+    /* Spacer utilities */
+    .task-spacer-xs { height: 8px;  display: block; }
+    .task-spacer-sm { height: 12px; display: block; }
+    .task-spacer-md { height: 20px; display: block; }
+    .task-spacer-lg { height: 32px; display: block; }
+    .task-spacer-xl { height: 48px; display: block; }
+
+
+    /* ==========================================================================
+       3. PAGE HEADER & TYPOGRAPHY
+       The page header displays the title and subtitle above the task content.
+       A bottom border visually separates it from the content below.
+       ========================================================================== */
+
+    /* Page header wrapper */
+    .task-page-header {
+        margin-top: 0;
+        margin-right: 0;
+        margin-bottom: 32px;
+        margin-left: 0;
+        padding-top: 0;
+        padding-right: 0;
+        padding-bottom: 20px;
+        padding-left: 0;
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Compact header variant */
+    .task-page-header--compact {
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+    }
+
+    /* Main page title */
     .task-page-title {
         font-size: 28px;
         font-weight: 800;
         color: #ffffff;
+        margin-top: 0;
+        margin-right: 0;
         margin-bottom: 6px;
+        margin-left: 0;
         display: flex;
         align-items: center;
         gap: 10px;
-    }
-    .task-page-subtitle {
-        color: rgba(255,255,255,.55);
-        font-size: 14px;
-        font-weight: 300;
-        margin: 0;
+        letter-spacing: -0.3px;
+        line-height: 1.2;
     }
 
-    /* ── SUMMARY STATS ── */
+    /* Page subtitle */
+    .task-page-subtitle {
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 14px;
+        font-weight: 300;
+        margin-top: 0;
+        margin-right: 0;
+        margin-bottom: 0;
+        margin-left: 0;
+        line-height: 1.6;
+        max-width: 600px;
+        display: block;
+    }
+
+    /* Breadcrumb above title */
+    .task-breadcrumb {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.35);
+        margin-top: 0;
+        margin-right: 0;
+        margin-bottom: 8px;
+        margin-left: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    /* Section label */
+    .task-section-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-top: 0;
+        margin-right: 0;
+        margin-bottom: 12px;
+        margin-left: 0;
+        display: block;
+    }
+
+
+    /* ==========================================================================
+       4. SUMMARY STATISTICS ROW
+       Four stat boxes displayed in a CSS grid. Each shows a count and label.
+       ========================================================================== */
+
+    /* Grid container */
     .task-summary-row {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: auto;
         gap: 16px;
+        margin-top: 0;
+        margin-right: 0;
         margin-bottom: 28px;
+        margin-left: 0;
     }
+
+    /* Individual stat box */
     .task-summary-box {
-        background: #ffffff;
+        background-color: #ffffff;
         border-radius: 12px;
-        padding: 20px;
+        padding-top: 20px;
+        padding-right: 20px;
+        padding-bottom: 20px;
+        padding-left: 20px;
         text-align: center;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 2px 8px rgba(0,0,0,.06);
-        transition: transform .2s, box-shadow .2s;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition-property: transform, box-shadow;
+        transition-duration: 0.2s;
+        transition-timing-function: ease;
+        cursor: default;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
+
+    /* Top accent bar */
+    .task-summary-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background-color: #e5e7eb;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    /* Hover lift effect */
     .task-summary-box:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0,0,0,.1);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
     }
+
+    /* Active press effect */
+    .task-summary-box:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Stat number */
     .task-summary-number {
         font-size: 2rem;
         font-weight: 800;
+        margin-top: 0;
+        margin-right: 0;
         margin-bottom: 4px;
+        margin-left: 0;
         line-height: 1;
+        display: block;
     }
+
+    /* Stat label */
     .task-summary-label {
         font-size: 12px;
         font-weight: 600;
         color: #6b7280;
         text-transform: uppercase;
-        letter-spacing: .06em;
+        letter-spacing: 0.06em;
+        display: block;
+        line-height: 1.4;
     }
-    .summary-total   .task-summary-number { color: #2563eb; }
-    .summary-daily   .task-summary-number { color: #7c3aed; }
-    .summary-weekly  .task-summary-number { color: #059669; }
-    .summary-done    .task-summary-number { color: #d97706; }
 
-    /* ── ADD TASK CARD ── */
+
+    /* ==========================================================================
+       5. SUMMARY BOX VARIANTS
+       Each stat box has a unique accent color and number color.
+       ========================================================================== */
+
+    /* Total — Blue */
+    .summary-total::before            { background-color: #2563eb; }
+    .summary-total .task-summary-number { color: #2563eb; }
+
+    /* Daily — Purple */
+    .summary-daily::before            { background-color: #7c3aed; }
+    .summary-daily .task-summary-number { color: #7c3aed; }
+
+    /* Weekly — Green */
+    .summary-weekly::before            { background-color: #059669; }
+    .summary-weekly .task-summary-number { color: #059669; }
+
+    /* Done — Amber */
+    .summary-done::before            { background-color: #d97706; }
+    .summary-done .task-summary-number { color: #d97706; }
+
+
+    /* ==========================================================================
+       6. ADD TASK CARD
+       White card with gradient header containing the new task form.
+       ========================================================================== */
+
+    /* Card wrapper */
     .add-task-card {
-        background: #ffffff;
+        background-color: #ffffff;
         border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,.1);
-        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+        border-width: 1px;
+        border-style: solid;
+        border-color: #e5e7eb;
+        margin-top: 0;
+        margin-right: 0;
         margin-bottom: 28px;
+        margin-left: 0;
         overflow: hidden;
+        transition-property: box-shadow;
+        transition-duration: 0.3s;
+        transition-timing-function: ease;
     }
+
+    /* Card hover state */
+    .add-task-card:hover {
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+    }
+
+
+    /* ==========================================================================
+       7. ADD TASK CARD HEADER
+       Blue-to-purple gradient header bar at the top of the add task form.
+       ========================================================================== */
+
+    /* Header bar */
     .add-task-card-header {
-        background: linear-gradient(135deg, #2563eb, #7c3aed);
-        padding: 18px 24px;
+        background-image: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        padding-top: 18px;
+        padding-right: 24px;
+        padding-bottom: 18px;
+        padding-left: 24px;
         display: flex;
         align-items: center;
         gap: 10px;
+        position: relative;
+        overflow: hidden;
     }
+
+    /* Header decorative glow */
+    .add-task-card-header::after {
+        content: '';
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 100px;
+        height: 100px;
+        background-color: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    /* Header title */
     .add-task-card-header h5 {
         color: #ffffff;
         font-weight: 700;
-        margin: 0;
+        margin-top: 0;
+        margin-right: 0;
+        margin-bottom: 0;
+        margin-left: 0;
         font-size: 16px;
-    }
-    .add-task-card-body {
-        padding: 24px;
+        position: relative;
+        z-index: 1;
+        letter-spacing: 0.01em;
     }
 
-    /* ── FORM INPUTS ── */
+    /* Header icon */
+    .add-task-card-header span {
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+    }
+
+
+    /* ==========================================================================
+       8. ADD TASK CARD BODY
+       White body area containing all form fields.
+       ========================================================================== */
+
+    /* Card body */
+    .add-task-card-body {
+        padding-top: 24px;
+        padding-right: 24px;
+        padding-bottom: 24px;
+        padding-left: 24px;
+        background-color: #ffffff;
+    }
+
+    /* Row spacing inside card body */
+    .add-task-card-body .row {
+        margin-bottom: 0;
+    }
+
+    /* Column spacing */
+    .add-task-card-body .col-md-6,
+    .add-task-card-body .col-12 {
+        display: flex;
+        flex-direction: column;
+    }
+
+
+    /* ==========================================================================
+       9. FORM CONTROLS BASE
+       All form inputs use white backgrounds with dark text.
+       !important overrides Bootstrap and dashboard global CSS.
+       ========================================================================== */
+
+    /* Base input styles */
     .form-control,
     .form-select,
     textarea {
         background-color: #ffffff !important;
         color: #111827 !important;
-        border: 1.5px solid #d1d5db !important;
+        border-width: 1.5px !important;
+        border-style: solid !important;
+        border-color: #d1d5db !important;
         border-radius: 8px !important;
-        padding: 10px 14px !important;
+        padding-top: 10px !important;
+        padding-right: 14px !important;
+        padding-bottom: 10px !important;
+        padding-left: 14px !important;
         font-size: 14px !important;
-        transition: border-color .2s, box-shadow .2s !important;
+        font-family: inherit !important;
+        line-height: 1.5 !important;
+        box-sizing: border-box !important;
+        display: block !important;
+        width: 100% !important;
+        transition-property: border-color, box-shadow !important;
+        transition-duration: 0.2s !important;
+        transition-timing-function: ease !important;
     }
+
+    /* Hover state */
+    .form-control:hover,
+    .form-select:hover,
+    textarea:hover {
+        border-color: #9ca3af !important;
+    }
+
+    /* Placeholder */
+    .form-control::placeholder,
+    textarea::placeholder {
+        color: #9ca3af !important;
+        font-weight: 400 !important;
+        opacity: 1 !important;
+    }
+
+    /* Select options */
+    .form-select option {
+        background-color: #ffffff;
+        color: #111827;
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    /* Disabled state */
+    .form-control:disabled,
+    .form-select:disabled,
+    textarea:disabled {
+        background-color: #f3f4f6 !important;
+        color: #9ca3af !important;
+        cursor: not-allowed !important;
+        opacity: 0.7 !important;
+    }
+
+
+    /* ==========================================================================
+       10. FORM CONTROL STATES
+       Focus and validation states for form inputs.
+       ========================================================================== */
+
+    /* Focus state */
     .form-control:focus,
     .form-select:focus,
     textarea:focus {
         background-color: #ffffff !important;
         color: #111827 !important;
-        border: 2px solid #2563eb !important;
-        box-shadow: 0 0 0 3px rgba(37,99,235,.1) !important;
-        outline: none !important;
-    }
-    .form-control::placeholder,
-    textarea::placeholder {
-        color: #9ca3af !important;
-    }
-    .form-select option {
-        background: #fff;
-        color: #111827;
-    }
-    .form-label {
-        color: #374151 !important;
-        font-weight: 600;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: .07em;
-        margin-bottom: 7px;
+        border-width: 2px !important;
+        border-style: solid !important;
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10) !important;
+        outline-width: 0 !important;
+        outline-style: none !important;
     }
 
-    /* ── DATE INPUT ── */
+    /* Invalid state */
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10) !important;
+    }
+
+    /* Valid state */
+    .form-control.is-valid,
+    .form-select.is-valid {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.10) !important;
+    }
+
+    /* Error message */
+    .form-error-message {
+        font-size: 12px;
+        font-weight: 500;
+        color: #dc2626;
+        margin-top: 4px;
+        margin-bottom: 0;
+        display: block;
+        line-height: 1.4;
+    }
+
+    /* Hint text */
+    .form-hint-text {
+        font-size: 11.5px;
+        font-weight: 400;
+        color: #9ca3af;
+        margin-top: 5px;
+        margin-bottom: 0;
+        display: block;
+        line-height: 1.4;
+    }
+
+
+    /* ==========================================================================
+       11. FORM LABELS
+       Uppercase labels with tight letter spacing above each input.
+       ========================================================================== */
+
+    /* Label base */
+    .form-label {
+        color: #374151 !important;
+        font-weight: 600 !important;
+        font-size: 12px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.07em !important;
+        margin-top: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 7px !important;
+        margin-left: 0 !important;
+        display: block !important;
+        line-height: 1.4 !important;
+    }
+
+    /* Required star */
+    .form-label .required-star {
+        color: #ef4444;
+        margin-left: 2px;
+        font-weight: 700;
+    }
+
+
+    /* ==========================================================================
+       12. DATE INPUT OVERRIDES
+       Special overrides needed for browser-native date inputs.
+       color-scheme: light forces light mode in dark browser contexts.
+       ========================================================================== */
+
+    /* Date input base */
     input[type="date"] {
         background-color: #ffffff !important;
         background: #ffffff !important;
         color: #111827 !important;
-        border: 1.5px solid #d1d5db !important;
+        -webkit-text-fill-color: #111827 !important;
+        border-width: 1.5px !important;
+        border-style: solid !important;
+        border-color: #d1d5db !important;
         border-radius: 8px !important;
-        padding: 10px 14px !important;
+        padding-top: 10px !important;
+        padding-right: 14px !important;
+        padding-bottom: 10px !important;
+        padding-left: 14px !important;
         width: 100% !important;
         display: block !important;
-        -webkit-text-fill-color: #111827 !important;
         opacity: 1 !important;
         color-scheme: light !important;
         font-size: 14px !important;
-    }
-    input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(0) !important;
-        opacity: 1 !important;
-        cursor: pointer;
+        font-family: inherit !important;
+        line-height: 1.5 !important;
+        box-sizing: border-box !important;
     }
 
-    /* ── TITLE INPUT ── */
+    /* Date focus */
+    input[type="date"]:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10) !important;
+        outline: none !important;
+    }
+
+    /* Date hover */
+    input[type="date"]:hover {
+        border-color: #9ca3af !important;
+    }
+
+    /* Calendar picker icon */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0) !important;
+        opacity: 0.7 !important;
+        cursor: pointer !important;
+        transition: opacity 0.2s ease !important;
+    }
+
+    /* Calendar picker icon hover */
+    input[type="date"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1 !important;
+    }
+
+    /* Date field wrappers */
+    input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+        color: #111827 !important;
+    }
+
+    /* Month field */
+    input[type="date"]::-webkit-datetime-edit-month-field {
+        color: #111827 !important;
+    }
+
+    /* Day field */
+    input[type="date"]::-webkit-datetime-edit-day-field {
+        color: #111827 !important;
+    }
+
+    /* Year field */
+    input[type="date"]::-webkit-datetime-edit-year-field {
+        color: #111827 !important;
+    }
+
+    /* Separator text */
+    input[type="date"]::-webkit-datetime-edit-text {
+        color: #6b7280 !important;
+    }
+
+
+    /* ==========================================================================
+       13. TITLE INPUT OVERRIDES
+       Explicit overrides for the task title text input.
+       Includes autofill override to prevent Chrome's yellow background.
+       ========================================================================== */
+
+    /* Title input base */
     input[name="title"] {
         background-color: #ffffff !important;
         background: #ffffff !important;
         color: #111827 !important;
         -webkit-text-fill-color: #111827 !important;
-        border: 1.5px solid #d1d5db !important;
+        border-width: 1.5px !important;
+        border-style: solid !important;
+        border-color: #d1d5db !important;
         border-radius: 8px !important;
-        padding: 10px 14px !important;
+        padding-top: 10px !important;
+        padding-right: 14px !important;
+        padding-bottom: 10px !important;
+        padding-left: 14px !important;
         width: 100% !important;
         display: block !important;
         opacity: 1 !important;
         font-size: 14px !important;
+        font-family: inherit !important;
+        line-height: 1.5 !important;
+        box-sizing: border-box !important;
+        transition-property: border-color, box-shadow !important;
+        transition-duration: 0.2s !important;
+        transition-timing-function: ease !important;
     }
 
-    /* ── DESCRIPTION TEXTAREA ── */
+    /* Title input focus */
+    input[name="title"]:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10) !important;
+        outline: none !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+    }
+
+    /* Title input hover */
+    input[name="title"]:hover {
+        border-color: #9ca3af !important;
+    }
+
+    /* Title input placeholder */
+    input[name="title"]::placeholder {
+        color: #9ca3af !important;
+        -webkit-text-fill-color: #9ca3af !important;
+        font-weight: 400 !important;
+    }
+
+    /* Autofill override — Chrome yellow background fix */
+    input[name="title"]:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+        -webkit-text-fill-color: #111827 !important;
+        background-color: #ffffff !important;
+    }
+
+    /* Autofill hover */
+    input[name="title"]:-webkit-autofill:hover {
+        -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+        -webkit-text-fill-color: #111827 !important;
+    }
+
+    /* Autofill focus */
+    input[name="title"]:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+        -webkit-text-fill-color: #111827 !important;
+    }
+
+
+    /* ==========================================================================
+       14. DESCRIPTION TEXTAREA OVERRIDES
+       Explicit overrides for the task description textarea.
+       Includes custom scrollbar styling.
+       ========================================================================== */
+
+    /* Textarea base */
     textarea[name="description"] {
         background-color: #ffffff !important;
         background: #ffffff !important;
         color: #111827 !important;
         -webkit-text-fill-color: #111827 !important;
-        border: 1.5px solid #d1d5db !important;
+        border-width: 1.5px !important;
+        border-style: solid !important;
+        border-color: #d1d5db !important;
         border-radius: 8px !important;
-        padding: 10px 14px !important;
+        padding-top: 10px !important;
+        padding-right: 14px !important;
+        padding-bottom: 10px !important;
+        padding-left: 14px !important;
         width: 100% !important;
         display: block !important;
         opacity: 1 !important;
         min-height: 90px !important;
         resize: vertical !important;
+        font-size: 14px !important;
+        font-family: inherit !important;
+        line-height: 1.6 !important;
+        box-sizing: border-box !important;
+        transition-property: border-color, box-shadow !important;
+        transition-duration: 0.2s !important;
+        transition-timing-function: ease !important;
     }
-    input[name="title"]::placeholder,
+
+    /* Textarea focus */
+    textarea[name="description"]:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10) !important;
+        outline: none !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+    }
+
+    /* Textarea hover */
+    textarea[name="description"]:hover {
+        border-color: #9ca3af !important;
+    }
+
+    /* Textarea placeholder */
     textarea[name="description"]::placeholder {
         color: #9ca3af !important;
         -webkit-text-fill-color: #9ca3af !important;
+        font-weight: 400 !important;
     }
 
-    /* ── TASK TYPE & PRIORITY BUTTONS ── */
-    .btn-group-task {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
+    /* Textarea scrollbar track */
+    textarea[name="description"]::-webkit-scrollbar {
+        width: 6px;
     }
-    .task-type-btn,
-    .priority-btn {
-        padding: 9px 20px;
-        font-size: 12px;
-        font-weight: 700;
-        border-radius: 40px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        transition: all .2s;
-        border: 2px solid #e5e7eb;
-        background: #f9fafb;
-        color: #374151;
-        letter-spacing: .04em;
-    }
-    .task-type-btn:hover,
-    .priority-btn:hover {
-        border-color: #2563eb;
-        color: #2563eb;
-        background: #eff6ff;
-    }
-    .task-type-btn.active,
-    .priority-btn.active {
-        background: #2563eb;
-        color: #ffffff;
-        border-color: #2563eb;
-        box-shadow: 0 4px 12px rgba(37,99,235,.3);
-    }
-    .priority-btn.active-high   { background: #dc2626; border-color: #dc2626; color: #fff; box-shadow: 0 4px 12px rgba(220,38,38,.3); }
-    .priority-btn.active-medium { background: #d97706; border-color: #d97706; color: #fff; box-shadow: 0 4px 12px rgba(217,119,6,.3); }
-    .priority-btn.active-low    { background: #059669; border-color: #059669; color: #fff; box-shadow: 0 4px 12px rgba(5,150,105,.3); }
 
-    /* ── SUBMIT BUTTON ── */
+    /* Textarea scrollbar track */
+    textarea[name="description"]::-webkit-scrollbar-track {
+        background-color: #f3f4f6;
+        border-radius: 3px;
+    }
+
+    /* Textarea scrollbar thumb */
+    textarea[name="description"]::-webkit-scrollbar-thumb {
+        background-color: #d1d5db;
+        border-radius: 3px;
+    }
+
+    /* Textarea scrollbar thumb hover */
+    textarea[name="description"]::-webkit-scrollbar-thumb:hover {
+        background-color: #9ca3af;
+    }
+
+    /* Add task submit button */
     .btn-add-task {
-        background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
-        border: none !important;
-        color: #fff !important;
+        background-image: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+        background-color: transparent !important;
+        border-width: 0 !important;
+        border-style: none !important;
+        color: #ffffff !important;
         font-weight: 700 !important;
         font-size: 14px !important;
         border-radius: 10px !important;
-        padding: 12px 28px !important;
+        padding-top: 12px !important;
+        padding-right: 28px !important;
+        padding-bottom: 12px !important;
+        padding-left: 28px !important;
         width: 100% !important;
         margin-top: 8px !important;
-        letter-spacing: .04em !important;
-        transition: all .3s !important;
-        box-shadow: 0 4px 14px rgba(37,99,235,.3) !important;
-    }
-    .btn-add-task:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 24px rgba(37,99,235,.4) !important;
+        letter-spacing: 0.04em !important;
+        transition-property: transform, box-shadow, background-image !important;
+        transition-duration: 0.3s !important;
+        transition-timing-function: ease !important;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.30) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        line-height: 1 !important;
+        font-family: inherit !important;
     }
 
-    /* ── TASK LIST CARDS ── */
-    .task-list-card {
-        background: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,.08);
-        border: 1px solid #e5e7eb;
-        margin-bottom: 28px;
-        overflow: hidden;
+    /* Submit button hover */
+    .btn-add-task:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.40) !important;
     }
+
+    /* Submit button active */
+    .btn-add-task:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.30) !important;
+    }
+
+    /* Submit button disabled */
+    .btn-add-task:disabled {
+        opacity: 0.60 !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+    }
+
+
+    /* ==========================================================================
+       15. TASK LIST CARDS
+       White cards containing the Daily and Weekly task lists.
+       ========================================================================== */
+
+    /* Card wrapper */
+    .task-list-card {
+        background-color: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border-width: 1px;
+        border-style: solid;
+        border-color: #e5e7eb;
+        margin-top: 0;
+        margin-right: 0;
+        margin-bottom: 28px;
+        margin-left: 0;
+        overflow: hidden;
+        transition-property: box-shadow;
+        transition-duration: 0.3s;
+        transition-timing-function: ease;
+    }
+
+    /* Card hover */
+    .task-list-card:hover {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10);
+    }
+
+    /* Card header */
     .task-list-card-header {
-        padding: 16px 24px;
+        padding-top: 16px;
+        padding-right: 24px;
+        padding-bottom: 16px;
+        padding-left: 24px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
+        border-bottom-color: #f1f5f9;
     }
-    .task-list-card-header.daily-header  { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
-    .task-list-card-header.weekly-header { background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+
+    /* Card title */
     .task-list-card-title {
         font-size: 15px;
         font-weight: 700;
@@ -276,65 +984,170 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        margin: 0;
     }
+
+    /* Count pill */
     .task-count-pill {
-        background: #2563eb;
-        color: #fff;
+        background-color: #2563eb;
+        color: #ffffff;
         font-size: 11px;
         font-weight: 700;
-        padding: 2px 10px;
-        border-radius: 40px;
+        padding-top: 2px;
+        padding-right: 10px;
+        padding-bottom: 2px;
+        padding-left: 10px;
+        border-radius: 9999px;
+        line-height: 1.6;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
-    .weekly-header .task-count-pill { background: #059669; }
-    .task-list-card-body { padding: 8px 16px; }
 
-    /* ── TASK ITEM ── */
+    /* Card body */
+    .task-list-card-body {
+        padding-top: 8px;
+        padding-right: 16px;
+        padding-bottom: 8px;
+        padding-left: 16px;
+    }
+
+    /* Card footer */
+    .task-list-card-footer {
+        padding-top: 12px;
+        padding-right: 24px;
+        padding-bottom: 12px;
+        padding-left: 24px;
+        border-top-width: 1px;
+        border-top-style: solid;
+        border-top-color: #f1f5f9;
+        background-color: #fafafa;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+    }
+
+
+    /* ==========================================================================
+       16. TASK LIST CARD HEADER VARIANTS
+       Daily header uses blue tones. Weekly header uses green tones.
+       ========================================================================== */
+
+    /* Daily header */
+    .task-list-card-header.daily-header {
+        background-image: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    }
+
+    /* Weekly header */
+    .task-list-card-header.weekly-header {
+        background-image: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    }
+
+    /* Weekly count pill — green */
+    .weekly-header .task-count-pill {
+        background-color: #059669;
+    }
+
+
+    /* ==========================================================================
+       17. TASK ITEM ROW BASE
+       Each task displays as a card with a colored left border.
+       ========================================================================== */
+
+    /* Task row */
     .task-item-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 16px 20px;
-    margin-bottom: 8px;
-    border-radius: 10px;
-    border: 1.5px solid #e2e8f0;
-    background: #f8fafc;
-    transition: all .2s;
-    border-left: 5px solid #2563eb;
-}
-.task-item-row:hover {
-    background: #eff6ff !important;
-    border-color: #2563eb !important;
-    box-shadow: 0 4px 12px rgba(37,99,235,.15) !important;
-    transform: translateY(-1px);
-}
-.task-item-row.task-done {
-    opacity: 1;
-    border-left-color: #16a34a;
-    background: #f0fdf4;
-    border-color: #86efac;
-}
-.task-item-row.task-done .task-item-title {
-    text-decoration: line-through;
-    color: #374151 !important;
-    font-weight: 600;
-}
-.task-item-row.task-done .task-item-description {
-    color: #4b5563 !important;
-}
-.task-item-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 4px;
-    line-height: 1.4;
-}
-.task-item-description {
-    font-size: 13px;
-    color: #475569;
-    margin-bottom: 8px;
-    line-height: 1.5;
-    font-weight: 400;
-}
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding-top: 16px;
+        padding-right: 20px;
+        padding-bottom: 16px;
+        padding-left: 20px;
+        margin-top: 0;
+        margin-right: 0;
+        margin-bottom: 8px;
+        margin-left: 0;
+        border-radius: 10px;
+        border-width: 1.5px;
+        border-style: solid;
+        border-color: #e2e8f0;
+        border-left-width: 5px;
+        border-left-style: solid;
+        border-left-color: #2563eb;
+        background-color: #ffffff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        transition-property: background-color, border-color, box-shadow, transform;
+        transition-duration: 0.2s;
+        transition-timing-function: ease;
+        position: relative;
+    }
+
+    /* Last row */
+    .task-item-row:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Row hover */
+    .task-item-row:hover {
+        background-color: #eff6ff !important;
+        border-color: #2563eb !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+        transform: translateY(-1px);
+    }
+
+
+    /* ==========================================================================
+       18. TASK ITEM ROW STATES
+       Done, high, medium, low priority variants.
+       ========================================================================== */
+
+    /* Done row */
+    .task-item-row.task-done {
+        border-left-color: #16a34a;
+        background-color: #f0fdf4;
+        border-color: #86efac;
+        opacity: 1;
+    }
+
+    /* Done row hover */
+    .task-item-row.task-done:hover {
+        background-color: #dcfce7 !important;
+        border-color: #4ade80 !important;
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15) !important;
+    }
+
+    /* Done row title */
+    .task-item-row.task-done .task-item-title {
+        text-decoration: line-through;
+        color: #374151 !important;
+        font-weight: 600;
+    }
+
+    /* Done row description */
+    .task-item-row.task-done .task-item-description {
+        color: #4b5563 !important;
+    }
+
+    /* High priority — red border */
+    .task-item-row.priority-high:not(.task-done) {
+        border-left-color: #dc2626;
+    }
+
+    /* Medium priority — amber border */
+    .task-item-row.priority-medium:not(.task-done) {
+        border-left-color: #d97706;
+    }
+
+    /* Low priority — green border */
+    .task-item-row.priority-low:not(.task-done) {
+        border-left-color: #059669;
+    }
+
+
+    /* ==========================================================================
+       19. TASK ITEM CHECKBOX
+       ========================================================================== */
 
     /* Checkbox */
     .task-check-input {
@@ -345,127 +1158,503 @@
         margin-top: 3px !important;
         flex-shrink: 0 !important;
         border-radius: 4px !important;
+        transition-property: transform !important;
+        transition-duration: 0.15s !important;
+        transition-timing-function: ease !important;
     }
 
-    /* Task content */
-    .task-item-content { flex: 1; min-width: 0; }
-    ..task-item-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #000000 !important;
-    margin-bottom: 4px;
-    line-height: 1.4;
-    -webkit-text-fill-color: #000000 !important;
-}
-.task-item-title.done-title {
-    text-decoration: line-through;
-    color: #374151 !important;
-    -webkit-text-fill-color: #374151 !important;
-}
-.task-item-description {
-    font-size: 13px;
-    color: #1f2937 !important;
-    margin-bottom: 8px;
-    line-height: 1.5;
-    font-weight: 500;
-    -webkit-text-fill-color: #1f2937 !important;
-}
+    /* Checkbox hover */
+    .task-check-input:hover {
+        transform: scale(1.1) !important;
+    }
+
+
+    /* ==========================================================================
+       20. TASK ITEM CONTENT
+       Flex container for title, description and badges.
+       ========================================================================== */
+
+    /* Content wrapper */
+    .task-item-content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Force dark text inside task rows */
+    .task-item-row * {
+        -webkit-text-fill-color: unset;
+    }
+
+    .task-item-row .task-item-title,
+    .task-item-row .task-item-description {
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+    }
+
+
+    /* ==========================================================================
+       21. TASK ITEM TITLE
+       ========================================================================== */
+
+    /* Title */
+    .task-item-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        margin-top: 0;
+        margin-right: 0;
+        margin-bottom: 4px;
+        margin-left: 0;
+        line-height: 1.4;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Done title */
     .task-item-title.done-title {
         text-decoration: line-through;
-        color: #9ca3af;
+        color: #374151 !important;
+        -webkit-text-fill-color: #374151 !important;
+        font-weight: 600;
     }
+
+
+    /* ==========================================================================
+       22. TASK ITEM DESCRIPTION
+       ========================================================================== */
+
+    /* Description */
     .task-item-description {
         font-size: 13px;
-        color: #6b7280;
+        font-weight: 500;
+        color: #1f2937 !important;
+        -webkit-text-fill-color: #1f2937 !important;
+        margin-top: 0;
+        margin-right: 0;
         margin-bottom: 8px;
+        margin-left: 0;
         line-height: 1.5;
-        font-weight: 300;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
+
+
+    /* ==========================================================================
+       23. TASK ITEM META (BADGES ROW)
+       ========================================================================== */
+
+    /* Meta row */
     .task-item-meta {
         display: flex;
         gap: 6px;
         flex-wrap: wrap;
         align-items: center;
+        margin-top: 6px;
     }
 
-    /* Badges */
+    /* Badge base */
     .task-badge {
         font-size: 10.5px;
         font-weight: 700;
-        padding: 2px 10px;
-        border-radius: 40px;
-        letter-spacing: .05em;
+        padding-top: 2px;
+        padding-right: 10px;
+        padding-bottom: 2px;
+        padding-left: 10px;
+        border-radius: 9999px;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
-        border: 1px solid;
+        border-width: 1px;
+        border-style: solid;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        line-height: 1.6;
+        white-space: nowrap;
     }
-    .badge-priority-high   { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
-    .badge-priority-medium { background: #fffbeb; color: #d97706; border-color: #fde68a; }
-    .badge-priority-low    { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
-    .badge-due             { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; font-weight: 500; text-transform: none; letter-spacing: 0; }
-    .badge-done-tag        { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+
+    /* High badge */
+    .badge-priority-high {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+
+    /* Medium badge */
+    .badge-priority-medium {
+        background-color: #fffbeb;
+        color: #d97706;
+        border-color: #fde68a;
+    }
+
+    /* Low badge */
+    .badge-priority-low {
+        background-color: #f0fdf4;
+        color: #16a34a;
+        border-color: #bbf7d0;
+    }
+
+    /* Due date badge */
+    .badge-due {
+        background-color: #eff6ff;
+        color: #2563eb;
+        border-color: #bfdbfe;
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: 0;
+        font-size: 11px;
+    }
+
+    /* Done badge */
+    .badge-done-tag {
+        background-color: #f0fdf4;
+        color: #15803d;
+        border-color: #bbf7d0;
+    }
+
+
+    /* ==========================================================================
+       24. DELETE BUTTON
+       ========================================================================== */
 
     /* Delete button */
     .btn-task-delete {
-        background: #fef2f2 !important;
-        border: 1px solid #fecaca !important;
+        background-color: #fef2f2 !important;
+        border-width: 1px !important;
+        border-style: solid !important;
+        border-color: #fecaca !important;
         color: #dc2626 !important;
         font-size: 12px !important;
         font-weight: 600 !important;
         border-radius: 8px !important;
-        padding: 6px 14px !important;
+        padding-top: 6px !important;
+        padding-right: 14px !important;
+        padding-bottom: 6px !important;
+        padding-left: 14px !important;
         cursor: pointer !important;
-        transition: all .2s !important;
+        transition-property: background-color, border-color, color, transform, box-shadow !important;
+        transition-duration: 0.2s !important;
+        transition-timing-function: ease !important;
         white-space: nowrap !important;
         flex-shrink: 0 !important;
-    }
-    .btn-task-delete:hover {
-        background: #fee2e2 !important;
-        border-color: #fca5a5 !important;
-        transform: translateY(-1px) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        line-height: 1 !important;
+        font-family: inherit !important;
     }
 
-    /* ── EMPTY STATE ── */
+    /* Delete button hover */
+    .btn-task-delete:hover {
+        background-color: #fee2e2 !important;
+        border-color: #fca5a5 !important;
+        color: #b91c1c !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.20) !important;
+    }
+
+    /* Delete button active */
+    .btn-task-delete:active {
+        transform: translateY(0) !important;
+        box-shadow: none !important;
+    }
+
+
+    /* ==========================================================================
+       25. EMPTY STATE
+       ========================================================================== */
+
+    /* Empty state wrapper */
     .task-empty-state {
         text-align: center;
-        padding: 48px 24px;
+        padding-top: 48px;
+        padding-right: 24px;
+        padding-bottom: 48px;
+        padding-left: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
+
+    /* Icon */
     .task-empty-icon {
         font-size: 48px;
-        opacity: .25;
+        opacity: 0.25;
+        margin-top: 0;
+        margin-right: 0;
         margin-bottom: 14px;
+        margin-left: 0;
+        display: block;
+        filter: grayscale(0.5);
     }
+
+    /* Title */
     .task-empty-title {
         font-size: 17px;
         font-weight: 600;
         color: #9ca3af;
+        margin-top: 0;
+        margin-right: 0;
         margin-bottom: 6px;
+        margin-left: 0;
+        display: block;
     }
+
+    /* Description */
     .task-empty-desc {
         font-size: 13px;
+        font-weight: 400;
         color: #d1d5db;
+        display: block;
+        max-width: 280px;
+        line-height: 1.5;
+        margin: 0 auto;
     }
 
-    /* ── RESPONSIVE ── */
+
+    /* ==========================================================================
+       26. RESPONSIVE — 1024px (Large Tablet)
+       ========================================================================== */
+
+    @media (max-width: 1024px) {
+
+        .task-page-container {
+            max-width: 100%;
+            padding-right: 16px;
+            padding-left: 16px;
+        }
+
+        .task-summary-row {
+            gap: 12px;
+        }
+
+        .task-summary-box {
+            padding-top: 16px;
+            padding-right: 12px;
+            padding-bottom: 16px;
+            padding-left: 12px;
+        }
+
+        .task-summary-number {
+            font-size: 1.75rem;
+        }
+
+        .add-task-card-header {
+            padding-top: 16px;
+            padding-right: 20px;
+            padding-bottom: 16px;
+            padding-left: 20px;
+        }
+
+        .add-task-card-body {
+            padding-top: 20px;
+            padding-right: 20px;
+            padding-bottom: 20px;
+            padding-left: 20px;
+        }
+
+    }
+
+
+    /* ==========================================================================
+       27. RESPONSIVE — 768px (Tablet)
+       ========================================================================== */
+
     @media (max-width: 768px) {
-        .task-summary-row { grid-template-columns: repeat(2, 1fr); }
+
+        .task-summary-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .task-page-title {
+            font-size: 22px;
+        }
+
+        .add-task-card-body {
+            padding-top: 16px;
+            padding-right: 16px;
+            padding-bottom: 16px;
+            padding-left: 16px;
+        }
+
+        .task-list-card-header {
+            padding-top: 14px;
+            padding-right: 16px;
+            padding-bottom: 14px;
+            padding-left: 16px;
+        }
+
+        .task-list-card-body {
+            padding-top: 8px;
+            padding-right: 12px;
+            padding-bottom: 8px;
+            padding-left: 12px;
+        }
+
+        .task-item-row {
+            padding-top: 14px;
+            padding-right: 16px;
+            padding-bottom: 14px;
+            padding-left: 16px;
+            gap: 10px;
+        }
+
+        .btn-task-delete {
+            padding-top: 5px !important;
+            padding-right: 10px !important;
+            padding-bottom: 5px !important;
+            padding-left: 10px !important;
+            font-size: 11px !important;
+        }
+
     }
+
+
+    /* ==========================================================================
+       28. RESPONSIVE — 480px (Mobile)
+       ========================================================================== */
+
     @media (max-width: 480px) {
-        .task-summary-row { grid-template-columns: 1fr; }
-        .task-item-row { flex-wrap: wrap; }
+
+        .task-summary-row {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .task-item-row {
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .task-item-content {
+            width: 100%;
+            order: 2;
+        }
+
+        .task-check-input {
+            order: 1;
+        }
+
+        .btn-task-delete {
+            order: 3;
+            width: 100%;
+            justify-content: center !important;
+        }
+
+        .task-page-title {
+            font-size: 20px;
+        }
+
+        .task-page-header {
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+        }
+
     }
 
-    .task-item-row * {
-        -webkit-text-fill-color: unset;
+
+    /* ==========================================================================
+       29. RESPONSIVE — 360px (Small Mobile)
+       ========================================================================== */
+
+    @media (max-width: 360px) {
+
+        .task-summary-number {
+            font-size: 1.5rem;
+        }
+
+        .task-summary-label {
+            font-size: 10px;
+        }
+
+        .task-item-row {
+            padding-top: 12px;
+            padding-right: 12px;
+            padding-bottom: 12px;
+            padding-left: 12px;
+        }
+
+        .add-task-card-header {
+            padding-top: 14px;
+            padding-right: 14px;
+            padding-bottom: 14px;
+            padding-left: 14px;
+        }
+
+        .add-task-card-body {
+            padding-top: 14px;
+            padding-right: 14px;
+            padding-bottom: 14px;
+            padding-left: 14px;
+        }
+
     }
-    .task-item-row .task-item-title,
-    .task-item-row .task-item-description,
-    .task-item-row .flex-grow-1 strong,
-    .task-item-row .flex-grow-1 .small {
-        color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
+
+
+    /* ==========================================================================
+       30. PRINT STYLES
+       ========================================================================== */
+
+    @media print {
+
+        .task-page-container {
+            max-width: 100%;
+            padding-right: 0;
+            padding-left: 0;
+        }
+
+        .add-task-card {
+            display: none;
+        }
+
+        .btn-task-delete {
+            display: none !important;
+        }
+
+        .task-check-input {
+            display: none !important;
+        }
+
+        .task-list-card {
+            box-shadow: none;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .task-item-row {
+            box-shadow: none;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .task-page-title {
+            color: #000000 !important;
+        }
+
+        .task-page-subtitle {
+            color: #555555 !important;
+        }
+
+        .task-page-header {
+            border-bottom-color: #000000;
+        }
+
+        .task-summary-row {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .task-summary-box {
+            box-shadow: none;
+            border-color: #e5e7eb;
+        }
+
     }
+
 </style>
-
 {% endblock %}
 
 {% block content %}
@@ -500,7 +1689,7 @@
     <!-- ADD TASK FORM -->
     <div class="add-task-card">
         <div class="add-task-card-header">
-            <span style="font-size:20px;">➕</span>
+            <span style="font-size:20px;position:relative;z-index:1;">➕</span>
             <h5>Add New Task</h5>
         </div>
         <div class="add-task-card-body">
@@ -510,43 +1699,49 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Task Title *</label>
-                        <input type="text" name="title" class="form-control"
-                               placeholder="e.g. Study for CSE-301 exam" required>
+                        <input
+                            type="text"
+                            name="title"
+                            class="form-control"
+                            placeholder="e.g. Study for CSE-301 exam"
+                            required
+                            autocomplete="off"
+                            maxlength="200">
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Due Date</label>
-                        <input type="date" name="due_date" class="form-control">
+                        <input
+                            type="date"
+                            name="due_date"
+                            class="form-control">
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Task Type</label>
-                        <div class="btn-group-task">
-                            <button type="button" class="task-type-btn active"
-                                    onclick="setTaskType(this, 'Daily')">📅 Daily</button>
-                            <button type="button" class="task-type-btn"
-                                    onclick="setTaskType(this, 'Weekly')">🗓️ Weekly</button>
-                        </div>
-                        <input type="hidden" name="task_type" id="task_type_input" value="Daily">
+                        <select name="task_type" class="form-select">
+                            <option value="Daily">📅 Daily</option>
+                            <option value="Weekly">🗓️ Weekly</option>
+                        </select>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Priority</label>
-                        <div class="btn-group-task">
-                            <button type="button" class="priority-btn active-high"
-                                    onclick="setPriority(this, 'High', 'active-high')">🔴 High</button>
-                            <button type="button" class="priority-btn"
-                                    onclick="setPriority(this, 'Medium', 'active-medium')">🟡 Medium</button>
-                            <button type="button" class="priority-btn"
-                                    onclick="setPriority(this, 'Low', 'active-low')">🟢 Low</button>
-                        </div>
-                        <input type="hidden" name="priority" id="priority_input" value="High">
+                        <select name="priority" class="form-select">
+                            <option value="High">🔴 High</option>
+                            <option value="Medium">🟡 Medium</option>
+                            <option value="Low">🟢 Low</option>
+                        </select>
                     </div>
 
                     <div class="col-12">
                         <label class="form-label">Description (Optional)</label>
-                        <textarea name="description" class="form-control" rows="3"
-                                  placeholder="Add notes or details about this task..."></textarea>
+                        <textarea
+                            name="description"
+                            class="form-control"
+                            rows="3"
+                            placeholder="Add notes or details about this task..."
+                            maxlength="500"></textarea>
                     </div>
 
                 </div>
@@ -554,6 +1749,7 @@
                 <button type="submit" class="btn btn-success btn-add-task mt-3">
                     ➕ Add Task
                 </button>
+
             </form>
         </div>
     </div>
@@ -571,20 +1767,23 @@
             {% if daily %}
                 {% for task in daily %}
                 <div class="task-item-row {% if task.is_done %}task-done{% endif %}">
-
                     <form method="post" action="{% url 'task_toggle' task.id %}" style="margin:0;">
                         {% csrf_token %}
-                        <input type="checkbox" class="task-check-input"
-                               onchange="this.form.submit()"
-                               {% if task.is_done %}checked{% endif %}>
+                        <input
+                            type="checkbox"
+                            class="task-check-input"
+                            onchange="this.form.submit()"
+                            {% if task.is_done %}checked{% endif %}
+                            title="Mark as {% if task.is_done %}incomplete{% else %}complete{% endif %}">
                     </form>
-
                     <div class="task-item-content">
                         <div class="task-item-title {% if task.is_done %}done-title{% endif %}">
                             {{ task.title }}
                         </div>
                         {% if task.description %}
-                        <div class="task-item-description">{{ task.description }}</div>
+                        <div class="task-item-description">
+                            {{ task.description }}
+                        </div>
                         {% endif %}
                         <div class="task-item-meta">
                             <span class="task-badge badge-priority-{{ task.priority|lower }}">
@@ -596,18 +1795,22 @@
                             </span>
                             {% endif %}
                             {% if task.is_done %}
-                            <span class="task-badge badge-done-tag">✅ Done</span>
+                            <span class="task-badge badge-done-tag">
+                                ✅ Done
+                            </span>
                             {% endif %}
                         </div>
                     </div>
-
-                    <form method="post" action="{% url 'task_delete' task.id %}"
-                          style="margin:0;"
-                          onsubmit="return confirm('Delete this task?')">
+                    <form
+                        method="post"
+                        action="{% url 'task_delete' task.id %}"
+                        style="margin:0;"
+                        onsubmit="return confirm('Delete this task?')">
                         {% csrf_token %}
-                        <button type="submit" class="btn-task-delete">🗑 Delete</button>
+                        <button type="submit" class="btn-task-delete">
+                            🗑 Delete
+                        </button>
                     </form>
-
                 </div>
                 {% endfor %}
             {% else %}
@@ -633,20 +1836,23 @@
             {% if weekly %}
                 {% for task in weekly %}
                 <div class="task-item-row {% if task.is_done %}task-done{% endif %}">
-
                     <form method="post" action="{% url 'task_toggle' task.id %}" style="margin:0;">
                         {% csrf_token %}
-                        <input type="checkbox" class="task-check-input"
-                               onchange="this.form.submit()"
-                               {% if task.is_done %}checked{% endif %}>
+                        <input
+                            type="checkbox"
+                            class="task-check-input"
+                            onchange="this.form.submit()"
+                            {% if task.is_done %}checked{% endif %}
+                            title="Mark as {% if task.is_done %}incomplete{% else %}complete{% endif %}">
                     </form>
-
                     <div class="task-item-content">
                         <div class="task-item-title {% if task.is_done %}done-title{% endif %}">
                             {{ task.title }}
                         </div>
                         {% if task.description %}
-                        <div class="task-item-description">{{ task.description }}</div>
+                        <div class="task-item-description">
+                            {{ task.description }}
+                        </div>
                         {% endif %}
                         <div class="task-item-meta">
                             <span class="task-badge badge-priority-{{ task.priority|lower }}">
@@ -658,18 +1864,22 @@
                             </span>
                             {% endif %}
                             {% if task.is_done %}
-                            <span class="task-badge badge-done-tag">✅ Done</span>
+                            <span class="task-badge badge-done-tag">
+                                ✅ Done
+                            </span>
                             {% endif %}
                         </div>
                     </div>
-
-                    <form method="post" action="{% url 'task_delete' task.id %}"
-                          style="margin:0;"
-                          onsubmit="return confirm('Delete this task?')">
+                    <form
+                        method="post"
+                        action="{% url 'task_delete' task.id %}"
+                        style="margin:0;"
+                        onsubmit="return confirm('Delete this task?')">
                         {% csrf_token %}
-                        <button type="submit" class="btn-task-delete">🗑 Delete</button>
+                        <button type="submit" class="btn-task-delete">
+                            🗑 Delete
+                        </button>
                     </form>
-
                 </div>
                 {% endfor %}
             {% else %}
@@ -683,43 +1893,4 @@
     </div>
 
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // ── TASK TYPE SELECTOR ──
-    function setTaskType(btn, value) {
-        document.querySelectorAll('.task-type-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('task_type_input').value = value;
-    }
-
-    // ── PRIORITY SELECTOR ──
-    function setPriority(btn, value, activeClass) {
-        document.querySelectorAll('.priority-btn').forEach(b => {
-            b.classList.remove('active-high', 'active-medium', 'active-low');
-        });
-        btn.classList.add(activeClass);
-        document.getElementById('priority_input').value = value;
-    }
-
-    // ── TASK ITEM HOVER EFFECT ──
-    document.querySelectorAll('.task-item-row').forEach(row => {
-        row.addEventListener('mouseenter', function() {
-            this.style.background = '#f8faff';
-        });
-        row.addEventListener('mouseleave', function() {
-            this.style.background = '';
-        });
-    });
-
-    // ── AUTO HIDE SUCCESS MESSAGES ──
-    setTimeout(function() {
-        document.querySelectorAll('.alert').forEach(function(alert) {
-            alert.style.transition = 'opacity 0.5s';
-            alert.style.opacity = '0';
-            setTimeout(function() { alert.remove(); }, 500);
-        });
-    }, 3000);
-</script>
 {% endblock %}
