@@ -2720,3 +2720,225 @@ django.template.exceptions.TemplateSyntaxError: Template: C:\Users\fairo\Music\P
 [2026-05-16 04:15:38,491] INFO django.server log "GET /feedback/detail/165/ HTTP/1.1" 200 22087
 [2026-05-16 04:15:50,165] INFO django.server log "GET / HTTP/1.1" 302 0
 [2026-05-16 04:15:50,332] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 44164
+[2026-05-16 10:03:40,009] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 10:03:42,339] ERROR django.request log Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\contrib\sessions\backends\base.py", line 246, in _get_session
+    return self._session_cache
+           ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 359, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: django_session
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\Feedbackflow\homepage\views.py", line 4, in homepage_view
+    if request.user.is_authenticated:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\utils\functional.py", line 251, in inner
+    self._setup()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\utils\functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\contrib\auth\middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ~~~~~~~~^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\contrib\auth\middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\contrib\auth\__init__.py", line 321, in get_user
+    user_id = _get_user_session_key(request)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\contrib\auth\__init__.py", line 95, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\contrib\sessions\backends\base.py", line 55, in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\contrib\sessions\backends\base.py", line 251, in _get_session
+    self._session_cache = self.load()
+                          ~~~~~~~~~^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 55, in load
+    s = self._get_session_from_db()
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\contrib\sessions\backends\db.py", line 34, in _get_session_from_db
+    return self.model.objects.get(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        session_key=self.session_key, expire_date__gt=timezone.now()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\models\query.py", line 635, in get
+    num = len(clone)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\models\query.py", line 372, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\models\query.py", line 2000, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\models\query.py", line 95, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1624, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\PycharmProjects\PythonProject40\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 359, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: django_session
+[2026-05-16 10:03:42,350] ERROR django.server log "GET / HTTP/1.1" 500 183468
+[2026-05-16 10:03:42,486] WARNING django.request log Not Found: /favicon.ico
+[2026-05-16 10:03:42,486] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 14522
+[2026-05-16 10:05:30,956] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 10:05:33,071] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-16 10:05:42,441] INFO django.server log "GET /login/ HTTP/1.1" 200 19123
+[2026-05-16 10:06:02,448] INFO django.server log "POST /login/ HTTP/1.1" 200 19463
+[2026-05-16 10:06:17,775] INFO django.server log "POST /login/ HTTP/1.1" 200 19463
+[2026-05-16 10:06:26,682] INFO django.server log "GET /complaints/public-log/ HTTP/1.1" 200 28685
+[2026-05-16 10:06:38,461] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-16 10:06:40,635] INFO django.server log "GET /register/ HTTP/1.1" 200 20096
+[2026-05-16 10:07:22,126] INFO django.server log "POST /register/ HTTP/1.1" 302 0
+[2026-05-16 10:07:22,135] INFO django.server log "GET /login/ HTTP/1.1" 200 19449
+[2026-05-16 10:07:32,363] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 10:07:32,394] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 39204
+[2026-05-16 10:07:38,740] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22157
+[2026-05-16 10:07:48,999] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:07:49,012] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:07:56,886] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29381
+[2026-05-16 10:08:01,171] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22157
+[2026-05-16 10:08:03,519] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:08:03,532] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:08:07,058] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22157
+[2026-05-16 10:08:08,517] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:08:08,530] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:08:42,801] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 17921
+[2026-05-16 10:08:45,713] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 302 0
+[2026-05-16 10:08:45,726] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 18551
+[2026-05-16 10:08:53,640] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:08:53,657] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:08:55,112] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 302 0
+[2026-05-16 10:08:55,124] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 18551
+[2026-05-16 10:08:56,897] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 302 0
+[2026-05-16 10:08:56,908] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 18551
+[2026-05-16 10:09:01,153] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:09:01,168] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:09:03,215] INFO django.server log "GET /feedback/course-registration/ HTTP/1.1" 200 32283
+[2026-05-16 10:10:18,899] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:10:18,916] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:11:24,920] INFO django.server log "GET /tasks/ HTTP/1.1" 200 35881
+[2026-05-16 10:11:38,115] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:11:38,130] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:14:13,110] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29381
+[2026-05-16 10:14:14,605] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22157
+[2026-05-16 10:14:18,519] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:14:18,534] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:14:20,475] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22157
+[2026-05-16 10:14:22,672] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:14:22,689] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:14:46,799] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29381
+[2026-05-16 10:15:08,559] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:16:06,592] INFO django.server log "GET /complaints/public-log/ HTTP/1.1" 200 28887
+[2026-05-16 10:16:13,299] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:16:13,313] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:16:14,971] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 302 0
+[2026-05-16 10:16:14,981] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 18551
+[2026-05-16 10:16:18,524] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 302 0
+[2026-05-16 10:16:18,534] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 18551
+[2026-05-16 10:16:30,365] INFO django.server log "GET /complaints/public-log/ HTTP/1.1" 200 28887
+[2026-05-16 10:16:38,324] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:16:38,343] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38661
+[2026-05-16 10:16:42,696] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29381
+[2026-05-16 10:17:15,514] INFO django.server log "POST /complaints/submit/ HTTP/1.1" 302 0
+[2026-05-16 10:17:15,531] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 21274
+[2026-05-16 10:17:22,587] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29501
+[2026-05-16 10:17:50,550] INFO django.server log "GET /notifications/ HTTP/1.1" 200 16584
+[2026-05-16 10:17:58,099] INFO django.server log "GET /notifications/mark-read/1/ HTTP/1.1" 302 0
+[2026-05-16 10:17:58,115] INFO django.server log "GET /complaints/detail/1/ HTTP/1.1" 200 19533
+[2026-05-16 10:18:02,599] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 20582
+[2026-05-16 10:18:04,086] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:18:04,102] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:18:48,098] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22157
+[2026-05-16 10:18:49,724] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:18:49,740] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:18:52,776] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22157
+[2026-05-16 10:18:56,343] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:18:56,356] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:19:38,100] INFO django.server log "GET /tasks/ HTTP/1.1" 200 35881
+[2026-05-16 10:19:41,943] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:19:41,961] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:20:36,241] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29381
+[2026-05-16 10:20:49,784] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:21:41,779] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29381
+[2026-05-16 10:21:45,273] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:22:04,786] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 302 0
+[2026-05-16 10:22:04,798] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 18551
+[2026-05-16 10:22:07,772] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 302 0
+[2026-05-16 10:22:07,787] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 18551
+[2026-05-16 10:22:10,843] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:22:10,863] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:22:12,918] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 17921
+[2026-05-16 10:22:14,619] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:22:14,637] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:22:21,711] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 20582
+[2026-05-16 10:22:24,126] INFO django.server log "GET /complaints/detail/1/ HTTP/1.1" 200 19533
+[2026-05-16 10:22:26,155] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:22:26,174] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:22:30,834] INFO django.server log "GET /complaints/public-log/ HTTP/1.1" 200 28887
+[2026-05-16 10:22:35,357] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:22:35,372] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:22:42,072] INFO django.server log "GET /tasks/ HTTP/1.1" 200 35881
+[2026-05-16 10:22:48,445] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 10:22:48,461] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 38615
+[2026-05-16 10:27:48,088] INFO django.server log "GET /feedback/course-registration/ HTTP/1.1" 200 32283
+[2026-05-16 10:28:01,677] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 10:28:01,683] INFO django.server log "GET /login/ HTTP/1.1" 200 19437
+[2026-05-16 10:28:39,150] INFO django.server log "POST /login/ HTTP/1.1" 200 19460
+[2026-05-16 10:29:00,845] INFO django.server log "POST /login/ HTTP/1.1" 200 19460
+[2026-05-16 10:29:25,012] INFO django.server log "POST /login/ HTTP/1.1" 200 19461
+[2026-05-16 10:35:15,971] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 10:35:18,353] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-16 10:35:20,144] INFO django.server log "GET /login/ HTTP/1.1" 200 19123
+[2026-05-16 10:35:22,922] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 10:35:22,957] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 39158
+[2026-05-16 10:35:24,980] INFO django.server log "GET /tasks/ HTTP/1.1" 200 68582
+[2026-05-16 10:35:50,334] INFO django.server log "POST /tasks/add/ HTTP/1.1" 302 0
+[2026-05-16 10:35:50,347] INFO django.server log "GET /tasks/ HTTP/1.1" 200 70874
+[2026-05-16 10:35:55,386] INFO django.server log "POST /tasks/1/toggle/ HTTP/1.1" 302 0
+[2026-05-16 10:35:55,399] INFO django.server log "GET /tasks/ HTTP/1.1" 200 70533
