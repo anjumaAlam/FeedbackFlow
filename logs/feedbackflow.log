@@ -3339,3 +3339,21 @@ django.template.exceptions.TemplateDoesNotExist: complaints/staff_task_list.html
 [2026-05-16 17:45:34,800] INFO django.server log "GET /complaints/staff/my-tasks/ HTTP/1.1" 200 34256
 [2026-05-16 17:45:36,514] INFO django.server log "GET /complaints/detail/4/ HTTP/1.1" 200 22642
 [2026-05-16 17:45:41,799] INFO django.server log "GET /complaints/staff/list/ HTTP/1.1" 200 21734
+[2026-05-16 17:50:20,056] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:50:21,189] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:50:21,289] INFO django.server log "GET /staff/dashboard/ HTTP/1.1" 200 45856
+[2026-05-16 17:50:25,169] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-16 17:50:25,202] INFO django.server log "GET /login/ HTTP/1.1" 200 19436
+[2026-05-16 17:52:11,836] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-16 17:52:11,855] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38660
+[2026-05-16 17:52:31,176] INFO django.server log "GET /feedback/detail/95/ HTTP/1.1" 200 21939
+[2026-05-16 17:58:15,972] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 17:58:17,549] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 17:58:17,655] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38122
+[2026-05-16 17:58:20,233] INFO django.server log "GET /feedback/detail/95/ HTTP/1.1" 200 22369
+[2026-05-16 17:58:28,221] INFO django.server log "GET /feedback/faculty/respond/95/ HTTP/1.1" 200 19562
+[2026-05-16 18:07:28,606] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-16 18:07:29,869] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-16 18:07:30,003] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38122
+[2026-05-16 18:07:32,439] INFO django.server log "GET /feedback/detail/95/ HTTP/1.1" 200 22369
+[2026-05-16 18:07:36,520] INFO django.server log "GET /feedback/faculty/respond/95/ HTTP/1.1" 200 41703

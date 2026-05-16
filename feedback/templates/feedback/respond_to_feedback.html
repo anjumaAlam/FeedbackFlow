@@ -1,51 +1,578 @@
 <!-- feedback/templates/feedback/respond_to_feedback.html -->
 
+
 {% extends 'users/base.html' %}
 
 {% block title %}Respond to Feedback - FeedbackFlow{% endblock %}
 
 {% block extra_css %}
 <style>
+    /* ══════════════════════════════════════════════════════════════════════
+       RESPOND TO FEEDBACK PAGE STYLES
+       FeedbackFlow — University of Asia Pacific
+       ══════════════════════════════════════════════════════════════════════
+
+
+
+
+
+
+
+    /* Main card wrapper */
     .response-form-card {
         max-width: 900px;
-        margin: 2rem auto;
+        margin-top: 2rem;
+        margin-right: auto;
+        margin-bottom: 2rem;
+        margin-left: auto;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
     }
 
-    .feedback-preview {
-        background: #f9fafb;
-        border-left: 4px solid #2563eb;
-        padding: 1.5rem;
-        border-radius: 8px;
+    /* Card hover shadow */
+    .response-form-card:hover {
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
     }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       2. CARD HEADER
+       Blue gradient header bar with white title text.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Card header */
+    .response-form-card .card-header {
+        background-image: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+        padding-top: 18px;
+        padding-right: 24px;
+        padding-bottom: 18px;
+        padding-left: 24px;
+        border-bottom: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Card header title */
+    .response-form-card .card-header h4 {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 18px;
+        margin: 0;
+        line-height: 1.3;
+        letter-spacing: 0.01em;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       3. CARD BODY
+       White padding area containing the feedback preview and response form.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Card body */
+    .response-form-card .card-body {
+        padding-top: 32px;
+        padding-right: 32px;
+        padding-bottom: 32px;
+        padding-left: 32px;
+        background-color: #ffffff;
+    }
+
+    /* Section title — "Original Feedback" */
+    .text-primary {
+        color: #2563eb !important;
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       4. FEEDBACK PREVIEW BLOCK
+       Light grey block with blue left border showing the original feedback.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Feedback preview wrapper */
+    .feedback-preview {
+        background-color: #f9fafb;
+        border-left-width: 4px;
+        border-left-style: solid;
+        border-left-color: #2563eb;
+        padding-top: 1.5rem;
+        padding-right: 1.5rem;
+        padding-bottom: 1.5rem;
+        padding-left: 1.5rem;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 0;
+    }
+
+    /* Feedback preview paragraph text */
+    .feedback-preview p {
+        font-size: 13.5px;
+        color: #374151;
+        margin-bottom: 4px;
+        line-height: 1.5;
+    }
+
+    /* Feedback preview strong labels */
+    .feedback-preview p strong {
+        color: #111827;
+        font-weight: 700;
+    }
+
+    /* Horizontal divider inside preview */
+    .feedback-preview hr {
+        border-color: #e5e7eb;
+        margin-top: 16px;
+        margin-bottom: 16px;
+        opacity: 1;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       5. FEEDBACK PREVIEW — COURSE INFO
+       Row showing course code, name, student name, submitted date, rating.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Course info row */
+    .feedback-preview .row {
+        margin-bottom: 0;
+    }
+
+    /* Course info column */
+    .feedback-preview .col-md-6 p {
+        font-size: 13.5px;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    /* Rating badge */
+    .feedback-preview .badge {
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 6px;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       6. FEEDBACK PREVIEW — RATINGS
+       Shows Teaching, Content, Communication star ratings with scores.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Ratings section */
+    .feedback-preview .mb-3 strong {
+        color: #111827;
+        font-size: 13.5px;
+        font-weight: 700;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    /* Rating stars */
+    .feedback-preview small {
+        font-size: 13px;
+        color: #374151;
+        line-height: 1.8;
+    }
+
+    /* Star color */
+    .text-warning {
+        color: #f59e0b !important;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       7. FEEDBACK PREVIEW — COMMENTS
+       Quoted comment text from the student's original feedback.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Comments section */
+    .feedback-preview > div:last-child strong {
+        color: #111827;
+        font-size: 13.5px;
+        font-weight: 700;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    /* Comment quote text */
+    .feedback-preview > div:last-child p {
+        color: #374151;
+        font-size: 14px;
+        font-style: italic;
+        line-height: 1.6;
+        margin: 0;
+        padding-left: 12px;
+        border-left: 2px solid #bfdbfe;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       8. TIPS ALERT BOX
+       Blue info box with writing tips shown above the response textarea.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Tips box wrapper */
+    .tips-box {
+        background-color: #eff6ff;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #bfdbfe;
+        border-radius: 10px;
+        padding-top: 16px;
+        padding-right: 20px;
+        padding-bottom: 16px;
+        padding-left: 20px;
+        margin-bottom: 20px;
+    }
+
+    /* Tips box header row */
+    .tips-box-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    /* Tips box title */
+    .tips-box-title {
+        color: #1d4ed8;
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* Tips list */
+    .tips-box ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    /* Tips list items */
+    .tips-box ul li {
+        color: #1e40af;
+        font-size: 13px;
+        margin-bottom: 6px;
+        line-height: 1.5;
+    }
+
+    /* Last tip item — no bottom margin */
+    .tips-box ul li:last-child {
+        margin-bottom: 0;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       9. RESPONSE FORM
+       The form section containing the textarea and submit buttons.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Form wrapper */
+    form {
+        margin-top: 0;
+    }
+
+    /* Form field group */
+    .mb-4 {
+        margin-bottom: 1.5rem !important;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       10. FORM LABEL
+       Label above the response textarea.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Form label */
+    .form-label {
+        color: #374151 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.06em !important;
+        margin-bottom: 8px !important;
+        display: block !important;
+    }
+
+    /* Required star */
+    .form-label .text-danger {
+        color: #ef4444 !important;
+        font-weight: 700 !important;
+        margin-left: 2px;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       11. TEXTAREA
+       The response text area where faculty writes their response.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Textarea override */
+    textarea {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+        border-width: 1.5px !important;
+        border-style: solid !important;
+        border-color: #d1d5db !important;
+        border-radius: 8px !important;
+        padding-top: 12px !important;
+        padding-right: 14px !important;
+        padding-bottom: 12px !important;
+        padding-left: 14px !important;
+        width: 100% !important;
+        display: block !important;
+        font-size: 14px !important;
+        font-family: inherit !important;
+        line-height: 1.6 !important;
+        resize: vertical !important;
+        min-height: 140px !important;
+        box-sizing: border-box !important;
+        opacity: 1 !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    }
+
+    /* Textarea focus */
+    textarea:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10) !important;
+        outline: none !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+    }
+
+    /* Textarea hover */
+    textarea:hover {
+        border-color: #9ca3af !important;
+    }
+
+    /* Textarea placeholder */
+    textarea::placeholder {
+        color: #9ca3af !important;
+        -webkit-text-fill-color: #9ca3af !important;
+        font-weight: 400 !important;
+    }
+
+    /* Textarea scrollbar */
+    textarea::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    /* Textarea scrollbar track */
+    textarea::-webkit-scrollbar-track {
+        background-color: #f3f4f6;
+        border-radius: 3px;
+    }
+
+    /* Textarea scrollbar thumb */
+    textarea::-webkit-scrollbar-thumb {
+        background-color: #d1d5db;
+        border-radius: 3px;
+    }
+
+    /* Textarea scrollbar thumb hover */
+    textarea::-webkit-scrollbar-thumb:hover {
+        background-color: #9ca3af;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       12. SUBMIT BUTTONS
+       Primary submit button and secondary cancel button.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Button group wrapper */
+    .d-flex.gap-2 {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 8px;
+    }
+
+    /* Submit button */
+    .btn-primary {
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
+        padding-top: 10px !important;
+        padding-right: 24px !important;
+        padding-bottom: 10px !important;
+        padding-left: 24px !important;
+        transition: all 0.2s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    /* Submit button hover */
+    .btn-primary:hover {
+        background-color: #1d4ed8 !important;
+        border-color: #1d4ed8 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.30) !important;
+    }
+
+    /* Cancel button */
+    .btn-outline-secondary {
+        color: #374151 !important;
+        border-color: #d1d5db !important;
+        background-color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
+        padding-top: 10px !important;
+        padding-right: 24px !important;
+        padding-bottom: 10px !important;
+        padding-left: 24px !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Cancel button hover */
+    .btn-outline-secondary:hover {
+        background-color: #f9fafb !important;
+        border-color: #9ca3af !important;
+        color: #111827 !important;
+        transform: translateY(-1px) !important;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       13. BACK BUTTON
+       "← Back to Feedback List" button above the card.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Back button */
+    .mb-3 .btn-outline-secondary {
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        padding-top: 7px !important;
+        padding-right: 16px !important;
+        padding-bottom: 7px !important;
+        padding-left: 16px !important;
+        border-radius: 8px !important;
+        color: #374151 !important;
+        border-color: #d1d5db !important;
+        background-color: #ffffff !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Back button hover */
+    .mb-3 .btn-outline-secondary:hover {
+        background-color: #f9fafb !important;
+        border-color: #9ca3af !important;
+        color: #111827 !important;
+    }
+
+
+    /* ──────────────────────────────────────────────────────────────────────
+       14. RESPONSIVE BREAKPOINTS
+       Adjustments for tablet and mobile screens.
+       ────────────────────────────────────────────────────────────────────── */
+
+    /* Tablet */
+    @media (max-width: 768px) {
+        .response-form-card .card-body {
+            padding-top: 20px;
+            padding-right: 16px;
+            padding-bottom: 20px;
+            padding-left: 16px;
+        }
+
+        .feedback-preview {
+            padding-top: 1rem;
+            padding-right: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 1rem;
+        }
+
+        .d-flex.gap-2 {
+            flex-direction: column;
+        }
+
+        .btn-primary,
+        .btn-outline-secondary {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+        .response-form-card {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .response-form-card .card-header h4 {
+            font-size: 15px;
+        }
+
+        .feedback-preview p,
+        .feedback-preview small {
+            font-size: 12.5px;
+        }
+
+        textarea {
+            min-height: 120px !important;
+        }
+    }
+
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
 
-    <!-- Back Button -->
+    <!-- ════════════════════════════════════════════════════════════════════
+         BACK BUTTON
+         Returns to the faculty feedback list page
+         ════════════════════════════════════════════════════════════════════ -->
     <div class="mb-3">
         <a href="{% url 'faculty_feedback_list' %}" class="btn btn-outline-secondary">
             ← Back to Feedback List
         </a>
     </div>
 
-    <!-- Form Card -->
+    <!-- ════════════════════════════════════════════════════════════════════
+         MAIN FORM CARD
+         Contains the original feedback preview and the response form
+         ════════════════════════════════════════════════════════════════════ -->
     <div class="card response-form-card">
+
+        <!-- Card Header -->
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0">✍️ Respond to Student Feedback</h4>
         </div>
+
+        <!-- Card Body -->
         <div class="card-body p-4">
 
-            <!-- Feedback Preview -->
+            <!-- ════════════════════════════════════════════════════════════
+                 ORIGINAL FEEDBACK PREVIEW
+                 Shows the feedback the faculty is responding to
+                 ════════════════════════════════════════════════════════════ -->
             <div class="mb-4">
                 <h5 class="text-primary mb-3">Original Feedback</h5>
 
                 <div class="feedback-preview">
+
+                    <!-- Course Info + Submission Details -->
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <p class="mb-1"><strong>Course:</strong> {{ feedback.course.course_code }} - {{ feedback.course.course_name }}</p>
-                            <p class="mb-1"><strong>Student:</strong>
+                            <p class="mb-1">
+                                <strong>Course:</strong>
+                                {{ feedback.course.course_code }} - {{ feedback.course.course_name }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Student:</strong>
                                 {% if feedback.is_anonymous %}
                                     Anonymous
                                 {% else %}
@@ -54,58 +581,103 @@
                             </p>
                         </div>
                         <div class="col-md-6">
-                            <p class="mb-1"><strong>Submitted:</strong> {{ feedback.submitted_at|date:"M d, Y - h:i A" }}</p>
-                            <p class="mb-1"><strong>Average Rating:</strong>
-                                <span class="badge bg-warning text-dark">⭐ {{ feedback.get_average_rating }}</span>
+                            <p class="mb-1">
+                                <strong>Submitted:</strong>
+                                {{ feedback.submitted_at|date:"M d, Y - h:i A" }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Average Rating:</strong>
+                                <span class="badge bg-warning text-dark">
+                                    ⭐ {{ feedback.get_average_rating }}
+                                </span>
                             </p>
                         </div>
                     </div>
 
                     <hr>
 
+                    <!-- Star Ratings -->
                     <div class="mb-3">
                         <strong>Ratings:</strong><br>
                         <small>
-                            Teaching: <span class="text-warning">{% for i in "12345" %}{% if forloop.counter <= feedback.teaching_rating %}★{% else %}☆{% endif %}{% endfor %}</span> ({{ feedback.teaching_rating }}/5)<br>
-                            Content: <span class="text-warning">{% for i in "12345" %}{% if forloop.counter <= feedback.content_rating %}★{% else %}☆{% endif %}{% endfor %}</span> ({{ feedback.content_rating }}/5)<br>
-                            Communication: <span class="text-warning">{% for i in "12345" %}{% if forloop.counter <= feedback.communication_rating %}★{% else %}☆{% endif %}{% endfor %}</span> ({{ feedback.communication_rating }}/5)
+                            Teaching:
+                            <span class="text-warning">
+                                {% for i in "12345" %}{% if forloop.counter <= feedback.teaching_rating %}★{% else %}☆{% endif %}{% endfor %}
+                            </span>
+                            ({{ feedback.teaching_rating }}/5)<br>
+
+                            Content:
+                            <span class="text-warning">
+                                {% for i in "12345" %}{% if forloop.counter <= feedback.content_rating %}★{% else %}☆{% endif %}{% endfor %}
+                            </span>
+                            ({{ feedback.content_rating }}/5)<br>
+
+                            Communication:
+                            <span class="text-warning">
+                                {% for i in "12345" %}{% if forloop.counter <= feedback.communication_rating %}★{% else %}☆{% endif %}{% endfor %}
+                            </span>
+                            ({{ feedback.communication_rating }}/5)
                         </small>
                     </div>
 
+                    <!-- Student Comments -->
                     {% if feedback.comments %}
                     <div>
                         <strong>Comments:</strong>
                         <p class="mb-0 mt-2">"{{ feedback.comments }}"</p>
                     </div>
                     {% endif %}
+
                 </div>
             </div>
 
-            <!-- Response Form -->
-            <div class="alert alert-info">
-                <strong>💡 Tips for writing a good response:</strong>
-                <ul class="mb-0 mt-2">
-                    <li>Thank the student for their feedback</li>
-                    <li>Address specific points they raised</li>
-                    <li>Explain any actions you'll take based on their feedback</li>
-                    <li>Keep it professional and constructive</li>
+            <!-- ════════════════════════════════════════════════════════════
+                 TIPS BOX
+                 Writing tips shown above the response textarea
+                 ════════════════════════════════════════════════════════════ -->
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px 20px;margin-bottom:20px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                    <span>💡</span>
+                    <strong style="color:#1d4ed8;font-size:14px;">Tips for writing a good response:</strong>
+                </div>
+                <ul style="margin:0;padding-left:18px;">
+                    <li style="color:#1e40af;font-size:13px;margin-bottom:6px;">
+                        Thank the student for their feedback
+                    </li>
+                    <li style="color:#1e40af;font-size:13px;margin-bottom:6px;">
+                        Address specific points they raised
+                    </li>
+                    <li style="color:#1e40af;font-size:13px;margin-bottom:6px;">
+                        Explain any actions you'll take based on their feedback
+                    </li>
+                    <li style="color:#1e40af;font-size:13px;margin-bottom:0;">
+                        Keep it professional and constructive
+                    </li>
                 </ul>
             </div>
 
+            <!-- ════════════════════════════════════════════════════════════
+                 RESPONSE FORM
+                 Faculty types their response here and submits
+                 ════════════════════════════════════════════════════════════ -->
             <form method="post">
                 {% csrf_token %}
 
+                <!-- Response Textarea -->
                 <div class="mb-4">
                     <label for="{{ form.response_text.id_for_label }}" class="form-label">
-                        <strong>Your Response</strong> <span class="text-danger">*</span>
+                        <strong>Your Response</strong>
+                        <span class="text-danger">*</span>
                     </label>
                     {{ form.response_text }}
                     {% if form.response_text.errors %}
-                        <div class="text-danger small mt-1">{{ form.response_text.errors }}</div>
+                    <div class="text-danger small mt-1">
+                        {{ form.response_text.errors }}
+                    </div>
                     {% endif %}
                 </div>
 
-                <!-- Submit Buttons -->
+                <!-- Submit + Cancel Buttons -->
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary btn-lg">
                         📤 Submit Response
@@ -114,6 +686,7 @@
                         Cancel
                     </a>
                 </div>
+
             </form>
 
         </div>
