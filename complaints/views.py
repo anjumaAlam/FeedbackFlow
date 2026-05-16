@@ -787,9 +787,14 @@ def staff_task_list(request):
         messages.error(request, 'Access denied.')
         return redirect('login')
 
+    status_filter = request.GET.get('status', '')
+
     tasks = Complaint.objects.filter(
         assigned_to=request.user
     ).order_by('-submitted_at')
+
+    if status_filter == 'pending':
+        tasks = tasks.filter(status='Pending')
 
     total    = tasks.count()
     pending  = tasks.filter(status='Pending').count()
@@ -802,9 +807,9 @@ def staff_task_list(request):
         'pending': pending,
         'active': active,
         'resolved': resolved,
+        'status_filter': status_filter,
     }
     return render(request, 'complaints/staff_task_list.html', context)
-
 
 @login_required
 def staff_mark_fixed(request, complaint_id):

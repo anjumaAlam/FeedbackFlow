@@ -361,12 +361,38 @@ def staff_dashboard(request):
     if request.user.role != 'Staff':
         messages.error(request, 'Access denied. Staff only.')
         return redirect('login')
+
+    from complaints.models import Complaint
+    from django.utils import timezone
+
     all_complaints         = Complaint.objects.filter(assigned_to=request.user)
     assigned_complaints    = all_complaints.count()
     pending_complaints     = all_complaints.filter(status='Pending').count()
     in_progress_complaints = all_complaints.filter(status='Under Investigation').count()
     resolved_complaints    = all_complaints.filter(status='Resolved').count()
     recent_complaints      = all_complaints.order_by('-submitted_at')[:5]
+
+    # Calculate average resolution time in hours
+    resolved = all_complaints.filter(
+        status='Resolved',
+        resolved_at__isnull=False
+    )
+    if resolved.exists():
+        total_hours = 0
+        count = 0
+        for c in resolved:
+            if c.resolved_at and c.submitted_at:
+                diff = c.resolved_at - c.submitted_at
+                total_hours += diff.total_seconds() / 3600
+                count += 1
+        avg_hours = total_hours / count if count > 0 else 0
+        if avg_hours < 1:
+            avg_resolution_time = f"{round(avg_hours * 60):.0f} minutes"
+        else:
+            avg_resolution_time = f"{round(avg_hours, 1)} hours"
+    else:
+        avg_resolution_time = 0
+
     context = {
         'page_title':             'Staff Dashboard',
         'user':                   request.user,
@@ -374,11 +400,12 @@ def staff_dashboard(request):
         'pending_complaints':     pending_complaints,
         'in_progress_complaints': in_progress_complaints,
         'resolved_complaints':    resolved_complaints,
-        'avg_resolution_time':    0,
+        'avg_resolution_time':    avg_resolution_time,
         'recent_complaints':      recent_complaints,
         'has_complaints':         assigned_complaints > 0,
     }
     return render(request, 'users/staff_dashboard.html', context)
+
 
 
 # ── ADMIN ─────────────────────────────────────────────────────────────────────
@@ -1242,20 +1269,19 @@ def mark_notification_read(request, notif_id):
 
 
 # ── TASKS ─────────────────────────────────────────────────────────────────────
-
 @login_required
 def task_list(request):
     if request.user.role != 'Student':
         return redirect('home')
-    tasks  = Task.objects.filter(student=request.user)
-    daily  = tasks.filter(task_type='Daily')
+    tasks = Task.objects.filter(student=request.user)
+    daily = tasks.filter(task_type='Daily')
     weekly = tasks.filter(task_type='Weekly')
-    
+
     total_tasks = tasks.count()
     completed_tasks = tasks.filter(is_done=True).count()
-    
+
     return render(request, 'users/task_list.html', {
-        'daily':  daily,
+        'daily': daily,
         'weekly': weekly,
         'total_tasks': total_tasks,
         'completed_tasks': completed_tasks,
@@ -1267,11 +1293,11 @@ def task_list(request):
 def task_add(request):
     if request.user.role != 'Student':
         return redirect('home')
-    title       = request.POST.get('title', '').strip()
+    title = request.POST.get('title', '').strip()
     description = request.POST.get('description', '').strip()
-    task_type   = request.POST.get('task_type', 'Daily')
-    priority    = request.POST.get('priority', 'Medium')
-    due_date    = request.POST.get('due_date') or None
+    task_type = request.POST.get('task_type', 'Daily')
+    priority = request.POST.get('priority', 'Medium')
+    due_date = request.POST.get('due_date') or None
     if title:
         Task.objects.create(
             student=request.user,

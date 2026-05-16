@@ -662,7 +662,7 @@
                         <div class="col-md-8">
                             <h5 class="mb-1">⏱️ Performance Metrics</h5>
                             <p class="text-muted mb-0">
-                                Average resolution time: <strong>{{ avg_resolution_time }} hours</strong>
+                                Average resolution time: <strong>{{ avg_resolution_time }}</strong>
                             </p>
                         </div>
                         <div class="col-md-4 text-end">
@@ -688,9 +688,9 @@
                 <a href="{% url 'staff_task_list' %}" class="btn btn-primary quick-action-btn">
                     <i class="bi bi-list"></i> View All Tasks
                 </a>
-                <a href="{% url 'staff_task_list' %}" class="btn btn-warning quick-action-btn">
-                    <i class="bi bi-hourglass-split"></i> Pending Tasks
-                </a>
+                <a href="{% url 'staff_task_list' %}?status=pending" class="btn btn-warning quick-action-btn">
+    <i class="bi bi-hourglass-split"></i> Pending Tasks
+</a>
             </div>
         </div>
     </div>
