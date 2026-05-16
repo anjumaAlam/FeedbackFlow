@@ -3,124 +3,774 @@
 
 {% block extra_css %}
 <style>
-    .dao-wrap { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
-    h2 { color: #ffffff; }
-    .page-sub { color: rgba(255,255,255,.65); }
 
-    .stat-row { display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-bottom:28px; }    .stat-box { background:#fff; border-radius:12px; padding:24px; text-align:center; border:1px solid #e5e7eb; }
-    .stat-box h3 { font-weight:700; margin-bottom:4px; font-size:2rem; }
-    .stat-box p  { color:#6b7280; margin:0; font-size:13px; }
 
-    .table-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; margin-top:24px; }
-    .table-card-header { background:#f9fafb; padding:16px 20px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; }
-    .table-card-header h5 { color:#111827; font-weight:700; margin:0; }
-    .table-card-header a  { font-size:13px; color:#2563eb; font-weight:600; text-decoration:none; }
 
-    @media(max-width:600px){ .stat-row { grid-template-columns:repeat(2,1fr); } }
+
+
+    /* Page wrapper — centered with max width */
+    .dao-wrap {
+        max-width: 960px;
+        margin-top: 0;
+        margin-right: auto;
+        margin-bottom: 0;
+        margin-left: auto;
+        padding-top: 32px;
+        padding-right: 24px;
+        padding-bottom: 40px;
+        padding-left: 24px;
+        box-sizing: border-box;
+    }
+
+    /* Page title */
+    h2 {
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 6px;
+        line-height: 1.2;
+        letter-spacing: -0.3px;
+    }
+
+    /* Page subtitle */
+    .page-sub {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 14px;
+        font-weight: 300;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    /* Page header wrapper */
+    .dao-page-header {
+        margin-bottom: 28px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+
+    /* ── STAT CARDS GRID ── */
+
+    /* Five-column grid for stat cards */
+    .stat-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    /* Individual stat box */
+    .stat-box {
+        background-color: #ffffff;
+        background: #ffffff;
+        border-radius: 12px;
+        padding-top: 24px;
+        padding-right: 16px;
+        padding-bottom: 24px;
+        padding-left: 16px;
+        text-align: center;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #e5e7eb;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Stat box top accent bar */
+    .stat-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        border-radius: 12px 12px 0 0;
+        background-color: #e5e7eb;
+    }
+
+    /* Stat box hover lift */
+    .stat-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
+    }
+
+    /* Stat box active press */
+    .stat-box:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Stat number */
+    .stat-box h3 {
+        font-weight: 800;
+        margin-bottom: 4px;
+        font-size: 2rem;
+        line-height: 1;
+        display: block;
+    }
+
+    /* Stat label */
+    .stat-box p {
+        color: #6b7280;
+        margin: 0;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        display: block;
+    }
+
+
+    /* ── QUICK ACTION BUTTONS ── */
+
+    /* Quick actions wrapper */
+    .dao-quick-actions {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    /* View all complaints button */
+    .btn-primary {
+        background-color: #2563eb !important;
+        border-color: #2563eb !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 13px !important;
+        border-radius: 8px !important;
+        padding-top: 9px !important;
+        padding-right: 18px !important;
+        padding-bottom: 9px !important;
+        padding-left: 18px !important;
+        transition: all 0.2s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    /* View all button hover */
+    .btn-primary:hover {
+        background-color: #1d4ed8 !important;
+        border-color: #1d4ed8 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+        color: #ffffff !important;
+    }
+
+    /* Notifications button */
+    .btn-outline-secondary {
+        color: #374151 !important;
+        border-color: #d1d5db !important;
+        background-color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        border-radius: 8px !important;
+        padding-top: 9px !important;
+        padding-right: 18px !important;
+        padding-bottom: 9px !important;
+        padding-left: 18px !important;
+        transition: all 0.2s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    /* Notifications button hover */
+    .btn-outline-secondary:hover {
+        background-color: #f9fafb !important;
+        border-color: #9ca3af !important;
+        color: #111827 !important;
+        transform: translateY(-1px) !important;
+    }
+
+
+    /* ── RECENT COMPLAINTS TABLE CARD ── */
+
+    /* Table card wrapper */
+    .table-card {
+        background-color: #ffffff;
+        background: #ffffff;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        transition: box-shadow 0.3s ease;
+    }
+
+    /* Table card hover */
+    .table-card:hover {
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.10);
+    }
+
+    /* Table card header bar */
+    .table-card-header {
+        background-color: #f9fafb;
+        background: #f9fafb;
+        padding-top: 16px;
+        padding-right: 20px;
+        padding-bottom: 16px;
+        padding-left: 20px;
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
+        border-bottom-color: #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Table card header title */
+    .table-card-header h5 {
+        color: #111827;
+        font-weight: 700;
+        margin: 0;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Table card header link */
+    .table-card-header a {
+        font-size: 13px;
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    /* Table card header link hover */
+    .table-card-header a:hover {
+        color: #1d4ed8;
+    }
+
+    /* Table responsive wrapper */
+    .table-responsive-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Main table */
+    .dao-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #ffffff;
+    }
+
+    /* Table head row */
+    .dao-table thead tr {
+        background-color: #f9fafb;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    /* Table head cells */
+    .dao-table thead th {
+        color: #374151;
+        font-weight: 700;
+        padding-top: 13px;
+        padding-right: 16px;
+        padding-bottom: 13px;
+        padding-left: 16px;
+        text-align: left;
+        font-size: 12px;
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Table body rows */
+    .dao-table tbody tr {
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.15s ease;
+    }
+
+    /* Table body rows hover */
+    .dao-table tbody tr:hover {
+        background-color: #f8faff;
+    }
+
+    /* Last row — no border */
+    .dao-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    /* Table body cells */
+    .dao-table tbody td {
+        padding-top: 13px;
+        padding-right: 16px;
+        padding-bottom: 13px;
+        padding-left: 16px;
+        vertical-align: middle;
+    }
+
+    /* Tracking ID cell */
+    .dao-table-tracking {
+        color: #111827;
+        font-weight: 700;
+        font-size: 13px;
+    }
+
+    /* Subject cell */
+    .dao-table-subject {
+        color: #111827;
+        font-size: 13px;
+        font-weight: 500;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Date cell */
+    .dao-table-date {
+        color: #6b7280;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    /* Action buttons cell */
+    .dao-table-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+
+    /* ── PRIORITY BADGES ── */
+
+    /* Priority badge base */
+    .priority-badge {
+        padding-top: 2px;
+        padding-right: 10px;
+        padding-bottom: 2px;
+        padding-left: 10px;
+        border-radius: 40px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    /* High priority */
+    .priority-high   { background-color: #fef3c7; color: #92400e; }
+
+    /* Medium priority */
+    .priority-medium { background-color: #dbeafe; color: #1d4ed8; }
+
+    /* Low priority */
+    .priority-low    { background-color: #d1fae5; color: #065f46; }
+
+    /* Urgent priority */
+    .priority-urgent { background-color: #fee2e2; color: #991b1b; }
+
+
+    /* ── STATUS BADGES ── */
+
+    /* Status badge base */
+    .status-badge {
+        padding-top: 2px;
+        padding-right: 10px;
+        padding-bottom: 2px;
+        padding-left: 10px;
+        border-radius: 40px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    /* Pending status */
+    .status-pending      { background-color: #fef3c7; color: #92400e; }
+
+    /* Under Investigation status */
+    .status-investigating { background-color: #dbeafe; color: #1d4ed8; }
+
+    /* Resolved status */
+    .status-resolved     { background-color: #d1fae5; color: #065f46; }
+
+    /* Escalated status */
+    .status-escalated    { background-color: #fee2e2; color: #991b1b; }
+
+
+    /* ── ACTION BUTTONS IN TABLE ── */
+
+    /* Handle button — green */
+    .btn-handle {
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        background-color: #059669;
+        padding-top: 4px;
+        padding-right: 12px;
+        padding-bottom: 4px;
+        padding-left: 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+    }
+
+    /* Handle button hover */
+    .btn-handle:hover {
+        background-color: #047857;
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+        text-decoration: none;
+    }
+
+    /* Escalate button — red */
+    .btn-escalate {
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        background-color: #dc2626;
+        padding-top: 4px;
+        padding-right: 12px;
+        padding-bottom: 4px;
+        padding-left: 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+    }
+
+    /* Escalate button hover */
+    .btn-escalate:hover {
+        background-color: #b91c1c;
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
+        text-decoration: none;
+    }
+
+
+    /* ── EMPTY STATE ── */
+
+    /* Empty state wrapper */
+    .dao-empty-state {
+        text-align: center;
+        padding-top: 48px;
+        padding-right: 24px;
+        padding-bottom: 48px;
+        padding-left: 24px;
+    }
+
+    /* Empty state icon */
+    .dao-empty-icon {
+        font-size: 3rem;
+        opacity: 0.25;
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    /* Empty state title */
+    .dao-empty-title {
+        color: #111827;
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    /* Empty state description */
+    .dao-empty-desc {
+        color: #6b7280;
+        font-size: 13px;
+        margin: 0;
+        display: block;
+    }
+
+
+    /* ── RESPONSIVE ── */
+
+    /* Large tablet */
+    @media (max-width: 1024px) {
+        .dao-wrap {
+            padding-right: 16px;
+            padding-left: 16px;
+        }
+
+        .stat-row {
+            gap: 12px;
+        }
+
+        .stat-box {
+            padding: 18px 12px;
+        }
+
+        .stat-box h3 {
+            font-size: 1.75rem;
+        }
+    }
+
+    /* Tablet */
+    @media (max-width: 768px) {
+        .stat-row {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        h2 {
+            font-size: 22px;
+        }
+
+        .dao-quick-actions {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .btn-primary,
+        .btn-outline-secondary {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+
+        .table-card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+        .stat-row {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-box h3 {
+            font-size: 1.5rem;
+        }
+
+        .dao-wrap {
+            padding-top: 20px;
+            padding-right: 12px;
+            padding-bottom: 24px;
+            padding-left: 12px;
+        }
+
+        .dao-table-actions {
+            flex-direction: column;
+        }
+    }
+
+    /* Small mobile */
+    @media (max-width: 360px) {
+        h2 {
+            font-size: 19px;
+        }
+
+        .stat-box p {
+            font-size: 10px;
+        }
+    }
+
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-4">
+<div class="dao-wrap">
 
-    <div class="mb-4">
+    <!-- ════════════════════════════════════════════════════════════════════
+         PAGE HEADER
+         Welcome message and page subtitle
+         ════════════════════════════════════════════════════════════════════ -->
+    <div class="dao-page-header">
         <h2>🏛️ DAO Dashboard</h2>
-        <p class="page-sub">Welcome, {{ user.full_name }} — manage facility complaints, assign to staff, or escalate serious issues.</p>
+        <p class="page-sub">
+            Welcome, {{ user.full_name }} — manage facility complaints,
+            assign to staff, or escalate serious issues to the Head.
+        </p>
     </div>
 
-   <!-- STAT CARDS -->
-<div class="stat-row">
-    <div class="stat-box" style="border-color:#bfdbfe;">
-        <h3 style="color:#1d4ed8;">{{ assigned_complaints }}</h3>
-        <p>Total</p>
-    </div>
-    <div class="stat-box" style="border-color:#fde68a;">
-        <h3 style="color:#92400e;">{{ pending_complaints }}</h3>
-        <p>Pending</p>
-    </div>
-    <div class="stat-box" style="border-color:#c7d2fe;">
-        <h3 style="color:#4338ca;">{{ assigned_to_staff }}</h3>
-        <p>Assigned to Staff</p>
-    </div>
-    <div class="stat-box" style="border-color:#bbf7d0;">
-        <h3 style="color:#065f46;">{{ resolved_complaints }}</h3>
-        <p>Resolved</p>
-    </div>
-    <div class="stat-box" style="border-color:#fecaca;">
-        <h3 style="color:#991b1b;">{{ escalated_complaints }}</h3>
-        <p>Escalated</p>
-    </div>
-</div>
+    <!-- ════════════════════════════════════════════════════════════════════
+         STAT CARDS
+         Shows: Total, Pending, Assigned to Staff, Resolved, Escalated
+         ════════════════════════════════════════════════════════════════════ -->
+    <div class="stat-row">
 
-    <!-- QUICK ACTIONS -->
-    <div class="mb-4 d-flex gap-2">
-        <a href="{% url 'dao_complaints_list' %}" class="btn btn-primary">📋 View All Complaints</a>
-        <a href="{% url 'notifications' %}" class="btn btn-outline-secondary">🔔 Notifications</a>
+        <!-- Total Complaints -->
+        <div class="stat-box" style="border-color:#bfdbfe;">
+            <h3 style="color:#1d4ed8;">{{ assigned_complaints }}</h3>
+            <p>Total</p>
+        </div>
+
+        <!-- Pending Complaints -->
+        <div class="stat-box" style="border-color:#fde68a;">
+            <h3 style="color:#92400e;">{{ pending_complaints }}</h3>
+            <p>Pending</p>
+        </div>
+
+        <!-- Assigned to Staff -->
+        <div class="stat-box" style="border-color:#c7d2fe;">
+            <h3 style="color:#4338ca;">{{ assigned_to_staff }}</h3>
+            <p>Assigned to Staff</p>
+        </div>
+
+        <!-- Resolved Complaints -->
+        <div class="stat-box" style="border-color:#bbf7d0;">
+            <h3 style="color:#065f46;">{{ resolved_complaints }}</h3>
+            <p>Resolved</p>
+        </div>
+
+        <!-- Escalated Complaints -->
+        <div class="stat-box" style="border-color:#fecaca;">
+            <h3 style="color:#991b1b;">{{ escalated_complaints }}</h3>
+            <p>Escalated</p>
+        </div>
+
     </div>
 
-    <!-- RECENT COMPLAINTS TABLE -->
+    <!-- ════════════════════════════════════════════════════════════════════
+         QUICK ACTIONS
+         View All Complaints + Notifications buttons
+         ════════════════════════════════════════════════════════════════════ -->
+    <div class="dao-quick-actions">
+        <a href="{% url 'dao_complaints_list' %}" class="btn btn-primary">
+            📋 View All Complaints
+        </a>
+        <a href="{% url 'notifications' %}" class="btn btn-outline-secondary">
+            🔔 Notifications
+        </a>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         RECENT COMPLAINTS TABLE
+         Shows 5 most recent complaints with Handle and Escalate buttons
+         ════════════════════════════════════════════════════════════════════ -->
     <div class="table-card">
+
+        <!-- Table Card Header -->
         <div class="table-card-header">
-            <h5>Recent Complaints</h5>
+            <h5>📋 Recent Complaints</h5>
             <a href="{% url 'dao_complaints_list' %}">View all →</a>
         </div>
+
         {% if recent_complaints %}
-        <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;background:#fff;">
+
+        <!-- Responsive Table Wrapper -->
+        <div class="table-responsive-wrap">
+            <table class="dao-table">
+
+                <!-- Table Head -->
                 <thead>
-                    <tr style="background:#f9fafb;border-bottom:2px solid #e5e7eb;">
-                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Tracking ID</th>
-                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Subject</th>
-                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Priority</th>
-                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Status</th>
-                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Reported</th>
-                        <th style="color:#374151;font-weight:700;padding:13px 16px;text-align:left;font-size:13px;">Actions</th>
+                    <tr>
+                        <th>Tracking ID</th>
+                        <th>Subject</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Reported</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
+
+                <!-- Table Body -->
                 <tbody>
                 {% for c in recent_complaints %}
-                <tr style="border-bottom:1px solid #f1f5f9;">
-                    <td style="padding:13px 16px;color:#111827;font-weight:700;font-size:13px;">{{ c.tracking_id }}</td>
-                    <td style="padding:13px 16px;color:#111827;font-size:13px;">{{ c.subject|truncatechars:35 }}</td>
-                    <td style="padding:13px 16px;">
-                        {% if c.priority == 'High' %}<span style="background:#fef3c7;color:#92400e;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">High</span>
-                        {% elif c.priority == 'Medium' %}<span style="background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Medium</span>
-                        {% elif c.priority == 'Low' %}<span style="background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Low</span>
-                        {% elif c.priority == 'Urgent' %}<span style="background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Urgent</span>
+                <tr>
+
+                    <!-- Tracking ID -->
+                    <td>
+                        <span class="dao-table-tracking">{{ c.tracking_id }}</span>
+                    </td>
+
+                    <!-- Subject -->
+                    <td>
+                        <span class="dao-table-subject">{{ c.subject|truncatechars:35 }}</span>
+                    </td>
+
+                    <!-- Priority Badge -->
+                    <td>
+                        {% if c.priority == 'High' %}
+                            <span class="priority-badge priority-high">High</span>
+                        {% elif c.priority == 'Medium' %}
+                            <span class="priority-badge priority-medium">Medium</span>
+                        {% elif c.priority == 'Low' %}
+                            <span class="priority-badge priority-low">Low</span>
+                        {% elif c.priority == 'Urgent' %}
+                            <span class="priority-badge priority-urgent">Urgent</span>
+                        {% else %}
+                            <span class="priority-badge priority-low">{{ c.priority }}</span>
                         {% endif %}
                     </td>
-                    <td style="padding:13px 16px;">
-                        {% if c.status == 'Pending' %}<span style="background:#fef3c7;color:#92400e;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Pending</span>
-                        {% elif c.status == 'Under Investigation' %}<span style="background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Investigating</span>
-                        {% elif c.status == 'Resolved' %}<span style="background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Resolved</span>
-                        {% elif c.status == 'Escalated' %}<span style="background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:40px;font-size:11px;font-weight:700;">Escalated</span>
+
+                    <!-- Status Badge -->
+                    <td>
+                        {% if c.status == 'Pending' %}
+                            <span class="status-badge status-pending">Pending</span>
+                        {% elif c.status == 'Under Investigation' %}
+                            <span class="status-badge status-investigating">Investigating</span>
+                        {% elif c.status == 'Resolved' %}
+                            <span class="status-badge status-resolved">Resolved</span>
+                        {% elif c.status == 'Escalated' %}
+                            <span class="status-badge status-escalated">Escalated</span>
+                        {% else %}
+                            <span class="status-badge status-pending">{{ c.status }}</span>
                         {% endif %}
                     </td>
-                    <td style="padding:13px 16px;color:#6b7280;font-size:12px;">{{ c.submitted_at|date:"M d, Y" }}</td>
-                    <td style="padding:13px 16px;">
-                        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+
+                    <!-- Reported Date -->
+                    <td>
+                        <span class="dao-table-date">{{ c.submitted_at|date:"M d, Y" }}</span>
+                    </td>
+
+                    <!-- Action Buttons -->
+                    <td>
+                        <div class="dao-table-actions">
+
+                            <!-- Handle Button — always visible -->
                             <a href="{% url 'handle_complaint' c.id %}"
-                               style="font-size:12px;font-weight:600;color:#fff;background:#059669;padding:4px 12px;border-radius:6px;text-decoration:none;">Handle</a>
+                               class="btn-handle">
+                                ✏️ Handle
+                            </a>
+
+                            <!-- Escalate Button — only if not already escalated or resolved -->
                             {% if c.status != 'Escalated' and c.status != 'Resolved' %}
                             <a href="{% url 'dao_escalate_complaint' c.id %}"
-                               onclick="return confirm('Escalate to Head?')"
-                               style="font-size:12px;font-weight:600;color:#fff;background:#dc2626;padding:4px 12px;border-radius:6px;text-decoration:none;">Escalate</a>
+                               onclick="return confirm('Escalate this complaint to the Head? The student will be notified.')"
+                               class="btn-escalate">
+                                ⬆️ Escalate
+                            </a>
                             {% endif %}
+
                         </div>
                     </td>
+
                 </tr>
                 {% endfor %}
                 </tbody>
+
             </table>
         </div>
+
         {% else %}
-        <div style="text-align:center;padding:48px 24px;">
-            <div style="font-size:3rem;opacity:.3;">✅</div>
-            <h4 style="color:#111827;margin-top:12px;">All clear</h4>
-            <p style="color:#6b7280;">No complaints assigned to you yet.</p>
+
+        <!-- Empty State — no complaints -->
+        <div class="dao-empty-state">
+            <span class="dao-empty-icon">✅</span>
+            <span class="dao-empty-title">All clear</span>
+            <p class="dao-empty-desc">No complaints assigned to you yet.</p>
         </div>
+
         {% endif %}
+
     </div>
 
+</div>
 </div>
 {% endblock %}
