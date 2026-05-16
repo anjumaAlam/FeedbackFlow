@@ -231,3 +231,31 @@ class HODFinalActionForm(forms.Form):
         }),
         label='Note to Student',
     )
+
+
+# ADD these two forms to your existing complaints/forms.py
+# (paste at the bottom of the file)
+
+class ForwardClarificationForm(forms.Form):
+    """HOD uses this to forward investigator's question to student or faculty."""
+    question = forms.CharField(
+        label='Question / Clarification Needed',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 5,
+            'placeholder': 'Enter the question or clarification the investigator needs answered...'
+        }),
+        help_text='This will be sent directly to the student or accused faculty.'
+    )
+
+
+class ClarificationResponseForm(forms.Form):
+    """Student or Faculty uses this to respond to a clarification request."""
+    response = forms.CharField(
+        label='Your Response',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 6,
+            'placeholder': 'Provide your response to the clarification request in detail...'
+        })
+    )

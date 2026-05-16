@@ -174,17 +174,7 @@
                 </ul>
             </div>
 
-            <!-- APPOINTMENT SECTION BANNER -->
-            <div class="alert mb-4" style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:16px;">
-                <div class="d-flex align-items-center">
-                    <div style="font-size:32px; margin-right:16px;">⚠️</div>
-                    <div>
-                        <h5 style="color:#b45309; margin-bottom:4px; font-weight:700;">Urgent Incident or Harassment?</h5>
-                        <p style="color:#92400e; margin-bottom:10px; font-size:14px;">If you are facing harassment, discrimination, or abuse, please book a direct appointment with the Harassment or Proctorial Committee instead of filing a general complaint.</p>
-                        <a href="{% url 'appointment' %}" class="btn btn-warning btn-sm fw-bold">📅 Book an Appointment</a>
-                    </div>
-                </div>
-            </div>
+
 
             <form method="post">
                 {% csrf_token %}

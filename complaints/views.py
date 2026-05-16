@@ -1447,3 +1447,258 @@ def hod_forward_to_investigator(request, finding_id):
         return redirect('handle_complaint', complaint_id=complaint.id)
 
     return redirect('handle_complaint', complaint_id=complaint.id)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ADD these imports at the top of complaints/views.py (merge with existing):
+#
+#   from .models import Complaint, ComplaintUpdate, ComplaintInvestigation,
+#                       InvestigationFinding, ClarificationRequest
+#   from .forms  import (ComplaintSubmissionForm, ComplaintUpdateForm,
+#                        AssignInvestigationForm, InvestigationFindingsForm,
+#                        HODFinalActionForm, ForwardClarificationForm,
+#                        ClarificationResponseForm)
+#
+# Then paste the 4 views below into complaints/views.py
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@login_required
+def hod_forward_clarification(request, finding_id):
+    """
+    STEP 1 of clarification flow.
+    HOD reads the investigator's 'Needs More Info' finding and forwards
+    the question to either the Student or the accused Faculty.
+    The recipient is auto-detected from the finding (ask_from).
+    """
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    from .models import InvestigationFinding, ClarificationRequest
+    from .forms  import ForwardClarificationForm
+
+    finding     = get_object_or_404(InvestigationFinding, id=finding_id)
+    investigation = finding.investigation
+    complaint   = investigation.complaint
+
+    # Determine target automatically:
+    # "Needs More Info" from student → ask student
+    # We read the finding text to decide, but HOD confirms in the form.
+    # Default target = student; HOD can override via the ask_from radio.
+
+    # Check if a clarification already exists for this finding
+    existing = ClarificationRequest.objects.filter(
+        investigation=investigation
+    ).order_by('-created_at').first()
+
+    if request.method == 'POST':
+        form = ForwardClarificationForm(request.POST)
+        ask_from = request.POST.get('ask_from', 'Student')
+
+        if form.is_valid():
+            question = form.cleaned_data['question']
+
+            # Determine target user
+            if ask_from == 'Student':
+                target = complaint.student
+            else:
+                target = complaint.faculty_concerned
+
+            if not target:
+                messages.error(request, 'Cannot forward — target user not found.')
+                return redirect('handle_complaint', complaint_id=complaint.id)
+
+            # Create clarification request
+            clarification = ClarificationRequest.objects.create(
+                investigation=investigation,
+                question=question,
+                ask_from=ask_from,
+                target_user=target,
+                forwarded_by=request.user,
+                status='Pending',
+            )
+
+            # Notify target user
+            create_notification(
+                recipient=target,
+                title=f'Clarification Needed — Complaint {complaint.tracking_id}',
+                message=f'The HOD has forwarded a clarification request regarding complaint "{complaint.subject}". Please respond as soon as possible.',
+                notification_type='complaint',
+                link=f'/complaints/clarification/{clarification.id}/respond/',
+            )
+
+            # Log update on complaint
+            ComplaintUpdate.objects.create(
+                complaint=complaint,
+                updated_by=request.user,
+                comment=f'Clarification request forwarded to {ask_from} ({target.full_name}): "{question[:100]}..."',
+            )
+
+            messages.success(request, f'Clarification request sent to {target.full_name}.')
+            return redirect('handle_complaint', complaint_id=complaint.id)
+    else:
+        # Pre-fill question from the finding's content
+        form = ForwardClarificationForm(initial={'question': finding.findings})
+
+    context = {
+        'form':          form,
+        'finding':       finding,
+        'investigation': investigation,
+        'complaint':     complaint,
+        'existing':      existing,
+        'page_title':    f'Forward Clarification — {complaint.tracking_id}',
+    }
+    return render(request, 'complaints/hod_forward_clarification.html', context)
+
+
+@login_required
+def respond_clarification(request, clarification_id):
+    """
+    STEP 2 of clarification flow.
+    Student or accused Faculty responds to the clarification request.
+    Accessible from their dashboard's 'Pending Clarifications' section.
+    """
+    if request.user.role not in ['Student', 'Faculty']:
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    from .models import ClarificationRequest
+    from .forms  import ClarificationResponseForm
+
+    clarification = get_object_or_404(
+        ClarificationRequest, id=clarification_id, target_user=request.user
+    )
+
+    if clarification.status != 'Pending':
+        messages.info(request, 'You have already responded to this clarification.')
+        return redirect('student_dashboard' if request.user.role == 'Student' else 'faculty_dashboard')
+
+    if request.method == 'POST':
+        form = ClarificationResponseForm(request.POST)
+        if form.is_valid():
+            clarification.response     = form.cleaned_data['response']
+            clarification.status       = 'Responded'
+            clarification.responded_at = timezone.now()
+            clarification.save()
+
+            # Notify HOD
+            create_notification(
+                recipient=clarification.forwarded_by,
+                title=f'Clarification Response Received — {clarification.investigation.complaint.tracking_id}',
+                message=f'{request.user.full_name} has responded to the clarification request for complaint "{clarification.investigation.complaint.subject}".',
+                notification_type='complaint',
+                link=f'/complaints/hod/handle/{clarification.investigation.complaint.id}/',
+            )
+
+            messages.success(request, 'Your response has been submitted. The HOD has been notified.')
+
+            if request.user.role == 'Student':
+                return redirect('student_dashboard')
+            else:
+                return redirect('faculty_dashboard')
+    else:
+        form = ClarificationResponseForm()
+
+    context = {
+        'form':          form,
+        'clarification': clarification,
+        'complaint':     clarification.investigation.complaint,
+        'page_title':    'Respond to Clarification',
+    }
+    return render(request, 'complaints/clarification_respond.html', context)
+
+
+@login_required
+def hod_view_clarification_responses(request, complaint_id):
+    """
+    STEP 3 of clarification flow.
+    HOD reviews responses and forwards them to the investigator.
+    Clicking 'Forward to Investigator' marks the clarification as Forwarded
+    and notifies the investigator to re-submit findings.
+    """
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    from .models import ClarificationRequest
+
+    complaint     = get_object_or_404(Complaint, id=complaint_id)
+    investigation = complaint.investigation
+    clarifications = ClarificationRequest.objects.filter(
+        investigation=investigation
+    ).order_by('-created_at')
+
+    if request.method == 'POST':
+        clarification_id = request.POST.get('clarification_id')
+        clarification    = get_object_or_404(ClarificationRequest, id=clarification_id)
+
+        # Mark as forwarded
+        clarification.status = 'Forwarded'
+        clarification.save()
+
+        # Delete the old finding so investigator can re-submit
+        from .models import InvestigationFinding
+        InvestigationFinding.objects.filter(
+            investigation=investigation,
+            submitted_by__in=investigation.investigators.all()
+        ).delete()
+
+        # Reset complaint status to Under Investigation
+        complaint.status = 'Under Investigation'
+        complaint.save()
+
+        # Notify each investigator
+        for investigator in investigation.investigators.all():
+            create_notification(
+                recipient=investigator,
+                title=f'Clarification Response Available — {complaint.tracking_id}',
+                message=(
+                    f'The HOD has forwarded the clarification response from '
+                    f'{clarification.target_user.full_name} for complaint '
+                    f'"{complaint.subject}". Please review and submit your final verdict.'
+                ),
+                notification_type='complaint',
+                link=f'/complaints/investigator/submit-findings/{investigation.id}/',
+            )
+
+        ComplaintUpdate.objects.create(
+            complaint=complaint,
+            updated_by=request.user,
+            comment=f'Clarification response from {clarification.target_user.full_name} forwarded to investigators.',
+        )
+
+        messages.success(request, 'Response forwarded to investigators. They can now submit their final verdict.')
+        return redirect('handle_complaint', complaint_id=complaint.id)
+
+    context = {
+        'complaint':      complaint,
+        'investigation':  investigation,
+        'clarifications': clarifications,
+        'page_title':     f'Clarification Responses — {complaint.tracking_id}',
+    }
+    return render(request, 'complaints/hod_clarification_responses.html', context)
+
+
+@login_required
+def my_clarifications(request):
+    """
+    Student or Faculty sees all pending clarification requests on their dashboard.
+    Linked from the dashboard notification widget.
+    """
+    if request.user.role not in ['Student', 'Faculty']:
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    from .models import ClarificationRequest
+
+    clarifications = ClarificationRequest.objects.filter(
+        target_user=request.user
+    ).order_by('-created_at')
+
+    context = {
+        'clarifications': clarifications,
+        'pending_count':  clarifications.filter(status='Pending').count(),
+        'page_title':     'My Clarification Requests',
+    }
+    return render(request, 'complaints/my_clarifications.html', context)

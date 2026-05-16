@@ -1,0 +1,99 @@
+{% extends 'users/base.html' %}
+{% block title %}My Clarifications - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .clarification-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: box-shadow 0.2s;
+    }
+    .clarification-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .clarification-card p, .clarification-card strong { color: #111 !important; }
+    .question-preview {
+        background: #eff6ff;
+        border-left: 3px solid #3b82f6;
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        margin: 0.75rem 0;
+    }
+    .question-preview p { color: #1a1a1a !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 900px;">
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold" style="color:#fff;">💬 My Clarification Requests</h2>
+            <p style="color:rgba(255,255,255,.6);">Questions forwarded to you from the HOD regarding ongoing investigations</p>
+        </div>
+        {% if pending_count > 0 %}
+        <span class="badge bg-warning text-dark fs-6">{{ pending_count }} Pending</span>
+        {% endif %}
+    </div>
+
+    {% if clarifications %}
+        {% for clarification in clarifications %}
+        <div class="clarification-card">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <strong>Complaint: {{ clarification.investigation.complaint.tracking_id }}</strong>
+                    — {{ clarification.investigation.complaint.subject }}
+                    <span class="badge ms-2
+                        {% if clarification.status == 'Pending' %}bg-warning text-dark
+                        {% elif clarification.status == 'Responded' %}bg-success
+                        {% else %}bg-primary{% endif %}">
+                        {{ clarification.status }}
+                    </span>
+                </div>
+                <small class="text-muted">{{ clarification.created_at|date:"M d, Y" }}</small>
+            </div>
+
+            <p class="mb-1 mt-2 text-muted" style="font-size:0.9rem;">
+                <strong>Forwarded by:</strong> {{ clarification.forwarded_by.full_name }} (HOD)
+            </p>
+
+            <!-- Question preview -->
+            <div class="question-preview">
+                <strong>❓ Question:</strong>
+                <p class="mb-0 mt-1">{{ clarification.question|truncatewords:30 }}</p>
+            </div>
+
+            <!-- Response if already submitted -->
+            {% if clarification.status != 'Pending' %}
+            <p class="text-success mb-2" style="font-size:0.9rem;">
+                ✅ <strong>Your response was submitted on {{ clarification.responded_at|date:"M d, Y - h:i A" }}</strong>
+            </p>
+            <p class="text-muted mb-2" style="font-size:0.9rem;">{{ clarification.response|truncatewords:20 }}</p>
+            {% endif %}
+
+            <div class="mt-2">
+                {% if clarification.status == 'Pending' %}
+                <a href="{% url 'respond_clarification' clarification.id %}" class="btn btn-primary btn-sm">
+                    💬 Respond Now
+                </a>
+                {% else %}
+                <a href="{% url 'respond_clarification' clarification.id %}" class="btn btn-outline-secondary btn-sm">
+                    👁️ View Submission
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <div style="font-size: 3rem; opacity:0.3;">📭</div>
+            <h5 class="mt-3 text-muted">No clarification requests</h5>
+            <p class="text-muted mb-0">If the HOD forwards a question to you regarding an investigation, it will appear here.</p>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

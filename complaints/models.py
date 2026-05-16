@@ -7,67 +7,53 @@ from django.utils import timezone
 
 class Complaint(models.Model):
     COMPLAINT_TYPE_CHOICES = (
-        ('Faculty', 'Complaint about Faculty'),
-        ('HOD', 'Complaint about HOD'),
-        ('Staff', 'Complaint about Staff'),
+        ('Faculty',  'Complaint about Faculty'),
+        ('HOD',      'Complaint about HOD'),
+        ('Staff',    'Complaint about Staff'),
         ('Facility', 'Facility Issue'),
-        ('Advice', 'General Advice'),
-        ('Opinion', 'Opinion/Suggestion'),
+        ('Advice',   'General Advice'),
+        ('Opinion',  'Opinion/Suggestion'),
     )
 
     STATUS_CHOICES = (
-        ('Pending', 'Pending Review'),
+        ('Pending',             'Pending Review'),
         ('Under Investigation', 'Under Investigation'),
-        ('Findings Submitted', 'Findings Submitted'),       # NEW
-        ('Resolved', 'Resolved'),
-        ('Escalated', 'Escalated to Higher Authority'),
+        ('Findings Submitted',  'Findings Submitted'),
+        ('Resolved',            'Resolved'),
+        ('Escalated',           'Escalated to Higher Authority'),
     )
 
     PRIORITY_CHOICES = (
-        ('Low', 'Low'),
+        ('Low',    'Low'),
         ('Medium', 'Medium'),
-        ('High', 'High'),
+        ('High',   'High'),
         ('Urgent', 'Urgent'),
     )
 
-    student = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='complaints_submitted'
-    )
-    complaint_type = models.CharField(max_length=20, choices=COMPLAINT_TYPE_CHOICES)
+    student             = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='complaints_submitted')
+    complaint_type      = models.CharField(max_length=20, choices=COMPLAINT_TYPE_CHOICES)
     resolution_deadline = models.DateField(null=True, blank=True, help_text='Deadline for resolving this complaint')
-    subject = models.CharField(max_length=200)
-    description = models.TextField()
-    faculty_concerned = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        related_name='complaints_against',
+    subject             = models.CharField(max_length=200)
+    description         = models.TextField()
+    faculty_concerned   = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='complaints_against',
         limit_choices_to={'role__in': ['Faculty', 'HOD', 'Staff']}
     )
-    location = models.CharField(max_length=200, blank=True, null=True)
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='Pending')
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Medium')
-    assigned_to = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        related_name='complaints_assigned'
-    )
-    is_anonymous = models.BooleanField(default=False)
-
-    # HOD's final note sent to student when closing the complaint
-    final_action_note = models.TextField(blank=True, null=True)          # NEW
-
-    submitted_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    resolved_at = models.DateTimeField(null=True, blank=True)
-    tracking_id = models.CharField(max_length=20, unique=True, editable=False)
+    location          = models.CharField(max_length=200, blank=True, null=True)
+    status            = models.CharField(max_length=30, choices=STATUS_CHOICES, default='Pending')
+    priority          = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Medium')
+    assigned_to       = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='complaints_assigned')
+    is_anonymous      = models.BooleanField(default=False)
+    final_action_note = models.TextField(blank=True, null=True)
+    submitted_at      = models.DateTimeField(auto_now_add=True)
+    updated_at        = models.DateTimeField(auto_now=True)
+    resolved_at       = models.DateTimeField(null=True, blank=True)
+    tracking_id       = models.CharField(max_length=20, unique=True, editable=False)
 
     class Meta:
-        ordering = ['-submitted_at']
-        verbose_name = 'Complaint'
+        ordering        = ['-submitted_at']
+        verbose_name    = 'Complaint'
         verbose_name_plural = 'Complaints'
 
     def __str__(self):
@@ -79,7 +65,6 @@ class Complaint(models.Model):
             self.tracking_id = 'CMP' + ''.join(random.choices(string.digits, k=6))
         if not self.assigned_to:
             self.auto_assign_handler()
-        # FR 5.2: Auto-assign deadline if not set (7 days for normal, 3 for urgent)
         if not self.resolution_deadline:
             from datetime import timedelta
             days = 3 if self.priority == 'Urgent' else 5 if self.priority == 'High' else 7
@@ -103,17 +88,25 @@ class Complaint(models.Model):
             dao = User.objects.filter(role='DAO').first()
             self.assigned_to = dao if dao else User.objects.filter(role='Admin').first()
         elif self.complaint_type in ('Advice', 'Opinion'):
-            # Advice and opinions go to HOD of the student's department or Admin
             hod = User.objects.filter(role='HOD', department=self.student.department).first()
             self.assigned_to = hod or User.objects.filter(role='Admin').first()
 
+    @property
+    def active_investigation(self):
+        try:
+            return self.investigation
+        except ComplaintInvestigation.DoesNotExist:
+            return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 
 class ComplaintUpdate(models.Model):
-    complaint = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='updates')
-    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    comment = models.TextField(blank=True, null=True)
+    complaint         = models.ForeignKey(Complaint, on_delete=models.CASCADE, related_name='updates')
+    updated_by        = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    comment           = models.TextField(blank=True, null=True)
     status_changed_to = models.CharField(max_length=30, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at        = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['created_at']
@@ -122,20 +115,20 @@ class ComplaintUpdate(models.Model):
         return f"Update on {self.complaint.tracking_id} by {self.updated_by.full_name}"
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+
 class ComplaintInvestigation(models.Model):
-    complaint = models.OneToOneField(Complaint, on_delete=models.CASCADE, related_name='investigation')
-    assigned_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='investigations_assigned_by'
-    )
+    complaint     = models.OneToOneField(Complaint, on_delete=models.CASCADE, related_name='investigation')
+    assigned_by   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='investigations_assigned_by')
     investigators = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         related_name='investigations_assigned_to',
         limit_choices_to={'role__in': ['Faculty', 'HOD']},
     )
     description = models.TextField()
-    is_active = models.BooleanField(default=True)
+    is_active   = models.BooleanField(default=True)
     assigned_at = models.DateTimeField(auto_now_add=True)
-    due_date = models.DateField(null=True, blank=True)
+    due_date    = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ['-assigned_at']
@@ -146,70 +139,123 @@ class ComplaintInvestigation(models.Model):
 
     @property
     def all_findings_submitted(self):
-        """True when every assigned investigator has submitted their findings."""
         investigator_ids = set(self.investigators.values_list('id', flat=True))
-        submitted_ids = set(self.findings.values_list('submitted_by_id', flat=True))
+        submitted_ids    = set(self.findings.values_list('submitted_by_id', flat=True))
         return investigator_ids == submitted_ids and len(investigator_ids) > 0
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+
 class InvestigationFinding(models.Model):
     VERDICT_CHOICES = (
-        ('Proven', 'Complaint is Proven'),
-        ('Unproven', 'Complaint is Unproven'),
+        ('Proven',          'Complaint is Proven'),
+        ('Unproven',        'Complaint is Unproven'),
         ('Needs More Info', 'Needs More Info'),
     )
 
-    investigation  = models.ForeignKey(ComplaintInvestigation, on_delete=models.CASCADE, related_name='findings')
-    submitted_by   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='investigation_findings')
-    verdict        = models.CharField(max_length=30, choices=VERDICT_CHOICES)
-    findings       = models.TextField()
+    investigation = models.ForeignKey(ComplaintInvestigation, on_delete=models.CASCADE, related_name='findings')
+    submitted_by  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='investigation_findings')
+    verdict       = models.CharField(max_length=30, choices=VERDICT_CHOICES)
+    findings      = models.TextField()
 
-    # ── NEW clarification fields ──
+    # Clarification flags — investigator sets these when verdict = Needs More Info
     needs_student_clarification = models.BooleanField(default=False)
     needs_faculty_statement     = models.BooleanField(default=False)
-    clarification_questions     = models.TextField(blank=True, null=True)
+    clarification_questions     = models.TextField(blank=True, null=True,
+        help_text='Specific questions the investigator needs answered')
 
-    submitted_at   = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-submitted_at']
+        ordering        = ['-submitted_at']
         unique_together = ('investigation', 'submitted_by')
 
     def __str__(self):
         return f"Finding by {self.submitted_by.full_name} on {self.investigation.complaint.tracking_id}"
 
+    @property
+    def pending_clarifications(self):
+        return self.clarification_requests.filter(status='Pending')
+
+    @property
+    def has_pending_clarifications(self):
+        return self.pending_clarifications.exists()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ClarificationRequest
+#
+# Full flow:
+#   1. Investigator submits finding — verdict = "Needs More Info"
+#      + sets needs_student_clarification / needs_faculty_statement
+#      + writes clarification_questions
+#
+#   2. HOD sees it on handle_complaint → clicks "Forward Clarification"
+#      → ClarificationRequest created (linked to finding + target_user set)
+#      → target user notified
+#
+#   3. Student / Faculty logs in → sees pending request in dashboard
+#      → submits response via respond_clarification view
+#
+#   4. HOD is notified → reviews on hod_view_clarification_responses
+#      → clicks "Forward to Investigator"
+#      → status = 'Forwarded', investigator notified
+#
+#   5. Investigator reviews response → re-submits final verdict
+# ─────────────────────────────────────────────────────────────────────────────
 
 class ClarificationRequest(models.Model):
-        """Investigator requests clarification from student or accused faculty."""
+    REQUEST_TYPE_CHOICES = (
+        ('Student', 'Student Clarification'),
+        ('Faculty', 'Faculty Statement'),
+    )
 
-        REQUEST_TYPE_CHOICES = (
-            ('Student', 'Student Clarification'),
-            ('Faculty', 'Faculty Statement'),
-        )
+    STATUS_CHOICES = (
+        ('Pending',   'Pending Response'),
+        ('Responded', 'Responded'),
+        ('Forwarded', 'Forwarded to Investigator'),
+    )
 
-        STATUS_CHOICES = (
-            ('Pending', 'Pending Response'),
-            ('Responded', 'Responded'),
-        )
+    # Linked to the specific finding that triggered this
+    finding      = models.ForeignKey(InvestigationFinding, on_delete=models.CASCADE, related_name='clarification_requests')
 
-        finding = models.ForeignKey('InvestigationFinding', on_delete=models.CASCADE,
-                                    related_name='clarification_requests')
-        requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                                         related_name='clarifications_requested')
-        request_type = models.CharField(max_length=10, choices=REQUEST_TYPE_CHOICES)
-        questions = models.TextField(help_text='Specific questions or information needed')
-        status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
-        response_text = models.TextField(blank=True, null=True)
-        responded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
-                                         related_name='clarifications_responded')
-        responded_at = models.DateTimeField(null=True, blank=True)
-        created_at = models.DateTimeField(auto_now_add=True)
+    # HOD who forwarded this request
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='clarifications_requested')
 
-        class Meta:
-            ordering = ['-created_at']
+    # 'Student' or 'Faculty'
+    request_type = models.CharField(max_length=10, choices=REQUEST_TYPE_CHOICES)
 
-        def __str__(self):
-            return f"Clarification ({self.request_type}) for {self.finding.investigation.complaint.tracking_id}"
+    # The question(s) forwarded (copied/edited from finding.clarification_questions)
+    questions    = models.TextField(help_text='Specific questions or information needed')
 
+    # The exact user who must respond
+    target_user  = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='clarification_requests_received',
+        null=True, blank=True,
+    )
 
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
 
+    # Filled when the target responds
+    response_text = models.TextField(blank=True, null=True)
+    responded_by  = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='clarifications_responded'
+    )
+    responded_at  = models.DateTimeField(null=True, blank=True)
+    created_at    = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Clarification ({self.request_type}) for {self.finding.investigation.complaint.tracking_id}"
+
+    @property
+    def complaint(self):
+        return self.finding.investigation.complaint
+
+    @property
+    def investigation(self):
+        return self.finding.investigation

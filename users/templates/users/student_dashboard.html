@@ -91,11 +91,9 @@
                 <a href="{% url 'submit_complaint' %}" class="btn btn-danger quick-action-btn">
                     <i class="bi bi-megaphone"></i> Report Issue / Advice
                 </a>
-                <a href="{% url 'clarification_list' %}" class="btn btn-warning quick-action-btn">
-                     📋 Clarification Requests
-                     {% if pending_clarifications > 0 %}
-                      <span class="badge bg-danger ms-1">{{ pending_clarifications }}</span>
-                      {% endif %}
+
+                <a href="{% url 'my_clarifications' %}" class="btn btn-outline-warning quick-action-btn">
+                    💬 Clarifications {% if pending_clarifications > 0 %}<span class="badge bg-danger">{{ pending_clarifications }}</span>{% endif %}
                 </a>
                 <a href="{% url 'my_feedback' %}" class="btn btn-outline-primary quick-action-btn">
                     <i class="bi bi-list-check"></i> View My Feedback

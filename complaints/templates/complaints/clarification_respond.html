@@ -1,0 +1,83 @@
+{% extends 'users/base.html' %}
+{% block title %}Respond to Clarification - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-card { max-width: 860px; margin: 2rem auto; }
+    .question-box {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .question-box p, .question-box strong { color: #1a1a1a !important; }
+    .complaint-meta { background: #f9fafb; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+    .complaint-meta p, .complaint-meta strong { color: #111 !important; }
+    .form-label { font-weight: 600; color: #1f2937; font-size: 13.5px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="mb-3">
+        {% if request.user.role == 'Student' %}
+            <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+        {% else %}
+            <a href="{% url 'faculty_dashboard' %}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+        {% endif %}
+    </div>
+
+    <div class="card page-card">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">💬 Respond to Clarification Request</h4>
+        </div>
+        <div class="card-body p-4">
+
+            <!-- Complaint context -->
+            <div class="complaint-meta">
+                <p class="mb-1"><strong>Complaint:</strong> {{ complaint.tracking_id }} — {{ complaint.subject }}</p>
+                <p class="mb-0"><strong>Forwarded by HOD:</strong> {{ clarification.forwarded_by.full_name }}
+                    &nbsp;|&nbsp; <strong>On:</strong> {{ clarification.created_at|date:"M d, Y - h:i A" }}</p>
+            </div>
+
+            <!-- The question -->
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">❓ Clarification Needed</h5>
+                <div class="question-box">
+                    <p class="mb-0" style="white-space: pre-line;">{{ clarification.question }}</p>
+                </div>
+            </div>
+
+            <div class="alert alert-info mb-4">
+                <strong>📌 Note:</strong> Your response will be reviewed by the HOD and then forwarded to the investigator handling this complaint.
+                Please be factual, honest, and detailed.
+            </div>
+
+            <!-- Response form -->
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label">{{ form.response.label }} <span class="text-danger">*</span></label>
+                    {{ form.response }}
+                    {% if form.response.errors %}
+                        <div class="text-danger small mt-1">{{ form.response.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">📨 Submit Response</button>
+                    {% if request.user.role == 'Student' %}
+                        <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    {% else %}
+                        <a href="{% url 'faculty_dashboard' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    {% endif %}
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

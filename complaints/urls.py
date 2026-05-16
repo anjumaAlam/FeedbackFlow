@@ -44,4 +44,8 @@ urlpatterns = [
     path('clarifications/respond/<int:clarification_id>/', views.respond_clarification, name='respond_clarification'),
     path('investigator/clarification/<int:finding_id>/responses/', views.view_clarification_responses, name='view_clarification_responses'),
     path('hod/forward-to-investigator/<int:finding_id>/', views.hod_forward_to_investigator, name='hod_forward_to_investigator'),
+path('hod/forward-clarification/<int:finding_id>/', views.hod_forward_clarification, name='hod_forward_clarification'),
+path('clarification/<int:clarification_id>/respond/', views.respond_clarification, name='respond_clarification'),
+path('hod/clarification-responses/<int:complaint_id>/', views.hod_view_clarification_responses, name='hod_view_clarification_responses'),
+path('my-clarifications/', views.my_clarifications, name='my_clarifications'),
 ]

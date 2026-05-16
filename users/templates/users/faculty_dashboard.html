@@ -91,9 +91,10 @@
                 <a href="{% url 'investigator_dashboard' %}" class="btn btn-warning quick-action-btn">
                     <i class="bi bi-search"></i> My Investigations
                 </a>
-                <a href="{% url 'clarification_list' %}" class="btn btn-warning quick-action-btn">
-                    📋 Clarification Requests
-                </a>
+
+                <a href="{% url 'my_clarifications' %}" class="btn btn-outline-warning quick-action-btn">
+    💬 Clarifications {% if pending_clarifications > 0 %}<span class="badge bg-danger">{{ pending_clarifications }}</span>{% endif %}
+</a>
             </div>
         </div>
     </div>

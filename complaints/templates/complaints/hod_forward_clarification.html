@@ -1,0 +1,129 @@
+{% extends 'users/base.html' %}
+{% block title %}Forward Clarification - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-card { max-width: 900px; margin: 2rem auto; }
+    .finding-box {
+        background: #fef9c3;
+        border: 1px solid #fde047;
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .finding-box p, .finding-box strong { color: #1a1a1a !important; }
+    .ask-from-option {
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        background: white;
+        color: #111;
+    }
+    .ask-from-option:has(input:checked) { border-color: #3b82f6; background: #eff6ff; }
+    .ask-from-option input { margin-top: 3px; flex-shrink: 0; }
+    .ask-from-option .label { font-weight: 600; color: #111; }
+    .ask-from-option .desc  { font-size: 0.85rem; color: #555; margin-top: 2px; }
+    .form-label { font-weight: 600; color: #1f2937; font-size: 13.5px; }
+    .existing-box {
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        color: #111 !important;
+    }
+    .existing-box p, .existing-box strong { color: #111 !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-3">
+        <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary">← Back to Complaint</a>
+    </div>
+
+    <div class="card page-card">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">📤 Forward Clarification Request — {{ complaint.tracking_id }}</h4>
+        </div>
+        <div class="card-body p-4">
+
+            <!-- Investigator's finding -->
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">🔍 Investigator's Finding (Needs More Info)</h5>
+                <div class="finding-box">
+                    <p class="mb-1"><strong>Investigator:</strong> {{ finding.submitted_by.full_name }}</p>
+                    <p class="mb-1"><strong>Submitted:</strong> {{ finding.submitted_at|date:"M d, Y - h:i A" }}</p>
+                    <hr>
+                    <p class="mb-0"><strong>What they need clarified:</strong><br>{{ finding.findings }}</p>
+                </div>
+            </div>
+
+            <!-- Existing clarification warning -->
+            {% if existing %}
+            <div class="existing-box">
+                <strong>⚠️ A clarification request already exists</strong>
+                <p class="mb-1 mt-1">Status: <span class="badge
+                    {% if existing.status == 'Pending' %}bg-warning text-dark
+                    {% elif existing.status == 'Responded' %}bg-success
+                    {% else %}bg-primary{% endif %}">
+                    {{ existing.status }}
+                </span></p>
+                <p class="mb-0">Sent to: {{ existing.target_user.full_name }} on {{ existing.created_at|date:"M d, Y" }}</p>
+                <p class="mb-0 mt-2"><a href="{% url 'hod_view_clarification_responses' complaint.id %}">View Responses →</a></p>
+            </div>
+            {% endif %}
+
+            <!-- Forward Form -->
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label mb-2">Forward To <span class="text-danger">*</span></label>
+
+                    <label class="ask-from-option">
+                        <input type="radio" name="ask_from" value="Student" class="form-check-input" checked>
+                        <div>
+                            <div class="label">👨‍🎓 Student ({{ complaint.student.full_name }})</div>
+                            <div class="desc">Send the clarification request to the student who filed the complaint.</div>
+                        </div>
+                    </label>
+
+                    {% if complaint.faculty_concerned %}
+                    <label class="ask-from-option">
+                        <input type="radio" name="ask_from" value="Faculty" class="form-check-input">
+                        <div>
+                            <div class="label">👨‍🏫 Accused Faculty ({{ complaint.faculty_concerned.full_name }})</div>
+                            <div class="desc">Send the clarification request to the faculty member being complained about.</div>
+                        </div>
+                    </label>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Question / Clarification to Forward <span class="text-danger">*</span></label>
+                    {{ form.question }}
+                    <small class="text-muted">{{ form.question.help_text }}</small>
+                    {% if form.question.errors %}
+                        <div class="text-danger small mt-1">{{ form.question.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-warning btn-lg text-dark fw-bold">
+                        📤 Forward Clarification Request
+                    </button>
+                    <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -268,11 +268,11 @@ def student_dashboard(request):
         student=request.user
     ).order_by('-created_at')[:3]
 
+
+
     from complaints.models import ClarificationRequest
     pending_clarifications = ClarificationRequest.objects.filter(
-        finding__investigation__complaint__student=request.user,
-        request_type='Student',
-        status='Pending'
+        target_user=request.user, status='Pending'
     ).count()
 
     context = {
@@ -291,6 +291,7 @@ def student_dashboard(request):
         'done_tasks':              done_tasks,
         'recent_appointments':     recent_appointments,
         'pending_clarifications':  pending_clarifications,
+
     }
     return render(request, 'users/student_dashboard.html', context)
 
@@ -312,6 +313,13 @@ def faculty_dashboard(request):
     week_ago           = timezone.now() - timedelta(days=7)
     this_week_feedback = all_feedback.filter(submitted_at__gte=week_ago).count()
     recent_feedback    = all_feedback.order_by('-submitted_at')[:5]
+
+    from complaints.models import ClarificationRequest
+    pending_clarifications = ClarificationRequest.objects.filter(
+        target_user=request.user, status='Pending'
+    ).count()
+
+
     context = {
         'page_title':         'Faculty Dashboard',
         'user':               request.user,
