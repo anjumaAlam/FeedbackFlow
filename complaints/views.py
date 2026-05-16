@@ -173,6 +173,22 @@ def handle_complaint(request, complaint_id):
                  complaint.faculty_concerned.department != request.user.department):
             messages.error(request, 'This complaint is not assigned to you.')
             return redirect('hod_complaints_list')
+
+    elif request.user.role == 'DAO':
+        # DAO can handle any complaint they ever touched
+        dao_touched = ComplaintUpdate.objects.filter(
+            complaint=complaint,
+            updated_by=request.user
+        ).exists()
+        if complaint.assigned_to != request.user and not dao_touched:
+            messages.error(request, 'This complaint is not assigned to you.')
+            return redirect('dao_complaints_list')
+
+    elif request.user.role == 'Staff':
+        if complaint.assigned_to != request.user:
+            messages.error(request, 'This complaint is not assigned to you.')
+            return redirect('staff_task_list')
+
     elif request.user.role != 'Admin':
         if complaint.assigned_to != request.user:
             messages.error(request, 'This complaint is not assigned to you.')
@@ -251,7 +267,6 @@ def handle_complaint(request, complaint_id):
         'page_title': f'Handle Complaint {complaint.tracking_id}'
     }
     return render(request, 'complaints/handle_complaint.html', context)
-
 
 @login_required
 def assign_investigation(request, complaint_id):

@@ -108,10 +108,7 @@
                                 </div>
                             </div>
                             <div class="col-md-4 text-end d-flex flex-column align-items-end justify-content-between">
-                                <div class="mb-3">
-                                    <small class="text-muted d-block">Assigned to:</small>
-                                    <strong>{{ complaint.assigned_to.full_name }}</strong>
-                                </div>
+
                                 <a href="{% url 'complaint_detail' complaint.id %}" class="btn btn-outline-primary">
                                     View Details
                                 </a>
