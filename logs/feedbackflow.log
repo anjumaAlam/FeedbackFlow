@@ -4132,3 +4132,89 @@ django.template.exceptions.TemplateDoesNotExist: complaints/staff_task_list.html
 [2026-05-17 03:50:16,221] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22958
 [2026-05-17 03:50:18,316] INFO django.server log "GET /notifications/mark-read/83/ HTTP/1.1" 302 0
 [2026-05-17 03:50:18,360] INFO django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 200 18837
+[2026-05-17 03:50:46,778] INFO django.server log "POST /complaints/hod/forward-to-investigator/4/ HTTP/1.1" 302 0
+[2026-05-17 03:50:46,798] INFO django.server log "GET /login/ HTTP/1.1" 302 0
+[2026-05-17 03:50:46,847] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38629
+[2026-05-17 03:50:51,153] INFO django.server log "GET /complaints/my-clarifications/ HTTP/1.1" 200 16766
+[2026-05-17 03:51:03,269] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22958
+[2026-05-17 03:51:06,034] INFO django.server log "GET /notifications/mark-read/83/ HTTP/1.1" 302 0
+[2026-05-17 03:51:06,094] INFO django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 200 18837
+[2026-05-17 03:51:08,292] INFO django.server log "GET /complaints/investigator/submit-findings/3/ HTTP/1.1" 200 22557
+[2026-05-17 03:52:07,339] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 36364
+[2026-05-17 03:52:10,719] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22958
+[2026-05-17 03:52:12,225] INFO django.server log "GET /notifications/mark-read/83/ HTTP/1.1" 302 0
+[2026-05-17 03:52:12,288] INFO django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 200 18837
+[2026-05-17 03:52:25,677] INFO django.server log "GET /complaints/investigator/submit-findings/3/ HTTP/1.1" 200 22557
+[2026-05-17 03:52:48,796] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 36364
+[2026-05-17 09:16:52,543] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-17 09:18:58,644] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-17 09:18:58,717] INFO django.server log "GET /complaints/clarifications/ HTTP/1.1" 200 16921
+[2026-05-17 09:18:58,754] INFO django.server basehttp - Broken pipe from ('127.0.0.1', 65065)
+[2026-05-17 09:18:58,938] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38095
+[2026-05-17 09:18:59,567] WARNING django.request log Not Found: /favicon.ico
+[2026-05-17 09:18:59,569] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 14790
+[2026-05-17 09:19:05,148] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22958
+[2026-05-17 09:19:08,182] INFO django.server log "GET /notifications/mark-read/83/ HTTP/1.1" 302 0
+[2026-05-17 09:19:08,238] INFO django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 200 18837
+[2026-05-17 09:20:11,638] INFO django.server log "GET /complaints/investigator/submit-findings/3/ HTTP/1.1" 200 22557
+[2026-05-17 09:50:20,650] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-allahuakbar\complaints\views.py changed, reloading.
+[2026-05-17 09:51:06,681] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-17 09:51:11,533] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-17 09:51:13,245] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38095
+[2026-05-17 09:51:21,740] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22958
+[2026-05-17 09:51:24,569] INFO django.server log "GET /notifications/mark-read/83/ HTTP/1.1" 302 0
+[2026-05-17 09:51:24,633] INFO django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 200 25660
+[2026-05-17 09:51:31,680] INFO django.server log "GET /complaints/investigator/submit-findings/3/ HTTP/1.1" 200 28441
+[2026-05-17 09:51:52,179] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 35947
+[2026-05-17 09:52:00,439] INFO django.server log "GET /complaints/investigator/submit-findings/3/ HTTP/1.1" 200 27943
+[2026-05-17 09:52:15,892] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22958
+[2026-05-17 09:52:25,142] INFO django.server log "GET /notifications/mark-read/83/ HTTP/1.1" 302 0
+[2026-05-17 09:52:25,368] WARNING django.request log Not Found: /complaints/investigator/clarification/4/responses/
+[2026-05-17 09:52:25,373] WARNING django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 404 20315
+[2026-05-17 09:52:37,578] INFO django.server log "GET /notifications/mark-read/81/ HTTP/1.1" 302 0
+[2026-05-17 09:52:37,620] WARNING django.request log Not Found: /complaints/investigator/clarification/4/responses/
+[2026-05-17 09:52:37,621] WARNING django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 404 20315
+[2026-05-17 09:52:52,002] INFO django.server log "GET /notifications/mark-read/80/ HTTP/1.1" 302 0
+[2026-05-17 09:52:52,041] WARNING django.request log Not Found: /complaints/investigator/clarification/4/responses/
+[2026-05-17 09:52:52,042] WARNING django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 404 20315
+[2026-05-17 09:53:01,909] INFO django.server log "GET /notifications/mark-read/75/ HTTP/1.1" 302 0
+[2026-05-17 09:53:02,087] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 35947
+[2026-05-17 09:53:08,589] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22958
+[2026-05-17 09:53:14,475] INFO django.server log "GET /notifications/mark-read/83/ HTTP/1.1" 302 0
+[2026-05-17 09:53:15,454] WARNING django.request log Not Found: /complaints/investigator/clarification/4/responses/
+[2026-05-17 09:53:15,519] WARNING django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 404 20315
+[2026-05-17 09:56:25,631] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-17 09:56:25,699] INFO django.server log "GET /login/ HTTP/1.1" 200 19114
+[2026-05-17 09:56:36,201] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-17 09:56:36,371] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38633
+[2026-05-17 09:56:38,576] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22958
+[2026-05-17 09:56:40,326] INFO django.server log "GET /notifications/mark-read/83/ HTTP/1.1" 302 0
+[2026-05-17 09:56:40,372] WARNING django.request log Not Found: /complaints/investigator/clarification/4/responses/
+[2026-05-17 09:56:40,372] WARNING django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 404 20315
+[2026-05-17 09:56:50,907] INFO django.server log "GET /notifications/mark-read/81/ HTTP/1.1" 302 0
+[2026-05-17 09:56:50,948] WARNING django.request log Not Found: /complaints/investigator/clarification/4/responses/
+[2026-05-17 09:56:50,949] WARNING django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 404 20315
+[2026-05-17 09:56:55,311] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-17 09:56:55,391] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38095
+[2026-05-17 09:56:58,275] INFO django.server log "GET /complaints/my-clarifications/ HTTP/1.1" 200 16766
+[2026-05-17 09:59:22,185] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-17 09:59:54,730] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-17 09:59:54,774] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-17 09:59:55,016] INFO django.server log "GET /complaints/clarifications/ HTTP/1.1" 200 16921
+[2026-05-17 09:59:55,404] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38095
+[2026-05-17 09:59:55,514] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38095
+[2026-05-17 09:59:57,219] WARNING django.request log Not Found: /favicon.ico
+[2026-05-17 09:59:57,221] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 14790
+[2026-05-17 10:00:00,046] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22958
+[2026-05-17 10:00:02,233] INFO django.server log "GET /notifications/mark-read/83/ HTTP/1.1" 302 0
+[2026-05-17 10:00:02,289] WARNING django.request log Not Found: /complaints/investigator/clarification/4/responses/
+[2026-05-17 10:00:02,290] WARNING django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 404 20315
+[2026-05-17 10:11:14,384] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-allahuakbar\complaints\views.py changed, reloading.
+[2026-05-17 10:11:37,300] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-17 10:11:48,028] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-17 10:11:50,125] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38095
+[2026-05-17 10:11:56,109] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22958
+[2026-05-17 10:11:58,268] INFO django.server log "GET /notifications/mark-read/83/ HTTP/1.1" 302 0
+[2026-05-17 10:11:58,330] INFO django.server log "GET /complaints/investigator/clarification/4/responses/ HTTP/1.1" 302 0
+[2026-05-17 10:11:58,464] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 36539
+[2026-05-17 10:12:10,767] INFO django.server log "GET /complaints/investigator/submit-findings/3/ HTTP/1.1" 200 27943

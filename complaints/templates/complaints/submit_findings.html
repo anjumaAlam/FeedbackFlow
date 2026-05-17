@@ -5,89 +5,46 @@
 {% block extra_css %}
 <style>
     .verdict-option {
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 0.75rem;
-        cursor: pointer;
-        transition: all 0.15s;
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-        background-color: #ffffff;
-        color: #212529;
-        width: 100%;
+        border: 2px solid #e5e7eb; border-radius: 10px; padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem; cursor: pointer; transition: all 0.15s;
+        display: flex; align-items: flex-start; gap: 0.75rem;
+        background-color: #ffffff; color: #212529; width: 100%;
     }
-    .verdict-option:has(input:checked) {
-        border-color: #3b82f6;
-        background: #eff6ff;
-    }
-    .verdict-option:has(input:checked) .verdict-dot {
-        background-color: #3b82f6;
-        border-color: #3b82f6;
-    }
-    .verdict-option:has(input:checked) .verdict-dot::after {
-        display: block;
-    }
+    .verdict-option:has(input:checked) { border-color: #3b82f6; background: #eff6ff; }
+    .verdict-option:has(input:checked) .verdict-dot { background-color: #3b82f6; border-color: #3b82f6; }
+    .verdict-option:has(input:checked) .verdict-dot::after { display: block; }
     .verdict-option input[type="radio"] { display: none; }
     .verdict-dot {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        border: 2px solid #9ca3af;
-        background: #fff;
-        flex-shrink: 0;
-        margin-top: 3px;
-        position: relative;
-        transition: all 0.15s;
+        width: 20px; height: 20px; border-radius: 50%; border: 2px solid #9ca3af;
+        background: #fff; flex-shrink: 0; margin-top: 3px; position: relative; transition: all 0.15s;
     }
     .verdict-dot::after {
-        content: '';
-        display: none;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #fff;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        content: ''; display: none; width: 8px; height: 8px; border-radius: 50%;
+        background: #fff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     }
     .verdict-group { display: flex; flex-direction: column; gap: 0.5rem; }
     .verdict-option .label { font-weight: 600; color: #212529; }
     .verdict-option .desc  { font-size: 0.85rem; color: #6b7280; margin-top: 2px; }
     .complaint-preview {
-        background: #f9fafb;
-        border-left: 4px solid #3b82f6;
-        padding: 1.5rem;
-        border-radius: 8px;
-        color: #212529;
+        background: #f9fafb; border-left: 4px solid #3b82f6;
+        padding: 1.5rem; border-radius: 8px; color: #212529;
     }
-    .already-submitted {
-        background: #f0fdf4;
-        border: 1px solid #86efac;
-        border-radius: 8px;
-        padding: 1.25rem;
-        color: #212529;
+    .already-submitted { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1.25rem; color: #212529; }
+    .card-body textarea, .card-body input[type="text"], .card-body select {
+        background-color: #ffffff !important; color: #212529 !important; border: 1px solid #ced4da !important;
     }
-    .card-body textarea,
-    .card-body input[type="text"],
-    .card-body select {
-        background-color: #ffffff !important;
-        color: #212529 !important;
-        border: 1px solid #ced4da !important;
-    }
-    .card-body textarea::placeholder,
-    .card-body input::placeholder { color: #6b7280 !important; }
+    .card-body textarea::placeholder, .card-body input::placeholder { color: #6b7280 !important; }
     .card-body .form-label { color: #212529 !important; }
     .card-body p, .card-body strong, .card-body h5 { color: #212529; }
     .card-body small.text-muted { color: #6b7280 !important; }
-    .alert-info {
-        background-color: #eff6ff !important;
-        border-color: #bfdbfe !important;
-        color: #1e3a5f !important;
-    }
+    .alert-info { background-color: #eff6ff !important; border-color: #bfdbfe !important; color: #1e3a5f !important; }
     .alert-info strong { color: #1e3a5f !important; }
+    .clarification-responses-box {
+        background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .clarification-responses-box p, .clarification-responses-box strong { color: #111 !important; }
+    .response-item { background: #fff; border: 1px solid #d1fae5; border-radius: 8px; padding: 1rem; margin-top: 0.75rem; }
+    .response-item p, .response-item strong { color: #111 !important; }
 </style>
 {% endblock %}
 
@@ -133,38 +90,42 @@
                 </div>
             </div>
 
-            {% if existing_finding %}
-            <!-- Already Submitted -->
+            <!-- Clarification responses panel (shown when responses are ready) -->
+            {% if clarification_responses %}
+            <div class="clarification-responses-box">
+                <h5 style="color:#166534; font-weight:700; margin-bottom:1rem;">
+                    📋 Clarification Responses — Review Before Submitting Final Verdict
+                </h5>
+                {% for cr in clarification_responses %}
+                <div class="response-item">
+                    <p class="mb-1">
+                        <strong>
+                            {% if cr.request_type == 'Student' %}👤 Student{% else %}👨‍🏫 Accused Faculty{% endif %}
+                            — {{ cr.responded_by.full_name }}
+                        </strong>
+                        <span class="text-muted ms-2" style="font-size:0.85rem;">{{ cr.responded_at|date:"M d, Y - h:i A" }}</span>
+                    </p>
+                    <p class="mb-0" style="white-space:pre-line; font-size:0.95rem;">{{ cr.response_text }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- STATE: Needs More Info, no responses yet — show waiting screen -->
+            {% if existing_finding and existing_finding.verdict == 'Needs More Info' and not clarification_responses %}
             <div class="already-submitted mb-4">
-                <h5 class="text-success mb-3">✅ You Have Already Submitted Findings</h5>
+                <h5 class="text-warning mb-3">⏳ Awaiting Clarification Responses</h5>
                 <p class="mb-1"><strong>Submitted On:</strong> {{ existing_finding.submitted_at|date:"M d, Y - h:i A" }}</p>
-                <p class="mb-2"><strong>Verdict:</strong>
-                    <span class="badge
-                        {% if existing_finding.verdict == 'Proven' %}bg-danger
-                        {% elif existing_finding.verdict == 'Unproven' %}bg-success
-                        {% else %}bg-warning text-dark
-                        {% endif %}">
-                        {{ existing_finding.verdict }}
-                    </span>
-                </p>
-                {% if existing_finding.verdict == 'Needs More Info' %}
+                <p class="mb-2"><strong>Verdict:</strong> <span class="badge bg-warning text-dark">Needs More Info</span></p>
                 <div class="alert mt-3" style="background:#fef9c3; border:1px solid #fcd34d; color:#92400e; border-radius:8px;">
                     ⏳ <strong>Awaiting HOD Action:</strong> The HOD has been notified and will send
-                    the clarification request to the relevant parties. You will be notified once
-                    responses are received.
+                    the clarification request to the relevant parties. You will be notified once responses are received.
                 </div>
-                {% endif %}
-                <p class="mb-1 mt-2"><strong>Findings:</strong></p>
-                <p class="mb-0">{{ existing_finding.findings }}</p>
                 {% if existing_finding.needs_student_clarification or existing_finding.needs_faculty_statement %}
                 <div class="mt-3">
                     <strong>Clarification Requested From:</strong>
-                    {% if existing_finding.needs_student_clarification %}
-                        <span class="badge bg-info ms-1">Student</span>
-                    {% endif %}
-                    {% if existing_finding.needs_faculty_statement %}
-                        <span class="badge bg-warning text-dark ms-1">Accused Faculty</span>
-                    {% endif %}
+                    {% if existing_finding.needs_student_clarification %}<span class="badge bg-info ms-1">Student</span>{% endif %}
+                    {% if existing_finding.needs_faculty_statement %}<span class="badge bg-warning text-dark ms-1">Accused Faculty</span>{% endif %}
                 </div>
                 <div class="mt-2">
                     <strong>Questions Asked:</strong>
@@ -174,12 +135,32 @@
             </div>
             <a href="{% url 'investigator_dashboard' %}" class="btn btn-outline-secondary">← Back to Dashboard</a>
 
+            <!-- STATE: Final verdict already submitted (Proven/Unproven) -->
+            {% elif existing_finding and existing_finding.verdict != 'Needs More Info' %}
+            <div class="already-submitted mb-4">
+                <h5 class="text-success mb-3">✅ Final Findings Already Submitted</h5>
+                <p class="mb-1"><strong>Submitted On:</strong> {{ existing_finding.submitted_at|date:"M d, Y - h:i A" }}</p>
+                <p class="mb-2"><strong>Verdict:</strong>
+                    <span class="badge {% if existing_finding.verdict == 'Proven' %}bg-danger{% else %}bg-success{% endif %}">
+                        {{ existing_finding.verdict }}
+                    </span>
+                </p>
+                <p class="mb-1 mt-2"><strong>Findings:</strong></p>
+                <p class="mb-0">{{ existing_finding.findings }}</p>
+            </div>
+            <a href="{% url 'investigator_dashboard' %}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+
+            <!-- STATE: No existing finding OR clarification responses ready → show the form -->
             {% else %}
-            <!-- Findings Form -->
             <div class="alert alert-info">
                 <strong>📌 Guidelines:</strong> Be objective and factual. Document all evidence gathered,
                 conversations held, and observations made. Your report goes only to the HOD.
+                {% if clarification_responses %}
+                <br><br><strong>📋 Note:</strong> You are submitting your <strong>final verdict</strong>
+                after reviewing the clarification responses above. Only Proven/Unproven are available now.
+                {% else %}
                 Once submitted it cannot be edited.
+                {% endif %}
             </div>
 
             <form method="post">
@@ -205,6 +186,8 @@
                                 <div class="desc">Insufficient evidence to support the complaint.</div>
                             </div>
                         </label>
+                        <!-- Only show Needs More Info if no clarification responses yet -->
+                        {% if not clarification_responses %}
                         <label class="verdict-option" onclick="handleVerdictChange('Needs More Info')">
                             <input type="radio" name="verdict" value="Needs More Info">
                             <div class="verdict-dot"></div>
@@ -213,20 +196,15 @@
                                 <div class="desc">More evidence needed — HOD will send clarification request to relevant parties.</div>
                             </div>
                         </label>
+                        {% endif %}
                     </div>
-                    {% if form.verdict.errors %}
-                        <div class="text-danger small mt-1">{{ form.verdict.errors }}</div>
-                    {% endif %}
+                    {% if form.verdict.errors %}<div class="text-danger small mt-1">{{ form.verdict.errors }}</div>{% endif %}
                 </div>
 
                 <!-- Needs More Info Panel -->
                 <div id="clarification-panel" style="display:none;" class="mb-4">
                     <div style="background:#fef9c3; border:1px solid #fcd34d; border-radius:10px; padding:1.25rem;">
-                        <h6 style="color:#854d0e; font-weight:700; margin-bottom:1rem;">
-                            🔍 Specify What Information You Need
-                        </h6>
-
-                        <!-- HOD flow explanation -->
+                        <h6 style="color:#854d0e; font-weight:700; margin-bottom:1rem;">🔍 Specify What Information You Need</h6>
                         <div style="background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:0.85rem; margin-bottom:1rem;">
                             <p style="color:#9a3412; font-size:0.88rem; margin:0;">
                                 <strong>📋 How this works:</strong><br>
@@ -236,68 +214,44 @@
                                 4. Once they respond, you will be notified to review and submit your final verdict
                             </p>
                         </div>
-
                         <div class="mb-3">
-                            <label class="form-label fw-bold" style="color:#212529;">
-                                Who needs to provide information? <span class="text-danger">*</span>
-                            </label>
+                            <label class="form-label fw-bold" style="color:#212529;">Who needs to provide information? <span class="text-danger">*</span></label>
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox"
-                                       name="needs_student_clarification" id="needs_student"
-                                       value="true" onchange="toggleClarificationField()">
-                                <label class="form-check-label fw-bold" for="needs_student"
-                                       style="color:#212529;">
-                                    📧 Student needs to clarify
-                                </label>
-                                <div style="font-size:0.82rem; color:#6b7280;">
-                                    HOD will forward your questions to the student.
-                                </div>
+                                <input class="form-check-input" type="checkbox" name="needs_student_clarification" id="needs_student" value="true" onchange="toggleClarificationField()">
+                                <label class="form-check-label fw-bold" for="needs_student" style="color:#212529;">📧 Student needs to clarify</label>
+                                <div style="font-size:0.82rem; color:#6b7280;">HOD will forward your questions to the student.</div>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox"
-                                       name="needs_faculty_statement" id="needs_faculty"
-                                       value="true" onchange="toggleClarificationField()">
-                                <label class="form-check-label fw-bold" for="needs_faculty"
-                                       style="color:#212529;">
-                                    👨‍🏫 Accused Faculty needs to give statement
-                                </label>
-                                <div style="font-size:0.82rem; color:#6b7280;">
-                                    HOD will forward your questions to the accused faculty separately.
-                                </div>
+                                <input class="form-check-input" type="checkbox" name="needs_faculty_statement" id="needs_faculty" value="true" onchange="toggleClarificationField()">
+                                <label class="form-check-label fw-bold" for="needs_faculty" style="color:#212529;">👨‍🏫 Accused Faculty needs to give statement</label>
+                                <div style="font-size:0.82rem; color:#6b7280;">HOD will forward your questions to the accused faculty.</div>
                             </div>
                         </div>
-
                         <div id="questions-field" style="display:none;">
-                            <label class="form-label fw-bold" style="color:#212529;">
-                                Your Specific Questions <span class="text-danger">*</span>
-                            </label>
+                            <label class="form-label fw-bold" style="color:#212529;">Your Specific Questions <span class="text-danger">*</span></label>
                             <textarea name="clarification_questions" class="form-control" rows="4"
-                                placeholder="Be specific — e.g.:&#10;1. What was the exact date and time of the incident?&#10;2. Were there any witnesses present?&#10;3. Do you have any supporting documents or evidence?"></textarea>
-                            <small style="color:#6b7280;">
-                                These questions will be reviewed by HOD before being sent to the relevant parties.
-                            </small>
+                                placeholder="Be specific — e.g.:&#10;1. What was the exact date and time?&#10;2. Were there witnesses?&#10;3. Do you have supporting documents?"></textarea>
+                            <small style="color:#6b7280;">These questions will be reviewed by HOD before being sent.</small>
                         </div>
-
-                        {% if form.non_field_errors %}
-                            {% for error in form.non_field_errors %}
-                                <div class="text-danger small mt-2">{{ error }}</div>
-                            {% endfor %}
-                        {% endif %}
+                        {% if form.non_field_errors %}{% for error in form.non_field_errors %}<div class="text-danger small mt-2">{{ error }}</div>{% endfor %}{% endif %}
                     </div>
                 </div>
 
                 <!-- Findings -->
                 <div class="mb-4">
-                    <label class="form-label fw-bold">Detailed Findings <span class="text-danger">*</span></label>
+                    <label class="form-label fw-bold">
+                        Detailed Findings <span class="text-danger">*</span>
+                        {% if clarification_responses %}<small class="text-muted fw-normal ms-2">— Include your conclusion based on the clarification responses above</small>{% endif %}
+                    </label>
                     {{ form.findings }}
-                    <small class="text-muted">Include all relevant facts, evidence, and observations from your investigation.</small>
-                    {% if form.findings.errors %}
-                        <div class="text-danger small mt-1">{{ form.findings.errors }}</div>
-                    {% endif %}
+                    <small class="text-muted">Include all relevant facts, evidence, and observations.</small>
+                    {% if form.findings.errors %}<div class="text-danger small mt-1">{{ form.findings.errors }}</div>{% endif %}
                 </div>
 
                 <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg">📤 Submit Findings to HOD</button>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        {% if clarification_responses %}⚖️ Submit Final Verdict{% else %}📤 Submit Findings to HOD{% endif %}
+                    </button>
                     <a href="{% url 'investigator_dashboard' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
                 </div>
             </form>
@@ -316,17 +270,17 @@ function handleVerdictChange(verdict) {
         panel.style.display = 'block';
     } else {
         panel.style.display = 'none';
-        document.getElementById('needs_student').checked = false;
-        document.getElementById('needs_faculty').checked = false;
+        const ns = document.getElementById('needs_student');
+        const nf = document.getElementById('needs_faculty');
+        if (ns) ns.checked = false;
+        if (nf) nf.checked = false;
         document.getElementById('questions-field').style.display = 'none';
     }
 }
-
 function toggleClarificationField() {
     const student = document.getElementById('needs_student').checked;
     const faculty = document.getElementById('needs_faculty').checked;
-    const qField = document.getElementById('questions-field');
-    qField.style.display = (student || faculty) ? 'block' : 'none';
+    document.getElementById('questions-field').style.display = (student || faculty) ? 'block' : 'none';
 }
 </script>
 {% endblock %}

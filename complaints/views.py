@@ -418,6 +418,16 @@ def submit_findings(request, investigation_id):
         investigation=investigation, submitted_by=request.user
     ).first()
 
+    clarification_responses = []
+    if existing_finding and existing_finding.verdict == 'Needs More Info':
+        all_clarifications = ClarificationRequest.objects.filter(finding=existing_finding)
+        responded = all_clarifications.filter(status='Responded')
+
+        if all_clarifications.exists() and all_clarifications.count() == responded.count():
+            clarification_responses = list(responded)
+            existing_finding.delete()
+            existing_finding = None
+
     if request.method == 'POST':
         if existing_finding:
             messages.warning(request, 'You have already submitted findings for this investigation.')
@@ -425,9 +435,9 @@ def submit_findings(request, investigation_id):
 
         form = InvestigationFindingsForm(request.POST)
         if form.is_valid():
-            finding               = form.save(commit=False)
+            finding = form.save(commit=False)
             finding.investigation = investigation
-            finding.submitted_by  = request.user
+            finding.submitted_by = request.user
             finding.save()
 
             if finding.verdict == 'Needs More Info':
@@ -443,7 +453,7 @@ def submit_findings(request, investigation_id):
                     message=(
                         f'{request.user.full_name} needs clarification from: {", ".join(clarification_needed)}.\n\n'
                         f'Questions:\n{finding.clarification_questions}\n\n'
-                        f'Please review and forward the clarification request from the complaint handle page.'
+                        f'Please review and send the clarification request from the complaint handle page.'
                     ),
                     notification_type='complaint',
                     link=f'/complaints/hod/handle/{complaint.id}/',
@@ -480,11 +490,12 @@ def submit_findings(request, investigation_id):
         form = InvestigationFindingsForm()
 
     context = {
-        'form':             form,
-        'investigation':    investigation,
-        'complaint':        complaint,
-        'existing_finding': existing_finding,
-        'page_title':       f'Submit Findings — {complaint.tracking_id}',
+        'form':                    form,
+        'investigation':           investigation,
+        'complaint':               complaint,
+        'existing_finding':        existing_finding,
+        'clarification_responses': clarification_responses,
+        'page_title':              f'Submit Findings — {complaint.tracking_id}',
     }
     return render(request, 'complaints/submit_findings.html', context)
 
@@ -615,19 +626,19 @@ def admin_complaints_list(request):
     complaints_list = Complaint.objects.all().order_by('-submitted_at')
 
     context = {
-        'complaints_list':    complaints_list,
-        'total_complaints':   complaints_list.count(),
-        'pending':            complaints_list.filter(status='Pending').count(),
-        'investigating':      complaints_list.filter(status='Under Investigation').count(),
-        'resolved':           complaints_list.filter(status='Resolved').count(),
-        'escalated':          complaints_list.filter(status='Escalated').count(),
-        'faculty_complaints': complaints_list.filter(complaint_type='Faculty').count(),
-        'hod_complaints':     complaints_list.filter(complaint_type='HOD').count(),
-        'staff_complaints':   complaints_list.filter(complaint_type='Staff').count(),
-        'facility_complaints':complaints_list.filter(complaint_type='Facility').count(),
-        'advice_complaints':  complaints_list.filter(complaint_type='Advice').count(),
-        'opinion_complaints': complaints_list.filter(complaint_type='Opinion').count(),
-        'page_title':         'All Complaints'
+        'complaints_list':     complaints_list,
+        'total_complaints':    complaints_list.count(),
+        'pending':             complaints_list.filter(status='Pending').count(),
+        'investigating':       complaints_list.filter(status='Under Investigation').count(),
+        'resolved':            complaints_list.filter(status='Resolved').count(),
+        'escalated':           complaints_list.filter(status='Escalated').count(),
+        'faculty_complaints':  complaints_list.filter(complaint_type='Faculty').count(),
+        'hod_complaints':      complaints_list.filter(complaint_type='HOD').count(),
+        'staff_complaints':    complaints_list.filter(complaint_type='Staff').count(),
+        'facility_complaints': complaints_list.filter(complaint_type='Facility').count(),
+        'advice_complaints':   complaints_list.filter(complaint_type='Advice').count(),
+        'opinion_complaints':  complaints_list.filter(complaint_type='Opinion').count(),
+        'page_title':          'All Complaints'
     }
     return render(request, 'complaints/admins_complaints_list.html', context)
 
@@ -1190,7 +1201,15 @@ def view_clarification_responses(request, finding_id):
         messages.error(request, 'Access denied.')
         return redirect('login')
 
-    finding        = get_object_or_404(InvestigationFinding, id=finding_id)
+    # ✅ FIXED — graceful error instead of 404 crash
+    try:
+        finding = InvestigationFinding.objects.get(id=finding_id)
+    except InvestigationFinding.DoesNotExist:
+        messages.error(request, 'Finding not found. The investigator may need to resubmit their findings.')
+        if request.user.role == 'HOD':
+            return redirect('hod_complaints_list')
+        return redirect('investigator_dashboard')
+
     clarifications = ClarificationRequest.objects.filter(finding=finding)
     all_responded  = clarifications.exists() and all(
         c.status == 'Responded' for c in clarifications
