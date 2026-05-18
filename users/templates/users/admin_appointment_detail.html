@@ -53,6 +53,9 @@
                 <hr>
                 <p class="mb-1"><strong>Description:</strong></p>
                 <p class="mb-0">{{ appointment.description }}</p>
+                <a href="{% url 'appointment_notes' appointment.id %}" class="btn btn-warning btn-sm">
+    🔒 View Confidential Notes
+</a>
             </div>
 
             <!-- Update History -->

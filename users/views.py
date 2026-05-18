@@ -1507,3 +1507,350 @@ def academic_timeline(request):
         'resolved_count': Complaint.objects.filter(student=request.user, status='Resolved').count(),
     }
     return render(request, 'users/academic_timeline.html', context)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Add these imports at the top of users/views.py (merge with existing):
+#
+#   from .models import User, Appointment, AppointmentUpdate,
+#                       AppointmentNote, Notification, Task
+#   from .forms  import (..., CommitteeOutcomeForm, ConvertToComplaintForm)
+#
+# Then paste the 3 views below into users/views.py,
+# replacing the existing committee_appointment_action view.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@login_required
+def committee_appointment_action(request, appointment_id):
+    """
+    Committee reviews appointment and either:
+    - Schedules a meeting (with location), or
+    - Rejects the request
+    After the meeting they use committee_log_outcome to log what happened.
+    """
+    if request.user.role != 'Committee':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    from .forms import CommitteeUpdateForm
+    from .models import AppointmentUpdate, AppointmentNote
+
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    updates     = AppointmentUpdate.objects.filter(appointment=appointment).order_by('-created_at')
+    notes       = AppointmentNote.objects.filter(appointment=appointment).order_by('-created_at')
+    form        = CommitteeUpdateForm()
+
+    if request.method == 'POST':
+        form = CommitteeUpdateForm(request.POST)
+        if form.is_valid():
+            action        = form.cleaned_data['action']
+            message       = form.cleaned_data['message']
+            meeting_date  = form.cleaned_data.get('meeting_date')
+
+            appointment.status = action
+            appointment.save()
+
+            AppointmentUpdate.objects.create(
+                appointment=appointment,
+                updated_by=request.user,
+                message=message,
+                meeting_date=meeting_date,
+                status=action,
+            )
+
+            # Notify all admins
+            for admin in User.objects.filter(role='Admin'):
+                Notification.objects.create(
+                    recipient=admin,
+                    title=f'Committee Update — {appointment.name}',
+                    message=(
+                        f'{request.user.full_name} ({request.user.committee_type}) '
+                        f'responded to appointment from {appointment.name}. '
+                        f'Decision: {action}.'
+                    ),
+                    notification_type='appointment',
+                    link=f'/dashboard/appointments/{appointment.id}/',
+                )
+
+            # Notify student
+            if action == 'Meeting Scheduled':
+                student_msg = (
+                    f'Your appointment with {request.user.committee_type} has been '
+                    f'confirmed. Meeting scheduled for '
+                    f'{meeting_date.strftime("%A, %B %d, %Y at %I:%M %p") if meeting_date else "a date TBC"}. '
+                    f'{message}'
+                )
+                student_title = '📅 Meeting Confirmed — Appointment Update'
+            else:
+                student_msg   = f'Your appointment request has been reviewed. {message}'
+                student_title = f'Appointment Update — {action}'
+
+            Notification.objects.create(
+                recipient=appointment.student,
+                title=student_title,
+                message=student_msg,
+                notification_type='appointment',
+                link='/appointment/my/',
+            )
+
+            messages.success(request, 'Response submitted. Admin and student have been notified.')
+            return redirect('committee_dashboard')
+
+    context = {
+        'appointment': appointment,
+        'updates':     updates,
+        'notes':       notes,
+        'form':        form,
+        'page_title':  'Review Appointment',
+    }
+    return render(request, 'users/committee_appointment_action.html', context)
+
+
+@login_required
+def committee_log_outcome(request, appointment_id):
+    """
+    Committee logs the outcome AFTER the meeting has taken place.
+    Two possible outcomes:
+      - Resolved Informally → case closed
+      - Needs Formal Action → student gets a 'Convert to Complaint' button
+    Confidential notes are saved here (admin + committee only).
+    """
+    if request.user.role != 'Committee':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    from .forms import CommitteeOutcomeForm
+    from .models import AppointmentUpdate, AppointmentNote
+
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    # Can only log outcome after meeting is scheduled
+    if appointment.status not in ['Meeting Scheduled', 'Resolved Informally', 'Needs Formal Action']:
+        messages.error(request, 'You can only log an outcome after a meeting has been scheduled.')
+        return redirect('committee_appointment_action', appointment_id=appointment_id)
+
+    existing_notes = AppointmentNote.objects.filter(appointment=appointment).order_by('-created_at')
+
+    if request.method == 'POST':
+        form = CommitteeOutcomeForm(request.POST)
+        if form.is_valid():
+            outcome            = form.cleaned_data['outcome']
+            summary            = form.cleaned_data['summary']
+            meeting_location   = form.cleaned_data.get('meeting_location', '')
+            confidential_note  = form.cleaned_data.get('confidential_note', '').strip()
+
+            # Update appointment
+            appointment.outcome = outcome
+            appointment.status  = outcome
+            if meeting_location:
+                appointment.meeting_location = meeting_location
+            appointment.save()
+
+            # Save confidential note if provided
+            if confidential_note:
+                AppointmentNote.objects.create(
+                    appointment=appointment,
+                    added_by=request.user,
+                    note=confidential_note,
+                )
+
+            # Log update (summary visible to student)
+            AppointmentUpdate.objects.create(
+                appointment=appointment,
+                updated_by=request.user,
+                message=summary,
+                status=outcome,
+            )
+
+            # Notify admins with full details
+            for admin in User.objects.filter(role='Admin'):
+                Notification.objects.create(
+                    recipient=admin,
+                    title=f'Meeting Outcome Logged — {appointment.name}',
+                    message=(
+                        f'{request.user.full_name} has logged the outcome for '
+                        f'{appointment.name}\'s appointment.\n'
+                        f'Outcome: {outcome}\n'
+                        f'Summary: {summary}'
+                    ),
+                    notification_type='appointment',
+                    link=f'/dashboard/appointments/{appointment.id}/',
+                )
+
+            # Notify student — message depends on outcome
+            if outcome == 'Resolved Informally':
+                student_title = '✅ Appointment Resolved'
+                student_msg   = (
+                    f'Your appointment with the {appointment.appointment_with} has been '
+                    f'reviewed and the matter has been resolved informally.\n\n'
+                    f'{summary}'
+                )
+            else:  # Needs Formal Action
+                student_title = '⚠️ Formal Complaint Recommended'
+                student_msg   = (
+                    f'Following your discussion with the {appointment.appointment_with}, '
+                    f'the committee recommends that you file a formal complaint for '
+                    f'proper investigation.\n\n'
+                    f'{summary}\n\n'
+                    f'Please visit "My Appointments" to convert this to an official complaint.'
+                )
+
+            Notification.objects.create(
+                recipient=appointment.student,
+                title=student_title,
+                message=student_msg,
+                notification_type='appointment',
+                link='/appointment/my/',
+            )
+
+            messages.success(request, f'Outcome logged: {outcome}. Student and admin have been notified.')
+            return redirect('committee_dashboard')
+    else:
+        form = CommitteeOutcomeForm(initial={
+            'meeting_location': appointment.meeting_location or '',
+        })
+
+    context = {
+        'form':           form,
+        'appointment':    appointment,
+        'existing_notes': existing_notes,
+        'page_title':     f'Log Outcome — {appointment.name}',
+    }
+    return render(request, 'users/committee_log_outcome.html', context)
+
+
+@login_required
+def convert_to_complaint(request, appointment_id):
+    """
+    Student converts their appointment to a formal complaint.
+    Only available when outcome = 'Needs Formal Action' and not yet converted.
+    Appointment details pre-fill the form to save the student time.
+    """
+    if request.user.role != 'Student':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    from .forms import ConvertToComplaintForm
+
+    appointment = get_object_or_404(Appointment, id=appointment_id, student=request.user)
+
+    if not appointment.can_convert_to_complaint:
+        if appointment.converted_to_complaint:
+            messages.info(request, 'This appointment has already been converted to a complaint.')
+            return redirect('my_complaints')
+        messages.error(request, 'This appointment cannot be converted to a complaint at this stage.')
+        return redirect('my_appointments')
+
+    if request.method == 'POST':
+        form = ConvertToComplaintForm(request.POST)
+        if form.is_valid():
+            from complaints.models import Complaint
+
+            # Create the formal complaint
+            complaint = Complaint.objects.create(
+                student=request.user,
+                complaint_type='Faculty',          # default; most sensitive cases are faculty-related
+                subject=form.cleaned_data['subject'],
+                description=(
+                    f"{form.cleaned_data['description']}\n\n"
+                    f"--- From Appointment Discussion ---\n"
+                    f"Original Incident Type: {appointment.incident_type}\n"
+                    f"Committee: {appointment.appointment_with}\n"
+                    + (f"Additional Evidence: {form.cleaned_data['additional_evidence']}\n"
+                       if form.cleaned_data.get('additional_evidence') else '')
+                ),
+                is_anonymous=form.cleaned_data.get('is_anonymous', False),
+                priority='High',   # appointments converted to complaints are treated as high priority
+            )
+
+            # Link appointment to complaint
+            appointment.converted_to_complaint = complaint
+            appointment.save()
+
+            # Log an update on the appointment
+            from .models import AppointmentUpdate
+            AppointmentUpdate.objects.create(
+                appointment=appointment,
+                updated_by=request.user,
+                message=f'Student converted this appointment to a formal complaint (ID: {complaint.tracking_id}).',
+                status=appointment.status,
+            )
+
+            # Notify admin
+            for admin in User.objects.filter(role='Admin'):
+                Notification.objects.create(
+                    recipient=admin,
+                    title=f'Appointment Converted to Complaint — {complaint.tracking_id}',
+                    message=(
+                        f'{request.user.full_name} has converted their appointment '
+                        f'(originally with {appointment.appointment_with}) to a formal complaint. '
+                        f'Tracking ID: {complaint.tracking_id}.'
+                    ),
+                    notification_type='complaint',
+                    link=f'/complaints/detail/{complaint.id}/',
+                )
+
+            # Notify the committee member who handled the appointment
+            from .models import AppointmentNote
+            committee_member = User.objects.filter(
+                role='Committee',
+                committee_type=appointment.appointment_with,
+                is_active=True,
+            ).first()
+            if committee_member:
+                Notification.objects.create(
+                    recipient=committee_member,
+                    title=f'Appointment Converted to Formal Complaint',
+                    message=(
+                        f'{request.user.full_name} has filed a formal complaint '
+                        f'following their appointment discussion. '
+                        f'Complaint ID: {complaint.tracking_id}.'
+                    ),
+                    notification_type='complaint',
+                    link=f'/committee/dashboard/',
+                )
+
+            messages.success(
+                request,
+                f'Formal complaint filed successfully! Tracking ID: {complaint.tracking_id}. '
+                f'The relevant authority has been notified.'
+            )
+            return redirect('my_complaints')
+    else:
+        # Pre-fill from appointment details
+        form = ConvertToComplaintForm(initial={
+            'subject': f'{appointment.incident_type} — {appointment.appointment_with}',
+            'description': appointment.description,
+        })
+
+    context = {
+        'form':        form,
+        'appointment': appointment,
+        'page_title':  'Convert to Formal Complaint',
+    }
+    return render(request, 'users/convert_to_complaint.html', context)
+
+
+@login_required
+def appointment_notes(request, appointment_id):
+    """
+    View confidential notes for an appointment.
+    Accessible by Admin and the Committee member who handled it.
+    Student NEVER has access to this view.
+    """
+    if request.user.role not in ['Admin', 'Committee']:
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    from .models import AppointmentNote
+
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    notes       = AppointmentNote.objects.filter(appointment=appointment).order_by('-created_at')
+
+    context = {
+        'appointment': appointment,
+        'notes':       notes,
+        'page_title':  f'Confidential Notes — {appointment.name}',
+    }
+    return render(request, 'users/appointment_notes.html', context)

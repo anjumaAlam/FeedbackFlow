@@ -132,6 +132,41 @@
         </div>
     </div>
     {% endif %}
+    <!-- Convert to Complaint button -->
+{% if appt.outcome == 'Needs Formal Action' and not appt.converted_to_complaint %}
+<hr>
+<div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:8px; padding:1rem;">
+    <p style="color:#991b1b; font-weight:600; margin-bottom:0.5rem;">
+        ⚠️ Formal Complaint Recommended
+    </p>
+    <p style="color:#991b1b; font-size:0.88rem; margin-bottom:0.75rem;">
+        The committee has recommended that you file a formal complaint regarding this matter.
+    </p>
+    <a href="{% url 'convert_to_complaint' appt.id %}" class="btn btn-danger btn-sm fw-bold">
+        📋 Convert to Formal Complaint
+    </a>
+</div>
+{% elif appt.converted_to_complaint %}
+<hr>
+<div style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:1rem;">
+    <p style="color:#166534; font-weight:600; margin-bottom:0.25rem;">
+        ✅ Formal Complaint Filed
+    </p>
+    <p style="color:#166534; font-size:0.88rem; margin-bottom:0;">
+        Complaint ID: <strong>{{ appt.converted_to_complaint.tracking_id }}</strong>
+        <a href="{% url 'complaint_detail' appt.converted_to_complaint.id %}" class="btn btn-outline-success btn-sm ms-2">
+            View Complaint
+        </a>
+    </p>
+</div>
+{% elif appt.outcome == 'Resolved Informally' %}
+<hr>
+<div style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:0.75rem 1rem;">
+    <p style="color:#166534; font-weight:600; margin-bottom:0;">
+        ✅ Resolved Informally — No further action needed.
+    </p>
+</div>
+{% endif %}
 
 </div>
 {% endblock %}

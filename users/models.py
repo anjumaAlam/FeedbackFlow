@@ -23,23 +23,23 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = (
-        ('Student', 'Student'),
-        ('Faculty', 'Faculty'),
-        ('HOD', 'Head of Department'),
-        ('Staff', 'Staff'),
-        ('DAO', 'Dean of Administration Office'),
-        ('Admin', 'Administrator'),
+        ('Student',   'Student'),
+        ('Faculty',   'Faculty'),
+        ('HOD',       'Head of Department'),
+        ('Staff',     'Staff'),
+        ('DAO',       'Dean of Administration Office'),
+        ('Admin',     'Administrator'),
         ('Committee', 'Committee Member'),
     )
 
     DEPARTMENT_CHOICES = (
-        ('DBA', 'Department of Business Administration'),
-        ('CSE', 'Department of Computer Science and Engineering'),
-        ('CE', 'Department of Civil Engineering'),
-        ('EEE', 'Department of Electrical and Electronic Engineering'),
-        ('Pharmacy', 'Department of Pharmacy'),
-        ('Law', 'Department of Law and Human Rights'),
-        ('English', 'Department of English'),
+        ('DBA',          'Department of Business Administration'),
+        ('CSE',          'Department of Computer Science and Engineering'),
+        ('CE',           'Department of Civil Engineering'),
+        ('EEE',          'Department of Electrical and Electronic Engineering'),
+        ('Pharmacy',     'Department of Pharmacy'),
+        ('Law',          'Department of Law and Human Rights'),
+        ('English',      'Department of English'),
         ('Architecture', 'Department of Architecture'),
     )
 
@@ -48,23 +48,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('Proctorial Committee', 'Proctorial Committee'),
     )
 
-    email       = models.EmailField(unique=True, max_length=255)
-    full_name   = models.CharField(max_length=150)
-    role        = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    department  = models.CharField(max_length=100, choices=DEPARTMENT_CHOICES, null=True, blank=True)
-    student_id  = models.CharField(max_length=50, unique=True, null=True, blank=True)
-
-    # ✅ NEW — only relevant when role == 'Committee'
-    committee_type = models.CharField(
-        max_length=50,
-        choices=COMMITTEE_TYPE_CHOICES,
-        null=True, blank=True
-    )
-
-    is_active   = models.BooleanField(default=True)
-    is_staff    = models.BooleanField(default=False)
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now=True)
+    email          = models.EmailField(unique=True, max_length=255)
+    full_name      = models.CharField(max_length=150)
+    role           = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    department     = models.CharField(max_length=100, choices=DEPARTMENT_CHOICES, null=True, blank=True)
+    student_id     = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    committee_type = models.CharField(max_length=50, choices=COMMITTEE_TYPE_CHOICES, null=True, blank=True)
+    is_active      = models.BooleanField(default=True)
+    is_staff       = models.BooleanField(default=False)
+    created_at     = models.DateTimeField(auto_now_add=True)
+    updated_at     = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD  = 'email'
     REQUIRED_FIELDS = ['full_name']
@@ -90,23 +83,30 @@ class User(AbstractBaseUser, PermissionsMixin):
 # ─────────────────────────────────────────────────────────────
 
 class Appointment(models.Model):
-    # ✅ UPDATED — expanded status choices to match full workflow
     STATUS_CHOICES = [
-        ('Pending', 'Pending'),
+        ('Pending',                'Pending'),
         ('Forwarded to Committee', 'Forwarded to Committee'),
-        ('Meeting Scheduled', 'Meeting Scheduled'),
-        ('Rejected by Committee', 'Rejected by Committee'),
-        ('Closed', 'Closed'),
+        ('Meeting Scheduled',      'Meeting Scheduled'),
+        ('Rejected by Committee',  'Rejected by Committee'),
+        ('Resolved Informally',    'Resolved Informally'),    # NEW
+        ('Needs Formal Action',    'Needs Formal Action'),    # NEW
+        ('Closed',                 'Closed'),
+    ]
+
+    OUTCOME_CHOICES = [
+        ('Pending',             'Pending — No outcome yet'),
+        ('Resolved Informally', 'Resolved Informally — Case closed'),
+        ('Needs Formal Action', 'Needs Formal Action — Student should file complaint'),
     ]
 
     DEPARTMENT_CHOICES = (
-        ('DBA', 'Department of Business Administration (DBA)'),
-        ('CSE', 'Department of Computer Science and Engineering (CSE)'),
-        ('CE', 'Department of Civil Engineering (CE)'),
-        ('EEE', 'Department of Electrical and Electronic Engineering (EEE)'),
-        ('Pharmacy', 'Department of Pharmacy'),
-        ('Law', 'Department of Law and Human Rights'),
-        ('English', 'Department of English'),
+        ('DBA',          'Department of Business Administration (DBA)'),
+        ('CSE',          'Department of Computer Science and Engineering (CSE)'),
+        ('CE',           'Department of Civil Engineering (CE)'),
+        ('EEE',          'Department of Electrical and Electronic Engineering (EEE)'),
+        ('Pharmacy',     'Department of Pharmacy'),
+        ('Law',          'Department of Law and Human Rights'),
+        ('English',      'Department of English'),
         ('Architecture', 'Department of Architecture'),
     )
 
@@ -116,10 +116,13 @@ class Appointment(models.Model):
     ]
 
     INCIDENT_TYPE_CHOICES = [
-        ('Harassment', 'Harassment'),
-        ('Discrimination', 'Discrimination'),
-        ('Abuse', 'Abuse'),
-        ('Other', 'Other'),
+        ('Harassment',      'Harassment'),
+        ('Bullying',        'Bullying'),
+        ('Discrimination',  'Discrimination'),
+        ('Faculty Misconduct', 'Faculty Misconduct'),
+        ('Mental Pressure', 'Mental Pressure'),
+        ('Abuse',           'Abuse'),
+        ('Other',           'Other'),
     ]
 
     student          = models.ForeignKey('User', on_delete=models.CASCADE, related_name='appointments')
@@ -129,8 +132,24 @@ class Appointment(models.Model):
     department       = models.CharField(max_length=100, choices=DEPARTMENT_CHOICES)
     incident_type    = models.CharField(max_length=50, choices=INCIDENT_TYPE_CHOICES, default='Other')
     description      = models.TextField()
-    status           = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')  # ✅ max_length bumped to 50
-    created_at       = models.DateTimeField(auto_now_add=True)
+
+    # Meeting location (general field)
+    meeting_location = models.CharField(max_length=200, blank=True, null=True,
+        help_text='e.g. Room 204, Admin Block / Google Meet link')
+
+    # Outcome set by committee after the discussion session
+    outcome          = models.CharField(max_length=30, choices=OUTCOME_CHOICES, default='Pending')
+
+    # If outcome = Needs Formal Action, store the pre-filled complaint reference
+    converted_to_complaint = models.ForeignKey(
+        'complaints.Complaint',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='from_appointment'
+    )
+
+    status     = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering            = ['-created_at']
@@ -140,18 +159,24 @@ class Appointment(models.Model):
     def __str__(self):
         return f"{self.name} ({self.roll_number}) - {self.status}"
 
+    @property
+    def can_convert_to_complaint(self):
+        return self.outcome == 'Needs Formal Action' and self.converted_to_complaint is None
+
 
 # ─────────────────────────────────────────────────────────────
-# APPOINTMENT UPDATE  ✅ NEW
+# APPOINTMENT UPDATE
 # ─────────────────────────────────────────────────────────────
 
 class AppointmentUpdate(models.Model):
     STATUS_CHOICES = [
-        ('Pending', 'Pending'),
+        ('Pending',                'Pending'),
         ('Forwarded to Committee', 'Forwarded to Committee'),
-        ('Meeting Scheduled', 'Meeting Scheduled'),
-        ('Rejected by Committee', 'Rejected by Committee'),
-        ('Closed', 'Closed'),
+        ('Meeting Scheduled',      'Meeting Scheduled'),
+        ('Rejected by Committee',  'Rejected by Committee'),
+        ('Resolved Informally',    'Resolved Informally'),
+        ('Needs Formal Action',    'Needs Formal Action'),
+        ('Closed',                 'Closed'),
     ]
 
     appointment  = models.ForeignKey('Appointment', on_delete=models.CASCADE, related_name='updates')
@@ -169,15 +194,37 @@ class AppointmentUpdate(models.Model):
 
 
 # ─────────────────────────────────────────────────────────────
+# APPOINTMENT NOTE  (CONFIDENTIAL — committee + admin only)
+# ─────────────────────────────────────────────────────────────
+
+class AppointmentNote(models.Model):
+    """
+    Private notes added by committee member during/after the discussion.
+    Student NEVER sees these. Only committee member and admin can view.
+    Examples: 'Student appeared distressed', 'Needs follow-up', etc.
+    """
+    appointment = models.ForeignKey('Appointment', on_delete=models.CASCADE, related_name='notes')
+    added_by    = models.ForeignKey('User', on_delete=models.CASCADE, related_name='appointment_notes')
+    note        = models.TextField()
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Note by {self.added_by.full_name} on {self.appointment}"
+
+
+# ─────────────────────────────────────────────────────────────
 # NOTIFICATION
 # ─────────────────────────────────────────────────────────────
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
-        ('complaint', 'Complaint'),
-        ('appointment', 'Appointment'),
-        ('update', 'Complaint Update'),
-        ('feedback', 'Feedback'),
+        ('complaint',    'Complaint'),
+        ('appointment',  'Appointment'),
+        ('update',       'Complaint Update'),
+        ('feedback',     'Feedback'),
         ('announcement', 'Announcement'),
     ]
 
@@ -202,12 +249,12 @@ class Notification(models.Model):
 
 class Task(models.Model):
     PRIORITY_CHOICES = (
-        ('Low', 'Low'),
+        ('Low',    'Low'),
         ('Medium', 'Medium'),
-        ('High', 'High'),
+        ('High',   'High'),
     )
     TYPE_CHOICES = (
-        ('Daily', 'Daily'),
+        ('Daily',  'Daily'),
         ('Weekly', 'Weekly'),
     )
 
@@ -228,33 +275,30 @@ class Task(models.Model):
 
 
 # ─────────────────────────────────────────────────────────────
-# ANNOUNCEMENT — OR 2.11
+# ANNOUNCEMENT
 # ─────────────────────────────────────────────────────────────
 
 class Announcement(models.Model):
-    """System-wide announcements visible to all users or specific roles."""
     PRIORITY_CHOICES = (
-        ('Low', 'Low'),
-        ('Normal', 'Normal'),
-        ('High', 'High'),
+        ('Low',      'Low'),
+        ('Normal',   'Normal'),
+        ('High',     'High'),
         ('Critical', 'Critical'),
     )
 
-    title = models.CharField(max_length=200)
-    content = models.TextField()
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Normal')
-    target_roles = models.CharField(
-        max_length=200, blank=True, default='',
-        help_text='Comma-separated roles (e.g. Student,Faculty). Leave blank for all.'
-    )
-    created_by = models.ForeignKey('User', on_delete=models.CASCADE, related_name='announcements_created')
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(null=True, blank=True)
+    title        = models.CharField(max_length=200)
+    content      = models.TextField()
+    priority     = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='Normal')
+    target_roles = models.CharField(max_length=200, blank=True, default='',
+        help_text='Comma-separated roles (e.g. Student,Faculty). Leave blank for all.')
+    created_by   = models.ForeignKey('User', on_delete=models.CASCADE, related_name='announcements_created')
+    is_active    = models.BooleanField(default=True)
+    created_at   = models.DateTimeField(auto_now_add=True)
+    expires_at   = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'Announcement'
+        ordering            = ['-created_at']
+        verbose_name        = 'Announcement'
         verbose_name_plural = 'Announcements'
 
     def __str__(self):
@@ -263,12 +307,9 @@ class Announcement(models.Model):
     @property
     def is_expired(self):
         from django.utils import timezone
-        if self.expires_at and timezone.now() > self.expires_at:
-            return True
-        return False
+        return bool(self.expires_at and timezone.now() > self.expires_at)
 
     def is_visible_to(self, user):
-        """Check if announcement is visible to a specific user."""
         if self.is_expired or not self.is_active:
             return False
         if not self.target_roles:

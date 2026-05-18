@@ -69,5 +69,9 @@ urlpatterns = [
     path('tasks/<int:task_id>/toggle/',  views.task_toggle, name='task_toggle'),
     path('tasks/<int:task_id>/delete/',  views.task_delete, name='task_delete'),
     path('timeline/', views.academic_timeline, name='academic_timeline'),
+    path('appointment/<int:appointment_id>/notes/', views.appointment_notes, name='appointment_notes'),
+    path('appointment/<int:appointment_id>/convert/', views.convert_to_complaint, name='convert_to_complaint'),
 ]
+
+
 

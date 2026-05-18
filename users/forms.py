@@ -475,3 +475,115 @@ class AnnouncementForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'expires_at': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
         }
+
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Paste these 3 forms at the BOTTOM of your users/forms.py
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    class CommitteeOutcomeForm(forms.Form):
+        """
+        Committee member uses this AFTER the meeting to log the outcome,
+        add meeting location, and optionally add confidential notes.
+        """
+        OUTCOME_CHOICES = [
+            ('Resolved Informally', '✅ Resolved Informally — Issue addressed, no formal action needed'),
+            ('Needs Formal Action', '⚠️ Needs Formal Action — Student should file an official complaint'),
+        ]
+
+        outcome = forms.ChoiceField(
+            choices=OUTCOME_CHOICES,
+            widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+            label='Meeting Outcome',
+        )
+
+        summary = forms.CharField(
+            label='Outcome Summary (visible to student)',
+            widget=forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': (
+                    'Brief summary the student will see. E.g. "The matter was '
+                    'discussed and resolved through mutual understanding." '
+                    'Do NOT include sensitive details here.'
+                ),
+            }),
+        )
+
+        meeting_location = forms.CharField(
+            label='Meeting Location',
+            required=False,
+            widget=forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g. Room 204, Admin Block / Google Meet — meet.google.com/abc-xyz',
+            }),
+        )
+
+        confidential_note = forms.CharField(
+            label='Confidential Notes (admin + committee only — student never sees this)',
+            required=False,
+            widget=forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': (
+                    'Private observations e.g.\n'
+                    '• Student appeared distressed\n'
+                    '• Evidence seems credible\n'
+                    '• Needs follow-up counseling\n'
+                    '• Insufficient evidence at this stage'
+                ),
+            }),
+        )
+
+    class ConvertToComplaintForm(forms.Form):
+        """
+        Student uses this to convert their appointment to a formal complaint.
+        Fields are pre-filled from the appointment — student only adds details.
+        """
+        subject = forms.CharField(
+            label='Complaint Subject',
+            widget=forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Brief title of your formal complaint',
+            }),
+        )
+
+        description = forms.CharField(
+            label='Full Statement',
+            widget=forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 6,
+                'placeholder': (
+                    'Provide your complete statement:\n'
+                    '• What happened?\n'
+                    '• When and where?\n'
+                    '• Who was involved?\n'
+                    '• Any witnesses?\n'
+                    '• Any prior attempts to resolve?'
+                ),
+            }),
+        )
+
+        accused_name = forms.CharField(
+            label='Name of Accused Person (if applicable)',
+            required=False,
+            widget=forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Full name of the person you are complaining about',
+            }),
+        )
+
+        additional_evidence = forms.CharField(
+            label='Additional Evidence / Witnesses',
+            required=False,
+            widget=forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'List any documents, witnesses, dates, or other supporting evidence...',
+            }),
+        )
+
+        is_anonymous = forms.BooleanField(
+            label='Submit Anonymously (your name will be hidden from faculty)',
+            required=False,
+            widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        )

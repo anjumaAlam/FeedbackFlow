@@ -4424,3 +4424,21 @@ django.template.exceptions.TemplateDoesNotExist: complaints/staff_task_list.html
 [2026-05-19 03:24:42,402] INFO django.server log "GET /complaints/investigator/submit-findings/5/ HTTP/1.1" 200 39479
 [2026-05-19 03:24:50,150] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
 [2026-05-19 03:24:50,169] INFO django.server log "GET /login/ HTTP/1.1" 200 19114
+[2026-05-19 03:37:39,667] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-allahuakbar\users\models.py changed, reloading.
+[2026-05-19 03:37:45,540] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-19 03:38:20,169] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-allahuakbar\users\forms.py changed, reloading.
+[2026-05-19 03:38:24,662] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-19 03:39:38,903] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-allahuakbar\users\views.py changed, reloading.
+[2026-05-19 03:39:48,729] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-19 03:41:57,380] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-allahuakbar\users\urls.py changed, reloading.
+[2026-05-19 03:42:00,675] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-19 03:50:03,876] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-19 03:50:15,819] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-19 03:50:20,405] INFO django.server log "GET /login/ HTTP/1.1" 200 18805
+[2026-05-19 03:50:31,002] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-19 03:50:31,133] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 40808
+[2026-05-19 03:50:35,554] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22279
+[2026-05-19 03:50:46,165] INFO django.server log "POST /appointment/ HTTP/1.1" 302 0
+[2026-05-19 03:50:46,225] INFO django.server log "GET /appointment/ HTTP/1.1" 200 23016
+[2026-05-19 03:50:52,166] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-19 03:50:52,177] INFO django.server log "GET /login/ HTTP/1.1" 200 19116
