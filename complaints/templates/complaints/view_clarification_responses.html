@@ -3,205 +3,340 @@
 
 {% block extra_css %}
 <style>
-    /* ── Page Layout ── */
+    /* ── Layout ── */
     .page-wrapper {
         max-width: 960px;
         margin: 0 auto;
+        padding-bottom: 3rem;
     }
 
+    /* ── Page Header ── */
     .page-header {
-        background: linear-gradient(135deg, rgba(37,99,235,0.15), rgba(139,92,246,0.1));
-        border: 1px solid rgba(37,99,235,0.2);
-        border-radius: 16px;
-        padding: 1.75rem 2rem;
+        background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(139,92,246,0.12));
+        border: 1px solid rgba(37,99,235,0.22);
+        border-radius: 18px;
+        padding: 2rem 2.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h2 {
+        color: #fff;
+        font-weight: 800;
+        font-size: 1.6rem;
+        margin-bottom: 0.35rem;
+        letter-spacing: 0.01em;
+    }
+
+    .page-header p {
+        color: rgba(255,255,255,0.65);
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .page-header p strong {
+        color: rgba(255,255,255,0.9);
+    }
+
+    /* ── Progress Card ── */
+    .progress-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1.5rem 1.75rem;
         margin-bottom: 1.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .progress-card .progress-label {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .progress {
+        height: 10px;
+        border-radius: 20px;
+        background: #e5e7eb;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        border-radius: 20px;
+        transition: width 0.4s ease;
+    }
+
+    .progress-note {
+        font-size: 0.83rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
     }
 
     /* ── Status Banners ── */
-    .status-banner-success {
+    .status-banner {
+        border-radius: 14px;
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .status-banner h5 {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .status-banner p {
+        font-size: 0.92rem;
+        margin: 0;
+        line-height: 1.7;
+    }
+
+    .status-banner.success {
         background: #f0fdf4;
-        border: 1px solid #86efac;
-        border-radius: 12px;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 1.5rem;
+        border: 1.5px solid #86efac;
         color: #166534;
     }
-    .status-banner-success strong { color: #166534 !important; }
 
-    .status-banner-waiting {
-        background: #fef9c3;
-        border: 1px solid #fcd34d;
-        border-radius: 12px;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 1.5rem;
+    .status-banner.success h5 { color: #166534; }
+    .status-banner.success p  { color: #15803d; }
+
+    .status-banner.waiting {
+        background: #fefce8;
+        border: 1.5px solid #fcd34d;
         color: #92400e;
     }
-    .status-banner-waiting strong { color: #92400e !important; }
+
+    .status-banner.waiting h5 { color: #92400e; }
+    .status-banner.waiting p  { color: #a16207; }
+
+    /* ── Section Heading ── */
+    .section-heading {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        letter-spacing: 0.02em;
+    }
 
     /* ── Response Cards ── */
     .response-card {
         background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 1.75rem;
-        margin-bottom: 1.25rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        transition: transform 0.15s;
-    }
-    .response-card:hover { transform: translateY(-1px); }
-    .response-card.pending   {
-        border-left: 5px solid #f59e0b;
-        background: #fffbeb;
-    }
-    .response-card.responded {
-        border-left: 5px solid #22c55e;
-        background: #f0fdf4;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 3px 14px rgba(0,0,0,0.05);
+        transition: transform 0.15s, box-shadow 0.15s;
     }
 
-    .response-card p,
-    .response-card strong,
-    .response-card small { color: #212529 !important; }
+    .response-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 22px rgba(0,0,0,0.09);
+    }
+
+    .response-card.pending {
+        border-left: 5px solid #f59e0b;
+        background: #fffdf5;
+    }
+
+    .response-card.responded {
+        border-left: 5px solid #22c55e;
+        background: #f9fffe;
+    }
 
     /* ── Card Header ── */
     .response-card-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1.25rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e5e7eb;
+        align-items: center;
+        margin-bottom: 1.4rem;
+        padding-bottom: 1.1rem;
+        border-bottom: 1.5px solid #f1f5f9;
     }
 
     .response-card-title {
-        font-size: 1rem;
+        font-size: 1.05rem;
         font-weight: 700;
-        color: #1e3a8a !important;
+        color: #1e3a8a;
         margin: 0;
     }
 
-    /* ── Meta Info ── */
-    .meta-row {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-        color: #374151 !important;
+    /* ── Meta Row ── */
+    .meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem 1.5rem;
+        margin-bottom: 1.25rem;
     }
+
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
     .meta-label {
-        font-weight: 600;
-        color: #374151 !important;
-        min-width: 120px;
-    }
-    .meta-value { color: #4b5563 !important; }
-
-    /* ── Questions Box ── */
-    .questions-box {
-        background: #f8faff;
-        border: 1px solid #bfdbfe;
-        border-radius: 10px;
-        padding: 1.25rem 1.5rem;
-        margin: 1rem 0;
-        color: #1e3a8a;
-        white-space: pre-line;
-        font-size: 0.92rem;
-        line-height: 1.75;
-    }
-    .questions-box strong { color: #1e40af !important; }
-
-    /* ── Response Box ── */
-    .response-box {
-        background: #f0fdf4;
-        border: 1px solid #86efac;
-        border-radius: 10px;
-        padding: 1.25rem 1.5rem;
-        margin-top: 1rem;
-        color: #212529;
-        white-space: pre-line;
-        font-size: 0.92rem;
-        line-height: 1.75;
-    }
-    .response-box strong { color: #166534 !important; }
-    .response-box p { color: #212529 !important; }
-
-    /* ── Awaiting Box ── */
-    .awaiting-box {
-        background: #fff7ed;
-        border: 1px solid #fed7aa;
-        border-radius: 10px;
-        padding: 1rem 1.25rem;
-        margin-top: 1rem;
-        color: #9a3412;
-        font-size: 0.9rem;
-    }
-
-    /* ── Action Button ── */
-    .btn-final-verdict {
-        background: linear-gradient(135deg, #16a34a, #15803d);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        padding: 0.65rem 1.75rem;
-        font-size: 0.92rem;
-        font-weight: 700;
-        transition: all 0.15s;
-        text-decoration: none;
-        display: inline-block;
-        margin-top: 0.75rem;
-    }
-    .btn-final-verdict:hover {
-        background: linear-gradient(135deg, #15803d, #166534);
-        color: #fff;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 14px rgba(22,163,74,0.35);
-    }
-
-    /* ── Badge ── */
-    .badge {
         font-size: 0.78rem;
-        padding: 0.4rem 0.85rem;
-        border-radius: 20px;
-        font-weight: 600;
-    }
-
-    /* ── Progress Bar ── */
-    .progress-section {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .progress-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #374151 !important;
-        margin-bottom: 0.5rem;
-    }
-    .progress {
-        height: 8px;
-        border-radius: 10px;
-        background: #e5e7eb;
-    }
-    .progress-bar { border-radius: 10px; }
-
-    /* ── Section Title ── */
-    .section-heading {
-        color: #ffffff;
         font-weight: 700;
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .meta-value {
+        font-size: 0.92rem;
+        color: #1f2937;
+        font-weight: 500;
+        line-height: 1.5;
     }
 
     /* ── Divider ── */
     .card-divider {
         border: none;
-        border-top: 1px solid #e5e7eb;
-        margin: 1rem 0;
+        border-top: 1.5px solid #f1f5f9;
+        margin: 1.25rem 0;
+    }
+
+    /* ── Questions Box ── */
+    .questions-box {
+        background: #f0f6ff;
+        border: 1.5px solid #bfdbfe;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        color: #1e3a8a;
+        white-space: pre-line;
+        font-size: 0.93rem;
+        line-height: 1.8;
+        margin-top: 0.5rem;
+    }
+
+    .questions-box strong {
+        color: #1e40af;
+    }
+
+    /* ── Response Box ── */
+    .response-box {
+        background: #f0fdf4;
+        border: 1.5px solid #86efac;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        color: #1f2937;
+        white-space: pre-line;
+        font-size: 0.93rem;
+        line-height: 1.8;
+        margin-top: 0.5rem;
+    }
+
+    /* ── Awaiting Box ── */
+    .awaiting-box {
+        background: #fff7ed;
+        border: 1.5px solid #fed7aa;
+        border-radius: 12px;
+        padding: 1.1rem 1.4rem;
+        color: #9a3412;
+        font-size: 0.9rem;
+        line-height: 1.7;
+        margin-top: 0.75rem;
+    }
+
+    /* ── Box Labels ── */
+    .box-label {
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.4rem;
+        display: block;
+    }
+
+    .box-label.blue  { color: #1e40af; }
+    .box-label.green { color: #166534; }
+
+    /* ── Badge ── */
+    .badge {
+        font-size: 0.78rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 20px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+
+    /* ── Final Verdict Button ── */
+    .btn-final-verdict {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 0.85rem 2.25rem;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 3px 12px rgba(22,163,74,0.25);
+    }
+
+    .btn-final-verdict:hover {
+        background: linear-gradient(135deg, #15803d, #166534);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(22,163,74,0.35);
+    }
+
+    /* ── Bottom Action Box ── */
+    .bottom-action-box {
+        background: #f0fdf4;
+        border: 1.5px solid #86efac;
+        border-radius: 16px;
+        padding: 2rem 2.25rem;
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+    }
+
+    .bottom-action-box .action-text h5 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #166534;
+        margin-bottom: 0.35rem;
+    }
+
+    .bottom-action-box .action-text p {
+        font-size: 0.9rem;
+        color: #15803d;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: rgba(255,255,255,0.4);
+    }
+
+    .empty-state .empty-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+
+    @media (max-width: 600px) {
+        .meta-grid { grid-template-columns: 1fr; }
+        .bottom-action-box { flex-direction: column; align-items: flex-start; }
+        .response-card { padding: 1.25rem; }
     }
 </style>
 {% endblock %}
@@ -211,82 +346,62 @@
 <div class="page-wrapper">
 
     <!-- Back Button -->
-    <div class="mb-3">
+    <div class="mb-4">
         <a href="{% url 'investigator_dashboard' %}" class="btn btn-outline-secondary">
             ← Back to My Investigations
         </a>
     </div>
 
     <!-- Page Header -->
-    <div class="page-header mb-4">
+    <div class="page-header">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h2 style="color:#fff; font-weight:800; margin-bottom:0.25rem;">
-                    🔍 Clarification Responses
-                </h2>
-                <p style="color:rgba(255,255,255,.6); margin:0;">
+                <h2>🔍 Clarification Responses</h2>
+                <p>
                     Complaint:
-                    <strong style="color:rgba(255,255,255,.85);">{{ complaint.tracking_id }}</strong>
+                    <strong>{{ complaint.tracking_id }}</strong>
                     — {{ complaint.subject }}
                 </p>
             </div>
-            <div class="col-md-4 text-end">
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 <span class="badge {% if all_responded %}bg-success{% else %}bg-warning text-dark{% endif %}"
-                      style="font-size:0.85rem; padding:0.5rem 1rem;">
+                      style="font-size:0.88rem; padding:0.55rem 1.1rem;">
                     {% if all_responded %}✅ All Responded{% else %}⏳ Awaiting Responses{% endif %}
                 </span>
             </div>
         </div>
     </div>
 
-    <!-- Progress Section -->
-    {% with total=clarifications|length responded=0 %}
-    <div class="progress-section mb-4">
-        <div class="progress-label">
-            Response Progress
-        </div>
+    <!-- Progress Card -->
+    <div class="progress-card">
+        <div class="progress-label">Response Progress</div>
         <div class="progress">
             <div class="progress-bar bg-success"
                  style="width: {% if all_responded %}100{% else %}50{% endif %}%">
             </div>
         </div>
-        <div style="font-size:0.82rem; color:#6b7280; margin-top:0.4rem;">
+        <div class="progress-note">
             {% if all_responded %}
-                All parties have submitted their responses.
+                ✅ All parties have submitted their responses. You may now submit your final verdict.
             {% else %}
-                Waiting for one or more parties to respond.
+                ⏳ Waiting for one or more parties to respond. You will be notified automatically.
             {% endif %}
         </div>
     </div>
-    {% endwith %}
 
     <!-- Status Banner -->
     {% if all_responded %}
-    <div class="status-banner-success">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-            <div>
-                <h5 style="color:#166534; font-weight:700; margin-bottom:0.5rem;">
-                    ✅ All Clarification Responses Received
-                </h5>
-                <p style="color:#166534; margin:0; font-size:0.9rem;">
-                    All parties have responded. Please review the responses below
-                    and submit your final verdict.
-                </p>
-            </div>
-            <div>
-                <a href="{% url 'submit_findings' finding.investigation.id %}"
-                   class="btn-final-verdict">
-                    📝 Submit Final Verdict
-                </a>
-            </div>
-        </div>
+    <div class="status-banner success">
+        <h5>✅ All Clarification Responses Received</h5>
+        <p>
+            All parties have responded. Please review the responses carefully below,
+            then click <strong>Submit Final Verdict</strong> to proceed.
+        </p>
     </div>
     {% else %}
-    <div class="status-banner-waiting">
-        <h5 style="color:#92400e; font-weight:700; margin-bottom:0.5rem;">
-            ⏳ Waiting for Responses
-        </h5>
-        <p style="color:#92400e; margin:0; font-size:0.9rem;">
+    <div class="status-banner waiting">
+        <h5>⏳ Waiting for Responses</h5>
+        <p>
             Some parties have not yet responded. You will be notified automatically
             once all responses are received. No action is required from you at this time.
         </p>
@@ -294,9 +409,7 @@
     {% endif %}
 
     <!-- Clarification Cards -->
-    <div class="section-heading">
-        📋 Clarification Requests & Responses
-    </div>
+    <div class="section-heading">📋 Clarification Requests &amp; Responses</div>
 
     {% for clarification in clarifications %}
     <div class="response-card {% if clarification.status == 'Responded' %}responded{% else %}pending{% endif %}">
@@ -316,27 +429,31 @@
         </div>
 
         <!-- Meta Info -->
-        <div class="mb-3">
-            <div class="meta-row">
-                <span class="meta-label">📨 Sent to:</span>
+        <div class="meta-grid">
+            <div class="meta-item">
+                <span class="meta-label">📨 Sent To</span>
                 <span class="meta-value">
                     {% if clarification.request_type == 'Student' %}
                         {{ complaint.student.full_name }}
-                        <span class="badge bg-info ms-1" style="font-size:0.72rem;">Student</span>
+                        <span class="badge bg-info ms-1" style="font-size:0.7rem;">Student</span>
                     {% else %}
                         {{ complaint.faculty_concerned.full_name }}
-                        <span class="badge bg-warning text-dark ms-1" style="font-size:0.72rem;">Accused Faculty</span>
+                        <span class="badge bg-warning text-dark ms-1" style="font-size:0.7rem;">Faculty</span>
                     {% endif %}
                 </span>
             </div>
-            <div class="meta-row">
-                <span class="meta-label">📅 Requested on:</span>
-                <span class="meta-value">{{ clarification.created_at|date:"M d, Y - h:i A" }}</span>
+            <div class="meta-item">
+                <span class="meta-label">📅 Requested On</span>
+                <span class="meta-value">{{ clarification.created_at|date:"M d, Y — h:i A" }}</span>
             </div>
             {% if clarification.status == 'Responded' %}
-            <div class="meta-row">
-                <span class="meta-label">✅ Responded on:</span>
-                <span class="meta-value">{{ clarification.responded_at|date:"M d, Y - h:i A" }}</span>
+            <div class="meta-item">
+                <span class="meta-label">✅ Responded On</span>
+                <span class="meta-value">{{ clarification.responded_at|date:"M d, Y — h:i A" }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">👤 Responded By</span>
+                <span class="meta-value">{{ clarification.responded_by.full_name }}</span>
             </div>
             {% endif %}
         </div>
@@ -345,23 +462,15 @@
 
         <!-- Questions -->
         <div>
-            <p style="font-weight:700; color:#1e3a8a; margin-bottom:0.5rem; font-size:0.9rem;">
-                📝 Questions Asked:
-            </p>
-            <div class="questions-box">
-                {{ clarification.questions }}
-            </div>
+            <span class="box-label blue">📝 Questions Asked</span>
+            <div class="questions-box">{{ clarification.questions }}</div>
         </div>
 
         <!-- Response or Awaiting -->
         {% if clarification.status == 'Responded' %}
         <div class="mt-3">
-            <p style="font-weight:700; color:#166534; margin-bottom:0.5rem; font-size:0.9rem;">
-                💬 Response from {{ clarification.responded_by.full_name }}:
-            </p>
-            <div class="response-box">
-                {{ clarification.response_text }}
-            </div>
+            <span class="box-label green">💬 Response</span>
+            <div class="response-box">{{ clarification.response_text }}</div>
         </div>
         {% else %}
         <div class="awaiting-box">
@@ -377,18 +486,22 @@
 
     </div>
     {% empty %}
-    <div style="text-align:center; padding:3rem; color:rgba(255,255,255,.4);">
-        <div style="font-size:3rem; margin-bottom:1rem;">📭</div>
+    <div class="empty-state">
+        <div class="empty-icon">📭</div>
         <p>No clarification requests found for this finding.</p>
     </div>
     {% endfor %}
 
-    <!-- Bottom Action -->
+    <!-- ✅ SINGLE bottom action — only shown when all responded -->
     {% if all_responded %}
-    <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:12px; padding:1.25rem 1.5rem; margin-top:1rem; text-align:center;">
-        <p style="color:#166534; font-weight:600; margin-bottom:0.75rem;">
-            ✅ All responses received. You are ready to submit your final verdict.
-        </p>
+    <div class="bottom-action-box">
+        <div class="action-text">
+            <h5>🎯 Ready to Submit Your Final Verdict</h5>
+            <p>
+                All clarification responses have been received and reviewed.
+                You can now submit your final verdict to the HOD.
+            </p>
+        </div>
         <a href="{% url 'submit_findings' finding.investigation.id %}"
            class="btn-final-verdict">
             📝 Submit Final Verdict
