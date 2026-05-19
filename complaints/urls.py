@@ -11,6 +11,9 @@ urlpatterns = [
 
     # ── HOD ──────────────────────────────────────────────────────────────
     path('hod/list/', views.hod_complaints_list, name='hod_complaints_list'),
+    path('hod/suggestions/', views.hod_suggestions_list, name='hod_suggestions_list'),
+    path('hod/suggestions/resolve/<int:complaint_id>/', views.resolve_suggestion, name='resolve_suggestion'),
+    path('hod/suggestions/review/<int:complaint_id>/', views.mark_suggestion_reviewed, name='mark_suggestion_reviewed'),
     path('hod/handle/<int:complaint_id>/', views.handle_complaint, name='handle_complaint'),
     path('hod/assign-investigation/<int:complaint_id>/', views.assign_investigation, name='assign_investigation'),
     path('hod/final-action/<int:complaint_id>/', views.hod_final_action, name='hod_final_action'),   # NEW

@@ -2,6 +2,7 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q, Count
@@ -46,14 +47,17 @@ def submit_complaint(request):
             complaint.save()
 
             noun = 'Complaint'
-            if complaint.complaint_type in ['Advice', 'Opinion']:
+            if complaint.complaint_type == 'Suggestion':
                 noun = complaint.complaint_type
             elif complaint.complaint_type == 'Facility':
                 noun = 'Issue'
 
             if complaint.assigned_to:
                 # Notify the assigned handler
-                handler_link = f'/complaints/hod/handle/{complaint.id}/'
+                if complaint.complaint_type == 'Suggestion':
+                    handler_link = '/complaints/hod/suggestions/'
+                else:
+                    handler_link = f'/complaints/hod/handle/{complaint.id}/'
                 
                 create_notification(
                     recipient=complaint.assigned_to,
@@ -146,7 +150,7 @@ def hod_complaints_list(request):
     complaints_list = Complaint.objects.filter(
         Q(assigned_to=request.user) |
         Q(faculty_concerned__department=request.user.department)
-    ).distinct().order_by('-submitted_at')
+    ).exclude(complaint_type='Suggestion').distinct().order_by('-submitted_at')
 
     context = {
         'complaints_list': complaints_list,
@@ -163,12 +167,112 @@ def hod_complaints_list(request):
 
 
 @login_required
+def hod_suggestions_list(request):
+    """HOD view to see all suggestions from students in their department."""
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied. HOD only.')
+        return redirect('login')
+
+    suggestions = Complaint.objects.filter(
+        complaint_type='Suggestion',
+        assigned_to=request.user,
+    ).order_by('-submitted_at')
+
+    context = {
+        'suggestions': suggestions,
+        'total': suggestions.count(),
+        'pending': suggestions.filter(status='Pending').count(),
+        'resolved': suggestions.filter(status='Resolved').count(),
+        'page_title': 'All Suggestions',
+    }
+    return render(request, 'complaints/hod_suggestions_list.html', context)
+
+
+@login_required
+@require_POST
+def resolve_suggestion(request, complaint_id):
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+        
+    suggestion = get_object_or_404(Complaint, id=complaint_id, complaint_type='Suggestion')
+    
+    if suggestion.assigned_to != request.user:
+        messages.error(request, 'Access denied.')
+        return redirect('hod_dashboard')
+
+    suggestion.status = 'Resolved'
+    suggestion.save()
+    
+    ComplaintUpdate.objects.create(
+        complaint=suggestion,
+        updated_by=request.user,
+        comment='Suggestion marked as resolved (implemented/improved).',
+        status_changed_to='Resolved'
+    )
+    
+    # Notify the student
+    create_notification(
+        recipient=suggestion.student,
+        title='Suggestion Resolved',
+        message=f'Your suggestion "{suggestion.subject}" has been marked as resolved by the HOD.',
+        notification_type='Complaint',
+        link=f'/complaints/detail/{suggestion.id}/'
+    )
+    
+    messages.success(request, 'Suggestion resolved successfully.')
+    return redirect('hod_suggestions_list')
+
+
+@login_required
+@require_POST
+def mark_suggestion_reviewed(request, complaint_id):
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+        
+    suggestion = get_object_or_404(Complaint, id=complaint_id, complaint_type='Suggestion')
+    
+    if suggestion.assigned_to != request.user:
+        messages.error(request, 'Access denied.')
+        return redirect('hod_dashboard')
+
+    suggestion.status = 'Reviewed'
+    suggestion.save()
+    
+    ComplaintUpdate.objects.create(
+        complaint=suggestion,
+        updated_by=request.user,
+        comment='The HOD has reviewed your suggestion.',
+        status_changed_to='Reviewed'
+    )
+    
+    # Notify the student
+    create_notification(
+        recipient=suggestion.student,
+        title='Suggestion Reviewed',
+        message=f'Your suggestion "{suggestion.subject}" has been reviewed by the HOD.',
+        notification_type='Complaint',
+        link=f'/complaints/detail/{suggestion.id}/'
+    )
+    
+    messages.success(request, 'Suggestion marked as reviewed.')
+    return redirect('hod_suggestions_list')
+
+
+@login_required
 def handle_complaint(request, complaint_id):
     if request.user.role not in ['HOD', 'Staff', 'DAO', 'Admin']:
         messages.error(request, 'Access denied.')
         return redirect('login')
 
     complaint = get_object_or_404(Complaint, id=complaint_id)
+
+    if complaint.complaint_type == 'Suggestion':
+        messages.error(request, 'Suggestions cannot be handled as complaints.')
+        if request.user.role == 'HOD':
+            return redirect('hod_suggestions_list')
+        return redirect('home')
 
     if request.user.role == 'HOD':
         if complaint.assigned_to != request.user and \
@@ -195,7 +299,7 @@ def handle_complaint(request, complaint_id):
                     complaint.resolved_at = timezone.now()
                 elif update.status_changed_to == 'Escalated':
                     noun = 'Complaint'
-                    if complaint.complaint_type in ['Advice', 'Opinion']:
+                    if complaint.complaint_type == 'Suggestion':
                         noun = complaint.complaint_type
                     elif complaint.complaint_type == 'Facility':
                         noun = 'Issue'
@@ -211,7 +315,7 @@ def handle_complaint(request, complaint_id):
                 complaint.save()
 
             noun = 'Complaint'
-            if complaint.complaint_type in ['Advice', 'Opinion']:
+            if complaint.complaint_type == 'Suggestion':
                 noun = complaint.complaint_type
             elif complaint.complaint_type == 'Facility':
                 noun = 'Issue'
@@ -576,7 +680,7 @@ def admin_complaints_list(request):
         messages.error(request, 'Access denied. Admin only.')
         return redirect('login')
 
-    complaints_list = Complaint.objects.all().order_by('-submitted_at')
+    complaints_list = Complaint.objects.exclude(complaint_type='Suggestion').order_by('-submitted_at')
 
     context = {
         'complaints_list': complaints_list,
@@ -589,8 +693,6 @@ def admin_complaints_list(request):
         'hod_complaints': complaints_list.filter(complaint_type='HOD').count(),
         'staff_complaints': complaints_list.filter(complaint_type='Staff').count(),
         'facility_complaints': complaints_list.filter(complaint_type='Facility').count(),
-        'advice_complaints': complaints_list.filter(complaint_type='Advice').count(),
-        'opinion_complaints': complaints_list.filter(complaint_type='Opinion').count(),
         'page_title': 'All Complaints'
     }
     return render(request, 'complaints/admins_complaints_list.html', context)
@@ -991,8 +1093,7 @@ def public_log(request):
         'HOD': all_resolved.filter(complaint_type='HOD').count(),
         'Staff': all_resolved.filter(complaint_type='Staff').count(),
         'Facility': all_resolved.filter(complaint_type='Facility').count(),
-        'Advice': all_resolved.filter(complaint_type='Advice').count(),
-        'Opinion': all_resolved.filter(complaint_type='Opinion').count(),
+        'Suggestion': all_resolved.filter(complaint_type='Suggestion').count(),
     }
 
     context = {

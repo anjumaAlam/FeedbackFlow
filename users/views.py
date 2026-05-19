@@ -325,7 +325,7 @@ def hod_dashboard(request):
     if request.user.role != 'HOD':
         messages.error(request, 'Access denied. HOD only.')
         return redirect('login')
-    all_complaints       = Complaint.objects.filter(assigned_to=request.user)
+    all_complaints       = Complaint.objects.filter(assigned_to=request.user).exclude(complaint_type='Suggestion')
     total_complaints     = all_complaints.count()
     pending_complaints   = all_complaints.filter(status='Pending').count()
     resolved_complaints  = all_complaints.filter(status='Resolved').count()
@@ -383,8 +383,8 @@ def admin_dashboard(request):
     user_stats         = User.objects.values('role').annotate(count=Count('id'))
     role_counts        = {stat['role']: stat['count'] for stat in user_stats}
     total_feedback     = Feedback.objects.count()
-    total_complaints   = Complaint.objects.count()
-    pending_complaints = Complaint.objects.filter(status='Pending').count()
+    total_complaints   = Complaint.objects.exclude(complaint_type='Suggestion').count()
+    pending_complaints = Complaint.objects.exclude(complaint_type='Suggestion').filter(status='Pending').count()
     context = {
         'page_title':         'Admin Dashboard',
         'user':               request.user,

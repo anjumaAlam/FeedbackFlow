@@ -40,8 +40,7 @@ class ComplaintSubmissionForm(forms.ModelForm):
             'HOD': ['HOD'],
             'Staff': ['Staff'],
             'Facility': ['Staff'],
-            'Advice': [],
-            'Opinion': [],
+            'Suggestion': [],
         }
 
         selected_type = None

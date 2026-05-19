@@ -2,8 +2,7 @@
 {% extends 'users/base.html' %}
 
 {% block title %}
-    {% if complaint.complaint_type == 'Advice' %}Advice
-    {% elif complaint.complaint_type == 'Opinion' %}Opinion
+    {% if complaint.complaint_type == 'Suggestion' %}Suggestion
     {% elif complaint.complaint_type == 'Facility' %}Issue
     {% else %}Complaint{% endif %} Details - FeedbackFlow
 {% endblock %}
@@ -82,8 +81,7 @@
     <div class="card detail-card mb-4">
         <div class="card-header bg-danger text-white">
             <h4 class="mb-0">📋 
-                {% if complaint.complaint_type == 'Advice' %}Advice
-                {% elif complaint.complaint_type == 'Opinion' %}Opinion
+                {% if complaint.complaint_type == 'Suggestion' %}Suggestion
                 {% elif complaint.complaint_type == 'Facility' %}Issue
                 {% else %}Complaint{% endif %} Details - {{ complaint.tracking_id }}
             </h4>
@@ -92,8 +90,7 @@
 
             <div class="mb-4">
                 <h5 class="text-danger">
-                    {% if complaint.complaint_type == 'Advice' %}Advice
-                    {% elif complaint.complaint_type == 'Opinion' %}Opinion
+                    {% if complaint.complaint_type == 'Suggestion' %}Suggestion
                     {% elif complaint.complaint_type == 'Facility' %}Issue
                     {% else %}Complaint{% endif %} Information
                 </h5>
@@ -107,9 +104,11 @@
                         <p><strong>Status:</strong>
                             <span class="badge
                                 {% if complaint.status == 'Pending' %}bg-warning text-dark
+                                {% elif complaint.status == 'Reviewed' %}bg-info text-dark
                                 {% elif complaint.status == 'Under Investigation' %}bg-info
                                 {% elif complaint.status == 'Resolved' %}bg-success
                                 {% elif complaint.status == 'Escalated' %}bg-danger
+                                {% else %}bg-secondary text-dark
                                 {% endif %}">
                                 {{ complaint.status }}
                             </span>
@@ -213,17 +212,26 @@
             <div class="mt-4">
                 <hr>
                 <div class="d-flex gap-2">
+                    {% if complaint.complaint_type != 'Suggestion' %}
                     <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-primary">
                         ✏️ Add Update
                     </a>
+                    {% endif %}
                     {% if complaint.status != 'Resolved' %}
-                    <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-success">
-                        ✅ Resolve 
-                        {% if complaint.complaint_type == 'Advice' %}Advice
-                        {% elif complaint.complaint_type == 'Opinion' %}Opinion
-                        {% elif complaint.complaint_type == 'Facility' %}Issue
-                        {% else %}Complaint{% endif %}
-                    </a>
+                        {% if complaint.complaint_type == 'Suggestion' %}
+                        <form method="POST" action="{% url 'resolve_suggestion' complaint.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success" onclick="return confirm('Are you sure you want to resolve this suggestion?');">
+                                ✅ Resolve Suggestion
+                            </button>
+                        </form>
+                        {% else %}
+                        <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-success">
+                            ✅ Resolve 
+                            {% if complaint.complaint_type == 'Facility' %}Issue
+                            {% else %}Complaint{% endif %}
+                        </a>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>

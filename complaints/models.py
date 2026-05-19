@@ -11,14 +11,14 @@ class Complaint(models.Model):
         ('HOD', 'Complaint about HOD'),
         ('Staff', 'Complaint about Staff'),
         ('Facility', 'Facility Issue'),
-        ('Advice', 'General Advice'),
-        ('Opinion', 'Opinion/Suggestion'),
+        ('Suggestion', 'Suggestion'),
     )
 
     STATUS_CHOICES = (
         ('Pending', 'Pending Review'),
+        ('Reviewed', 'Reviewed'),                           # NEW
         ('Under Investigation', 'Under Investigation'),
-        ('Findings Submitted', 'Findings Submitted'),       # NEW
+        ('Findings Submitted', 'Findings Submitted'),
         ('Resolved', 'Resolved'),
         ('Escalated', 'Escalated to Higher Authority'),
     )
@@ -102,8 +102,8 @@ class Complaint(models.Model):
         elif self.complaint_type == 'Facility':
             dao = User.objects.filter(role='DAO').first()
             self.assigned_to = dao if dao else User.objects.filter(role='Admin').first()
-        elif self.complaint_type in ('Advice', 'Opinion'):
-            # Advice and opinions go to HOD of the student's department or Admin
+        elif self.complaint_type == 'Suggestion':
+            # Suggestions go to HOD of the student's department or Admin
             hod = User.objects.filter(role='HOD', department=self.student.department).first()
             self.assigned_to = hod or User.objects.filter(role='Admin').first()
 

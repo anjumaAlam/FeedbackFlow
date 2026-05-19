@@ -1,0 +1,203 @@
+{% extends 'users/base.html' %}
+{% block title %}All Suggestions - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    .suggestions-header {
+        background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+        border-radius: 16px;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(99,102,241,.18);
+    }
+    .suggestions-header h2 {
+        font-weight: 800;
+        margin-bottom: .25rem;
+    }
+    .suggestions-header p {
+        opacity: .85;
+        margin: 0;
+    }
+
+    .stat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255,255,255,.15);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 50px;
+        padding: 8px 20px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    .stat-pill .num {
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .suggestion-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all .25s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .suggestion-card:hover {
+        border-color: #818cf8;
+        box-shadow: 0 4px 20px rgba(99,102,241,.12);
+        transform: translateY(-2px);
+    }
+
+    .suggestion-badge {
+        display: inline-block;
+        padding: 4px 14px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .03em;
+    }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-reviewed { background: #e0e7ff; color: #3730a3; }
+    .badge-resolved { background: #d1fae5; color: #065f46; }
+    .badge-investigating { background: #dbeafe; color: #1e40af; }
+
+    .suggestion-subject {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: .35rem;
+    }
+    .suggestion-desc {
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: .75rem;
+    }
+    .suggestion-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        font-size: 13px;
+        color: #9ca3af;
+    }
+    .suggestion-meta strong {
+        color: #6b7280;
+    }
+
+    .empty-suggestions {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    .empty-suggestions .icon {
+        font-size: 64px;
+        margin-bottom: 1rem;
+        opacity: .5;
+    }
+    .empty-suggestions h4 {
+        color: #374151;
+        margin-bottom: .5rem;
+    }
+    .empty-suggestions p {
+        color: #9ca3af;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'hod_dashboard' %}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+    </div>
+
+    <!-- Header -->
+    <div class="suggestions-header">
+        <div class="row align-items-center">
+            <div class="col-md-7">
+                <h2>💡 Student Suggestions</h2>
+                <p>Review suggestions from students in your department. Consider implementing or improving based on their ideas.</p>
+            </div>
+            <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                <div class="d-flex gap-2 justify-content-md-end flex-wrap">
+                    <span class="stat-pill">
+                        <span class="num">{{ total }}</span> Total
+                    </span>
+                    <span class="stat-pill">
+                        <span class="num">{{ pending }}</span> New
+                    </span>
+                    <span class="stat-pill">
+                        <span class="num">{{ resolved }}</span> Reviewed
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggestions List -->
+    {% if suggestions %}
+        {% for suggestion in suggestions %}
+        <div class="suggestion-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <span class="suggestion-badge
+                        {% if suggestion.status == 'Pending' %}badge-pending
+                        {% elif suggestion.status == 'Reviewed' %}badge-reviewed
+                        {% elif suggestion.status == 'Resolved' %}badge-resolved
+                        {% else %}badge-investigating
+                        {% endif %}">
+                        {{ suggestion.status }}
+                    </span>
+                    <span class="badge bg-light text-dark ms-2" style="font-size:11px;">{{ suggestion.tracking_id }}</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'complaint_detail' suggestion.id %}" class="btn btn-sm btn-outline-primary">
+                        👁️ View
+                    </a>
+                    {% if suggestion.status == 'Pending' %}
+                    <form method="POST" action="{% url 'mark_suggestion_reviewed' suggestion.id %}" style="margin:0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-info text-white">
+                             Mark as Reviewed
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <h5 class="suggestion-subject">{{ suggestion.subject }}</h5>
+            <p class="suggestion-desc">{{ suggestion.description|truncatewords:40 }}</p>
+
+            <div class="suggestion-meta">
+                <span>
+                    <strong>From:</strong>
+                    {% if suggestion.is_anonymous %}
+                        Anonymous Student
+                    {% else %}
+                        {{ suggestion.student.full_name }}
+                    {% endif %}
+                </span>
+                <span><strong>Date:</strong> {{ suggestion.submitted_at|date:"M d, Y - h:i A" }}</span>
+                <span><strong>Priority:</strong> {{ suggestion.priority }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <div class="card-body">
+                <div class="empty-suggestions">
+                    <div class="icon">💡</div>
+                    <h4>No Suggestions Yet</h4>
+                    <p>Suggestions from students will appear here once they submit them.</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
