@@ -1523,89 +1523,158 @@ def academic_timeline(request):
 
 @login_required
 def committee_appointment_action(request, appointment_id):
-    """
-    Committee reviews appointment and either:
-    - Schedules a meeting (with location), or
-    - Rejects the request
-    After the meeting they use committee_log_outcome to log what happened.
-    """
     if request.user.role != 'Committee':
         messages.error(request, 'Access denied.')
         return redirect('login')
 
-    from .forms import CommitteeUpdateForm
+    from .forms import CommitteeUpdateForm, CommitteeOutcomeForm
     from .models import AppointmentUpdate, AppointmentNote
 
     appointment = get_object_or_404(Appointment, id=appointment_id)
     updates     = AppointmentUpdate.objects.filter(appointment=appointment).order_by('-created_at')
     notes       = AppointmentNote.objects.filter(appointment=appointment).order_by('-created_at')
-    form        = CommitteeUpdateForm()
+
+    schedule_form = CommitteeUpdateForm()
+    outcome_form  = CommitteeOutcomeForm()
 
     if request.method == 'POST':
-        form = CommitteeUpdateForm(request.POST)
-        if form.is_valid():
-            action        = form.cleaned_data['action']
-            message       = form.cleaned_data['message']
-            meeting_date  = form.cleaned_data.get('meeting_date')
+        action_type = request.POST.get('action_type')
 
-            appointment.status = action
-            appointment.save()
+        # ── Schedule / Reject ─────────────────────────────────────────────
+        if action_type == 'schedule':
+            schedule_form = CommitteeUpdateForm(request.POST)
+            if schedule_form.is_valid():
+                action       = schedule_form.cleaned_data['action']
+                message      = schedule_form.cleaned_data['message']
+                meeting_date = schedule_form.cleaned_data.get('meeting_date')
 
-            AppointmentUpdate.objects.create(
-                appointment=appointment,
-                updated_by=request.user,
-                message=message,
-                meeting_date=meeting_date,
-                status=action,
-            )
+                appointment.status = action
+                appointment.save()
 
-            # Notify all admins
-            for admin in User.objects.filter(role='Admin'):
+                AppointmentUpdate.objects.create(
+                    appointment=appointment,
+                    updated_by=request.user,
+                    message=message,
+                    meeting_date=meeting_date,
+                    status=action,
+                )
+
+                for admin in User.objects.filter(role='Admin'):
+                    Notification.objects.create(
+                        recipient=admin,
+                        title=f'Committee Update — {appointment.name}',
+                        message=(
+                            f'{request.user.full_name} ({request.user.committee_type}) '
+                            f'updated appointment from {appointment.name}. '
+                            f'Decision: {action}.'
+                        ),
+                        notification_type='appointment',
+                        link=f'/dashboard/appointments/{appointment.id}/',
+                    )
+
+                if action == 'Meeting Scheduled':
+                    student_msg = (
+                        f'Your appointment with the {request.user.committee_type} has been confirmed. '
+                        f'Meeting scheduled for '
+                        f'{meeting_date.strftime("%A, %B %d, %Y at %I:%M %p") if meeting_date else "a date TBC"}. '
+                        f'{message}'
+                    )
+                    student_title = '📅 Meeting Confirmed'
+                else:
+                    student_msg   = f'Your appointment request has been reviewed. {message}'
+                    student_title = f'Appointment Update — {action}'
+
                 Notification.objects.create(
-                    recipient=admin,
-                    title=f'Committee Update — {appointment.name}',
-                    message=(
-                        f'{request.user.full_name} ({request.user.committee_type}) '
-                        f'responded to appointment from {appointment.name}. '
-                        f'Decision: {action}.'
-                    ),
+                    recipient=appointment.student,
+                    title=student_title,
+                    message=student_msg,
                     notification_type='appointment',
-                    link=f'/dashboard/appointments/{appointment.id}/',
+                    link='/appointment/my/',
                 )
 
-            # Notify student
-            if action == 'Meeting Scheduled':
-                student_msg = (
-                    f'Your appointment with {request.user.committee_type} has been '
-                    f'confirmed. Meeting scheduled for '
-                    f'{meeting_date.strftime("%A, %B %d, %Y at %I:%M %p") if meeting_date else "a date TBC"}. '
-                    f'{message}'
+                messages.success(request, 'Response submitted. Admin and student have been notified.')
+                return redirect('committee_appointment_action', appointment_id=appointment.id)
+
+        # ── Log Outcome ───────────────────────────────────────────────────
+        elif action_type == 'outcome':
+            outcome_form = CommitteeOutcomeForm(request.POST)
+            if outcome_form.is_valid():
+                outcome          = outcome_form.cleaned_data['outcome']
+                summary          = outcome_form.cleaned_data['summary']
+                meeting_location = outcome_form.cleaned_data.get('meeting_location', '')
+                confidential     = outcome_form.cleaned_data.get('confidential_note', '').strip()
+
+                appointment.outcome = outcome
+                appointment.status  = outcome
+                if meeting_location:
+                    appointment.meeting_location = meeting_location
+                appointment.save()
+
+                if confidential:
+                    AppointmentNote.objects.create(
+                        appointment=appointment,
+                        added_by=request.user,
+                        note=confidential,
+                    )
+
+                AppointmentUpdate.objects.create(
+                    appointment=appointment,
+                    updated_by=request.user,
+                    message=summary,
+                    status=outcome,
                 )
-                student_title = '📅 Meeting Confirmed — Appointment Update'
-            else:
-                student_msg   = f'Your appointment request has been reviewed. {message}'
-                student_title = f'Appointment Update — {action}'
 
-            Notification.objects.create(
-                recipient=appointment.student,
-                title=student_title,
-                message=student_msg,
-                notification_type='appointment',
-                link='/appointment/my/',
-            )
+                # Notify admin
+                for admin in User.objects.filter(role='Admin'):
+                    Notification.objects.create(
+                        recipient=admin,
+                        title=f'Meeting Outcome — {appointment.name}',
+                        message=(
+                            f'{request.user.full_name} logged the outcome for '
+                            f'{appointment.name}\'s appointment.\n'
+                            f'Outcome: {outcome}\n'
+                            f'Summary: {summary}'
+                        ),
+                        notification_type='appointment',
+                        link=f'/dashboard/appointments/{appointment.id}/',
+                    )
 
-            messages.success(request, 'Response submitted. Admin and student have been notified.')
-            return redirect('committee_dashboard')
+                # Notify student
+                if outcome == 'Resolved Informally':
+                    student_title = '✅ Appointment Resolved'
+                    student_msg   = (
+                        f'Your appointment with the {appointment.appointment_with} has been '
+                        f'resolved informally.\n\n{summary}'
+                    )
+                else:
+                    student_title = '⚠️ Formal Complaint Required'
+                    student_msg   = (
+                        f'Following your discussion with the {appointment.appointment_with}, '
+                        f'the committee recommends you file a formal complaint.\n\n'
+                        f'{summary}\n\n'
+                        f'Please visit "My Appointments" to file your formal complaint.'
+                    )
+
+                Notification.objects.create(
+                    recipient=appointment.student,
+                    title=student_title,
+                    message=student_msg,
+                    notification_type='appointment',
+                    link='/appointment/my/',
+                )
+
+                messages.success(request, f'Outcome recorded: {outcome}. Student and admin notified.')
+                return redirect('committee_dashboard')
 
     context = {
-        'appointment': appointment,
-        'updates':     updates,
-        'notes':       notes,
-        'form':        form,
-        'page_title':  'Review Appointment',
+        'appointment':   appointment,
+        'updates':       updates,
+        'notes':         notes,
+        'form':          schedule_form,
+        'outcome_form':  outcome_form,
+        'page_title':    'Review Appointment',
     }
     return render(request, 'users/committee_appointment_action.html', context)
-
 
 @login_required
 def committee_log_outcome(request, appointment_id):

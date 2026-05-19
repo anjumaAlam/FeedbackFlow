@@ -20,15 +20,8 @@
         margin-bottom:0.75rem;
     }
     .update-item p, .update-item strong, .update-item small { color:#212529 !important; }
-    .note-item {
-        background:#fef9c3;
-        border:1px solid #fcd34d;
-        border-radius:8px;
-        padding:1rem;
-        margin-bottom:0.75rem;
-    }
-    .note-item p, .note-item strong, .note-item small { color:#92400e !important; }
-    .card textarea, .card select, .card input[type="text"] {
+    .card textarea, .card select, .card input[type="text"],
+    .card input[type="datetime-local"] {
         background:#fff !important;
         color:#212529 !important;
         -webkit-text-fill-color:#212529 !important;
@@ -36,6 +29,7 @@
         border-radius:8px !important;
         padding:10px 14px !important;
         opacity:1 !important;
+        width:100%;
     }
     .card textarea::placeholder,
     .card input::placeholder { color:#9ca3af !important; }
@@ -54,8 +48,8 @@
         width:100%;
         transition:all 0.15s;
     }
-    .outcome-option:has(input:checked).resolve   { border-color:#22c55e; background:#f0fdf4; }
-    .outcome-option:has(input:checked).formal    { border-color:#ef4444; background:#fef2f2; }
+    .outcome-option:has(input:checked).resolve { border-color:#22c55e; background:#f0fdf4; }
+    .outcome-option:has(input:checked).formal  { border-color:#ef4444; background:#fef2f2; }
     .outcome-option input[type="radio"] { display:none; }
     .outcome-dot {
         width:20px; height:20px; border-radius:50%;
@@ -72,10 +66,6 @@
     .outcome-label { font-weight:600; color:#212529; }
     .outcome-desc  { font-size:0.85rem; color:#6b7280; margin-top:2px; }
     .section-divider { border-top:2px solid #e5e7eb; margin:2rem 0; }
-    .alert-info {
-        background:#eff6ff !important; border-color:#bfdbfe !important; color:#1e3a5f !important;
-    }
-    .alert-info strong { color:#1e3a5f !important; }
 </style>
 {% endblock %}
 
@@ -92,7 +82,13 @@
         </div>
         <div class="card-body p-4" style="background:#ffffff;">
 
-            <!-- Appointment Details -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} mb-3">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- ── Appointment Details ── -->
             <h5 class="text-primary mb-3">📋 Appointment Details</h5>
             <div class="detail-box mb-4">
                 <div class="row">
@@ -112,7 +108,7 @@
                 <p class="mb-0">{{ appointment.description }}</p>
             </div>
 
-            <!-- Current Status & Outcome -->
+            <!-- ── Current Status ── -->
             <div class="d-flex gap-3 mb-4 flex-wrap">
                 <div>
                     <strong>Current Status:</strong>
@@ -120,6 +116,8 @@
                         {% if appointment.status == 'Forwarded to Committee' %}bg-warning text-dark
                         {% elif appointment.status == 'Meeting Scheduled' %}bg-success
                         {% elif appointment.status == 'Rejected by Committee' %}bg-danger
+                        {% elif appointment.status == 'Resolved Informally' %}bg-success
+                        {% elif appointment.status == 'Needs Formal Action' %}bg-danger
                         {% elif appointment.status == 'Closed' %}bg-secondary
                         {% else %}bg-info{% endif %}">
                         {{ appointment.status }}
@@ -138,15 +136,15 @@
                 {% endif %}
                 {% if appointment.meeting_location %}
                 <div>
-                    <strong>📍 Meeting Location:</strong>
+                    <strong>📍 Location:</strong>
                     <span style="color:#374151;">{{ appointment.meeting_location }}</span>
                 </div>
                 {% endif %}
             </div>
 
-            <!-- Previous Updates -->
+            <!-- ── Update History ── -->
             {% if updates %}
-            <h5 class="text-primary mb-3">📋 Previous Updates</h5>
+            <h5 class="text-primary mb-3">📋 Update History</h5>
             <div class="mb-4">
                 {% for update in updates %}
                 <div class="update-item">
@@ -154,48 +152,65 @@
                         <strong>{{ update.updated_by.full_name }}</strong>
                         <small class="text-muted">{{ update.created_at|date:"M d, Y - h:i A" }}</small>
                     </div>
+                    {% if update.meeting_date %}
+                    <p class="mb-1" style="color:#166534;"><strong>📅 Meeting:</strong> {{ update.meeting_date|date:"l, F d, Y - h:i A" }}</p>
+                    {% endif %}
                     <p class="mb-0">{{ update.message }}</p>
                 </div>
                 {% endfor %}
             </div>
             {% endif %}
 
-            <!-- Confidential Notes -->
-            {% if notes %}
-            <h5 style="color:#854d0e;" class="mb-3">🔒 Confidential Notes</h5>
-            <div class="mb-4">
-                {% for note in notes %}
-                <div class="note-item">
-                    <div class="d-flex justify-content-between mb-1">
-                        <strong>{{ note.added_by.full_name }}</strong>
-                        <small>{{ note.created_at|date:"M d, Y - h:i A" }}</small>
-                    </div>
-                    <p class="mb-0">{{ note.note }}</p>
+            <!-- ══════════════════════════════════════════════════════════
+                 SECTION 1 — Schedule Meeting / Reject
+                 Only shown when status is Forwarded to Committee
+            ══════════════════════════════════════════════════════════ -->
+            {% if appointment.status == 'Forwarded to Committee' %}
+            <div class="section-divider"></div>
+            <h5 class="text-primary mb-3">📅 Schedule Meeting or Reject</h5>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action_type" value="schedule">
+
+                <div class="mb-3">
+                    <label class="form-label">Action <span class="text-danger">*</span></label>
+                    {{ form.action }}
+                    {% if form.action.errors %}
+                        <div class="text-danger small mt-1">{{ form.action.errors }}</div>
+                    {% endif %}
                 </div>
-                {% endfor %}
-            </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Message / Reason <span class="text-danger">*</span></label>
+                    {{ form.message }}
+                    {% if form.message.errors %}
+                        <div class="text-danger small mt-1">{{ form.message.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Meeting Date & Time <small class="text-muted">(required if scheduling)</small></label>
+                    {{ form.meeting_date }}
+                    {% if form.meeting_date.errors %}
+                        <div class="text-danger small mt-1">{{ form.meeting_date.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">📅 Submit</button>
+            </form>
             {% endif %}
 
-            <!-- Add Confidential Note -->
-            <div class="section-divider"></div>
-            <h5 class="text-primary mb-3">🔒 Add Confidential Note</h5>
-            <div class="alert alert-info mb-3">
-                <strong>📌 Note:</strong> Confidential notes are only visible to committee members and admin. Students cannot see these notes.
-            </div>
-            <form method="post" class="mb-4">
-                {% csrf_token %}
-                <input type="hidden" name="action_type" value="add_note">
-                <div class="mb-3">
-                    <label class="form-label">Note Content</label>
-                    {{ note_form.note }}
-                </div>
-                <button type="submit" class="btn btn-warning btn-sm">🔒 Save Confidential Note</button>
-            </form>
-
-            <!-- Outcome Form -->
-            {% if appointment.outcome == 'Pending' %}
+            <!-- ══════════════════════════════════════════════════════════
+                 SECTION 2 — Record Outcome
+                 Only shown when meeting has been scheduled and outcome still pending
+            ══════════════════════════════════════════════════════════ -->
+            {% if appointment.status == 'Meeting Scheduled' and appointment.outcome == 'Pending' %}
             <div class="section-divider"></div>
             <h5 class="text-primary mb-3">⚖️ Record Meeting Outcome</h5>
+            <p style="color:#6b7280;font-size:14px;margin-bottom:1.25rem;">
+                After the meeting has taken place, record the outcome below. This will notify the student and admin automatically.
+            </p>
+
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="action_type" value="outcome">
@@ -204,7 +219,8 @@
                 <div class="mb-4">
                     <label class="form-label fw-bold">Meeting Outcome <span class="text-danger">*</span></label>
                     <label class="outcome-option resolve">
-                        <input type="radio" name="outcome" value="Resolved Informally">
+                        <input type="radio" name="outcome" value="Resolved Informally"
+                            {% if outcome_form.outcome.value == 'Resolved Informally' %}checked{% endif %}>
                         <div class="outcome-dot"></div>
                         <div>
                             <div class="outcome-label">✅ Resolved Informally</div>
@@ -212,36 +228,36 @@
                         </div>
                     </label>
                     <label class="outcome-option formal">
-                        <input type="radio" name="outcome" value="Needs Formal Action">
+                        <input type="radio" name="outcome" value="Needs Formal Action"
+                            {% if outcome_form.outcome.value == 'Needs Formal Action' %}checked{% endif %}>
                         <div class="outcome-dot"></div>
                         <div>
                             <div class="outcome-label">⚠️ Needs Formal Action</div>
-                            <div class="outcome-desc">Issue is serious or unresolved. Student will be advised to file an official complaint.</div>
+                            <div class="outcome-desc">Issue is serious. Student will be advised to file a formal complaint and appear physically with proofs.</div>
                         </div>
                     </label>
-                    {% if form.outcome.errors %}
-                        <div class="text-danger small mt-1">{{ form.outcome.errors }}</div>
+                    {% if outcome_form.outcome.errors %}
+                        <div class="text-danger small mt-1">{{ outcome_form.outcome.errors }}</div>
                     {% endif %}
                 </div>
 
                 <!-- Meeting Location -->
                 <div class="mb-3">
-                    <label class="form-label">Meeting Location (optional)</label>
-                    {{ form.meeting_location }}
+                    <label class="form-label">Meeting Location <small class="text-muted">(optional)</small></label>
+                    {{ outcome_form.meeting_location }}
+                    {% if outcome_form.meeting_location.errors %}
+                        <div class="text-danger small mt-1">{{ outcome_form.meeting_location.errors }}</div>
+                    {% endif %}
                 </div>
 
-                <!-- Message to Student -->
-                <div class="mb-3">
-                    <label class="form-label">Message to Student <span class="text-danger">*</span></label>
-                    {{ form.message_to_student }}
-                    <small style="color:#6b7280;">This message will be sent directly to the student.</small>
-                </div>
-
-                <!-- Additional Note -->
+                <!-- Summary visible to student -->
                 <div class="mb-4">
-                    <label class="form-label">Additional Confidential Note (optional)</label>
-                    {{ form.note }}
-                    <small style="color:#6b7280;">This note is confidential — student will not see it.</small>
+                    <label class="form-label">Summary / Message to Student <span class="text-danger">*</span></label>
+                    {{ outcome_form.summary }}
+                    <small style="color:#6b7280;">This message will be sent to the student. Keep it professional and do not include sensitive details.</small>
+                    {% if outcome_form.summary.errors %}
+                        <div class="text-danger small mt-1">{{ outcome_form.summary.errors }}</div>
+                    {% endif %}
                 </div>
 
                 <div class="d-flex gap-2">
@@ -249,9 +265,10 @@
                     <a href="{% url 'committee_dashboard' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
                 </div>
             </form>
+            {% endif %}
 
-            {% else %}
-            <!-- Already recorded outcome -->
+            <!-- ── Outcome already recorded ── -->
+            {% if appointment.outcome != 'Pending' %}
             <div class="section-divider"></div>
             <div class="alert {% if appointment.outcome == 'Resolved Informally' %}alert-success{% else %}alert-danger{% endif %}">
                 <strong>Outcome already recorded:</strong> {{ appointment.outcome }}
