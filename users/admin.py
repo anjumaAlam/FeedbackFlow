@@ -24,7 +24,7 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('full_name', 'student_id', 'department')
         }),
         ('Permissions', {
-            'fields': ('role', 'is_active', 'is_staff', 'is_superuser')
+            'fields': ('role', 'committee_type', 'is_active', 'is_staff', 'is_superuser')  # ← added
         }),
         ('Important Dates', {
             'fields': ('last_login', 'created_at', 'updated_at'),
@@ -35,7 +35,7 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'full_name', 'role', 'department', 'student_id', 'password1', 'password2'),
+            'fields': ('email', 'full_name', 'role', 'committee_type', 'department', 'student_id', 'password1', 'password2'),  # ← added
         }),
     )
 
