@@ -10,7 +10,7 @@
 
     <div class="mb-4">
         <h2>⚙️ All System Submissions</h2>
-        <p class="text-white mb-0">Manage all complaints, advice, and opinions across the system</p>
+        <p class="text-white mb-0">Manage all complaints across the system</p>
     </div>
 
 
@@ -82,14 +82,6 @@
                             <h5>{{ facility_complaints }}</h5>
                             <small class="text-muted">Facility</small>
                         </div>
-                        <div class="col">
-                            <h5>{{ advice_complaints }}</h5>
-                            <small class="text-muted">Advice</small>
-                        </div>
-                        <div class="col">
-                            <h5>{{ opinion_complaints }}</h5>
-                            <small class="text-muted">Opinion</small>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -136,8 +128,10 @@
                                     <span class="badge
                                         {% if complaint.status == 'Pending' %}bg-warning text-dark
                                         {% elif complaint.status == 'Under Investigation' %}bg-info
+                                        {% elif complaint.status == 'Findings Submitted' %}bg-primary
                                         {% elif complaint.status == 'Resolved' %}bg-success
                                         {% elif complaint.status == 'Escalated' %}bg-danger
+                                        {% else %}bg-secondary
                                         {% endif %}">
                                         {{ complaint.status }}
                                     </span>

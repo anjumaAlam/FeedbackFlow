@@ -137,8 +137,10 @@
                             <span class="badge
                                 {% if complaint.status == 'Pending' %}bg-warning text-dark
                                 {% elif complaint.status == 'Under Investigation' %}bg-info
+                                {% elif complaint.status == 'Findings Submitted' %}bg-primary
                                 {% elif complaint.status == 'Resolved' %}bg-success
                                 {% elif complaint.status == 'Escalated' %}bg-danger
+                                {% else %}bg-secondary
                                 {% endif %}">
                                 {{ complaint.status }}
                             </span>

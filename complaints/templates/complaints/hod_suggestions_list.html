@@ -1,0 +1,422 @@
+{% extends 'users/base.html' %}
+
+{% block title %}HOD Suggestions & Advice - FeedbackFlow{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── PAGE HEADER ── */
+    .hod-page-header {
+        margin-bottom: 28px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .hod-page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--white);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        line-height: 1.2;
+    }
+
+    .hod-page-subtitle {
+        color: var(--dim);
+        font-size: 14px;
+        font-weight: 300;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    /* ── STAT CARDS ── */
+    .hod-stat-card {
+        background: var(--card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, .2) !important;
+        transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+        overflow: hidden !important;
+        position: relative !important;
+    }
+
+    .hod-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .hod-stat-card:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 30px rgba(201, 168, 76, 0.15) !important;
+    }
+
+    .hod-stat-card .card-body {
+        padding: 24px 20px !important;
+        text-align: center !important;
+        background: transparent !important;
+    }
+
+    .hod-stat-card h3 {
+        font-size: 2.2rem !important;
+        font-weight: 700 !important;
+        color: var(--white) !important;
+        margin-bottom: 6px !important;
+        line-height: 1 !important;
+    }
+
+    .hod-stat-card p {
+        color: var(--dim) !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        margin: 0 !important;
+    }
+
+    /* Accents */
+    .border-gold::before { background-color: var(--gold); }
+    .border-gold h3 { color: var(--gold) !important; }
+
+    .border-info::before { background-color: #38bdf8; }
+    .border-info h3 { color: #38bdf8 !important; }
+
+    .border-success::before { background-color: #34d399; }
+    .border-success h3 { color: #34d399 !important; }
+
+    /* ── SUGGESTIONS TABLE CARD ── */
+    .hod-table-card {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+        border: 1px solid #e5e7eb !important;
+    }
+
+    .hod-table-card .card-header {
+        background-color: #f9fafb !important;
+        background: #f9fafb !important;
+        padding: 18px 24px !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .hod-table-card .card-header h5 {
+        color: #111827 !important;
+        font-family: 'Playfair Display', serif;
+        font-weight: 700 !important;
+        font-size: 16px !important;
+        margin: 0 !important;
+    }
+
+    .hod-table-card .card-body {
+        padding: 0 !important;
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+    }
+
+    .hod-table-card .table {
+        margin-bottom: 0 !important;
+        border-collapse: collapse !important;
+        width: 100% !important;
+        background: transparent !important;
+    }
+
+    .hod-table-card .table thead th {
+        background-color: #f9fafb !important;
+        color: #374151 !important;
+        font-weight: 700 !important;
+        font-size: 11px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        padding: 16px 20px !important;
+        border-bottom: 2px solid #e5e7eb !important;
+        white-space: nowrap !important;
+    }
+
+    .hod-table-card .table tbody tr {
+        border-bottom: 1px solid #f1f5f9 !important;
+        transition: background-color 0.2s ease !important;
+        background-color: #ffffff !important;
+    }
+
+    .hod-table-card .table tbody tr:hover {
+        background-color: #f8faff !important;
+    }
+
+    .hod-table-card .table tbody tr:last-child {
+        border-bottom: none !important;
+    }
+
+    .hod-table-card .table tbody td {
+        padding: 16px 20px !important;
+        vertical-align: middle !important;
+        color: #111827 !important;
+        font-size: 13.5px !important;
+        border: none !important;
+    }
+
+    .hod-table-card .table tbody td strong {
+        color: #111827 !important;
+        font-weight: 700 !important;
+    }
+
+    .hod-table-card .table tbody td small {
+        color: #6b7280 !important;
+        font-size: 12px;
+    }
+
+    /* ── BADGES ── */
+    .badge-suggestion {
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        padding: 4px 10px !important;
+        border-radius: 6px !important;
+        letter-spacing: 0.05em !important;
+        text-transform: uppercase;
+    }
+
+    .bg-pending {
+        background-color: #fef3c7 !important;
+        color: #92400e !important;
+        border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    }
+
+    .bg-reviewed {
+        background-color: #e0e7ff !important;
+        color: #4338ca !important;
+        border: 1px solid rgba(99, 102, 241, 0.3) !important;
+    }
+
+    .bg-resolved {
+        background-color: #d1fae5 !important;
+        color: #065f46 !important;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    }
+
+    .bg-advice {
+        background-color: #fef3c7 !important;
+        color: #b45309 !important;
+        border: 1px solid rgba(217, 119, 6, 0.3) !important;
+    }
+
+    .bg-opinion {
+        background-color: #ecfeff !important;
+        color: #0891b2 !important;
+        border: 1px solid rgba(6, 182, 212, 0.3) !important;
+    }
+
+    /* ── ACTION BUTTONS ── */
+    .btn-action {
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        border-radius: 6px !important;
+        padding: 5px 12px !important;
+        transition: all 0.2s ease !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-action-view {
+        color: var(--gold) !important;
+        border: 1px solid var(--border) !important;
+        background: transparent !important;
+    }
+
+    .btn-action-view:hover {
+        background: var(--gold-pale) !important;
+        border-color: var(--gold) !important;
+    }
+
+    .btn-action-review {
+        color: #a5b4fc !important;
+        border: 1px solid rgba(99, 102, 241, 0.3) !important;
+        background: transparent !important;
+    }
+
+    .btn-action-review:hover {
+        background: rgba(99, 102, 241, 0.1) !important;
+        border-color: #a5b4fc !important;
+    }
+
+    .btn-action-resolve {
+        color: #34d399 !important;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
+        background: transparent !important;
+    }
+
+    .btn-action-resolve:hover {
+        background: rgba(16, 185, 129, 0.1) !important;
+        border-color: #34d399 !important;
+    }
+
+    td .btn-action + .btn-action {
+        margin-left: 6px !important;
+    }
+
+    /* ── EMPTY STATE ── */
+    .hod-empty-card {
+        background: var(--surface) !important;
+        border-radius: 12px !important;
+        border: 1px solid var(--border) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .hod-empty-icon {
+        font-size: 4rem;
+        opacity: 0.3;
+        margin-bottom: 16px;
+        display: block;
+        color: var(--gold);
+    }
+
+    .hod-empty-title {
+        color: var(--white) !important;
+        font-family: 'Playfair Display', serif;
+        font-size: 20px !important;
+        font-weight: 600 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .hod-empty-desc {
+        color: var(--dim) !important;
+        font-size: 13.5px !important;
+        margin: 0 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="hod-page-header">
+        <h2 class="hod-page-title">💡 Student Suggestions & Advice</h2>
+        <p class="hod-page-subtitle">
+            Review, track, and resolve suggestions or advice submitted by students in your department.
+        </p>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card hod-stat-card border-gold">
+                <div class="card-body">
+                    <h3>{{ total_suggestions }}</h3>
+                    <p>Total Suggestions</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card hod-stat-card border-info">
+                <div class="card-body">
+                    <h3>{{ pending }}</h3>
+                    <p>Awaiting Review</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card hod-stat-card border-success">
+                <div class="card-body">
+                    <h3>{{ resolved }}</h3>
+                    <p>Resolved</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggestions Table -->
+    {% if suggestions_list %}
+    <div class="card hod-table-card">
+        <div class="card-header">
+            <h5>All Submissions</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tracking ID</th>
+                            <th>Subject</th>
+                            <th>Student</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for suggestion in suggestions_list %}
+                        <tr>
+                            <td><strong>{{ suggestion.tracking_id }}</strong></td>
+                            <td>{{ suggestion.subject|truncatewords:6 }}</td>
+                            <td>
+                                {% if suggestion.is_anonymous %}
+                                    <span class="badge badge-suggestion bg-secondary">Anonymous</span>
+                                {% else %}
+                                    {{ suggestion.student.full_name }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-suggestion {% if suggestion.complaint_type == 'Advice' %}bg-advice{% else %}bg-opinion{% endif %}">
+                                    {{ suggestion.get_complaint_type_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-suggestion
+                                    {% if suggestion.status == 'Pending' %}bg-pending
+                                    {% elif suggestion.status == 'Under Investigation' %}bg-reviewed
+                                    {% elif suggestion.status == 'Resolved' %}bg-resolved
+                                    {% else %}bg-secondary
+                                    {% endif %}">
+                                    {% if suggestion.status == 'Under Investigation' %}Reviewed{% else %}{{ suggestion.status }}{% endif %}
+                                </span>
+                            </td>
+                            <td><small>{{ suggestion.submitted_at|date:"M d, Y" }}</small></td>
+                            <td>
+                                <a href="{% url 'complaint_detail' suggestion.id %}" class="btn-action btn-action-view">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                {% if suggestion.status != 'Resolved' %}
+                                    {% if suggestion.status == 'Pending' %}
+                                        <a href="{% url 'mark_suggestion_reviewed' suggestion.id %}" class="btn-action btn-action-review">
+                                            <i class="bi bi-check-circle"></i> Review
+                                        </a>
+                                    {% endif %}
+                                    <a href="{% url 'resolve_suggestion' suggestion.id %}" class="btn-action btn-action-resolve">
+                                        <i class="bi bi-check2-all"></i> Resolve
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card hod-empty-card">
+        <div class="card-body text-center py-5">
+            <span class="hod-empty-icon">📭</span>
+            <h4 class="hod-empty-title">No Suggestions Found</h4>
+            <p class="hod-empty-desc">
+                Suggestions and advice submitted by students will appear here.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

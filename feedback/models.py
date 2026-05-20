@@ -160,6 +160,10 @@ class Feedback(models.Model):
     def get_average_rating(self):
         return round((self.teaching_rating + self.content_rating + self.communication_rating) / 3, 1)
 
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
 
 # ─────────────────────────────────────────────────────────────
 # FEEDBACK PERIOD — FR 4.1 + OR 1.5
@@ -169,7 +173,7 @@ class FeedbackPeriod(models.Model):
     """Defines when feedback can be submitted — 2-3 windows per semester."""
     PERIOD_CHOICES = (
         ('Mid-Term', 'Mid-Term Feedback'),
-        ('End-Term', 'End-Term Feedback'),
+        ('Final-Term', 'Final-Term Feedback'),
         ('Special', 'Special Feedback Round'),
     )
 

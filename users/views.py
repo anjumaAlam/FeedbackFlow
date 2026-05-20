@@ -74,7 +74,12 @@ def unified_login_view(request):
                 else:
                     messages.error(request, 'Your account has been deactivated. Please contact admin.')
             else:
-                messages.error(request, 'Invalid email or password.')
+                # Check if inactive user tried to login with correct credentials
+                inactive_user = User.objects.filter(email=email).first()
+                if inactive_user and not inactive_user.is_active and inactive_user.check_password(password):
+                    messages.error(request, 'Your account has been deactivated. Please contact admin.')
+                else:
+                    messages.error(request, 'Invalid email or password.')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -125,7 +130,12 @@ def login_view(request, role='student', allowed_roles=None):
                 else:
                     messages.error(request, 'Your account has been deactivated.')
             else:
-                messages.error(request, 'Invalid email or password.')
+                # Check if inactive user tried to login with correct credentials
+                inactive_user = User.objects.filter(email=email).first()
+                if inactive_user and not inactive_user.is_active and inactive_user.check_password(password):
+                    messages.error(request, 'Your account has been deactivated.')
+                else:
+                    messages.error(request, 'Invalid email or password.')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -341,7 +351,7 @@ def hod_dashboard(request):
     if request.user.role != 'HOD':
         messages.error(request, 'Access denied. HOD only.')
         return redirect('login')
-    all_complaints       = Complaint.objects.filter(assigned_to=request.user)
+    all_complaints       = Complaint.objects.filter(assigned_to=request.user).exclude(complaint_type__in=['Advice', 'Opinion'])
     total_complaints     = all_complaints.count()
     pending_complaints   = all_complaints.filter(status='Pending').count()
     resolved_complaints  = all_complaints.filter(status='Resolved').count()
@@ -426,8 +436,8 @@ def admin_dashboard(request):
     user_stats         = User.objects.values('role').annotate(count=Count('id'))
     role_counts        = {stat['role']: stat['count'] for stat in user_stats}
     total_feedback     = Feedback.objects.count()
-    total_complaints   = Complaint.objects.count()
-    pending_complaints = Complaint.objects.filter(status='Pending').count()
+    total_complaints   = Complaint.objects.exclude(complaint_type__in=['Advice', 'Opinion']).count()
+    pending_complaints = Complaint.objects.exclude(complaint_type__in=['Advice', 'Opinion']).filter(status='Pending').count()
     context = {
         'page_title':         'Admin Dashboard',
         'user':               request.user,
@@ -1272,6 +1282,17 @@ def mark_notification_read(request, notif_id):
     notif.is_read = True
     notif.save()
     if notif.link:
+        import re
+        match = re.match(r'^/complaints/hod/handle/(\d+)/$', notif.link)
+        if match:
+            complaint_id = int(match.group(1))
+            from complaints.models import Complaint
+            try:
+                complaint = Complaint.objects.get(id=complaint_id)
+                if complaint.complaint_type in ['Advice', 'Opinion']:
+                    return redirect(f'/complaints/detail/{complaint_id}/')
+            except Complaint.DoesNotExist:
+                pass
         return redirect(notif.link)
     return redirect('notifications')
 

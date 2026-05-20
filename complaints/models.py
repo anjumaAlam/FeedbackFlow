@@ -12,7 +12,7 @@ class Complaint(models.Model):
         ('Staff',    'Complaint about Staff'),
         ('Facility', 'Facility Issue'),
         ('Advice',   'General Advice'),
-        ('Opinion',  'Opinion/Suggestion'),
+        ('Opinion',  'Suggestion'),
     )
 
     STATUS_CHOICES = (

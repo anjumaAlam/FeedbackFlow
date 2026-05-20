@@ -392,3 +392,48 @@ class ComplaintDetailViewTest(TestCase):
         self.client.login(username='other@uap-bd.edu', password='Test@1234')
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 302)
+
+
+class SuggestionViewsTest(TestCase):
+    """Tests for suggestions listing and actions (Review, Resolve) by HOD"""
+
+    def setUp(self):
+        self.client = Client()
+        self.hod = make_user('hod@uap-bd.edu', 'HOD', department='CSE')
+        self.student = make_user('student_cse@uap-bd.edu', 'Student', department='CSE', student_id='23101011')
+        self.suggestion = Complaint.objects.create(
+            student=self.student,
+            complaint_type='Opinion',
+            subject='Better library seating',
+            description='We need better chairs in the CSE section.',
+        )
+
+    def test_unauthenticated_user_redirected_suggestions(self):
+        response = self.client.get(reverse('hod_suggestions_list'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_non_hod_cannot_access_suggestions(self):
+        self.client.login(username='student_cse@uap-bd.edu', password='Test@1234')
+        response = self.client.get(reverse('hod_suggestions_list'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_hod_can_view_suggestions(self):
+        self.client.login(username='hod@uap-bd.edu', password='Test@1234')
+        response = self.client.get(reverse('hod_suggestions_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.suggestion, response.context['suggestions_list'])
+
+    def test_hod_can_mark_suggestion_reviewed(self):
+        self.client.login(username='hod@uap-bd.edu', password='Test@1234')
+        response = self.client.get(reverse('mark_suggestion_reviewed', args=[self.suggestion.id]))
+        self.assertEqual(response.status_code, 302)
+        self.suggestion.refresh_from_db()
+        self.assertEqual(self.suggestion.status, 'Under Investigation')
+
+    def test_hod_can_resolve_suggestion(self):
+        self.client.login(username='hod@uap-bd.edu', password='Test@1234')
+        response = self.client.get(reverse('resolve_suggestion', args=[self.suggestion.id]))
+        self.assertEqual(response.status_code, 302)
+        self.suggestion.refresh_from_db()
+        self.assertEqual(self.suggestion.status, 'Resolved')
+        self.assertIsNotNone(self.suggestion.resolved_at)

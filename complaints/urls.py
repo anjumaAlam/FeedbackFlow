@@ -15,6 +15,9 @@ urlpatterns = [
     path('hod/faculty-complaint-summary/', views.faculty_complaint_summary, name='faculty_complaint_summary'),
     path('hod/faculty-course-wise/<int:faculty_id>/', views.faculty_course_wise_complaints, name='faculty_course_wise_complaints'),
     path('hod/similar-complaints/<int:faculty_id>/<int:group_index>/', views.similar_complaints_detail, name='similar_complaints_detail'),
+    path('hod/suggestions/', views.hod_suggestions_list, name='hod_suggestions_list'),
+    path('hod/suggestions/resolve/<int:complaint_id>/', views.resolve_suggestion, name='resolve_suggestion'),
+    path('hod/suggestions/review/<int:complaint_id>/', views.mark_suggestion_reviewed, name='mark_suggestion_reviewed'),
 
     # ── HOD Clarification Flow ────────────────────────────────────────────
     path('hod/send-clarification/<int:finding_id>/', views.hod_send_clarification, name='hod_send_clarification'),

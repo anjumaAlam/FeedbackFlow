@@ -32,6 +32,22 @@ def make_course(faculty, code='CSE101'):
 def make_feedback(student, course, **kw):
     defaults = dict(teaching_rating=4, content_rating=4, communication_rating=4)
     defaults.update(kw)
+    if 'feedback_period' not in defaults:
+        from feedback.models import FeedbackPeriod
+        from django.utils import timezone
+        period = FeedbackPeriod.get_current_period()
+        if not period:
+            period = FeedbackPeriod.objects.filter(is_active=True).first()
+        if not period:
+            period = FeedbackPeriod.objects.create(
+                name="Spring 2025 Mid-Term",
+                semester="Spring 2025",
+                period_type="Mid-Term",
+                start_date=timezone.localdate() - timezone.timedelta(days=1),
+                end_date=timezone.localdate() + timezone.timedelta(days=7),
+                is_active=True
+            )
+        defaults['feedback_period'] = period
     return Feedback.objects.create(student=student, course=course, **defaults)
 
 
@@ -123,6 +139,20 @@ class SubmitCourseFeedbackViewTest(TestCase):
             is_primary=True
         )
         
+        # Create active feedback period
+        from feedback.models import FeedbackPeriod
+        from django.utils import timezone
+        FeedbackPeriod.objects.get_or_create(
+            name="Spring 2025 Mid-Term",
+            defaults={
+                'semester': "Spring 2025",
+                'period_type': "Mid-Term",
+                'start_date': timezone.localdate() - timezone.timedelta(days=1),
+                'end_date': timezone.localdate() + timezone.timedelta(days=7),
+                'is_active': True
+            }
+        )
+
         self.url = reverse('submit_feedback')
 
     def test_unauthenticated_user_redirected(self):
@@ -376,6 +406,15 @@ class FeedbackDetailViewTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 
+class FacultyFeedbackListViewTest(TestCase):
+    """Tests for faculty_feedback_list view"""
+
+    def setUp(self):
+        self.client = Client()
+        self.faculty = make_user('faculty@uap-bd.edu', 'Faculty')
+        self.student = make_user('student@uap-bd.edu', 'Student', student_id='23101015')
+        self.url = reverse('faculty_feedback_list')
+
     def test_unauthenticated_user_redirected(self):
         self.assertEqual(self.client.get(self.url).status_code, 302)
 
@@ -501,6 +540,20 @@ class AnonymousFeedbackSubmissionViewTest(TestCase):
             is_primary=True
         )
         
+        # Create active feedback period
+        from feedback.models import FeedbackPeriod
+        from django.utils import timezone
+        FeedbackPeriod.objects.get_or_create(
+            name="Spring 2025 Mid-Term",
+            defaults={
+                'semester': "Spring 2025",
+                'period_type': "Mid-Term",
+                'start_date': timezone.localdate() - timezone.timedelta(days=1),
+                'end_date': timezone.localdate() + timezone.timedelta(days=7),
+                'is_active': True
+            }
+        )
+
         self.url = reverse('submit_feedback')
 
     def test_anonymous_submission_creates_feedback(self):

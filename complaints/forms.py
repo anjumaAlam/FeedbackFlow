@@ -34,6 +34,15 @@ class ComplaintSubmissionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         from users.models import User
 
+        self.fields['complaint_type'].choices = [
+            ('', '---------'),
+            ('Faculty',  'Complaint about Faculty'),
+            ('HOD',      'Complaint about HOD'),
+            ('Staff',    'Complaint about Staff'),
+            ('Facility', 'Facility Issue'),
+            ('Opinion',  'Suggestion'),
+        ]
+
         role_map = {
             'Faculty':  ['Faculty'],
             'HOD':      ['HOD'],

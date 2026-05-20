@@ -15,10 +15,8 @@
             <div class="card-body d-flex justify-content-between align-items-start">
                 <div>
                     {% if notif.notification_type == 'complaint' %}
-                        {% if 'Advice' in notif.title %}
-                            <span class="badge bg-info me-2">Advice</span>
-                        {% elif 'Opinion' in notif.title %}
-                            <span class="badge bg-secondary me-2">Opinion</span>
+                         {% if 'Suggestion' in notif.title or 'Opinion' in notif.title or 'Advice' in notif.title %}
+                            <span class="badge bg-info me-2">Suggestion</span>
                         {% elif 'Issue' in notif.title %}
                             <span class="badge bg-warning text-dark me-2">Issue</span>
                         {% else %}

@@ -793,18 +793,28 @@ class AppointmentModelTest(TestCase):
         """Can create an Appointment"""
         from users.models import Appointment
         appt = Appointment.objects.create(
-            requester=self.student,
+            student=self.student,
+            name='Test Student',
+            roll_number='23101019',
+            appointment_with='Harassment Committee',
+            department='CSE',
+            incident_type='Other',
             status='Pending',
             description='Request for meeting'
         )
         self.assertEqual(Appointment.objects.count(), 1)
-        self.assertEqual(appt.requester, self.student)
+        self.assertEqual(appt.student, self.student)
 
     def test_appointment_status_choices(self):
         """Appointment status defaults to Pending"""
         from users.models import Appointment
         appt = Appointment.objects.create(
-            requester=self.student,
+            student=self.student,
+            name='Test Student',
+            roll_number='23101019',
+            appointment_with='Harassment Committee',
+            department='CSE',
+            incident_type='Other',
             description='Test appointment'
         )
         self.assertEqual(appt.status, 'Pending')
@@ -813,29 +823,43 @@ class AppointmentModelTest(TestCase):
         """Appointment can be assigned to committee members"""
         from users.models import Appointment
         appt = Appointment.objects.create(
-            requester=self.student,
-            assigned_to=self.committee,
+            student=self.student,
+            name='Test Student',
+            roll_number='23101019',
+            appointment_with='Harassment Committee',
+            department='CSE',
+            incident_type='Other',
             status='Pending',
             description='Harassment complaint'
         )
-        self.assertEqual(appt.assigned_to, self.committee)
+        self.assertEqual(appt.appointment_with, 'Harassment Committee')
 
     def test_appointment_str(self):
         """__str__ includes requester and status"""
         from users.models import Appointment
         appt = Appointment.objects.create(
-            requester=self.student,
+            student=self.student,
+            name='Test Student',
+            roll_number='23101019',
+            appointment_with='Harassment Committee',
+            department='CSE',
+            incident_type='Other',
             status='Pending',
             description='Test'
         )
-        self.assertIn(self.student.full_name, str(appt))
+        self.assertIn('Test Student', str(appt))
         self.assertIn('Pending', str(appt))
 
     def test_appointment_forwarded_to_committee_status(self):
         """Appointment status can be changed to Forwarded to Committee"""
         from users.models import Appointment
         appt = Appointment.objects.create(
-            requester=self.student,
+            student=self.student,
+            name='Test Student',
+            roll_number='23101019',
+            appointment_with='Harassment Committee',
+            department='CSE',
+            incident_type='Other',
             status='Pending',
             description='Test'
         )
@@ -844,22 +868,38 @@ class AppointmentModelTest(TestCase):
         self.assertEqual(appt.status, 'Forwarded to Committee')
 
     def test_appointment_meeting_scheduled_status(self):
-        """Appointment can be scheduled for meeting"""
-        from users.models import Appointment
+        """Appointment can be scheduled for meeting via AppointmentUpdate"""
+        from users.models import Appointment, AppointmentUpdate
         from django.utils import timezone
         appt = Appointment.objects.create(
-            requester=self.student,
+            student=self.student,
+            name='Test Student',
+            roll_number='23101019',
+            appointment_with='Harassment Committee',
+            department='CSE',
+            incident_type='Other',
             status='Meeting Scheduled',
-            description='Test',
+            description='Test'
+        )
+        update = AppointmentUpdate.objects.create(
+            appointment=appt,
+            updated_by=self.committee,
+            message='Meeting scheduled',
+            status='Meeting Scheduled',
             meeting_date=timezone.now() + timezone.timedelta(days=3)
         )
-        self.assertIsNotNone(appt.meeting_date)
+        self.assertIsNotNone(update.meeting_date)
 
     def test_appointment_closed_status(self):
         """Appointment can be closed"""
         from users.models import Appointment
         appt = Appointment.objects.create(
-            requester=self.student,
+            student=self.student,
+            name='Test Student',
+            roll_number='23101019',
+            appointment_with='Harassment Committee',
+            department='CSE',
+            incident_type='Other',
             status='Closed',
             description='Test'
         )

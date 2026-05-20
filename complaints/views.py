@@ -53,7 +53,10 @@ def submit_complaint(request):
                 noun = 'Issue'
 
             if complaint.assigned_to:
-                handler_link = f'/complaints/hod/handle/{complaint.id}/'
+                if complaint.complaint_type in ['Advice', 'Opinion']:
+                    handler_link = f'/complaints/detail/{complaint.id}/'
+                else:
+                    handler_link = f'/complaints/hod/handle/{complaint.id}/'
                 create_notification(
                     recipient=complaint.assigned_to,
                     title=f'New {noun} Received: {complaint.subject}',
@@ -61,6 +64,18 @@ def submit_complaint(request):
                     notification_type='complaint',
                     link=handler_link,
                 )
+
+            # If a complaint is about a person (Faculty, HOD, Staff), also notify all Admins
+            if complaint.complaint_type in ['Faculty', 'HOD', 'Staff']:
+                for admin in User.objects.filter(role='Admin'):
+                    if admin != complaint.assigned_to:
+                        create_notification(
+                            recipient=admin,
+                            title=f'New Complaint Received: {complaint.subject}',
+                            message=f'A new complaint about a staff/faculty member has been submitted. Tracking ID: {complaint.tracking_id}',
+                            notification_type='complaint',
+                            link=f'/complaints/hod/handle/{complaint.id}/',
+                        )
 
             create_notification(
                 recipient=request.user,
@@ -144,7 +159,7 @@ def hod_complaints_list(request):
     complaints_list = Complaint.objects.filter(
         Q(assigned_to=request.user) |
         Q(faculty_concerned__department=request.user.department)
-    ).distinct().order_by('-submitted_at')
+    ).exclude(complaint_type__in=['Advice', 'Opinion']).distinct().order_by('-submitted_at')
 
     context = {
         'complaints_list': complaints_list,
@@ -623,7 +638,7 @@ def admin_complaints_list(request):
         messages.error(request, 'Access denied. Admin only.')
         return redirect('login')
 
-    complaints_list = Complaint.objects.all().order_by('-submitted_at')
+    complaints_list = Complaint.objects.exclude(complaint_type__in=['Advice', 'Opinion']).order_by('-submitted_at')
 
     context = {
         'complaints_list':     complaints_list,
@@ -636,8 +651,6 @@ def admin_complaints_list(request):
         'hod_complaints':      complaints_list.filter(complaint_type='HOD').count(),
         'staff_complaints':    complaints_list.filter(complaint_type='Staff').count(),
         'facility_complaints': complaints_list.filter(complaint_type='Facility').count(),
-        'advice_complaints':   complaints_list.filter(complaint_type='Advice').count(),
-        'opinion_complaints':  complaints_list.filter(complaint_type='Opinion').count(),
         'page_title':          'All Complaints'
     }
     return render(request, 'complaints/admins_complaints_list.html', context)
@@ -1305,3 +1318,84 @@ def hod_view_clarification_responses(request, complaint_id):
         'page_title':     f'Clarification Responses — {complaint.tracking_id}',
     }
     return render(request, 'complaints/hod_clarification_responses.html', context)
+
+
+@login_required
+def hod_suggestions_list(request):
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied. HOD only.')
+        return redirect('login')
+
+    suggestions_list = Complaint.objects.filter(
+        complaint_type__in=['Advice', 'Opinion']
+    ).filter(
+        Q(assigned_to=request.user) | Q(student__department=request.user.department)
+    ).distinct().order_by('-submitted_at')
+
+    context = {
+        'suggestions_list': suggestions_list,
+        'total_suggestions': suggestions_list.count(),
+        'pending': suggestions_list.filter(status='Pending').count(),
+        'resolved': suggestions_list.filter(status='Resolved').count(),
+        'page_title': 'HOD Suggestions & Advice'
+    }
+    return render(request, 'complaints/hod_suggestions_list.html', context)
+
+
+@login_required
+def resolve_suggestion(request, complaint_id):
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    suggestion = get_object_or_404(Complaint, id=complaint_id, complaint_type__in=['Advice', 'Opinion'])
+    suggestion.status = 'Resolved'
+    suggestion.resolved_at = timezone.now()
+    suggestion.save()
+
+    ComplaintUpdate.objects.create(
+        complaint=suggestion,
+        updated_by=request.user,
+        comment='Suggestion marked as Resolved by HOD.',
+        status_changed_to='Resolved'
+    )
+
+    create_notification(
+        recipient=suggestion.student,
+        title='Your suggestion has been resolved',
+        message=f'Your suggestion/advice "{suggestion.subject}" has been marked as Resolved by HOD.',
+        notification_type='update',
+        link=f'/complaints/detail/{suggestion.id}/',
+    )
+
+    messages.success(request, 'Suggestion resolved successfully.')
+    return redirect('hod_suggestions_list')
+
+
+@login_required
+def mark_suggestion_reviewed(request, complaint_id):
+    if request.user.role != 'HOD':
+        messages.error(request, 'Access denied.')
+        return redirect('login')
+
+    suggestion = get_object_or_404(Complaint, id=complaint_id, complaint_type__in=['Advice', 'Opinion'])
+    suggestion.status = 'Under Investigation'
+    suggestion.save()
+
+    ComplaintUpdate.objects.create(
+        complaint=suggestion,
+        updated_by=request.user,
+        comment='Suggestion marked as Reviewed by HOD.',
+        status_changed_to='Under Investigation'
+    )
+
+    create_notification(
+        recipient=suggestion.student,
+        title='Your suggestion is under review',
+        message=f'Your suggestion/advice "{suggestion.subject}" is now being reviewed by HOD.',
+        notification_type='update',
+        link=f'/complaints/detail/{suggestion.id}/',
+    )
+
+    messages.success(request, 'Suggestion marked as reviewed.')
+    return redirect('hod_suggestions_list')

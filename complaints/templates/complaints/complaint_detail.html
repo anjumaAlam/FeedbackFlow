@@ -579,9 +579,15 @@
                 ← Back to My Complaints
             </a>
         {% elif request.user.role == 'HOD' %}
-            <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">
-                ← Back to Complaints List
-            </a>
+            {% if complaint.complaint_type in 'Advice,Opinion' %}
+                <a href="{% url 'hod_suggestions_list' %}" class="btn btn-outline-secondary">
+                    ← Back to Suggestions List
+                </a>
+            {% else %}
+                <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">
+                    ← Back to Complaints List
+                </a>
+            {% endif %}
         {% elif request.user.role == 'Staff' %}
             <a href="{% url 'staff_complaints_list' %}" class="btn btn-outline-secondary">
                 ← Back to Complaints List
@@ -700,6 +706,16 @@
                             {{ complaint.submitted_at|date:"M d, Y - h:i A" }}
                         </p>
 
+                        <!-- Assigned To -->
+                        <p>
+                            <strong>Assigned To:</strong>
+                            {% if complaint.assigned_to %}
+                                {{ complaint.assigned_to.full_name }}
+                            {% else %}
+                                <span class="text-muted">Not Assigned Yet</span>
+                            {% endif %}
+                        </p>
+
                     </div>
                 </div>
             </div>
@@ -814,31 +830,53 @@
             </div>
 
 
-            {% if request.user == complaint.assigned_to or request.user.role == 'Admin' %}
-            <div class="mt-4">
-                <hr>
-                <div class="d-flex gap-2">
-
-                    <!-- Add Update Button -->
-                    <a href="{% url 'handle_complaint' complaint.id %}"
-                       class="btn btn-primary">
-                        ✏️ Add Update
-                    </a>
-
-                    <!-- Resolve Button — only if not already resolved -->
-                    {% if complaint.status != 'Resolved' %}
-                    <a href="{% url 'handle_complaint' complaint.id %}"
-                       class="btn btn-success">
-                        ✅ Resolve
-                        {% if complaint.complaint_type == 'Advice' %}Advice
-                        {% elif complaint.complaint_type == 'Opinion' %}Opinion
-                        {% elif complaint.complaint_type == 'Facility' %}Issue
-                        {% else %}Complaint{% endif %}
-                    </a>
+            {% if request.user == complaint.assigned_to or request.user.role == 'Admin' or request.user.role == 'HOD' %}
+                {% if complaint.complaint_type in 'Advice,Opinion' %}
+                    {% if request.user.role == 'HOD' and complaint.status != 'Resolved' %}
+                    <div class="mt-4">
+                        <hr>
+                        <div class="d-flex gap-2">
+                            {% if complaint.status == 'Pending' %}
+                            <a href="{% url 'mark_suggestion_reviewed' complaint.id %}"
+                               class="btn btn-primary">
+                                🔍 Mark Reviewed
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'resolve_suggestion' complaint.id %}"
+                               class="btn btn-success">
+                                ✅ Resolve Suggestion
+                            </a>
+                        </div>
+                    </div>
                     {% endif %}
+                {% else %}
+                    {% if request.user == complaint.assigned_to or request.user.role == 'Admin' %}
+                    <div class="mt-4">
+                        <hr>
+                        <div class="d-flex gap-2">
 
-                </div>
-            </div>
+                            <!-- Add Update Button -->
+                            <a href="{% url 'handle_complaint' complaint.id %}"
+                               class="btn btn-primary">
+                                ✏️ Add Update
+                            </a>
+
+                            <!-- Resolve Button — only if not already resolved -->
+                            {% if complaint.status != 'Resolved' %}
+                            <a href="{% url 'handle_complaint' complaint.id %}"
+                               class="btn btn-success">
+                                ✅ Resolve
+                                {% if complaint.complaint_type == 'Advice' %}Advice
+                                {% elif complaint.complaint_type == 'Opinion' %}Opinion
+                                {% elif complaint.complaint_type == 'Facility' %}Issue
+                                {% else %}Complaint{% endif %}
+                            </a>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endif %}
             {% endif %}
 
         </div>
