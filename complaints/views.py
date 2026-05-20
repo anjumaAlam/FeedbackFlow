@@ -1379,14 +1379,14 @@ def mark_suggestion_reviewed(request, complaint_id):
         return redirect('login')
 
     suggestion = get_object_or_404(Complaint, id=complaint_id, complaint_type__in=['Advice', 'Opinion'])
-    suggestion.status = 'Under Investigation'
+    suggestion.status = 'Reviewed'
     suggestion.save()
 
     ComplaintUpdate.objects.create(
         complaint=suggestion,
         updated_by=request.user,
         comment='Suggestion marked as Reviewed by HOD.',
-        status_changed_to='Under Investigation'
+        status_changed_to= 'Reviewed'
     )
 
     create_notification(
