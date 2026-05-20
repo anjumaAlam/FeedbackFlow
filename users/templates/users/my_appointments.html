@@ -3,78 +3,283 @@
 
 {% block extra_css %}
 <style>
-    .card { background:#ffffff !important; color:#212529; }
-    .card td, .card th, .card p, .card strong { color:#212529 !important; }
-    .table thead th { background:#f9fafb !important; color:#374151 !important; }
-    .update-item { background:#f9fafb; border-left:3px solid #3b82f6; border-radius:6px; padding:0.75rem 1rem; margin-bottom:0.5rem; }
-    .update-item p, .update-item small { color:#212529 !important; }
-    .page-title-text { color:#ffffff; }
-    .page-sub-text { color:rgba(255,255,255,.6); }
-    .rejection-item { border-left-color: #ef4444 !important; background: #fef2f2 !important; }
-    .meeting-item   { border-left-color: #22c55e !important; background: #f0fdf4 !important; }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --navy:   #0f1e3c;
+        --indigo: #1e3a8a;
+        --blue:   #3b82f6;
+        --gold:   #c9a84c;
+        --gold-lt:#f0d97a;
+        --cream:  #fdf8f0;
+        --green:  #166534;
+        --green-bg:#f0fdf4;
+        --red:    #991b1b;
+        --red-bg: #fef2f2;
+        --amber:  #92400e;
+        --amber-bg:#fffbeb;
+        --card-bg:#ffffff;
+        --border: #e8eaf0;
+        --text:   #1a1f36;
+        --muted:  #6b7280;
+    }
+
+    body { font-family: 'DM Sans', sans-serif; }
+
+    /* ── Page header ── */
+    .appt-page-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: #ffffff;
+        letter-spacing: -0.5px;
+    }
+    .appt-page-sub { color: rgba(255,255,255,.55); font-size:.9rem; }
+
+
+
+    /* ── Appointment card ── */
+    .appt-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(15,30,60,.07);
+        overflow: hidden;
+        margin-bottom: 1.75rem;
+        transition: box-shadow .25s;
+    }
+    .appt-card:hover { box-shadow: 0 6px 28px rgba(15,30,60,.12); }
+
+    /* card header */
+    .appt-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 22px;
+        background: linear-gradient(135deg, #eef2ff 0%, #f8f9ff 100%);
+        border-bottom: 1px solid #dde3f5;
+    }
+    .appt-card-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--navy);
+    }
+
+    /* status badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        padding: .3rem .85rem;
+        border-radius: 50px;
+        font-size: .72rem;
+        font-weight: 600;
+        letter-spacing: .3px;
+        text-transform: uppercase;
+    }
+    .badge-pending   { background:#fef9c3; color:#854d0e; border:1px solid #fde047; }
+    .badge-forwarded { background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc; }
+    .badge-scheduled { background:#dcfce7; color:#166534; border:1px solid #86efac; }
+    .badge-rejected  { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
+    .badge-resolved  { background:#dcfce7; color:#166534; border:1px solid #86efac; }
+    .badge-formal    { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
+    .badge-default   { background:#f3f4f6; color:#374151; border:1px solid #d1d5db; }
+
+    /* card body */
+    .appt-card-body { padding: 1.5rem 1.6rem; }
+
+    .meta-label { font-size:.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:.15rem; }
+    .meta-value { font-size:.9rem; color:var(--text); font-weight:500; }
+
+    /* divider */
+    .appt-divider { border:none; border-top:1px solid var(--border); margin:1.25rem 0; }
+
+    /* updates section */
+    .updates-title {
+        font-family:'Playfair Display',serif;
+        font-size:.95rem;
+        font-weight:700;
+        color:var(--indigo);
+        margin-bottom:.85rem;
+    }
+
+    .update-item {
+        background:#f8faff;
+        border-left: 3px solid var(--blue);
+        border-radius: 0 10px 10px 0;
+        padding: .85rem 1.1rem;
+        margin-bottom: .6rem;
+    }
+    .update-item.rejection-item { border-left-color:#ef4444; background:#fff5f5; }
+    .update-item.meeting-item   { border-left-color:#22c55e; background:#f0fdf4; }
+    .update-item.outcome-item   { border-left-color:#f59e0b; background:#fffbeb; }
+
+    .update-by   { font-size:.8rem; font-weight:600; color:var(--indigo); }
+    .update-time { font-size:.75rem; color:var(--muted); }
+    .update-msg  { font-size:.87rem; color:var(--text); margin:0; }
+    .meeting-date{ color:#15803d; font-weight:700; font-size:.88rem; }
+
+    /* outcome boxes */
+    .outcome-box {
+        border-radius: 12px;
+        padding: 1.2rem 1.4rem;
+        margin-top: .75rem;
+    }
+    .outcome-box.danger {
+        background:var(--red-bg);
+        border:1px solid #fca5a5;
+        border-left:4px solid #ef4444;
+    }
+    .outcome-box.success {
+        background:var(--green-bg);
+        border:1px solid #86efac;
+        border-left:4px solid #22c55e;
+    }
+    .outcome-box-title { font-weight:700; font-size:.95rem; margin-bottom:.4rem; }
+    .outcome-box.danger  .outcome-box-title { color:var(--red); }
+    .outcome-box.success .outcome-box-title { color:var(--green); }
+    .outcome-box p, .outcome-box li { font-size:.85rem; }
+    .outcome-box.danger  p,
+    .outcome-box.danger  li { color:var(--red); }
+    .outcome-box.success p { color:var(--green); }
+
+    /* btn overrides */
+    .btn-gold {
+        background: linear-gradient(135deg, #c9a84c, #f0d97a);
+        color: #0f1e3c !important;
+        border: none;
+        font-weight: 700;
+        font-size: .85rem;
+        padding: .55rem 1.4rem;
+        border-radius: 8px;
+        text-decoration: none !important;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(201,168,76,.35);
+        transition: opacity .2s, transform .15s, box-shadow .2s;
+    }
+    .btn-gold:hover {
+        opacity: .92;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 16px rgba(201,168,76,.45);
+        color: #0f1e3c !important;
+    }
+
+    /* Nav pills — visible on both dark and light backgrounds */
+    .nav-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .45rem 1rem;
+        border-radius: 50px;
+        font-size: .82rem;
+        font-weight: 500;
+        text-decoration: none !important;
+        border: 1.5px solid #cbd5e1;
+        color: #334155 !important;
+        background: #ffffff;
+        transition: all .2s;
+    }
+    .nav-pill:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        color: #1e293b !important;
+    }
+    .nav-pill.active {
+        background: linear-gradient(135deg, #c9a84c, #f0d97a) !important;
+        border-color: #c9a84c !important;
+        color: #0f1e3c !important;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(201,168,76,.3);
+    }
+
+    /* empty state */
+    .empty-state {
+        background:var(--card-bg);
+        border:2px dashed var(--border);
+        border-radius:16px;
+        text-align:center;
+        padding:4rem 2rem;
+    }
+    .empty-icon { font-size:3.5rem; opacity:.2; }
+    .empty-state h5 { color:#6b7280; margin-top:1rem; font-family:'Playfair Display',serif; }
+    .empty-state p  { color:#9ca3af; font-size:.9rem; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4" style="max-width:950px;">
+<div class="container py-4" style="max-width:960px;">
 
-    <div class="mb-4 d-flex justify-content-between align-items-center">
+    <!-- Page header -->
+    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-            <h2 class="fw-bold page-title-text">📅 My Appointments</h2>
-            <p class="page-sub-text">Track the status of your appointment requests</p>
+            <h2 class="appt-page-title mb-1">📅 My Appointments</h2>
+            <p class="appt-page-sub mb-0">Track the status of your appointment requests</p>
         </div>
-        <a href="{% url 'appointment' %}" class="btn btn-primary">+ New Appointment</a>
+        <a href="{% url 'appointment' %}" class="btn-gold">+ New Appointment</a>
     </div>
 
     <!-- Quick nav -->
-    <div class="mb-4 d-flex gap-2">
-        <a href="{% url 'submit_complaint' %}"  class="btn btn-outline-primary">💬 Complaint</a>
-        <a href="{% url 'appointment' %}"        class="btn btn-outline-primary">📅 Book Appointment</a>
-        <a href="{% url 'my_appointments' %}"    class="btn btn-primary">📋 My Appointments</a>
+    <div class="mb-4 d-flex gap-2 flex-wrap">
+        <a href="{% url 'submit_complaint' %}" class="nav-pill">💬 Complaint</a>
+        <a href="{% url 'appointment' %}"      class="nav-pill">📅 Book Appointment</a>
+        <a href="{% url 'my_appointments' %}"  class="nav-pill active">📋 My Appointments</a>
     </div>
 
     {% if appointments %}
         {% for appt in appointments %}
-        <div class="card shadow-sm mb-4">
+        <div class="appt-card">
 
             <!-- Card header -->
-            <div class="card-header d-flex justify-content-between align-items-center"
-                 style="background:#f1f5ff;border-bottom:1px solid #e5e7eb;padding:12px 20px;">
-                <strong style="color:#1e3a8a;">{{ appt.appointment_with }} — {{ appt.incident_type }}</strong>
-                <span class="badge
-                    {% if appt.status == 'Pending' %}bg-warning text-dark
-                    {% elif appt.status == 'Forwarded to Committee' %}bg-info
-                    {% elif appt.status == 'Meeting Scheduled' %}bg-success
-                    {% elif appt.status == 'Rejected by Committee' %}bg-danger
-                    {% else %}bg-secondary{% endif %}">
+            <div class="appt-card-header">
+                <span class="appt-card-title">{{ appt.appointment_with }} &mdash; {{ appt.incident_type }}</span>
+                <span class="status-badge
+                    {% if appt.status == 'Pending' %}badge-pending
+                    {% elif appt.status == 'Forwarded to Committee' %}badge-forwarded
+                    {% elif appt.status == 'Meeting Scheduled' %}badge-scheduled
+                    {% elif appt.status == 'Rejected by Committee' %}badge-rejected
+                    {% elif appt.status == 'Resolved Informally' %}badge-resolved
+                    {% elif appt.status == 'Needs Formal Action' %}badge-formal
+                    {% else %}badge-default{% endif %}">
                     {{ appt.status }}
                 </span>
             </div>
 
-            <div class="card-body p-4">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <p class="mb-1"><strong>Submitted:</strong> {{ appt.created_at|date:"M d, Y" }}</p>
-                        <p class="mb-1"><strong>Department:</strong> {{ appt.get_department_display }}</p>
+            <!-- Card body -->
+            <div class="appt-card-body">
+
+                <!-- Meta info -->
+                <div class="row g-3 mb-2">
+                    <div class="col-sm-6 col-md-3">
+                        <div class="meta-label">Submitted</div>
+                        <div class="meta-value">{{ appt.created_at|date:"M d, Y" }}</div>
                     </div>
-                    <div class="col-md-6">
-                        <p class="mb-1"><strong>Incident Type:</strong> {{ appt.incident_type }}</p>
-                        <p class="mb-1"><strong>Appointment With:</strong> {{ appt.appointment_with }}</p>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="meta-label">Department</div>
+                        <div class="meta-value">{{ appt.get_department_display }}</div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="meta-label">Incident Type</div>
+                        <div class="meta-value">{{ appt.incident_type }}</div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="meta-label">Appointment With</div>
+                        <div class="meta-value">{{ appt.appointment_with }}</div>
                     </div>
                 </div>
 
                 <!-- Updates timeline -->
                 {% with updates=appt.updates.all %}
                 {% if updates %}
-                <hr>
-                <h6 style="color:#1e3a8a;font-weight:700;">📋 Updates</h6>
+                <hr class="appt-divider">
+                <div class="updates-title">📋 Updates</div>
                 {% for update in updates %}
                 <div class="update-item
                     {% if update.status == 'Rejected by Committee' %}rejection-item
                     {% elif update.status == 'Meeting Scheduled' %}meeting-item
+                    {% elif update.status == 'Needs Formal Action' or update.status == 'Resolved Informally' %}outcome-item
                     {% endif %}">
-                    <div class="d-flex justify-content-between mb-1">
-                        <strong>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="update-by">
                             {% if update.updated_by.role == 'Admin' %}
                                 🛡️ Admin
                             {% elif update.updated_by.role == 'Committee' %}
@@ -82,91 +287,93 @@
                             {% else %}
                                 {{ update.updated_by.role }}
                             {% endif %}
-                        </strong>
-                        <small class="text-muted">{{ update.created_at|date:"M d, Y - h:i A" }}</small>
+                        </span>
+                        <span class="update-time">{{ update.created_at|date:"M d, Y — h:i A" }}</span>
                     </div>
 
                     {% if update.status %}
                     <div class="mb-1">
-                        <span class="badge
-                            {% if update.status == 'Pending' %}bg-warning text-dark
-                            {% elif update.status == 'Forwarded to Committee' %}bg-info
-                            {% elif update.status == 'Meeting Scheduled' %}bg-success
-                            {% elif update.status == 'Rejected by Committee' %}bg-danger
-                            {% else %}bg-secondary{% endif %}"
-                            style="font-size:0.75rem;">
+                        <span class="status-badge
+                            {% if update.status == 'Pending' %}badge-pending
+                            {% elif update.status == 'Forwarded to Committee' %}badge-forwarded
+                            {% elif update.status == 'Meeting Scheduled' %}badge-scheduled
+                            {% elif update.status == 'Rejected by Committee' %}badge-rejected
+                            {% elif update.status == 'Resolved Informally' %}badge-resolved
+                            {% elif update.status == 'Needs Formal Action' %}badge-formal
+                            {% else %}badge-default{% endif %}"
+                            style="font-size:.68rem;">
                             {{ update.status }}
                         </span>
                     </div>
                     {% endif %}
 
                     {% if update.meeting_date %}
-                    <p class="mb-1">
-                        <strong>📅 Meeting Date:</strong>
-                        <span class="text-success fw-bold">{{ update.meeting_date|date:"l, M d, Y — h:i A" }}</span>
+                    <p class="mb-1 meeting-date">
+                        📅 Meeting: {{ update.meeting_date|date:"l, M d, Y — h:i A" }}
                     </p>
                     {% endif %}
 
-                    <p class="mb-0">{{ update.message }}</p>
+                    <p class="update-msg">{{ update.message }}</p>
                 </div>
                 {% endfor %}
+
                 {% else %}
-                <hr>
-                <p class="text-muted mb-0" style="font-size:0.9rem;">
+                <hr class="appt-divider">
+                <p style="color:var(--muted);font-size:.87rem;margin:0;">
                     ⏳ No updates yet. You will be notified when admin or the committee responds.
                 </p>
                 {% endif %}
                 {% endwith %}
 
-            </div>
-        </div>
+                <!-- Outcome / Convert block -->
+                {% if appt.outcome == 'Needs Formal Action' and not appt.converted_to_complaint %}
+                <hr class="appt-divider">
+                <div class="outcome-box danger">
+                    <p class="outcome-box-title">⚠️ Formal Complaint Required</p>
+                    <p>The committee has reviewed your case and recommends filing a formal complaint.</p>
+                    <ul style="padding-left:1.2rem;margin-bottom:.75rem;">
+                        <li>Submit the formal complaint using the button below.</li>
+                        <li>You must appear <strong>physically</strong> at the concerned office.</li>
+                        <li>Bring all relevant <strong>proofs</strong> (documents, screenshots, records).</li>
+                        <li>If you have <strong>witnesses</strong>, they should be available in person.</li>
+                        <li>Evidence and witnesses are <strong>not submitted online</strong> — bring them physically.</li>
+                    </ul>
+                    <p style="font-style:italic;font-size:.8rem;margin-bottom:.85rem;">
+                        ℹ️ This is a reminder only. The actual investigation will be conducted offline.
+                    </p>
+                    <a href="{% url 'convert_to_complaint' appt.id %}" class="btn-gold">📋 File Formal Complaint</a>
+                </div>
+
+                {% elif appt.converted_to_complaint %}
+                <hr class="appt-divider">
+                <div class="outcome-box success">
+                    <p class="outcome-box-title">✅ Formal Complaint Filed</p>
+                    <p style="margin:0;">
+                        Tracking ID: <strong>{{ appt.converted_to_complaint.tracking_id }}</strong>
+                        <a href="{% url 'complaint_detail' appt.converted_to_complaint.id %}"
+                           class="btn btn-outline-success btn-sm ms-2">View Complaint</a>
+                    </p>
+                </div>
+
+                {% elif appt.outcome == 'Resolved Informally' %}
+                <hr class="appt-divider">
+                <div class="outcome-box success">
+                    <p class="outcome-box-title" style="margin:0;">✅ Resolved Informally — No further action needed.</p>
+                </div>
+                {% endif %}
+
+            </div><!-- /appt-card-body -->
+        </div><!-- /appt-card -->
         {% endfor %}
 
     {% else %}
-    <div class="card shadow-sm">
-        <div class="card-body text-center py-5">
-            <div style="font-size:3rem;opacity:0.3;">📭</div>
-            <h5 class="mt-3" style="color:#6b7280;">No appointments yet</h5>
-            <p style="color:#9ca3af;">Book your first appointment using the button above.</p>
-            <a href="{% url 'appointment' %}" class="btn btn-primary mt-2">📅 Book Appointment</a>
-        </div>
+    <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h5>No appointments yet</h5>
+        <p>Book your first appointment using the button below.</p>
+        <a href="{% url 'appointment' %}" class="btn-gold mt-2">📅 Book Appointment</a>
     </div>
     {% endif %}
-    <!-- Convert to Complaint button -->
-{% if appt.outcome == 'Needs Formal Action' and not appt.converted_to_complaint %}
-<hr>
-<div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:8px; padding:1rem;">
-    <p style="color:#991b1b; font-weight:600; margin-bottom:0.5rem;">
-        ⚠️ Formal Complaint Recommended
-    </p>
-    <p style="color:#991b1b; font-size:0.88rem; margin-bottom:0.75rem;">
-        The committee has recommended that you file a formal complaint regarding this matter.
-    </p>
-    <a href="{% url 'convert_to_complaint' appt.id %}" class="btn btn-danger btn-sm fw-bold">
-        📋 Convert to Formal Complaint
-    </a>
-</div>
-{% elif appt.converted_to_complaint %}
-<hr>
-<div style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:1rem;">
-    <p style="color:#166534; font-weight:600; margin-bottom:0.25rem;">
-        ✅ Formal Complaint Filed
-    </p>
-    <p style="color:#166534; font-size:0.88rem; margin-bottom:0;">
-        Complaint ID: <strong>{{ appt.converted_to_complaint.tracking_id }}</strong>
-        <a href="{% url 'complaint_detail' appt.converted_to_complaint.id %}" class="btn btn-outline-success btn-sm ms-2">
-            View Complaint
-        </a>
-    </p>
-</div>
-{% elif appt.outcome == 'Resolved Informally' %}
-<hr>
-<div style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:0.75rem 1rem;">
-    <p style="color:#166534; font-weight:600; margin-bottom:0;">
-        ✅ Resolved Informally — No further action needed.
-    </p>
-</div>
-{% endif %}
 
 </div>
 {% endblock %}

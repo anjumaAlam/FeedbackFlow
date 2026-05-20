@@ -3,266 +3,540 @@
 
 {% block extra_css %}
 <style>
-    .stat-box {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 1.5rem 1rem;
-        text-align: center;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        transition: transform 0.15s;
-    }
-    .stat-box:hover { transform: translateY(-2px); }
-    .stat-box h3 {
-        font-size: 2.2rem;
-        font-weight: 800;
-        margin-bottom: 0.25rem;
-        color: #111827 !important;
-    }
-    .stat-box p {
-        color: #6b7280;
-        margin: 0;
-        font-size: 0.85rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    .stat-box.total   h3 { color: #111827 !important; }
-    .stat-box.pending h3 { color: #d97706 !important; }
-    .stat-box.forward h3 { color: #0891b2 !important; }
-    .stat-box.schedule h3 { color: #16a34a !important; }
-    .stat-box.reject  h3 { color: #dc2626 !important; }
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
 
-    .stat-icon {
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
+    * { box-sizing: border-box; }
+    body, .dashboard-content { font-family: 'DM Sans', sans-serif; }
+
+    .appt-wrap {
+        padding: 2rem 1.5rem 4rem;
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+
+    /* ── Hero Header ── */
+    .hero-header {
+        position: relative;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #162032 100%);
+        border-radius: 20px;
+        padding: 2.25rem 2.5rem;
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    .hero-header::before {
+        content: '';
+        position: absolute;
+        top: -80px; right: -40px;
+        width: 300px; height: 300px;
+        background: radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 65%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .hero-header::after {
+        content: '';
+        position: absolute;
+        bottom: -60px; left: 25%;
+        width: 200px; height: 200px;
+        background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(37,99,235,0.2);
+        border: 1px solid rgba(37,99,235,0.35);
+        color: #93c5fd;
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 20px;
+        margin-bottom: 0.85rem;
+    }
+    .hero-title {
+        font-family: 'DM Serif Display', serif;
+        font-size: 2rem;
+        color: #ffffff;
+        margin-bottom: 0.3rem;
+        line-height: 1.2;
+    }
+    .hero-subtitle {
+        color: rgba(255,255,255,0.45);
+        font-size: 13.5px;
+    }
+    .hero-count {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        text-align: center;
+        min-width: 110px;
+    }
+    .hero-count .hc-num {
+        font-family: 'DM Serif Display', serif;
+        font-size: 2.2rem;
+        color: #ffffff;
+        line-height: 1;
+        display: block;
+    }
+    .hero-count .hc-label {
+        font-size: 11px;
+        color: rgba(255,255,255,0.4);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        font-weight: 600;
+        margin-top: 4px;
         display: block;
     }
 
-    .filter-bar {
+    /* ── Stat Cards ── */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+    @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .stat-card {
         background: #ffffff;
+        border-radius: 16px;
+        padding: 1.4rem 1.1rem 1.2rem;
         border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-
-    .card {
-        background: #ffffff !important;
-        border-radius: 12px !important;
-        border: 1px solid #e5e7eb !important;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06) !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        position: relative;
         overflow: hidden;
+        transition: transform .15s, box-shadow .15s;
+        text-align: center;
     }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 3px;
+        border-radius: 0 0 16px 16px;
+    }
+    .sc-total::after    { background: #6366f1; }
+    .sc-pending::after  { background: #f59e0b; }
+    .sc-forward::after  { background: #0891b2; }
+    .sc-schedule::after { background: #10b981; }
+    .sc-reject::after   { background: #ef4444; }
 
-    .table thead th {
-        background: #f8fafc !important;
-        color: #374151 !important;
-        font-size: 0.78rem;
+    .sc-icon {
+        width: 40px; height: 40px;
+        border-radius: 11px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem;
+        margin: 0 auto 0.85rem;
+    }
+    .sc-total .sc-icon    { background: #eef2ff; }
+    .sc-pending .sc-icon  { background: #fef3c7; }
+    .sc-forward .sc-icon  { background: #e0f2fe; }
+    .sc-schedule .sc-icon { background: #d1fae5; }
+    .sc-reject .sc-icon   { background: #fee2e2; }
+
+    .sc-num {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #111827;
+        line-height: 1;
+        margin-bottom: 5px;
+        display: block;
+    }
+    .sc-pending .sc-num  { color: #d97706; }
+    .sc-forward .sc-num  { color: #0891b2; }
+    .sc-schedule .sc-num { color: #059669; }
+    .sc-reject .sc-num   { color: #dc2626; }
+
+    .sc-label {
+        font-size: 10.5px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        padding: 1rem 1.25rem;
-        border-bottom: 2px solid #e5e7eb !important;
+        letter-spacing: .06em;
+        color: #9ca3af;
     }
 
-    .table tbody td {
-        color: #212529 !important;
-        vertical-align: middle;
-        padding: 1rem 1.25rem;
-        border-bottom: 1px solid #f3f4f6 !important;
+    /* ── Filter Bar ── */
+    .filter-wrap {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
     }
+    .filter-label {
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        color: #9ca3af;
+        margin-right: 4px;
+        white-space: nowrap;
+    }
+    .filter-divider {
+        width: 1px; height: 24px;
+        background: #e5e7eb;
+        margin: 0 4px;
+    }
+    .f-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 12.5px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: all .15s;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .f-btn.f-all      { background: #f3f4f6; color: #374151; border-color: #e5e7eb; }
+    .f-btn.f-all.active,
+    .f-btn.f-all:hover { background: #111827; color: #fff; border-color: #111827; }
 
-    .table tbody tr:hover { background: #f9fafb !important; }
-    .table tbody tr:last-child td { border-bottom: none !important; }
+    .f-btn.f-pending   { background: #fef9c3; color: #854d0e; border-color: #fde68a; }
+    .f-btn.f-pending.active,
+    .f-btn.f-pending:hover { background: #d97706; color: #fff; border-color: #d97706; }
 
-    .badge {
-        font-size: 0.75rem;
-        padding: 0.4rem 0.75rem;
+    .f-btn.f-forward   { background: #e0f2fe; color: #0c4a6e; border-color: #bae6fd; }
+    .f-btn.f-forward.active,
+    .f-btn.f-forward:hover { background: #0891b2; color: #fff; border-color: #0891b2; }
+
+    .f-btn.f-schedule  { background: #dcfce7; color: #14532d; border-color: #bbf7d0; }
+    .f-btn.f-schedule.active,
+    .f-btn.f-schedule:hover { background: #059669; color: #fff; border-color: #059669; }
+
+    .f-btn.f-reject    { background: #fee2e2; color: #7f1d1d; border-color: #fca5a5; }
+    .f-btn.f-reject.active,
+    .f-btn.f-reject:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
+
+    /* ── Section Heading ── */
+    .section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .section-heading h3 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.3rem;
+        color: #ffffff;
+        margin: 0;
+    }
+    .result-count {
+        font-size: 12px;
+        color: rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        padding: 4px 12px;
         border-radius: 20px;
         font-weight: 600;
     }
 
-    .btn-handle {
+    /* ── Table ── */
+    .table-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    .table-card table { width: 100%; border-collapse: collapse; margin: 0; }
+    .table-card thead th {
+        background: #f8fafc;
+        color: #6b7280;
+        font-size: 10.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        white-space: nowrap;
+    }
+    .table-card tbody td {
+        color: #1f2937;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #f9fafb;
+        vertical-align: middle;
+        font-size: 13.5px;
+    }
+    .table-card tbody tr:last-child td { border-bottom: none; }
+    .table-card tbody tr { transition: background .1s; }
+    .table-card tbody tr:hover { background: #fafbff; }
+
+    .row-num { font-size: 12px; color: #d1d5db; font-weight: 600; }
+
+    .student-name { font-weight: 700; color: #111827; font-size: 14px; line-height: 1.3; }
+    .student-dept { font-size: 11.5px; color: #9ca3af; margin-top: 2px; }
+    .student-id   { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12.5px; color: #6b7280; }
+
+    .committee-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #1e40af;
+    }
+
+    .incident-chip {
+        display: inline-block;
+        background: #f3f4f6;
+        color: #374151;
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .date-text { font-size: 12.5px; color: #9ca3af; }
+
+    /* ── Status Pills ── */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 11px;
+        border-radius: 20px;
+        white-space: nowrap;
+        letter-spacing: .02em;
+    }
+    .pill-pending   { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .pill-forwarded { background: #e0f2fe; color: #0c4a6e; border: 1px solid #bae6fd; }
+    .pill-scheduled { background: #dcfce7; color: #14532d; border: 1px solid #bbf7d0; }
+    .pill-rejected  { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+    .pill-resolved  { background: #ede9fe; color: #4c1d95; border: 1px solid #ddd6fe; }
+    .pill-formal    { background: #fff7ed; color: #7c2d12; border: 1px solid #fdba74; }
+    .pill-default   { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+
+    /* ── Action Buttons ── */
+    .btn-review {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         background: linear-gradient(135deg, #2563eb, #1d4ed8);
         color: #fff;
         border: none;
         border-radius: 8px;
-        padding: 0.4rem 1rem;
-        font-size: 0.82rem;
-        font-weight: 600;
-        transition: all 0.15s;
+        padding: 7px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all .15s;
+        white-space: nowrap;
+        letter-spacing: .02em;
     }
-    .btn-handle:hover {
+    .btn-review:hover {
         background: linear-gradient(135deg, #1d4ed8, #1e40af);
         color: #fff;
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        box-shadow: 0 5px 14px rgba(37,99,235,0.35);
+    }
+    .btn-view-only {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: transparent;
+        color: #6b7280;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 7px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all .15s;
+        white-space: nowrap;
+    }
+    .btn-view-only:hover {
+        background: #f3f4f6;
+        color: #374151;
+        border-color: #d1d5db;
     }
 
-    .page-header {
-        background: linear-gradient(135deg, rgba(37,99,235,0.15), rgba(139,92,246,0.1));
-        border: 1px solid rgba(37,99,235,0.2);
-        border-radius: 16px;
-        padding: 1.75rem 2rem;
-        margin-bottom: 1.75rem;
+    /* ── Empty State ── */
+    .empty-box {
+        padding: 5rem 2rem;
+        text-align: center;
     }
-
-    .empty-state { padding: 4rem 2rem; text-align: center; }
-    .empty-state .empty-icon { font-size: 3.5rem; opacity: 0.25; margin-bottom: 1rem; }
-    .empty-state h5 { color: #6b7280; font-weight: 600; }
-    .empty-state p  { color: #9ca3af; font-size: 0.9rem; }
+    .empty-box .empty-icon { font-size: 3rem; opacity: .15; display: block; margin-bottom: 1.25rem; }
+    .empty-box h5 { color: #6b7280; font-weight: 600; margin-bottom: .4rem; font-size: 16px; }
+    .empty-box p  { color: #9ca3af; font-size: 13px; margin: 0; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="appt-wrap">
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h2 class="fw-bold mb-1" style="color:#fff;">📅 Appointment Requests</h2>
-                <p class="mb-0" style="color:rgba(255,255,255,.6);">
-                    Review and forward student appointment requests to committees
-                </p>
+    <!-- ── Hero Header ── -->
+    <div class="hero-header mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-9">
+                <div class="hero-badge">📅 Admin Panel</div>
+                <h1 class="hero-title">Appointment Requests</h1>
+                <p class="hero-subtitle">Review and forward student appointment requests to the relevant committee.</p>
             </div>
-            <div>
-                <span class="badge bg-primary" style="font-size:0.9rem; padding:0.5rem 1rem;">
-                    {{ total }} Total
-                </span>
+            <div class="col-md-3 text-end">
+                <div class="hero-count d-inline-block">
+                    <span class="hc-num">{{ total }}</span>
+                    <span class="hc-label">Total Requests</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Stats -->
-    <div class="row mb-4 g-3">
-        <div class="col-md-2 col-sm-6">
-            <div class="stat-box total">
-                <span class="stat-icon">📋</span>
-                <h3>{{ total }}</h3>
-                <p>Total</p>
-            </div>
+    <!-- ── Stats Grid ── -->
+    <div class="stats-grid">
+        <div class="stat-card sc-total">
+            <div class="sc-icon">📋</div>
+            <span class="sc-num">{{ total }}</span>
+            <div class="sc-label">All</div>
         </div>
-        <div class="col-md-2 col-sm-6">
-            <div class="stat-box pending">
-                <span class="stat-icon">⏳</span>
-                <h3>{{ pending }}</h3>
-                <p>Pending</p>
-            </div>
+        <div class="stat-card sc-pending">
+            <div class="sc-icon">⏳</div>
+            <span class="sc-num">{{ pending }}</span>
+            <div class="sc-label">Pending</div>
         </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-box forward">
-                <span class="stat-icon">📤</span>
-                <h3>{{ forwarded }}</h3>
-                <p>Forwarded</p>
-            </div>
+        <div class="stat-card sc-forward">
+            <div class="sc-icon">📤</div>
+            <span class="sc-num">{{ forwarded }}</span>
+            <div class="sc-label">Forwarded</div>
         </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-box schedule">
-                <span class="stat-icon">📅</span>
-                <h3>{{ scheduled }}</h3>
-                <p>Meeting Scheduled</p>
-            </div>
+        <div class="stat-card sc-schedule">
+            <div class="sc-icon">📅</div>
+            <span class="sc-num">{{ scheduled }}</span>
+            <div class="sc-label">Scheduled</div>
         </div>
-        <div class="col-md-2 col-sm-6">
-            <div class="stat-box reject">
-                <span class="stat-icon">❌</span>
-                <h3>{{ rejected }}</h3>
-                <p>Rejected</p>
-            </div>
+        <div class="stat-card sc-reject">
+            <div class="sc-icon">❌</div>
+            <span class="sc-num">{{ rejected }}</span>
+            <div class="sc-label">Rejected</div>
         </div>
     </div>
 
-    <!-- Filter Bar -->
-    <div class="filter-bar mb-4 d-flex gap-2 align-items-center flex-wrap">
-        <span style="color:#374151; font-weight:700; font-size:0.9rem;">Filter by status:</span>
-        <a href="?status=" class="btn btn-sm {% if not status_filter %}btn-dark{% else %}btn-outline-secondary{% endif %}">
-            All
+    <!-- ── Filter Bar ── -->
+    <div class="filter-wrap">
+        <span class="filter-label">Filter</span>
+        <div class="filter-divider"></div>
+        <a href="?status=" class="f-btn f-all {% if not status_filter %}active{% endif %}">
+            🗂 All
         </a>
-        <a href="?status=Pending" class="btn btn-sm {% if status_filter == 'Pending' %}btn-warning text-dark{% else %}btn-outline-warning{% endif %}">
+        <a href="?status=Pending" class="f-btn f-pending {% if status_filter == 'Pending' %}active{% endif %}">
             ⏳ Pending
         </a>
-        <a href="?status=Forwarded to Committee" class="btn btn-sm {% if status_filter == 'Forwarded to Committee' %}btn-info{% else %}btn-outline-info{% endif %}">
+        <a href="?status=Forwarded to Committee" class="f-btn f-forward {% if status_filter == 'Forwarded to Committee' %}active{% endif %}">
             📤 Forwarded
         </a>
-        <a href="?status=Meeting Scheduled" class="btn btn-sm {% if status_filter == 'Meeting Scheduled' %}btn-success{% else %}btn-outline-success{% endif %}">
+        <a href="?status=Meeting Scheduled" class="f-btn f-schedule {% if status_filter == 'Meeting Scheduled' %}active{% endif %}">
             📅 Scheduled
         </a>
-        <a href="?status=Rejected by Committee" class="btn btn-sm {% if status_filter == 'Rejected by Committee' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+        <a href="?status=Rejected by Committee" class="f-btn f-reject {% if status_filter == 'Rejected by Committee' %}active{% endif %}">
             ❌ Rejected
         </a>
     </div>
 
-    <!-- Table -->
-    <div class="card">
-        <div class="card-body p-0">
-            {% if appointments %}
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Student</th>
-                            <th>Student ID</th>
-                            <th>Appointment With</th>
-                            <th>Incident Type</th>
-                            <th>Submitted</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for appt in appointments %}
-                        <tr>
-                            <td style="color:#9ca3af; font-size:0.85rem;">{{ forloop.counter }}</td>
-                            <td>
-                                <div style="font-weight:700; color:#111827;">{{ appt.name }}</div>
-                                <div style="font-size:0.78rem; color:#6b7280;">{{ appt.get_department_display }}</div>
-                            </td>
-                            <td style="font-family:monospace; color:#374151;">{{ appt.roll_number }}</td>
-                            <td>
-                                <span style="font-weight:600; color:#1e40af;">
-                                    {% if appt.appointment_with == 'Harassment Committee' %}⚖️{% else %}🔒{% endif %}
-                                    {{ appt.appointment_with }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-light text-dark" style="border:1px solid #e5e7eb;">
-                                    {{ appt.incident_type }}
-                                </span>
-                            </td>
-                            <td style="color:#6b7280; font-size:0.88rem;">
-                                {{ appt.created_at|date:"M d, Y" }}
-                            </td>
-                            <td>
-                                <span class="badge
-                                    {% if appt.status == 'Pending' %}bg-warning text-dark
-                                    {% elif appt.status == 'Forwarded to Committee' %}bg-info
-                                    {% elif appt.status == 'Meeting Scheduled' %}bg-success
-                                    {% elif appt.status == 'Rejected by Committee' %}bg-danger
-                                    {% else %}bg-secondary{% endif %}">
-                                    {{ appt.status }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="{% url 'admin_appointment_detail' appt.id %}" class="btn-handle">
-                                    {% if appt.status == 'Pending' %}🔍 Review{% else %}👁 View{% endif %}
+    <!-- ── Table ── -->
+    <div class="section-heading">
+        <h3>All Requests</h3>
+        <span class="result-count">
+            {% if status_filter %}{{ appointments|length }} filtered{% else %}{{ total }} total{% endif %}
+        </span>
+    </div>
+
+    <div class="table-card">
+        {% if appointments %}
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Student ID</th>
+                        <th>Appointment With</th>
+                        <th>Incident</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in appointments %}
+                    <tr>
+                        <td><span class="row-num">{{ forloop.counter }}</span></td>
+                        <td>
+                            <div class="student-name">{{ appt.name }}</div>
+                            <div class="student-dept">{{ appt.get_department_display }}</div>
+                        </td>
+                        <td><span class="student-id">{{ appt.roll_number }}</span></td>
+                        <td>
+                            <span class="committee-tag">
+                                {% if appt.appointment_with == 'Harassment Committee' %}⚖️{% else %}🔒{% endif %}
+                                {{ appt.appointment_with }}
+                            </span>
+                        </td>
+                        <td><span class="incident-chip">{{ appt.incident_type }}</span></td>
+                        <td><span class="date-text">{{ appt.created_at|date:"M d, Y" }}</span></td>
+                        <td>
+                            {% if appt.status == 'Pending' %}
+                                <span class="status-pill pill-pending">⏳ Pending</span>
+                            {% elif appt.status == 'Forwarded to Committee' %}
+                                <span class="status-pill pill-forwarded">📤 Forwarded</span>
+                            {% elif appt.status == 'Meeting Scheduled' %}
+                                <span class="status-pill pill-scheduled">📅 Scheduled</span>
+                            {% elif appt.status == 'Rejected by Committee' %}
+                                <span class="status-pill pill-rejected">✗ Rejected</span>
+                            {% elif appt.status == 'Resolved Informally' %}
+                                <span class="status-pill pill-resolved">✓ Resolved</span>
+                            {% elif appt.status == 'Needs Formal Action' %}
+                                <span class="status-pill pill-formal">⚠ Formal Action</span>
+                            {% else %}
+                                <span class="status-pill pill-default">{{ appt.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if appt.status == 'Pending' %}
+                                <a href="{% url 'admin_appointment_detail' appt.id %}" class="btn-review">
+                                    🔍 Review
                                 </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-icon">📭</div>
-                <h5>No appointments found</h5>
-                <p>Student appointment requests will appear here once submitted.</p>
-            </div>
-            {% endif %}
+                            {% else %}
+                                <a href="{% url 'admin_appointment_detail' appt.id %}" class="btn-view-only">
+                                    👁 View
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+
+        {% else %}
+        <div class="empty-box">
+            <span class="empty-icon">📭</span>
+            <h5>No appointments found</h5>
+            <p>
+                {% if status_filter %}
+                    No appointments match the selected filter. <a href="?status=" style="color:#2563eb;">Clear filter</a>
+                {% else %}
+                    Student appointment requests will appear here once submitted.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
     </div>
 
 </div>
