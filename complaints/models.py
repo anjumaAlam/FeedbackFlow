@@ -5,6 +5,8 @@ from django.conf import settings
 from django.utils import timezone
 
 
+
+
 class Complaint(models.Model):
     COMPLAINT_TYPE_CHOICES = (
         ('Faculty', 'Complaint about Faculty'),

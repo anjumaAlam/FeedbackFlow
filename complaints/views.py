@@ -188,6 +188,8 @@ def hod_suggestions_list(request):
     return render(request, 'complaints/hod_suggestions_list.html', context)
 
 
+
+
 @login_required
 @require_POST
 def resolve_suggestion(request, complaint_id):
