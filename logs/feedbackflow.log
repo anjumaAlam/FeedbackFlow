@@ -5027,3 +5027,65 @@ ImportError: cannot import name 'CommitteeOutcomeForm' from 'users.forms' (C:\Us
 [2026-05-21 12:26:01,561] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 200 33912
 [2026-05-21 12:26:27,319] INFO django.server log "POST /feedback/submit/ HTTP/1.1" 302 0
 [2026-05-21 12:26:27,347] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 30495
+[2026-05-21 20:05:14,188] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 20:05:22,462] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 20:05:23,198] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42311
+[2026-05-21 20:05:25,991] WARNING django.request log Not Found: /favicon.ico
+[2026-05-21 20:05:25,998] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 15403
+[2026-05-21 20:11:45,667] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22159
+[2026-05-21 20:16:46,473] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22159
+[2026-05-22 00:12:03,012] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 00:12:03,381] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42311
+[2026-05-22 00:12:05,123] WARNING django.request log Not Found: /favicon.ico
+[2026-05-22 00:12:05,125] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 15403
+[2026-05-22 00:13:19,912] INFO django.server log "GET /admin/ HTTP/1.1" 302 0
+[2026-05-22 00:13:20,169] INFO django.server log "GET /admin/login/?next=/admin/ HTTP/1.1" 200 3619
+[2026-05-22 00:13:20,249] INFO django.server log "GET /static/admin/css/base.css HTTP/1.1" 304 0
+[2026-05-22 00:13:20,249] INFO django.server log "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+[2026-05-22 00:13:20,283] INFO django.server log "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+[2026-05-22 00:13:20,293] INFO django.server log "GET /static/admin/css/login.css HTTP/1.1" 304 0
+[2026-05-22 00:13:20,298] INFO django.server log "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+[2026-05-22 00:13:20,331] INFO django.server log "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+[2026-05-22 00:13:20,403] INFO django.server log "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+[2026-05-22 00:13:35,220] INFO django.server log "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+[2026-05-22 00:13:35,331] INFO django.server log "GET /admin/ HTTP/1.1" 200 16124
+[2026-05-22 00:13:35,378] INFO django.server log "GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+[2026-05-22 00:13:35,437] INFO django.server log "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+[2026-05-22 00:13:35,439] INFO django.server log "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+[2026-05-22 00:13:39,180] INFO django.server log "GET /admin/users/user/add/ HTTP/1.1" 200 21200
+[2026-05-22 00:13:39,207] INFO django.server log "GET /static/admin/css/forms.css HTTP/1.1" 304 0
+[2026-05-22 00:13:39,224] INFO django.server log "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+[2026-05-22 00:13:39,264] INFO django.server log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[2026-05-22 00:13:39,267] INFO django.server log "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+[2026-05-22 00:13:39,268] INFO django.server log "GET /static/admin/js/actions.js HTTP/1.1" 304 0
+[2026-05-22 00:13:39,278] INFO django.server log "GET /static/admin/js/core.js HTTP/1.1" 304 0
+[2026-05-22 00:13:39,280] INFO django.server log "GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+[2026-05-22 00:13:39,296] INFO django.server log "GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+[2026-05-22 00:13:39,321] INFO django.server log "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+[2026-05-22 00:13:39,343] INFO django.server log "GET /static/admin/css/unusable_password_field.css HTTP/1.1" 304 0
+[2026-05-22 00:13:39,382] INFO django.server log "GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+[2026-05-22 00:13:39,397] INFO django.server log "GET /static/admin/css/widgets.css HTTP/1.1" 304 0
+[2026-05-22 00:13:39,399] INFO django.server log "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 304 0
+[2026-05-22 00:13:39,429] INFO django.server log "GET /static/admin/js/change_form.js HTTP/1.1" 304 0
+[2026-05-22 00:16:39,946] INFO django.server basehttp - Broken pipe from ('127.0.0.1', 55886)
+[2026-05-22 00:16:40,151] INFO django.server log "GET /admin/users/user/ HTTP/1.1" 200 77468
+[2026-05-22 00:16:40,185] INFO django.server log "GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+[2026-05-22 00:16:40,194] INFO django.server log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[2026-05-22 00:16:40,225] INFO django.server log "GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+[2026-05-22 00:16:40,226] INFO django.server log "GET /static/admin/img/search.svg HTTP/1.1" 304 0
+[2026-05-22 00:16:40,251] INFO django.server log "GET /static/admin/js/filters.js HTTP/1.1" 304 0
+[2026-05-22 00:16:40,279] INFO django.server log "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+[2026-05-22 00:16:40,286] INFO django.server log "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 304 0
+[2026-05-22 00:16:40,360] INFO django.server log "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 304 0
+[2026-05-22 00:17:52,758] INFO django.server log "GET /admin/users/user/95/change/ HTTP/1.1" 200 25066
+[2026-05-22 00:17:52,810] INFO django.server log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[2026-05-22 00:21:37,519] INFO django.server log "GET /admin/users/appointment/ HTTP/1.1" 200 23313
+[2026-05-22 00:21:37,530] INFO django.server basehttp - Broken pipe from ('127.0.0.1', 55885)
+[2026-05-22 00:21:38,024] INFO django.server log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[2026-05-22 00:21:43,550] INFO django.server log "GET /admin/users/appointment/add/ HTTP/1.1" 200 33837
+[2026-05-22 00:21:43,646] INFO django.server log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[2026-05-22 00:21:43,934] INFO django.server log "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 689
+[2026-05-22 00:23:31,038] INFO django.server log "GET /admin/users/appointment/ HTTP/1.1" 200 23313
+[2026-05-22 00:23:31,300] INFO django.server log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[2026-05-22 00:27:18,490] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-fiamaniallah\users\views.py changed, reloading.
+[2026-05-22 00:28:34,270] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader

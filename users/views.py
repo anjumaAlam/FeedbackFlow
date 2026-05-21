@@ -1185,15 +1185,22 @@ def committee_dashboard(request):
 
     appointments = Appointment.objects.filter(
         appointment_with=request.user.committee_type,
-        status__in=['Forwarded to Committee', 'Meeting Scheduled', 'Rejected by Committee']
+        status__in=[
+            'Forwarded to Committee',
+            'Meeting Scheduled',
+            'Rejected by Committee',
+            'Needs Formal Action',
+            'Resolved Informally',
+            'Pending',
+        ]
     ).order_by('-created_at')
 
     context = {
         'appointments': appointments,
-        'total':     appointments.count(),
-        'pending':   appointments.filter(status='Forwarded to Committee').count(),
+        'total': appointments.count(),
+        'pending': appointments.filter(status__in=['Pending', 'Forwarded to Committee']).count(),
         'scheduled': appointments.filter(status='Meeting Scheduled').count(),
-        'rejected':  appointments.filter(status='Rejected by Committee').count(),
+        'rejected': appointments.filter(status='Rejected by Committee').count(),
         'page_title': 'Committee Dashboard',
     }
     return render(request, 'users/committee_dashboard.html', context)
