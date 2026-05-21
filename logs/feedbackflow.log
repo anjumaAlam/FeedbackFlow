@@ -5366,3 +5366,46 @@ django.db.utils.OperationalError: no such column: feedback_courseregistration.cl
 [2026-05-22 02:08:56,103] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42481
 [2026-05-22 02:08:59,749] INFO django.server log "GET /appointment/ HTTP/1.1" 200 35055
 [2026-05-22 02:11:16,672] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 02:12:07,333] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 02:12:08,716] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42481
+[2026-05-22 02:12:16,556] INFO django.server log "GET /appointment/ HTTP/1.1" 200 35053
+[2026-05-22 02:15:38,814] INFO django.server log "GET /complaints/clarifications/ HTTP/1.1" 200 17045
+[2026-05-22 02:15:40,936] WARNING django.request log Not Found: /favicon.ico
+[2026-05-22 02:15:40,940] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 15678
+[2026-05-22 02:17:34,474] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 02:17:35,141] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42481
+[2026-05-22 02:17:37,174] WARNING django.request log Not Found: /favicon.ico
+[2026-05-22 02:17:37,176] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 15678
+[2026-05-22 02:17:46,610] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29043
+[2026-05-22 02:18:00,658] INFO django.server log "POST /complaints/submit/ HTTP/1.1" 302 0
+[2026-05-22 02:18:00,787] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 36618
+[2026-05-22 02:18:03,332] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 02:18:03,358] INFO django.server log "GET /login/ HTTP/1.1" 200 19116
+[2026-05-22 02:18:14,687] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 02:18:15,151] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39739
+[2026-05-22 02:18:44,516] INFO django.server log "GET /notifications/ HTTP/1.1" 200 45213
+[2026-05-22 02:18:46,443] INFO django.server log "GET /notifications/mark-read/187/ HTTP/1.1" 302 0
+[2026-05-22 02:18:47,356] INFO django.server log "GET /complaints/hod/handle/20/ HTTP/1.1" 200 26633
+[2026-05-22 02:18:54,425] INFO django.server log "GET /complaints/hod/assign-investigation/20/ HTTP/1.1" 200 23055
+[2026-05-22 02:21:53,939] INFO django.server log "POST /complaints/hod/assign-investigation/20/ HTTP/1.1" 302 0
+[2026-05-22 02:21:54,076] INFO django.server log "GET /complaints/hod/handle/20/ HTTP/1.1" 200 29127
+[2026-05-22 02:21:55,939] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 02:21:55,952] INFO django.server log "GET /login/ HTTP/1.1" 200 19116
+[2026-05-22 02:22:05,065] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 02:22:05,446] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38836
+[2026-05-22 02:22:07,648] INFO django.server log "GET /notifications/ HTTP/1.1" 200 34810
+[2026-05-22 02:22:09,969] INFO django.server log "GET /notifications/mark-read/191/ HTTP/1.1" 302 0
+[2026-05-22 02:22:10,035] INFO django.server log "GET /complaints/investigator/my-investigations/ HTTP/1.1" 200 39545
+[2026-05-22 02:22:14,962] INFO django.server log "GET /complaints/investigator/submit-findings/5/ HTTP/1.1" 200 38990
+[2026-05-22 02:24:09,936] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 02:24:15,020] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 02:24:15,255] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38178
+[2026-05-22 02:24:24,737] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 02:24:24,809] INFO django.server log "GET /login/ HTTP/1.1" 200 19114
+[2026-05-22 02:24:32,921] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 02:24:33,039] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39629
+[2026-05-22 02:24:35,457] INFO django.server log "GET /notifications/ HTTP/1.1" 200 45213
+[2026-05-22 02:24:37,386] INFO django.server log "GET /notifications/mark-read/187/ HTTP/1.1" 302 0
+[2026-05-22 02:24:37,464] INFO django.server log "GET /complaints/hod/handle/20/ HTTP/1.1" 200 28550
+[2026-05-22 02:24:42,264] INFO django.server log "GET /complaints/hod/assign-investigation/20/ HTTP/1.1" 200 31363
+[2026-05-22 02:24:48,271] INFO django.server log "GET /complaints/hod/handle/20/ HTTP/1.1" 200 28550
