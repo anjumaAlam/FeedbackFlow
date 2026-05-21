@@ -5089,3 +5089,37 @@ ImportError: cannot import name 'CommitteeOutcomeForm' from 'users.forms' (C:\Us
 [2026-05-22 00:23:31,300] INFO django.server log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
 [2026-05-22 00:27:18,490] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-fiamaniallah\users\views.py changed, reloading.
 [2026-05-22 00:28:34,270] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 00:29:26,083] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 00:29:26,088] INFO django.server log "GET /complaints/clarifications/ HTTP/1.1" 302 0
+[2026-05-22 00:29:26,310] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 00:29:26,317] INFO django.server log "GET /login/ HTTP/1.1" 302 0
+[2026-05-22 00:29:26,795] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 44377
+[2026-05-22 00:29:26,860] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 44377
+[2026-05-22 00:29:28,638] WARNING django.request log Not Found: /favicon.ico
+[2026-05-22 00:29:28,649] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 15403
+[2026-05-22 00:29:32,103] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 00:29:32,353] INFO django.server log "GET /login/ HTTP/1.1" 200 19117
+[2026-05-22 00:29:50,234] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 00:29:50,326] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42851
+[2026-05-22 00:30:03,531] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22159
+[2026-05-22 00:30:16,022] INFO django.server log "POST /appointment/ HTTP/1.1" 302 0
+[2026-05-22 00:30:16,090] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22896
+[2026-05-22 00:30:21,373] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 00:30:21,409] INFO django.server log "GET /login/ HTTP/1.1" 200 19116
+[2026-05-22 00:30:34,567] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 00:30:34,626] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 44384
+[2026-05-22 00:30:38,001] INFO django.server log "GET /notifications/ HTTP/1.1" 200 29411
+[2026-05-22 00:30:39,900] INFO django.server log "GET /notifications/mark-read/172/ HTTP/1.1" 302 0
+[2026-05-22 00:30:40,037] INFO django.server log "GET /dashboard/appointments/ HTTP/1.1" 200 38580
+[2026-05-22 00:30:44,139] INFO django.server log "GET /dashboard/appointments/6/ HTTP/1.1" 200 20396
+[2026-05-22 00:30:57,130] INFO django.server log "POST /dashboard/appointments/6/ HTTP/1.1" 302 0
+[2026-05-22 00:30:57,171] INFO django.server log "GET /dashboard/appointments/6/ HTTP/1.1" 200 20538
+[2026-05-22 00:30:59,772] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 00:30:59,813] INFO django.server log "GET /login/ HTTP/1.1" 200 19117
+[2026-05-22 00:31:05,658] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 00:31:05,723] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 37909
+[2026-05-22 00:31:24,762] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 00:31:24,777] INFO django.server log "GET /login/ HTTP/1.1" 200 19115
+[2026-05-22 00:34:13,064] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 00:34:13,316] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 37909
+[2026-05-22 00:53:22,763] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
