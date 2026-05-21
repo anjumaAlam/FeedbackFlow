@@ -3,127 +3,295 @@
 
 {% block extra_css %}
 <style>
-    .page-card { max-width: 900px; margin: 2rem auto; }
-    .finding-box {
-        background: #fef9c3;
-        border: 1px solid #fde047;
-        border-radius: 8px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-    .finding-box p, .finding-box strong { color: #1a1a1a !important; }
-    .ask-from-option {
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 0.75rem;
-        cursor: pointer;
-        transition: all 0.15s;
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-        background: white;
-        color: #111;
-    }
-    .ask-from-option:has(input:checked) { border-color: #3b82f6; background: #eff6ff; }
-    .ask-from-option input { margin-top: 3px; flex-shrink: 0; }
-    .ask-from-option .label { font-weight: 600; color: #111; }
-    .ask-from-option .desc  { font-size: 0.85rem; color: #555; margin-top: 2px; }
-    .form-label { font-weight: 600; color: #1f2937; font-size: 13.5px; }
-    .existing-box {
-        background: #f0fdf4;
-        border: 1px solid #86efac;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        color: #111 !important;
-    }
-    .existing-box p, .existing-box strong { color: #111 !important; }
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --gold:     #d4a96a;
+    --gold-lt:  #e8c98a;
+    --surface:  #1c2840;
+    --surface-2:#243150;
+    --surface-3:#2d3d62;
+    --border:   rgba(200,215,255,.1);
+    --text:     #dde6f5;
+    --muted:    #8a9bc0;
+    --white:    #f0f4ff;
+}
+
+body { font-family: 'Outfit', sans-serif; color: var(--text); }
+
+.page-card { max-width: 900px; margin: 2rem auto; }
+
+/* ── Main card ── */
+.main-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.35);
+}
+.main-card-header {
+    background: linear-gradient(135deg, #78350f 0%, #b45309 55%, #f59e0b 100%);
+    padding: 1.2rem 1.75rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.main-card-header h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 700;
+    color: #ffffff; margin: 0;
+}
+.main-card-body { padding: 2rem 1.75rem; }
+
+/* ── Section heading ── */
+.section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--gold-lt);
+    margin-bottom: 1rem;
+    padding-left: 12px;
+    position: relative;
+}
+.section-heading::before {
+    content: '';
+    position: absolute; left: 0; top: 15%; bottom: 15%;
+    width: 3px;
+    background: linear-gradient(180deg, var(--gold), var(--gold-lt));
+    border-radius: 4px;
+}
+
+.section-divider { border: none; border-top: 1px solid rgba(200,215,255,.1); margin: 1.6rem 0; }
+
+/* ── Finding box ── */
+.finding-box {
+    background: rgba(251,191,36,.08);
+    border: 1px solid rgba(251,191,36,.25);
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 12px 12px 0;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.5rem;
+}
+.finding-box p      { color: #fde68a !important; font-size: .88rem; margin-bottom: .35rem; line-height: 1.6; }
+.finding-box strong { color: #fef3c7 !important; font-weight: 700; }
+.finding-box hr     { border-color: rgba(251,191,36,.2) !important; margin: .75rem 0; }
+
+/* ── Existing clarification box ── */
+.existing-box {
+    background: rgba(74,222,128,.07);
+    border: 1px solid rgba(74,222,128,.2);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.existing-box p, .existing-box strong { color: #bbf7d0 !important; font-size: .87rem; margin-bottom: .3rem; }
+.existing-box strong { color: #86efac !important; font-size: .9rem; }
+.existing-box a { color: #4ade80 !important; font-weight: 600; text-decoration: none; }
+.existing-box a:hover { text-decoration: underline; }
+
+/* ── Ask-from options ── */
+.ask-from-option {
+    border: 2px solid rgba(200,215,255,.12);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin-bottom: .75rem;
+    cursor: pointer;
+    transition: border-color .18s, background .18s;
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    background: var(--surface-2);
+}
+.ask-from-option:hover { border-color: rgba(200,215,255,.3); background: var(--surface-3); }
+.ask-from-option:has(input:checked) {
+    border-color: var(--gold);
+    background: rgba(212,169,106,.08);
+}
+.ask-from-option input[type="radio"] {
+    width: 18px !important; height: 18px !important; min-width: 18px !important;
+    opacity: 1 !important; cursor: pointer !important;
+    flex-shrink: 0 !important; margin-top: 3px !important;
+    accent-color: var(--gold) !important;
+    color-scheme: dark !important;
+}
+.ask-from-option .label { font-weight: 700; color: var(--white); font-size: .9rem; display: block; margin-bottom: .2rem; }
+.ask-from-option .desc  { font-size: .82rem; color: var(--muted); display: block; line-height: 1.5; }
+
+/* ── Form fields ── */
+.form-label {
+    color: var(--white) !important;
+    font-weight: 600 !important; font-size: .82rem !important;
+    text-transform: uppercase !important; letter-spacing: .4px !important;
+    margin-bottom: .5rem !important; display: block !important;
+}
+.form-label .text-danger { color: #fca5a5 !important; }
+
+textarea,
+textarea.form-control,
+input.form-control,
+select.form-select {
+    background-color: var(--surface-2) !important;
+    color: #f0f4ff !important;
+    -webkit-text-fill-color: #f0f4ff !important;
+    border: 1.5px solid rgba(200,215,255,.2) !important;
+    border-radius: 10px !important;
+    padding: .65rem .9rem !important;
+    width: 100% !important; display: block !important;
+    font-size: .9rem !important; font-family: inherit !important;
+    line-height: 1.65 !important;
+    opacity: 1 !important; box-sizing: border-box !important;
+    transition: border-color .2s, box-shadow .2s !important;
+}
+textarea { min-height: 120px !important; resize: vertical !important; }
+textarea::placeholder,
+input.form-control::placeholder { color: var(--muted) !important; -webkit-text-fill-color: var(--muted) !important; }
+
+textarea:focus,
+input.form-control:focus,
+select.form-select:focus {
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 0 3px rgba(212,169,106,.2) !important;
+    outline: none !important;
+    background-color: var(--surface-3) !important;
+    color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+}
+textarea:hover,
+input.form-control:hover,
+select.form-select:hover { border-color: rgba(200,215,255,.35) !important; }
+
+select.form-select option { background-color: #1c2840 !important; color: #f0f4ff !important; }
+
+small.text-muted  { color: var(--muted) !important; font-size: .77rem !important; display: block !important; margin-top: .35rem !important; }
+.text-danger.small { color: #fca5a5 !important; font-size: .78rem !important; margin-top: .3rem !important; }
+
+/* ── Status pill ── */
+.spill { display:inline-block; border-radius:50px; padding:.22rem .7rem; font-size:.69rem; font-weight:700; letter-spacing:.2px; }
+.spill-pending  { background:rgba(251,191,36,.18); color:#fbbf24; border:1px solid rgba(251,191,36,.35); }
+.spill-responded{ background:rgba(74,222,128,.15); color:#6ee7a0; border:1px solid rgba(74,222,128,.3); }
+.spill-forwarded{ background:rgba(96,165,250,.15); color:#93c5fd; border:1px solid rgba(96,165,250,.3); }
+
+/* ── Buttons ── */
+.btn-gold {
+    background: linear-gradient(135deg, #b45309, #f59e0b);
+    color: #fff !important; border: none;
+    font-weight: 700; font-size: .88rem;
+    padding: .6rem 1.5rem; border-radius: 10px;
+    transition: opacity .2s, transform .15s;
+    box-shadow: 0 2px 10px rgba(245,158,11,.25);
+    cursor: pointer;
+}
+.btn-gold:hover { opacity: .9; transform: translateY(-1px); }
+
+.btn-outline-secondary {
+    border-color: rgba(200,215,255,.2) !important;
+    color: var(--muted) !important;
+    border-radius: 10px !important;
+    font-size: .85rem !important;
+    background: transparent !important;
+}
+.btn-outline-secondary:hover {
+    background: rgba(200,215,255,.08) !important;
+    color: var(--white) !important;
+    border-color: rgba(200,215,255,.35) !important;
+}
+.back-btn { border-radius: 50px !important; font-size: .82rem !important; padding: .42rem 1rem !important; }
+
+/* ── Meta ── */
+.meta-lbl { font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:.15rem; }
+.meta-val { font-size:.88rem; color:var(--text); font-weight:500; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 pb-5">
     <div class="mb-3">
-        <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary">← Back to Complaint</a>
+        <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary back-btn">← Back to Complaint</a>
     </div>
 
-    <div class="card page-card">
-        <div class="card-header bg-warning text-dark">
-            <h4 class="mb-0">📤 Forward Clarification Request — {{ complaint.tracking_id }}</h4>
-        </div>
-        <div class="card-body p-4">
+    <div class="page-card">
+        <div class="main-card">
 
-            <!-- Investigator's finding -->
-            <div class="mb-4">
-                <h5 class="text-primary mb-3">🔍 Investigator's Finding (Needs More Info)</h5>
+            <!-- Header -->
+            <div class="main-card-header">
+                <h4>📤 Forward Clarification Request — {{ complaint.tracking_id }}</h4>
+            </div>
+
+            <div class="main-card-body">
+
+                <!-- Investigator's Finding -->
+                <div class="section-heading">🔍 Investigator's Finding (Needs More Info)</div>
                 <div class="finding-box">
-                    <p class="mb-1"><strong>Investigator:</strong> {{ finding.submitted_by.full_name }}</p>
-                    <p class="mb-1"><strong>Submitted:</strong> {{ finding.submitted_at|date:"M d, Y - h:i A" }}</p>
+                    <p><strong>Investigator:</strong> {{ finding.submitted_by.full_name }}</p>
+                    <p><strong>Submitted:</strong> {{ finding.submitted_at|date:"M d, Y - h:i A" }}</p>
                     <hr>
                     <p class="mb-0"><strong>What they need clarified:</strong><br>{{ finding.findings }}</p>
                 </div>
-            </div>
 
-            <!-- Existing clarification warning -->
-            {% if existing %}
-            <div class="existing-box">
-                <strong>⚠️ A clarification request already exists</strong>
-                <p class="mb-1 mt-1">Status: <span class="badge
-                    {% if existing.status == 'Pending' %}bg-warning text-dark
-                    {% elif existing.status == 'Responded' %}bg-success
-                    {% else %}bg-primary{% endif %}">
-                    {{ existing.status }}
-                </span></p>
-                <p class="mb-0">Sent to: {{ existing.target_user.full_name }} on {{ existing.created_at|date:"M d, Y" }}</p>
-                <p class="mb-0 mt-2"><a href="{% url 'hod_view_clarification_responses' complaint.id %}">View Responses →</a></p>
-            </div>
-            {% endif %}
-
-            <!-- Forward Form -->
-            <form method="post">
-                {% csrf_token %}
-
-                <div class="mb-4">
-                    <label class="form-label mb-2">Forward To <span class="text-danger">*</span></label>
-
-                    <label class="ask-from-option">
-                        <input type="radio" name="ask_from" value="Student" class="form-check-input" checked>
-                        <div>
-                            <div class="label">👨‍🎓 Student ({{ complaint.student.full_name }})</div>
-                            <div class="desc">Send the clarification request to the student who filed the complaint.</div>
-                        </div>
-                    </label>
-
-                    {% if complaint.faculty_concerned %}
-                    <label class="ask-from-option">
-                        <input type="radio" name="ask_from" value="Faculty" class="form-check-input">
-                        <div>
-                            <div class="label">👨‍🏫 Accused Faculty ({{ complaint.faculty_concerned.full_name }})</div>
-                            <div class="desc">Send the clarification request to the faculty member being complained about.</div>
-                        </div>
-                    </label>
-                    {% endif %}
+                <!-- Existing Clarification Warning -->
+                {% if existing %}
+                <div class="existing-box">
+                    <strong>⚠️ A clarification request already exists</strong>
+                    <p class="mt-1">
+                        Status:
+                        <span class="spill
+                            {% if existing.status == 'Pending' %}spill-pending
+                            {% elif existing.status == 'Responded' %}spill-responded
+                            {% else %}spill-forwarded{% endif %}">
+                            {{ existing.status }}
+                        </span>
+                    </p>
+                    <p>Sent to: {{ existing.target_user.full_name }} on {{ existing.created_at|date:"M d, Y" }}</p>
+                    <p class="mb-0"><a href="{% url 'hod_view_clarification_responses' complaint.id %}">View Responses →</a></p>
                 </div>
+                {% endif %}
 
-                <div class="mb-4">
-                    <label class="form-label">Question / Clarification to Forward <span class="text-danger">*</span></label>
-                    {{ form.question }}
-                    <small class="text-muted">{{ form.question.help_text }}</small>
-                    {% if form.question.errors %}
-                        <div class="text-danger small mt-1">{{ form.question.errors }}</div>
-                    {% endif %}
-                </div>
+                <hr class="section-divider">
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-warning btn-lg text-dark fw-bold">
-                        📤 Forward Clarification Request
-                    </button>
-                    <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
-                </div>
-            </form>
+                <!-- Forward Form -->
+                <form method="post">
+                    {% csrf_token %}
 
-        </div>
+                    <!-- Forward To -->
+                    <div class="mb-4">
+                        <label class="form-label">Forward To <span class="text-danger">*</span></label>
+
+                        <label class="ask-from-option">
+                            <input type="radio" name="ask_from" value="Student" class="form-check-input" checked>
+                            <div>
+                                <span class="label">👨‍🎓 Student ({{ complaint.student.full_name }})</span>
+                                <span class="desc">Send the clarification request to the student who filed the complaint.</span>
+                            </div>
+                        </label>
+
+                        {% if complaint.faculty_concerned %}
+                        <label class="ask-from-option">
+                            <input type="radio" name="ask_from" value="Faculty" class="form-check-input">
+                            <div>
+                                <span class="label">👨‍🏫 Accused Faculty ({{ complaint.faculty_concerned.full_name }})</span>
+                                <span class="desc">Send the clarification request to the faculty member being complained about.</span>
+                            </div>
+                        </label>
+                        {% endif %}
+                    </div>
+
+                    <!-- Question -->
+                    <div class="mb-4">
+                        <label class="form-label">Question / Clarification to Forward <span class="text-danger">*</span></label>
+                        {{ form.question }}
+                        <small class="text-muted">{{ form.question.help_text }}</small>
+                        {% if form.question.errors %}
+                            <div class="text-danger small mt-1">{{ form.question.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn-gold btn">📤 Forward Clarification Request</button>
+                        <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+
+                </form>
+
+            </div><!-- /main-card-body -->
+        </div><!-- /main-card -->
     </div>
+
 </div>
 {% endblock %}

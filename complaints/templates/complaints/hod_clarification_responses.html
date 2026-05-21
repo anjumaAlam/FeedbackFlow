@@ -3,132 +3,264 @@
 
 {% block extra_css %}
 <style>
-    .page-card { max-width: 960px; margin: 2rem auto; }
-    .clarification-card {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1.25rem;
-    }
-    .clarification-card p, .clarification-card strong { color: #111 !important; }
-    .question-block {
-        background: #fef9c3;
-        border-left: 3px solid #f59e0b;
-        padding: 0.75rem 1rem;
-        border-radius: 4px;
-        margin-bottom: 1rem;
-    }
-    .question-block p { color: #1a1a1a !important; }
-    .response-block {
-        background: #f0fdf4;
-        border-left: 3px solid #22c55e;
-        padding: 0.75rem 1rem;
-        border-radius: 4px;
-        margin-bottom: 1rem;
-    }
-    .response-block p { color: #1a1a1a !important; }
-    .pending-block {
-        background: #f9fafb;
-        border-left: 3px solid #9ca3af;
-        padding: 0.75rem 1rem;
-        border-radius: 4px;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --gold:     #d4a96a;
+    --gold-lt:  #e8c98a;
+    --surface:  #1c2840;
+    --surface-2:#243150;
+    --surface-3:#2d3d62;
+    --border:   rgba(200,215,255,.1);
+    --text:     #dde6f5;
+    --muted:    #8a9bc0;
+    --white:    #f0f4ff;
+}
+
+body { font-family: 'Outfit', sans-serif; color: var(--text); }
+
+/* ── Page card ── */
+.page-card { max-width: 960px; margin: 2rem auto; }
+
+.main-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.35);
+}
+.main-card-header {
+    background: linear-gradient(135deg, #4a0a0a 0%, #7f1d1d 55%, #b91c1c 100%);
+    padding: 1.2rem 1.75rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.main-card-header h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 700;
+    color: #ffffff; margin: 0;
+}
+.main-card-body { padding: 2rem 1.75rem; }
+
+/* ── Section divider ── */
+.section-divider { border: none; border-top: 1px solid rgba(200,215,255,.1); margin: 1.5rem 0; }
+
+/* ── Clarification card ── */
+.clarification-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    transition: box-shadow .2s;
+}
+.clarification-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,.25); }
+.clarification-card p,
+.clarification-card strong { color: var(--text) !important; }
+.clarification-card strong { color: var(--white) !important; }
+
+/* ── Question block ── */
+.question-block {
+    background: rgba(251,191,36,.08);
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 10px 10px 0;
+    padding: .85rem 1.1rem;
+    margin-bottom: 1rem;
+}
+.question-block strong { color: #fde68a !important; }
+.question-block p { color: #fde68a !important; margin: 0; font-size: .88rem; line-height: 1.65; }
+
+/* ── Response block ── */
+.response-block {
+    background: rgba(74,222,128,.08);
+    border-left: 3px solid #22c55e;
+    border-radius: 0 10px 10px 0;
+    padding: .85rem 1.1rem;
+    margin-bottom: 1rem;
+}
+.response-block strong { color: #86efac !important; }
+.response-block p { color: #bbf7d0 !important; margin: 0; font-size: .88rem; line-height: 1.65; }
+.response-block small { color: var(--muted) !important; font-size: .75rem; display: block; margin-top: .4rem; }
+
+/* ── Pending block ── */
+.pending-block {
+    background: rgba(148,163,184,.07);
+    border-left: 3px solid rgba(148,163,184,.35);
+    border-radius: 0 10px 10px 0;
+    padding: .85rem 1.1rem;
+}
+.pending-block p { color: var(--muted) !important; margin: 0; font-size: .88rem; }
+
+/* ── Already forwarded alert ── */
+.forwarded-alert {
+    background: rgba(37,99,235,.12);
+    border: 1px solid rgba(37,99,235,.3);
+    border-radius: 10px;
+    padding: .85rem 1.1rem;
+    color: #93c5fd;
+    font-size: .87rem;
+    margin-top: 1rem;
+}
+.forwarded-alert strong { color: #60a5fa !important; }
+
+/* ── Badges ── */
+.spill {
+    display: inline-block; border-radius: 50px;
+    padding: .22rem .7rem; font-size: .69rem; font-weight: 700; letter-spacing: .2px;
+}
+.spill-pending  { background:rgba(251,191,36,.18);  color:#fbbf24; border:1px solid rgba(251,191,36,.35); }
+.spill-responded{ background:rgba(74,222,128,.15);  color:#6ee7a0; border:1px solid rgba(74,222,128,.3); }
+.spill-forwarded{ background:rgba(96,165,250,.15);  color:#93c5fd; border:1px solid rgba(96,165,250,.3); }
+.spill-secondary{ background:rgba(148,163,184,.15); color:#94a3b8; border:1px solid rgba(148,163,184,.3); }
+
+/* ── Meta ── */
+.meta-lbl { font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; }
+.meta-val { font-size:.9rem; color:var(--text); font-weight:500; }
+
+/* ── Buttons ── */
+.btn-outline-secondary {
+    border-color: rgba(200,215,255,.2) !important;
+    color: var(--muted) !important;
+    border-radius: 50px !important;
+    font-size: .83rem !important;
+}
+.btn-outline-secondary:hover {
+    background: rgba(200,215,255,.08) !important;
+    color: var(--white) !important;
+}
+.btn-success-dark {
+    background: linear-gradient(135deg,#15803d,#22c55e);
+    color: #ffffff !important; border: none;
+    font-weight: 700; font-size: .88rem;
+    padding: .55rem 1.3rem; border-radius: 10px;
+    transition: opacity .2s, transform .15s;
+    box-shadow: 0 2px 10px rgba(34,197,94,.25);
+    display: inline-block; text-decoration: none;
+    cursor: pointer;
+}
+.btn-success-dark:hover { opacity: .9; transform: translateY(-1px); }
+
+/* ── Empty state ── */
+.empty-state { text-align: center; padding: 3rem 2rem; }
+.empty-icon   { font-size: 3rem; opacity: .2; display: block; margin-bottom: .75rem; }
+.empty-state h5 { font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--muted); }
+.empty-state p  { font-size:.87rem; color:#5a6e8a; }
+
+/* ── Intro text ── */
+.intro-text {
+    background: rgba(37,99,235,.1);
+    border: 1px solid rgba(37,99,235,.25);
+    border-radius: 12px;
+    padding: .9rem 1.2rem;
+    font-size: .88rem;
+    color: #93c5fd;
+    margin-bottom: 1.75rem;
+}
+.intro-text strong { color: #60a5fa !important; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 pb-5">
 
     <div class="mb-3">
         <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary">← Back to Complaint</a>
     </div>
 
-    <div class="card page-card">
-        <div class="card-header bg-success text-white">
-            <h4 class="mb-0">📋 Clarification Responses — {{ complaint.tracking_id }}</h4>
-        </div>
-        <div class="card-body p-4">
+    <div class="page-card">
+        <div class="main-card">
 
-            <p class="text-muted mb-4">
-                Review responses below. Once satisfied, click <strong>"Forward to Investigator"</strong>
-                to send the response to the investigator so they can submit their final verdict.
-            </p>
-
-            {% if clarifications %}
-                {% for clarification in clarifications %}
-                <div class="clarification-card">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <strong>Clarification Request</strong>
-                            <span class="badge ms-2
-                                {% if clarification.status == 'Pending' %}bg-warning text-dark
-                                {% elif clarification.status == 'Responded' %}bg-success
-                                {% else %}bg-primary{% endif %}">
-                                {{ clarification.status }}
-                            </span>
-                        </div>
-                        <small class="text-muted">{{ clarification.created_at|date:"M d, Y - h:i A" }}</small>
-                    </div>
-
-                    <p class="mb-2">
-                        <strong>Sent to:</strong>
-                        {{ clarification.target_user.full_name }}
-                        <span class="badge bg-secondary ms-1">{{ clarification.ask_from }}</span>
-                    </p>
-
-                    <!-- Question -->
-                    <div class="question-block">
-                        <strong>❓ Question Forwarded:</strong>
-                        <p class="mb-0 mt-1" style="white-space: pre-line;">{{ clarification.question }}</p>
-                    </div>
-
-                    <!-- Response or pending -->
-                    {% if clarification.status == 'Responded' or clarification.status == 'Forwarded' %}
-                    <div class="response-block">
-                        <strong>✅ Response from {{ clarification.target_user.full_name }}:</strong>
-                        <p class="mb-0 mt-1" style="white-space: pre-line;">{{ clarification.response }}</p>
-                        <small class="text-muted">Responded: {{ clarification.responded_at|date:"M d, Y - h:i A" }}</small>
-                    </div>
-
-                    {% if clarification.status == 'Responded' %}
-                    <!-- Forward to investigator button -->
-                    <form method="post" class="mt-3">
-                        {% csrf_token %}
-                        <input type="hidden" name="clarification_id" value="{{ clarification.id }}">
-                        <button type="submit" class="btn btn-success">
-                            📨 Forward Response to Investigator
-                        </button>
-                        <small class="text-muted ms-2">
-                            This will notify the investigator and allow them to re-submit their verdict.
-                        </small>
-                    </form>
-
-                    {% elif clarification.status == 'Forwarded' %}
-                    <div class="alert alert-info mt-3 mb-0">
-                        ✅ <strong>Already forwarded to the investigator.</strong>
-                        They will now re-submit their findings.
-                    </div>
-                    {% endif %}
-
-                    {% else %}
-                    <div class="pending-block">
-                        <p class="mb-0 text-muted">⏳ Waiting for {{ clarification.target_user.full_name }} to respond...</p>
-                    </div>
-                    {% endif %}
-
-                </div>
-                {% endfor %}
-
-            {% else %}
-            <div class="text-center py-4">
-                <div style="font-size: 3rem;">📭</div>
-                <h5 class="mt-3 text-muted">No clarification requests yet.</h5>
-                <p class="text-muted">Forward a clarification from the complaint's investigation panel.</p>
+            <!-- Header -->
+            <div class="main-card-header">
+                <h4>📋 Clarification Responses — {{ complaint.tracking_id }}</h4>
             </div>
-            {% endif %}
 
-        </div>
+            <div class="main-card-body">
+
+                <div class="intro-text">
+                    Review responses below. Once satisfied, click <strong>"Forward to Investigator"</strong>
+                    to send the response so they can submit their final verdict.
+                </div>
+
+                {% if clarifications %}
+                    {% for clarification in clarifications %}
+                    <div class="clarification-card">
+
+                        <!-- Card top row -->
+                        <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <strong style="color:var(--white);">Clarification Request</strong>
+                                <span class="spill
+                                    {% if clarification.status == 'Pending' %}spill-pending
+                                    {% elif clarification.status == 'Responded' %}spill-responded
+                                    {% else %}spill-forwarded{% endif %}">
+                                    {{ clarification.status }}
+                                </span>
+                            </div>
+                            <small style="color:var(--muted);font-size:.75rem;">{{ clarification.created_at|date:"M d, Y - h:i A" }}</small>
+                        </div>
+
+                        <!-- Sent to -->
+                        <div class="mb-3">
+                            <span class="meta-lbl">Sent to</span><br>
+                            <span class="meta-val">{{ clarification.target_user.full_name }}</span>
+                            <span class="spill spill-secondary ms-2">{{ clarification.ask_from }}</span>
+                        </div>
+
+                        <!-- Question -->
+                        <div class="question-block">
+                            <strong>❓ Question Forwarded</strong>
+                            <p class="mt-1" style="white-space:pre-line;">{{ clarification.question }}</p>
+                        </div>
+
+                        <!-- Response or pending -->
+                        {% if clarification.status == 'Responded' or clarification.status == 'Forwarded' %}
+                        <div class="response-block">
+                            <strong>✅ Response from {{ clarification.target_user.full_name }}</strong>
+                            <p class="mt-1" style="white-space:pre-line;">{{ clarification.response }}</p>
+                            <small>Responded: {{ clarification.responded_at|date:"M d, Y - h:i A" }}</small>
+                        </div>
+
+                        {% if clarification.status == 'Responded' %}
+                        <form method="post" class="mt-3">
+                            {% csrf_token %}
+                            <input type="hidden" name="clarification_id" value="{{ clarification.id }}">
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <button type="submit" class="btn-success-dark">
+                                    📨 Forward Response to Investigator
+                                </button>
+                                <small style="color:var(--muted);font-size:.78rem;">
+                                    This notifies the investigator and allows them to re-submit their verdict.
+                                </small>
+                            </div>
+                        </form>
+
+                        {% elif clarification.status == 'Forwarded' %}
+                        <div class="forwarded-alert">
+                            ✅ <strong>Already forwarded to the investigator.</strong>
+                            They will now re-submit their findings.
+                        </div>
+                        {% endif %}
+
+                        {% else %}
+                        <div class="pending-block">
+                            <p>⏳ Waiting for {{ clarification.target_user.full_name }} to respond...</p>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                    {% endfor %}
+
+                {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">📭</span>
+                    <h5>No clarification requests yet</h5>
+                    <p>Forward a clarification from the complaint's investigation panel.</p>
+                </div>
+                {% endif %}
+
+            </div><!-- /main-card-body -->
+        </div><!-- /main-card -->
     </div>
+
 </div>
 {% endblock %}

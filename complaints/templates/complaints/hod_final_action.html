@@ -4,737 +4,364 @@
 
 {% block extra_css %}
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
 
-    /* Main page container */
-    .hod-final-container {
-        max-width: 1000px;
-        margin-top: 0;
-        margin-right: auto;
-        margin-bottom: 0;
-        margin-left: auto;
-    }
-
-    /* Back button wrapper */
-    .hod-back-btn-wrap {
-        margin-bottom: 16px;
-    }
-
-
-
-
-    /* Card wrapper */
-    .card {
-        border-radius: 12px !important;
-        overflow: hidden !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10) !important;
-        border: 1px solid #e5e7eb !important;
-    }
-
-    /* Card header */
-    .card-header {
-        padding-top: 18px !important;
-        padding-right: 24px !important;
-        padding-bottom: 18px !important;
-        padding-left: 24px !important;
-        border-bottom: none !important;
-    }
-
-    /* Card header title */
-    .card-header h4 {
-        font-size: 18px !important;
-        font-weight: 700 !important;
-        margin: 0 !important;
-        color: #ffffff !important;
-        line-height: 1.3 !important;
-    }
-
-
-    ─────────────────────────────────────────────────────── */
-
-    /* Card body */
-    .card-body {
-        background-color: #ffffff !important;
-        background: #ffffff !important;
-        color: #111827 !important;
-        padding: 32px !important;
-    }
-
-    /* Section titles */
-    .text-primary {
-        color: #2563eb !important;
-        font-weight: 700 !important;
-        font-size: 16px !important;
-    }
-
-
-
-
-    /* Complaint preview wrapper */
-    .complaint-preview {
-        background-color: #f9fafb !important;
-        background: #f9fafb !important;
-        border-left-width: 4px !important;
-        border-left-style: solid !important;
-        border-left-color: #ef4444 !important;
-        padding-top: 1.5rem !important;
-        padding-right: 1.5rem !important;
-        padding-bottom: 1.5rem !important;
-        padding-left: 1.5rem !important;
-        border-radius: 0 8px 8px 0 !important;
-    }
-
-    /* Horizontal divider inside preview */
-    .complaint-preview hr {
-        border-color: #e5e7eb !important;
-        opacity: 1 !important;
-        margin-top: 16px !important;
-        margin-bottom: 16px !important;
-    }
-
-
-
-
-    /* Paragraph text */
-    .complaint-preview p {
-        color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
-        font-size: 13.5px !important;
-        margin-bottom: 6px !important;
-        line-height: 1.5 !important;
-    }
-
-    /* Strong labels */
-    .complaint-preview strong {
-        color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
-        font-weight: 700 !important;
-    }
-
-    /* Badge inside preview */
-    .complaint-preview .badge {
-        font-size: 12px !important;
-        font-weight: 700 !important;
-        padding: 4px 10px !important;
-        border-radius: 6px !important;
-    }
-
-
-
-
-    /* Findings box wrapper */
-    .findings-box {
-        background-color: #f0fdf4 !important;
-        background: #f0fdf4 !important;
-        border-width: 1px !important;
-        border-style: solid !important;
-        border-color: #86efac !important;
-        border-radius: 8px !important;
-        padding-top: 1.25rem !important;
-        padding-right: 1.25rem !important;
-        padding-bottom: 1.25rem !important;
-        padding-left: 1.25rem !important;
-        margin-bottom: 0.75rem !important;
-    }
-
-
-
-
-
-    /* Findings paragraph */
-    .findings-box p {
-        color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
-        font-size: 13.5px !important;
-        line-height: 1.5 !important;
-    }
-
-    /* Findings strong text */
-    .findings-box strong {
-        color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
-        font-weight: 700 !important;
-        font-size: 14px !important;
-    }
-
-    /* Findings small muted text */
-    .findings-box small {
-        color: #6b7280 !important;
-        -webkit-text-fill-color: #6b7280 !important;
-        font-size: 12px !important;
-    }
-
-
-
-
-    /* Proven — red */
-    .verdict-Proven {
-        background-color: #fee2e2 !important;
-        color: #991b1b !important;
-        font-size: 12px !important;
-        font-weight: 700 !important;
-        padding: 4px 10px !important;
-        border-radius: 6px !important;
-    }
-
-    /* Unproven — green */
-    .verdict-Unproven {
-        background-color: #dcfce7 !important;
-        color: #166534 !important;
-        font-size: 12px !important;
-        font-weight: 700 !important;
-        padding: 4px 10px !important;
-        border-radius: 6px !important;
-    }
-
-    /* Needs More Info — amber */
-    .verdict-Needs {
-        background-color: #fef9c3 !important;
-        color: #854d0e !important;
-        font-size: 12px !important;
-        font-weight: 700 !important;
-        padding: 4px 10px !important;
-        border-radius: 6px !important;
-    }
-
-
-
-    /* Action option base */
-    .action-option {
-        border-width: 2px !important;
-        border-style: solid !important;
-        border-color: #d1d5db !important;
-        border-radius: 10px !important;
-        padding-top: 1rem !important;
-        padding-right: 1.25rem !important;
-        padding-bottom: 1rem !important;
-        padding-left: 1.25rem !important;
-        margin-bottom: 0.75rem !important;
-        cursor: pointer !important;
-        transition: all 0.15s ease !important;
-        display: flex !important;
-        align-items: flex-start !important;
-        gap: 0.75rem !important;
-        background-color: #ffffff !important;
-        background: #ffffff !important;
-    }
-
-    /* Action option hover */
-    .action-option:hover {
-        border-color: #9ca3af !important;
-        background-color: #f9fafb !important;
-        background: #f9fafb !important;
-    }
-
-
-
-    /* Resolve selected — green */
-    .action-option:has(input:checked).resolve {
-        border-color: #22c55e !important;
-        background-color: #f0fdf4 !important;
-        background: #f0fdf4 !important;
-    }
-
-    /* Escalate selected — red */
-    .action-option:has(input:checked).escalate {
-        border-color: #ef4444 !important;
-        background-color: #fef2f2 !important;
-        background: #fef2f2 !important;
-    }
-
-    /* Reinvestigate selected — blue */
-    .action-option:has(input:checked).reinvestigate {
-        border-color: #3b82f6 !important;
-        background-color: #eff6ff !important;
-        background: #eff6ff !important;
-    }
-
-
-
-    /* Radio input */
-    .action-option input[type="radio"] {
-        margin-top: 3px !important;
-        flex-shrink: 0 !important;
-        width: 18px !important;
-        height: 18px !important;
-        cursor: pointer !important;
-        accent-color: #2563eb !important;
-        opacity: 1 !important;
-    }
-
-    input[type="radio"] {
-    opacity: 1 !important;
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-    cursor: pointer !important;
-    flex-shrink: 0 !important;
-    margin-top: 3px !important;
-    color-scheme: light !important;
+:root {
+    --gold:     #d4a96a;
+    --gold-lt:  #e8c98a;
+    --surface:  #1c2840;
+    --surface-2:#243150;
+    --surface-3:#2d3d62;
+    --border:   rgba(200,215,255,.1);
+    --text:     #dde6f5;
+    --muted:    #8a9bc0;
+    --white:    #f0f4ff;
 }
 
-    /* Action option title */
-    .action-option .label {
-        font-weight: 700 !important;
-        color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
-        font-size: 14px !important;
-        display: block !important;
-        margin-bottom: 3px !important;
-        line-height: 1.4 !important;
-    }
+body { font-family: 'Outfit', sans-serif; color: var(--text); }
 
-    /* Action option description */
-    .action-option .desc {
-        font-size: 13px !important;
-        color: #6b7280 !important;
-        -webkit-text-fill-color: #6b7280 !important;
-        margin-top: 2px !important;
-        display: block !important;
-        line-height: 1.5 !important;
-        font-weight: 400 !important;
-    }
+/* ── Main card ── */
+.main-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.35);
+}
+.main-card-header {
+    background: linear-gradient(135deg, #4a0a0a 0%, #7f1d1d 55%, #b91c1c 100%);
+    padding: 1.2rem 1.75rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.main-card-header h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 700;
+    color: #ffffff; margin: 0;
+}
+.main-card-body { padding: 2rem 1.75rem; }
 
+/* ── Section heading ── */
+.section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem; font-weight: 700;
+    color: var(--gold-lt);
+    margin-bottom: 1rem;
+    padding-left: 12px;
+    position: relative;
+}
+.section-heading::before {
+    content: '';
+    position: absolute; left: 0; top: 15%; bottom: 15%;
+    width: 3px;
+    background: linear-gradient(180deg, var(--gold), var(--gold-lt));
+    border-radius: 4px;
+}
 
+/* ── Section divider ── */
+.section-divider { border: none; border-top: 1px solid rgba(200,215,255,.1); margin: 1.75rem 0; }
 
-    /* Form label */
-    .form-label {
-        color: #374151 !important;
-        -webkit-text-fill-color: #374151 !important;
-        font-weight: 600 !important;
-        font-size: 12px !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.06em !important;
-        margin-bottom: 8px !important;
-        display: block !important;
-    }
+/* ── Complaint preview ── */
+.complaint-preview {
+    background: var(--surface-2);
+    border-left: 4px solid #b91c1c;
+    border-radius: 0 12px 12px 0;
+    padding: 1.4rem 1.5rem;
+}
+.complaint-preview p      { color: var(--text) !important; font-size: .88rem; margin-bottom: .4rem; line-height: 1.55; }
+.complaint-preview strong { color: var(--white) !important; font-weight: 700; }
+.complaint-preview hr     { border-color: rgba(200,215,255,.1) !important; margin: .85rem 0; }
 
-    /* Required star */
-    .form-label .text-danger {
-        color: #ef4444 !important;
-        font-weight: 700 !important;
-    }
+/* ── Meta ── */
+.meta-lbl { font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:.15rem; }
+.meta-val { font-size:.88rem; color:var(--text); font-weight:500; }
 
-    /* fw-bold override */
-    .fw-bold {
-        font-weight: 700 !important;
-        color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
-    }
+/* ── Findings box ── */
+.findings-box {
+    background: rgba(74,222,128,.07);
+    border: 1px solid rgba(74,222,128,.2);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: .75rem;
+}
+.findings-box p      { color: var(--text) !important; font-size: .88rem; line-height: 1.6; }
+.findings-box strong { color: var(--white) !important; font-weight: 700; }
+.findings-box small  { color: var(--muted) !important; font-size: .75rem; }
 
+/* verdict pills */
+.spill { display:inline-block; border-radius:50px; padding:.24rem .72rem; font-size:.7rem; font-weight:700; letter-spacing:.2px; }
+.verdict-Proven   { background:rgba(248,113,113,.2); color:#fca5a5; border:1px solid rgba(248,113,113,.3); }
+.verdict-Unproven { background:rgba(74,222,128,.2);  color:#6ee7a0; border:1px solid rgba(74,222,128,.3); }
+.verdict-Needs    { background:rgba(251,191,36,.2);  color:#fbbf24; border:1px solid rgba(251,191,36,.3); }
+.spill-status     { background:rgba(96,165,250,.18); color:#93c5fd; border:1px solid rgba(96,165,250,.3); }
 
-    /* Textarea base */
-    .card-body textarea,
-    textarea {
-        background-color: #ffffff !important;
-        background: #ffffff !important;
-        color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
-        border-width: 1.5px !important;
-        border-style: solid !important;
-        border-color: #d1d5db !important;
-        border-radius: 8px !important;
-        padding-top: 10px !important;
-        padding-right: 14px !important;
-        padding-bottom: 10px !important;
-        padding-left: 14px !important;
-        width: 100% !important;
-        display: block !important;
-        font-size: 14px !important;
-        font-family: inherit !important;
-        line-height: 1.6 !important;
-        min-height: 110px !important;
-        resize: vertical !important;
-        opacity: 1 !important;
-        box-sizing: border-box !important;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
-    }
+/* ── Warning alert ── */
+.warn-box {
+    background: rgba(251,191,36,.08);
+    border: 1px solid rgba(251,191,36,.25);
+    border-radius: 12px;
+    padding: .9rem 1.2rem;
+    color: #fde68a;
+    font-size: .87rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+}
 
-    /* Textarea placeholder */
-    textarea::placeholder {
-        color: #9ca3af !important;
-        -webkit-text-fill-color: #9ca3af !important;
-        font-weight: 400 !important;
-    }
+/* ── Action options ── */
+.action-option {
+    border: 2px solid rgba(200,215,255,.12);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin-bottom: .75rem;
+    cursor: pointer;
+    transition: border-color .18s, background .18s;
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    background: var(--surface-2);
+}
+.action-option:hover { border-color: rgba(200,215,255,.3); background: var(--surface-3); }
 
+.action-option:has(input:checked).resolve      { border-color: #22c55e; background: rgba(74,222,128,.08); }
+.action-option:has(input:checked).escalate     { border-color: #ef4444; background: rgba(248,113,113,.08); }
+.action-option:has(input:checked).reinvestigate{ border-color: #3b82f6; background: rgba(96,165,250,.08); }
 
+.action-option input[type="radio"] {
+    width: 18px !important; height: 18px !important; min-width: 18px !important;
+    opacity: 1 !important; cursor: pointer !important;
+    flex-shrink: 0 !important; margin-top: 3px !important;
+    accent-color: #d4a96a !important;
+    color-scheme: dark !important;
+}
 
-    /* Textarea focus */
-    textarea:focus {
-        border-color: #2563eb !important;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10) !important;
-        outline: none !important;
-        color: #111827 !important;
-        -webkit-text-fill-color: #111827 !important;
-    }
+.action-option .label {
+    font-weight: 700; color: var(--white); font-size: .9rem;
+    display: block; margin-bottom: .2rem;
+}
+.action-option .desc {
+    font-size: .82rem; color: var(--muted);
+    display: block; line-height: 1.5;
+}
 
-    /* Textarea hover */
-    textarea:hover {
-        border-color: #9ca3af !important;
-    }
+/* ── Form fields ── */
+.form-label {
+    color: var(--white) !important;
+    font-weight: 600 !important; font-size: .82rem !important;
+    text-transform: uppercase !important; letter-spacing: .4px !important;
+    margin-bottom: .5rem !important; display: block !important;
+}
+.form-label .text-danger { color: #fca5a5 !important; }
 
-    /* Textarea scrollbar */
-    textarea::-webkit-scrollbar {
-        width: 6px;
-    }
+textarea,
+textarea.form-control {
+    background-color: var(--surface-2) !important;
+    color: #f0f4ff !important;
+    -webkit-text-fill-color: #f0f4ff !important;
+    border: 1.5px solid rgba(200,215,255,.2) !important;
+    border-radius: 10px !important;
+    padding: .65rem .9rem !important;
+    width: 100% !important; display: block !important;
+    font-size: .9rem !important; font-family: inherit !important;
+    line-height: 1.65 !important; min-height: 110px !important;
+    resize: vertical !important; opacity: 1 !important;
+    box-sizing: border-box !important;
+    transition: border-color .2s, box-shadow .2s !important;
+}
+textarea::placeholder { color: var(--muted) !important; -webkit-text-fill-color: var(--muted) !important; }
+textarea:focus {
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 0 3px rgba(212,169,106,.2) !important;
+    outline: none !important;
+    background-color: var(--surface-3) !important;
+    color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+}
+textarea:hover { border-color: rgba(200,215,255,.35) !important; }
 
-    /* Textarea scrollbar track */
-    textarea::-webkit-scrollbar-track {
-        background-color: #f3f4f6;
-        border-radius: 3px;
-    }
+small.text-muted { color: var(--muted) !important; font-size: .77rem !important; display: block !important; margin-top: .35rem !important; }
+.text-danger.small { color: #fca5a5 !important; font-size: .78rem !important; margin-top: .3rem !important; }
 
-    /* Textarea scrollbar thumb */
-    textarea::-webkit-scrollbar-thumb {
-        background-color: #d1d5db;
-        border-radius: 3px;
-    }
+/* ── Buttons ── */
+.btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+    color: #0f1e3c !important; border: none;
+    font-weight: 700; font-size: .88rem;
+    padding: .6rem 1.5rem; border-radius: 10px;
+    transition: opacity .2s, transform .15s;
+    box-shadow: 0 2px 10px rgba(212,169,106,.3);
+    cursor: pointer;
+}
+.btn-gold:hover { opacity: .9; transform: translateY(-1px); }
 
-    /* Textarea scrollbar thumb hover */
-    textarea::-webkit-scrollbar-thumb:hover {
-        background-color: #9ca3af;
-    }
+.btn-outline-secondary {
+    border-color: rgba(200,215,255,.2) !important;
+    color: var(--muted) !important;
+    border-radius: 10px !important;
+    font-size: .85rem !important;
+    background: transparent !important;
+}
+.btn-outline-secondary:hover {
+    background: rgba(200,215,255,.08) !important;
+    color: var(--white) !important;
+    border-color: rgba(200,215,255,.35) !important;
+}
 
-    /* Small hint text below textarea */
-    small.text-muted {
-        color: #6b7280 !important;
-        -webkit-text-fill-color: #6b7280 !important;
-        font-size: 12px !important;
-        display: block !important;
-        margin-top: 6px !important;
-    }
+/* back button smaller */
+.back-btn {
+    font-size: .82rem !important;
+    padding: .42rem 1rem !important;
+    border-radius: 50px !important;
+}
 
-
-
-
-    /* Button group */
-    .d-flex.gap-2 {
-        display: flex !important;
-        gap: 10px !important;
-        align-items: center !important;
-        flex-wrap: wrap !important;
-        margin-top: 8px !important;
-    }
-
-    /* Confirm button */
-    .btn-success {
-        background-color: #059669 !important;
-        border-color: #059669 !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        font-size: 14px !important;
-        border-radius: 8px !important;
-        padding-top: 10px !important;
-        padding-right: 24px !important;
-        padding-bottom: 10px !important;
-        padding-left: 24px !important;
-        transition: all 0.2s ease !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-    }
-
-    /* Confirm button hover */
-    .btn-success:hover {
-        background-color: #047857 !important;
-        border-color: #047857 !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.30) !important;
-        color: #ffffff !important;
-    }
-
-    /* Cancel button */
-    .btn-outline-secondary {
-        color: #374151 !important;
-        border-color: #d1d5db !important;
-        background-color: #ffffff !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        border-radius: 8px !important;
-        padding-top: 10px !important;
-        padding-right: 24px !important;
-        padding-bottom: 10px !important;
-        padding-left: 24px !important;
-        transition: all 0.2s ease !important;
-    }
-
-    /* Cancel button hover */
-    .btn-outline-secondary:hover {
-        background-color: #f9fafb !important;
-        border-color: #9ca3af !important;
-        color: #111827 !important;
-    }
-
-
-
-    /* Back button */
-    .mb-3 .btn-outline-secondary {
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        padding-top: 7px !important;
-        padding-right: 16px !important;
-        padding-bottom: 7px !important;
-        padding-left: 16px !important;
-        border-radius: 8px !important;
-        color: #374151 !important;
-        border-color: #d1d5db !important;
-        background-color: #ffffff !important;
-    }
-
-    /* Back button hover */
-    .mb-3 .btn-outline-secondary:hover {
-        background-color: #f9fafb !important;
-        border-color: #9ca3af !important;
-        color: #111827 !important;
-    }
-
-
-
-    /* Warning alert */
-    .alert-warning {
-        background-color: #fffbeb !important;
-        border-color: #fde68a !important;
-        color: #92400e !important;
-        border-radius: 8px !important;
-        font-size: 13.5px !important;
-        font-weight: 500 !important;
-        padding: 14px 18px !important;
-    }
-
-
-
-    /* Tablet */
-    @media (max-width: 768px) {
-        .card-body {
-            padding: 20px 16px !important;
-        }
-
-        .complaint-preview {
-            padding: 1rem !important;
-        }
-
-        .d-flex.gap-2 {
-            flex-direction: column !important;
-        }
-
-        .btn-success,
-        .btn-outline-secondary {
-            width: 100% !important;
-            justify-content: center !important;
-        }
-
-        .action-option {
-            padding: 0.75rem 1rem !important;
-        }
-    }
-
-    /* Mobile */
-    @media (max-width: 480px) {
-        .card-header h4 {
-            font-size: 15px !important;
-        }
-
-        .text-primary {
-            font-size: 14px !important;
-        }
-
-        .action-option .label {
-            font-size: 13px !important;
-        }
-
-        .action-option .desc {
-            font-size: 12px !important;
-        }
-
-        textarea {
-            min-height: 90px !important;
-        }
-    }
-
+@media (max-width: 768px) {
+    .main-card-body { padding: 1.25rem 1rem; }
+    .complaint-preview { padding: 1rem; }
+    .d-flex.gap-2 { flex-direction: column; }
+    .btn-gold, .btn-outline-secondary { width: 100%; justify-content: center; }
+    .action-option { padding: .75rem 1rem; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="max-width:1000px;">
-
+<div class="container mt-4 pb-5" style="max-width:1000px;">
 
     <div class="mb-3">
-        <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">
-            ← Back to Complaints List
-        </a>
+        <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary back-btn">← Back to Complaints</a>
     </div>
 
+    <div class="main-card">
 
-    <div class="card">
-
-        <!-- Card Header -->
-        <div class="card-header bg-success text-white">
-            <h4 class="mb-0">⚖️ Final Action — {{ complaint.tracking_id }}</h4>
+        <!-- Header -->
+        <div class="main-card-header">
+            <h4>⚖️ Final Action — {{ complaint.tracking_id }}</h4>
         </div>
 
-        <!-- Card Body -->
-        <div class="card-body p-4">
+        <div class="main-card-body">
 
-            <div class="mb-4">
-                <h5 class="text-primary mb-3">Complaint Details</h5>
-                <div class="complaint-preview">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p class="mb-1">
-                                <strong>Tracking ID:</strong> {{ complaint.tracking_id }}
-                            </p>
-                            <p class="mb-1">
-                                <strong>Subject:</strong> {{ complaint.subject }}
-                            </p>
-                            <p class="mb-1">
-                                <strong>Faculty Concerned:</strong>
-                                {{ complaint.faculty_concerned.full_name|default:"Not specified" }}
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <p class="mb-1">
-                                <strong>Submitted:</strong>
-                                {{ complaint.submitted_at|date:"M d, Y" }}
-                            </p>
-                            <p class="mb-1">
-                                <strong>Student:</strong>
-                                {% if complaint.is_anonymous %}
-                                    Anonymous
-                                {% else %}
-                                    {{ complaint.student.full_name }}
-                                {% endif %}
-                            </p>
-                            <p class="mb-1">
-                                <strong>Current Status:</strong>
-                                <span class="badge bg-primary">{{ complaint.status }}</span>
-                            </p>
+            <!-- Complaint Details -->
+            <div class="section-heading">Complaint Details</div>
+            <div class="complaint-preview mb-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="meta-lbl">Tracking ID</div>
+                        <div class="meta-val">{{ complaint.tracking_id }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="meta-lbl">Subject</div>
+                        <div class="meta-val">{{ complaint.subject }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="meta-lbl">Faculty Concerned</div>
+                        <div class="meta-val">{{ complaint.faculty_concerned.full_name|default:"Not specified" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="meta-lbl">Submitted</div>
+                        <div class="meta-val">{{ complaint.submitted_at|date:"M d, Y" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="meta-lbl">Student</div>
+                        <div class="meta-val">
+                            {% if complaint.is_anonymous %}Anonymous{% else %}{{ complaint.student.full_name }}{% endif %}
                         </div>
                     </div>
-                    <hr>
-                    <p class="mb-0">
-                        <strong>Description:</strong><br>
-                        {{ complaint.description }}
-                    </p>
+                    <div class="col-md-6">
+                        <div class="meta-lbl">Current Status</div>
+                        <div class="meta-val mt-1"><span class="spill spill-status">{{ complaint.status }}</span></div>
+                    </div>
                 </div>
+                <hr>
+                <div class="meta-lbl mb-1">Description</div>
+                <div class="meta-val" style="line-height:1.7;">{{ complaint.description }}</div>
             </div>
 
-
+            <!-- Investigator Findings -->
             {% if findings %}
-            <div class="mb-4">
-                <h5 class="text-primary mb-3">📋 Investigator Findings</h5>
-                {% for finding in findings %}
-                <div class="findings-box">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <strong>{{ finding.submitted_by.full_name }}</strong>
-                        <span class="
-                            {% if finding.verdict == 'Proven' %}verdict-Proven
-                            {% elif finding.verdict == 'Unproven' %}verdict-Unproven
-                            {% else %}verdict-Needs
-                            {% endif %}"
-                            style="font-size:0.85rem;padding:0.35rem 0.65rem;border-radius:6px;">
-                            {{ finding.verdict }}
-                        </span>
-                    </div>
-                    <p class="mb-1">{{ finding.findings }}</p>
-                    <small class="text-muted">
-                        Submitted {{ finding.submitted_at|date:"M d, Y - h:i A" }}
-                    </small>
+            <hr class="section-divider">
+            <div class="section-heading">📋 Investigator Findings</div>
+            {% for finding in findings %}
+            <div class="findings-box">
+                <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+                    <strong>{{ finding.submitted_by.full_name }}</strong>
+                    <span class="spill
+                        {% if finding.verdict == 'Proven' %}verdict-Proven
+                        {% elif finding.verdict == 'Unproven' %}verdict-Unproven
+                        {% else %}verdict-Needs{% endif %}">
+                        {{ finding.verdict }}
+                    </span>
                 </div>
-                {% endfor %}
+                <p class="mb-1">{{ finding.findings }}</p>
+                <small>Submitted {{ finding.submitted_at|date:"M d, Y - h:i A" }}</small>
             </div>
+            {% endfor %}
+
             {% else %}
-            <div class="alert alert-warning mb-4">
+            <div class="warn-box">
                 ⚠️ No findings submitted yet. You can still take action but consider waiting
                 for investigators to submit their reports.
             </div>
             {% endif %}
 
+            <!-- Final Action Form -->
+            <hr class="section-divider">
+            <div class="section-heading">⚖️ Take Final Action</div>
+            <form method="post">
+                {% csrf_token %}
 
-            <div>
-                <h5 class="text-primary mb-3">⚖️ Take Final Action</h5>
-                <form method="post">
-                    {% csrf_token %}
+                <!-- Action Selection -->
+                <div class="mb-4">
+                    <label class="form-label">Select Action <span class="text-danger">*</span></label>
 
-                    <!-- Action Selection -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">
-                            Select Action <span class="text-danger">*</span>
-                        </label>
-
-                       <!-- Resolve Option -->
-<label class="action-option resolve">
-    <input type="radio"
-           name="action"
-           value="Resolve"
-           style="width:18px!important;height:18px!important;min-width:18px!important;opacity:1!important;accent-color:#059669!important;cursor:pointer!important;flex-shrink:0!important;margin-top:3px!important;background-color:#ffffff!important;border:2px solid #d1d5db!important;">
-    <div>
-        <div class="label">✅ Resolve</div>
-        <div class="desc">Mark this complaint as fully resolved. The student will be notified.</div>
-    </div>
-</label>
-
-<!-- Escalate Option -->
-<label class="action-option escalate">
-    <input type="radio"
-           name="action"
-           value="Escalate"
-           style="width:18px!important;height:18px!important;min-width:18px!important;opacity:1!important;accent-color:#ef4444!important;cursor:pointer!important;flex-shrink:0!important;margin-top:3px!important;background-color:#ffffff!important;border:2px solid #d1d5db!important;">
-    <div>
-        <div class="label">⬆️ Escalate to Admin</div>
-        <div class="desc">Refer to Admin for further action beyond HOD authority.</div>
-    </div>
-</label>
-
-<!-- More Investigation Option -->
-<label class="action-option reinvestigate">
-    <input type="radio"
-           name="action"
-           value="More Investigation"
-           style="width:18px!important;height:18px!important;min-width:18px!important;opacity:1!important;accent-color:#3b82f6!important;cursor:pointer!important;flex-shrink:0!important;margin-top:3px!important;background-color:#ffffff!important;border:2px solid #d1d5db!important;">
-    <div>
-        <div class="label">🔍 Request More Investigation</div>
-        <div class="desc">Send back to the same investigators — previous findings will be cleared.</div>
-    </div>
-</label>
-
-                        {% if form.action.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.action.errors }}
+                    <label class="action-option resolve">
+                        <input type="radio" name="action" value="Resolve"
+                               style="width:18px!important;height:18px!important;min-width:18px!important;opacity:1!important;accent-color:#22c55e!important;cursor:pointer!important;flex-shrink:0!important;margin-top:3px!important;color-scheme:dark!important;">
+                        <div>
+                            <span class="label">✅ Resolve</span>
+                            <span class="desc">Mark this complaint as fully resolved. The student will be notified.</span>
                         </div>
-                        {% endif %}
-                    </div>
+                    </label>
 
-                    <!-- Note to Student -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">
-                            Note to Student <span class="text-danger">*</span>
-                        </label>
-                        {{ form.note }}
-                        <small class="text-muted">
-                            This message will be sent directly to the student.
-                            Be clear and professional.
-                        </small>
-                        {% if form.note.errors %}
-                        <div class="text-danger small mt-1">
-                            {{ form.note.errors }}
+                    <label class="action-option escalate">
+                        <input type="radio" name="action" value="Escalate"
+                               style="width:18px!important;height:18px!important;min-width:18px!important;opacity:1!important;accent-color:#ef4444!important;cursor:pointer!important;flex-shrink:0!important;margin-top:3px!important;color-scheme:dark!important;">
+                        <div>
+                            <span class="label">⬆️ Escalate to Admin</span>
+                            <span class="desc">Refer to Admin for further action beyond HOD authority.</span>
                         </div>
-                        {% endif %}
-                    </div>
+                    </label>
 
-                    <!-- Submit + Cancel -->
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-success btn-lg">
-                            ⚖️ Confirm Final Action
-                        </button>
-                        <a href="{% url 'hod_complaints_list' %}"
-                           class="btn btn-outline-secondary btn-lg">
-                            Cancel
-                        </a>
-                    </div>
+                    <label class="action-option reinvestigate">
+                        <input type="radio" name="action" value="More Investigation"
+                               style="width:18px!important;height:18px!important;min-width:18px!important;opacity:1!important;accent-color:#3b82f6!important;cursor:pointer!important;flex-shrink:0!important;margin-top:3px!important;color-scheme:dark!important;">
+                        <div>
+                            <span class="label">🔍 Request More Investigation</span>
+                            <span class="desc">Send back to the same investigators — previous findings will be cleared.</span>
+                        </div>
+                    </label>
 
-                </form>
-            </div>
+                    {% if form.action.errors %}
+                    <div class="text-danger small mt-1">{{ form.action.errors }}</div>
+                    {% endif %}
+                </div>
 
-        </div>
-    </div>
+                <!-- Note to Student -->
+                <div class="mb-4">
+                    <label class="form-label">Note to Student <span class="text-danger">*</span></label>
+                    {{ form.note }}
+                    <small class="text-muted">This message will be sent directly to the student. Be clear and professional.</small>
+                    {% if form.note.errors %}
+                    <div class="text-danger small mt-1">{{ form.note.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn-gold btn">⚖️ Confirm Final Action</button>
+                    <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+
+            </form>
+
+        </div><!-- /main-card-body -->
+    </div><!-- /main-card -->
+
 </div>
 {% endblock %}

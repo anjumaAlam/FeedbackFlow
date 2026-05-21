@@ -3,86 +3,223 @@
 
 {% block extra_css %}
 <style>
-    .card { background: #ffffff !important; color: #212529; }
-    .card p, .card strong, .card h5 { color: #212529 !important; }
-    .detail-box {
-        background: #f9fafb;
-        border-left: 4px solid #f59e0b;
-        border-radius: 8px;
-        padding: 1.25rem;
-        color: #212529;
-    }
-    .questions-box {
-        background: #fef9c3;
-        border: 1px solid #fcd34d;
-        border-radius: 8px;
-        padding: 1.25rem;
-        color: #92400e;
-        white-space: pre-line;
-    }
-    .party-card {
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 0.75rem;
-        background: #fff;
-    }
-    .party-card.student { border-left: 4px solid #3b82f6; }
-    .party-card.faculty { border-left: 4px solid #f59e0b; }
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --gold:     #d4a96a;
+    --gold-lt:  #e8c98a;
+    --surface:  #1c2840;
+    --surface-2:#243150;
+    --surface-3:#2d3d62;
+    --border:   rgba(200,215,255,.1);
+    --text:     #dde6f5;
+    --muted:    #8a9bc0;
+    --white:    #f0f4ff;
+}
+
+body { font-family: 'Outfit', sans-serif; color: var(--text); }
+
+/* ── Main card ── */
+.main-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.35);
+    max-width: 800px;
+    margin: 0 auto;
+}
+.main-card-header {
+    background: linear-gradient(135deg, #78350f 0%, #b45309 55%, #f59e0b 100%);
+    padding: 1.2rem 1.75rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.main-card-header h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 700;
+    color: #ffffff; margin: 0;
+}
+.main-card-body { padding: 2rem 1.75rem; }
+
+/* ── Section heading ── */
+.section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--gold-lt);
+    margin-bottom: 1rem;
+    padding-left: 12px;
+    position: relative;
+}
+.section-heading::before {
+    content: '';
+    position: absolute; left: 0; top: 15%; bottom: 15%;
+    width: 3px;
+    background: linear-gradient(180deg, var(--gold), var(--gold-lt));
+    border-radius: 4px;
+}
+.section-divider { border: none; border-top: 1px solid rgba(200,215,255,.1); margin: 1.6rem 0; }
+
+/* ── Detail box ── */
+.detail-box {
+    background: var(--surface-2);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 12px 12px 0;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.5rem;
+}
+.detail-box p      { color: var(--text) !important; font-size: .88rem; margin-bottom: .35rem; }
+.detail-box strong { color: var(--white) !important; font-weight: 700; }
+
+/* ── Questions box ── */
+.questions-box {
+    background: rgba(251,191,36,.08);
+    border: 1px solid rgba(251,191,36,.25);
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 12px 12px 0;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.5rem;
+    white-space: pre-line;
+}
+.questions-box strong { color: #fde68a !important; display: block; margin-bottom: .5rem; }
+.questions-box       { color: #fde68a; font-size: .88rem; line-height: 1.7; }
+
+/* ── Party cards ── */
+.party-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: .75rem;
+    transition: box-shadow .2s;
+}
+.party-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.2); }
+.party-card.student { border-left: 4px solid #60a5fa; }
+.party-card.faculty { border-left: 4px solid #f59e0b; }
+.party-card .party-name  { font-weight: 700; color: var(--white); font-size: .9rem; }
+.party-card .party-email { font-size: .82rem; color: var(--muted); margin-top: .15rem; }
+.party-card .party-icon  { font-size: 1.4rem; flex-shrink: 0; }
+
+/* ── Already sent alert ── */
+.alert-done {
+    background: rgba(74,222,128,.08);
+    border: 1px solid rgba(74,222,128,.25);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    color: #86efac;
+    font-size: .88rem;
+}
+.alert-done strong { color: #4ade80 !important; }
+
+/* ── Note box ── */
+.note-box {
+    background: rgba(37,99,235,.1);
+    border: 1px solid rgba(37,99,235,.25);
+    border-radius: 12px;
+    padding: .9rem 1.2rem;
+    color: #93c5fd;
+    font-size: .87rem;
+    margin-bottom: 1.5rem;
+}
+.note-box strong { color: #60a5fa !important; }
+
+/* ── Buttons ── */
+.btn-amber {
+    background: linear-gradient(135deg, #b45309, #f59e0b);
+    color: #fff !important; border: none;
+    font-weight: 700; font-size: .88rem;
+    padding: .6rem 1.5rem; border-radius: 10px;
+    transition: opacity .2s, transform .15s;
+    box-shadow: 0 2px 10px rgba(245,158,11,.25);
+    cursor: pointer;
+}
+.btn-amber:hover { opacity: .9; transform: translateY(-1px); }
+
+.btn-success-sm {
+    background: linear-gradient(135deg,#15803d,#22c55e);
+    color: #fff !important; border: none;
+    font-weight: 700; font-size: .8rem;
+    padding: .42rem 1rem; border-radius: 8px;
+    text-decoration: none !important; display: inline-block;
+    transition: opacity .2s;
+}
+.btn-success-sm:hover { opacity: .9; }
+
+.btn-outline-secondary {
+    border-color: rgba(200,215,255,.2) !important;
+    color: var(--muted) !important;
+    border-radius: 10px !important;
+    font-size: .85rem !important;
+    background: transparent !important;
+}
+.btn-outline-secondary:hover {
+    background: rgba(200,215,255,.08) !important;
+    color: var(--white) !important;
+    border-color: rgba(200,215,255,.35) !important;
+}
+.back-btn { border-radius: 50px !important; font-size: .82rem !important; padding: .42rem 1rem !important; }
+
+/* ── Meta ── */
+.meta-lbl { font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:.15rem; }
+.meta-val { font-size:.88rem; color:var(--text); font-weight:500; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="max-width: 800px;">
+<div class="container mt-4 pb-5" style="max-width:800px;">
 
     <div class="mb-3">
-        <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary">← Back to Complaint</a>
+        <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary back-btn">← Back to Complaint</a>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-warning text-dark">
-            <h4 class="mb-0">📤 Send Clarification Request — {{ complaint.tracking_id }}</h4>
-        </div>
-        <div class="card-body p-4">
+    <div class="main-card">
 
-            <!-- Complaint Info -->
-            <h5 class="text-primary mb-3">Complaint Reference</h5>
-            <div class="detail-box mb-4">
-                <p class="mb-1"><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
-                <p class="mb-1"><strong>Subject:</strong> {{ complaint.subject }}</p>
+        <!-- Header -->
+        <div class="main-card-header">
+            <h4>📤 Send Clarification Request — {{ complaint.tracking_id }}</h4>
+        </div>
+
+        <div class="main-card-body">
+
+            <!-- Complaint Reference -->
+            <div class="section-heading">Complaint Reference</div>
+            <div class="detail-box">
+                <p><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
+                <p><strong>Subject:</strong> {{ complaint.subject }}</p>
                 <p class="mb-0"><strong>Investigator:</strong> {{ finding.submitted_by.full_name }}</p>
             </div>
 
+            <hr class="section-divider">
+
             <!-- Investigator's Questions -->
-            <h5 class="text-primary mb-3">📋 Investigator's Questions</h5>
-            <div class="questions-box mb-4">
-                <strong>These questions will be forwarded to the selected parties:</strong><br><br>
+            <div class="section-heading">📋 Investigator's Questions</div>
+            <div class="questions-box">
+                <strong>These questions will be forwarded to the selected parties:</strong>
                 {{ finding.clarification_questions }}
             </div>
 
-            <!-- Who will be notified -->
-            <h5 class="text-primary mb-3">👥 Parties to be Notified</h5>
+            <hr class="section-divider">
+
+            <!-- Parties to be Notified -->
+            <div class="section-heading">👥 Parties to be Notified</div>
             <div class="mb-4">
                 {% if finding.needs_student_clarification %}
                 <div class="party-card student">
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="font-size:1.5rem;">👤</span>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="party-icon">👤</span>
                         <div>
-                            <strong>Student</strong>
-                            <div style="font-size:0.85rem; color:#6b7280;">
-                                {{ complaint.student.full_name }} — {{ complaint.student.email }}
-                            </div>
+                            <div class="party-name">Student</div>
+                            <div class="party-email">{{ complaint.student.full_name }} — {{ complaint.student.email }}</div>
                         </div>
                     </div>
                 </div>
                 {% endif %}
                 {% if finding.needs_faculty_statement %}
                 <div class="party-card faculty">
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="font-size:1.5rem;">👨‍🏫</span>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="party-icon">👨‍🏫</span>
                         <div>
-                            <strong>Accused Faculty</strong>
-                            <div style="font-size:0.85rem; color:#6b7280;">
+                            <div class="party-name">Accused Faculty</div>
+                            <div class="party-email">
                                 {{ complaint.faculty_concerned.full_name|default:"Not specified" }}
                                 — {{ complaint.faculty_concerned.email|default:"-" }}
                             </div>
@@ -92,19 +229,21 @@
                 {% endif %}
             </div>
 
+            <hr class="section-divider">
+
             {% if already_sent %}
-            <div class="alert" style="background:#f0fdf4; border:1px solid #86efac; color:#166534; border-radius:8px;">
+            <div class="alert-done">
                 ✅ <strong>Clarification request has already been sent.</strong>
                 The relevant parties have been notified.
-                <div class="mt-2">
-                    <a href="{% url 'view_clarification_responses' finding.id %}" class="btn btn-success btn-sm">
+                <div class="mt-3">
+                    <a href="{% url 'view_clarification_responses' finding.id %}" class="btn-success-sm">
                         👁 View Responses
                     </a>
                 </div>
             </div>
 
             {% else %}
-            <div class="alert" style="background:#eff6ff; border:1px solid #bfdbfe; color:#1e3a5f; border-radius:8px;">
+            <div class="note-box">
                 <strong>📌 Note:</strong> Once you confirm, the above parties will be notified
                 with the investigator's questions. The investigator will be notified when
                 all responses are received.
@@ -112,17 +251,15 @@
 
             <form method="post">
                 {% csrf_token %}
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-warning btn-lg text-dark fw-bold">
-                        📤 Confirm & Send Clarification Request
-                    </button>
-                    <a href="{% url 'handle_complaint' complaint.id %}"
-                       class="btn btn-outline-secondary btn-lg">Cancel</a>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn-amber btn">📤 Confirm & Send Clarification Request</button>
+                    <a href="{% url 'handle_complaint' complaint.id %}" class="btn btn-outline-secondary">Cancel</a>
                 </div>
             </form>
             {% endif %}
 
-        </div>
-    </div>
+        </div><!-- /main-card-body -->
+    </div><!-- /main-card -->
+
 </div>
 {% endblock %}
