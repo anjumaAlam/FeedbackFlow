@@ -4843,3 +4843,187 @@ ImportError: cannot import name 'CommitteeOutcomeForm' from 'users.forms' (C:\Us
 [2026-05-21 04:58:58,551] INFO django.server log "GET /login/ HTTP/1.1" 200 19116
 [2026-05-21 04:59:03,866] INFO django.server log "POST /login/ HTTP/1.1" 302 0
 [2026-05-21 04:59:03,902] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42851
+[2026-05-21 11:09:09,759] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 11:09:25,910] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-21 11:09:26,587] WARNING django.request log Not Found: /favicon.ico
+[2026-05-21 11:09:26,588] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 15403
+[2026-05-21 11:09:39,861] INFO django.server log "GET /login/ HTTP/1.1" 200 18805
+[2026-05-21 11:09:46,236] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-21 11:09:51,655] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-21 11:10:07,157] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-21 11:10:23,141] INFO django.server log "GET /login/ HTTP/1.1" 200 18805
+[2026-05-21 11:10:27,988] INFO django.server log "GET /login/ HTTP/1.1" 200 18805
+[2026-05-21 11:10:38,775] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-21 11:10:39,130] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42876
+[2026-05-21 11:10:55,493] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-21 11:10:55,579] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39451
+[2026-05-21 11:11:04,209] INFO django.server log "GET /login/ HTTP/1.1" 200 18805
+[2026-05-21 11:11:38,417] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-21 11:11:38,484] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 44384
+[2026-05-21 11:12:08,614] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-21 11:12:08,692] INFO django.server log "GET /faculty/dashboard/ HTTP/1.1" 200 38633
+[2026-05-21 11:12:26,988] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22163
+[2026-05-21 11:12:45,177] INFO django.server log "POST /appointment/ HTTP/1.1" 302 0
+[2026-05-21 11:12:45,213] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22900
+[2026-05-21 11:12:58,590] INFO django.server log "GET /notifications/ HTTP/1.1" 200 23354
+[2026-05-21 11:13:01,425] INFO django.server log "GET /notifications/mark-read/137/ HTTP/1.1" 302 0
+[2026-05-21 11:13:01,483] INFO django.server log "GET /dashboard/appointments/ HTTP/1.1" 200 35857
+[2026-05-21 11:13:10,063] INFO django.server log "GET /dashboard/appointments/4/ HTTP/1.1" 200 20397
+[2026-05-21 11:13:28,101] INFO django.server log "POST /dashboard/appointments/4/ HTTP/1.1" 302 0
+[2026-05-21 11:13:28,142] INFO django.server log "GET /dashboard/appointments/4/ HTTP/1.1" 200 20543
+[2026-05-21 11:13:45,112] INFO django.server log "POST /dashboard/appointments/4/ HTTP/1.1" 302 0
+[2026-05-21 11:13:45,163] INFO django.server log "GET /dashboard/appointments/4/ HTTP/1.1" 200 21317
+[2026-05-21 11:13:58,605] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-21 11:13:58,617] INFO django.server log "GET /login/ HTTP/1.1" 200 19117
+[2026-05-21 11:14:31,804] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-21 11:14:31,858] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 32783
+[2026-05-21 11:14:33,777] INFO django.server log "GET /notifications/ HTTP/1.1" 200 19107
+[2026-05-21 11:14:37,049] INFO django.server log "GET /notifications/mark-read/138/ HTTP/1.1" 302 0
+[2026-05-21 11:14:37,107] INFO django.server log "GET /committee/appointment/4/ HTTP/1.1" 200 23715
+[2026-05-21 11:15:03,751] INFO django.server log "POST /committee/appointment/4/ HTTP/1.1" 302 0
+[2026-05-21 11:15:03,796] INFO django.server log "GET /committee/appointment/4/ HTTP/1.1" 200 26754
+[2026-05-21 11:15:26,403] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-21 11:15:26,427] INFO django.server log "GET /login/ HTTP/1.1" 200 19114
+[2026-05-21 11:15:39,157] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-21 11:15:39,215] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 44384
+[2026-05-21 11:15:48,432] INFO django.server log "GET /notifications/ HTTP/1.1" 200 24202
+[2026-05-21 11:15:54,973] INFO django.server log "GET /notifications/mark-read/142/ HTTP/1.1" 302 0
+[2026-05-21 11:15:55,019] INFO django.server log "GET /dashboard/appointments/4/ HTTP/1.1" 200 21648
+[2026-05-21 11:16:05,518] INFO django.server log "POST /dashboard/appointments/4/ HTTP/1.1" 302 0
+[2026-05-21 11:16:05,574] INFO django.server log "GET /dashboard/appointments/4/ HTTP/1.1" 200 22974
+[2026-05-21 11:16:20,283] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22283
+[2026-05-21 11:16:22,790] INFO django.server log "GET /notifications/ HTTP/1.1" 200 18830
+[2026-05-21 11:16:36,557] INFO django.server log "GET /notifications/mark-read/143/ HTTP/1.1" 302 0
+[2026-05-21 11:16:36,616] INFO django.server log "GET /appointment/my/ HTTP/1.1" 200 28798
+[2026-05-21 11:17:06,699] INFO django.server log "POST /committee/appointment/4/ HTTP/1.1" 302 0
+[2026-05-21 11:17:06,752] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 31472
+[2026-05-21 11:17:55,156] INFO django.server log "GET /appointment/my/ HTTP/1.1" 200 31184
+[2026-05-21 11:17:57,668] INFO django.server log "GET /notifications/ HTTP/1.1" 200 19781
+[2026-05-21 11:18:00,553] INFO django.server log "GET /notifications/mark-read/147/ HTTP/1.1" 302 0
+[2026-05-21 11:18:00,597] INFO django.server log "GET /appointment/my/ HTTP/1.1" 200 31064
+[2026-05-21 11:18:03,792] INFO django.server log "GET /appointment/4/convert/ HTTP/1.1" 200 31686
+[2026-05-21 11:18:35,714] INFO django.server log "POST /appointment/4/convert/ HTTP/1.1" 302 0
+[2026-05-21 11:18:35,781] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 21484
+[2026-05-21 11:24:24,603] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 11:24:24,705] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 43678
+[2026-05-21 11:24:29,655] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 11:24:29,675] INFO django.server log "GET /login/ HTTP/1.1" 302 0
+[2026-05-21 11:24:29,717] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 31006
+[2026-05-21 11:24:37,227] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 11:24:37,313] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43843
+[2026-05-21 11:26:52,324] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 28924
+[2026-05-21 11:27:17,797] INFO django.server log "POST /complaints/submit/ HTTP/1.1" 302 0
+[2026-05-21 11:27:17,859] INFO django.server log "GET /complaints/my-complaints/ HTTP/1.1" 200 23663
+[2026-05-21 11:27:26,903] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39043
+[2026-05-21 11:27:40,494] INFO django.server log "GET /complaints/hod/suggestions/ HTTP/1.1" 200 29613
+[2026-05-21 11:27:48,788] INFO django.server log "GET /complaints/detail/19/ HTTP/1.1" 200 34370
+[2026-05-21 11:28:01,770] INFO django.server log "GET /complaints/hod/suggestions/review/19/ HTTP/1.1" 302 0
+[2026-05-21 11:28:01,818] INFO django.server log "GET /complaints/hod/suggestions/ HTTP/1.1" 200 29871
+[2026-05-21 11:28:07,907] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 11:28:07,977] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 43798
+[2026-05-21 11:28:11,452] INFO django.server log "GET /notifications/ HTTP/1.1" 200 21548
+[2026-05-21 11:28:22,125] INFO django.server log "GET /complaints/hod/suggestions/resolve/19/ HTTP/1.1" 302 0
+[2026-05-21 11:28:22,169] INFO django.server log "GET /complaints/hod/suggestions/ HTTP/1.1" 200 29556
+[2026-05-21 11:28:23,880] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 11:28:23,938] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39043
+[2026-05-21 11:28:27,476] INFO django.server log "GET /notifications/ HTTP/1.1" 200 22364
+[2026-05-21 11:28:39,425] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 11:28:39,507] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 43678
+[2026-05-21 11:28:44,264] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 302 0
+[2026-05-21 11:28:44,313] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 25348
+[2026-05-21 11:33:37,764] INFO django.server log "GET /feedback/admin/feedback-periods/ HTTP/1.1" 200 29320
+[2026-05-21 11:33:39,969] INFO django.server log "GET /feedback/admin/feedback-periods/add/ HTTP/1.1" 200 30718
+[2026-05-21 11:34:59,723] INFO django.server log "POST /feedback/admin/feedback-periods/add/ HTTP/1.1" 302 0
+[2026-05-21 11:34:59,772] INFO django.server log "GET /feedback/admin/feedback-periods/ HTTP/1.1" 200 30804
+[2026-05-21 11:35:17,425] INFO django.server log "GET /feedback/admin/feedback-periods/add/ HTTP/1.1" 200 30718
+[2026-05-21 11:35:42,747] INFO django.server log "POST /feedback/admin/feedback-periods/add/ HTTP/1.1" 302 0
+[2026-05-21 11:35:42,786] INFO django.server log "GET /feedback/admin/feedback-periods/ HTTP/1.1" 200 31984
+[2026-05-21 11:39:56,017] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 11:39:56,083] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43843
+[2026-05-21 11:40:00,254] INFO django.server log "GET /feedback/admin/registrations/ HTTP/1.1" 200 35453
+[2026-05-21 11:40:53,161] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 11:40:53,213] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43843
+[2026-05-21 11:42:16,711] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 11:42:16,789] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 43678
+[2026-05-21 11:42:19,728] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22163
+[2026-05-21 11:42:36,885] INFO django.server log "POST /appointment/ HTTP/1.1" 302 0
+[2026-05-21 11:42:36,951] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22900
+[2026-05-21 11:42:41,648] INFO django.server log "GET /notifications/ HTTP/1.1" 200 26859
+[2026-05-21 11:42:44,161] INFO django.server log "GET /notifications/mark-read/156/ HTTP/1.1" 302 0
+[2026-05-21 11:42:44,205] INFO django.server log "GET /dashboard/appointments/ HTTP/1.1" 200 37220
+[2026-05-21 11:42:46,803] INFO django.server log "GET /dashboard/appointments/5/ HTTP/1.1" 200 20398
+[2026-05-21 11:42:56,184] INFO django.server log "POST /dashboard/appointments/5/ HTTP/1.1" 302 0
+[2026-05-21 11:42:56,232] INFO django.server log "GET /dashboard/appointments/5/ HTTP/1.1" 200 20537
+[2026-05-21 11:43:02,139] INFO django.server log "GET /notifications/ HTTP/1.1" 200 20879
+[2026-05-21 11:43:03,934] INFO django.server log "GET /notifications/mark-read/157/ HTTP/1.1" 302 0
+[2026-05-21 11:43:03,991] INFO django.server log "GET /committee/appointment/5/ HTTP/1.1" 200 23288
+[2026-05-21 11:43:22,922] INFO django.server log "POST /committee/appointment/5/ HTTP/1.1" 302 0
+[2026-05-21 11:43:22,972] INFO django.server log "GET /committee/appointment/5/ HTTP/1.1" 200 26320
+[2026-05-21 11:43:28,868] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22283
+[2026-05-21 11:43:30,477] INFO django.server log "GET /notifications/ HTTP/1.1" 200 24077
+[2026-05-21 11:44:03,884] INFO django.server log "POST /committee/appointment/5/ HTTP/1.1" 302 0
+[2026-05-21 11:44:03,941] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 31472
+[2026-05-21 11:44:11,482] INFO django.server log "GET /notifications/ HTTP/1.1" 200 25021
+[2026-05-21 11:44:15,413] INFO django.server log "GET /notifications/mark-read/164/ HTTP/1.1" 302 0
+[2026-05-21 11:44:15,480] INFO django.server log "GET /appointment/my/ HTTP/1.1" 200 37554
+[2026-05-21 11:44:18,621] INFO django.server log "GET /appointment/5/convert/ HTTP/1.1" 200 31688
+[2026-05-21 11:48:21,701] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 11:48:21,785] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 44729
+[2026-05-21 12:06:52,530] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:07:12,240] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:07:18,123] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 12:07:18,423] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 44729
+[2026-05-21 12:08:32,590] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 12:08:32,679] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43843
+[2026-05-21 12:08:38,997] INFO django.server log "GET /feedback/admin/feedback-periods/ HTTP/1.1" 200 31427
+[2026-05-21 12:12:22,298] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\Py_feed_new_update\FeedbackFlow\feedback\models.py changed, reloading.
+[2026-05-21 12:12:25,255] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:12:35,060] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\Py_feed_new_update\FeedbackFlow\feedback\forms.py changed, reloading.
+[2026-05-21 12:12:36,162] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:12:48,201] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\Py_feed_new_update\FeedbackFlow\feedback\views.py changed, reloading.
+[2026-05-21 12:12:49,524] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:14:04,964] INFO django.server log "GET /feedback/admin/feedback-periods/ HTTP/1.1" 200 31427
+[2026-05-21 12:14:08,629] INFO django.server log "GET /feedback/admin/feedback-periods/add/ HTTP/1.1" 200 30718
+[2026-05-21 12:14:14,690] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 12:14:14,733] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43843
+[2026-05-21 12:14:16,969] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43843
+[2026-05-21 12:14:20,864] INFO django.server log "GET /feedback/admin/feedback-periods/ HTTP/1.1" 200 31427
+[2026-05-21 12:14:22,738] INFO django.server log "GET /feedback/admin/feedback-periods/add/ HTTP/1.1" 200 30718
+[2026-05-21 12:15:54,884] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\Py_feed_new_update\FeedbackFlow\feedback\models.py changed, reloading.
+[2026-05-21 12:15:56,132] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:16:31,142] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\Py_feed_new_update\FeedbackFlow\feedback\admin.py changed, reloading.
+[2026-05-21 12:16:31,936] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:17:37,613] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 12:17:37,830] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43843
+[2026-05-21 12:17:43,187] INFO django.server log "GET /feedback/admin/feedback-periods/ HTTP/1.1" 200 31247
+[2026-05-21 12:17:44,851] INFO django.server log "GET /feedback/admin/feedback-periods/add/ HTTP/1.1" 200 30247
+[2026-05-21 12:19:25,636] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\Py_feed_new_update\FeedbackFlow\feedback\models.py changed, reloading.
+[2026-05-21 12:19:26,592] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:19:39,132] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\Py_feed_new_update\FeedbackFlow\feedback\forms.py changed, reloading.
+[2026-05-21 12:19:39,745] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:19:48,218] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\Py_feed_new_update\FeedbackFlow\feedback\admin.py changed, reloading.
+[2026-05-21 12:19:48,820] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:20:22,454] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 12:20:22,644] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43843
+[2026-05-21 12:20:27,188] INFO django.server log "GET /feedback/admin/feedback-periods/ HTTP/1.1" 200 31425
+[2026-05-21 12:20:28,939] INFO django.server log "GET /feedback/admin/feedback-periods/add/ HTTP/1.1" 200 30600
+[2026-05-21 12:22:57,311] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\Py_feed_new_update\FeedbackFlow\feedback\models.py changed, reloading.
+[2026-05-21 12:22:58,594] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:23:37,800] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\Py_feed_new_update\FeedbackFlow\feedback\admin.py changed, reloading.
+[2026-05-21 12:23:38,703] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-21 12:24:51,009] INFO django.server log "GET /feedback/admin/feedback-periods/add/ HTTP/1.1" 200 30309
+[2026-05-21 12:25:05,696] INFO django.server log "POST /feedback/admin/feedback-periods/add/ HTTP/1.1" 302 0
+[2026-05-21 12:25:05,763] INFO django.server log "GET /feedback/admin/feedback-periods/ HTTP/1.1" 200 33014
+[2026-05-21 12:25:15,084] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 200 32528
+[2026-05-21 12:25:18,992] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 44729
+[2026-05-21 12:25:20,578] INFO django.server log "GET /feedback/course-registration/ HTTP/1.1" 200 44907
+[2026-05-21 12:25:28,427] INFO django.server log "POST /feedback/course-registration/ HTTP/1.1" 302 0
+[2026-05-21 12:25:28,505] INFO django.server log "GET /feedback/course-registration/ HTTP/1.1" 200 46109
+[2026-05-21 12:25:31,415] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-21 12:25:31,484] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 44729
+[2026-05-21 12:25:33,277] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 200 33792
+[2026-05-21 12:25:58,388] INFO django.server log "POST /feedback/submit/ HTTP/1.1" 302 0
+[2026-05-21 12:25:58,423] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 27948
+[2026-05-21 12:26:01,561] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 200 33912
+[2026-05-21 12:26:27,319] INFO django.server log "POST /feedback/submit/ HTTP/1.1" 302 0
+[2026-05-21 12:26:27,347] INFO django.server log "GET /feedback/my-feedback/ HTTP/1.1" 200 30495

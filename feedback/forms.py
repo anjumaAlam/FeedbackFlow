@@ -96,17 +96,6 @@ class FeedbackSubmissionForm(forms.ModelForm):
                 # Student has no confirmed registrations — show nothing
                 qs = Course.objects.none()
 
-        # Exclude courses already submitted feedback for
-        if user:
-            from .models import FeedbackPeriod
-            current_period = FeedbackPeriod.get_current_period()
-            if current_period:
-                already_submitted = Feedback.objects.filter(
-                    student=user,
-                    feedback_period=current_period
-                ).values_list('course_id', flat=True)
-                qs = qs.exclude(id__in=already_submitted)
-
         self.fields['course'].queryset = qs
 
         if not qs.exists():
@@ -201,11 +190,10 @@ class CourseForm(forms.ModelForm):
 class FeedbackPeriodForm(forms.ModelForm):
     class Meta:
         model = FeedbackPeriod
-        fields = ['name', 'start_date', 'end_date', 'period_type', 'is_active']
+        fields = ['name', 'start_date', 'period_type', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Spring 2026 Feedback'}),
             'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'period_type': forms.Select(attrs={'class': 'form-select'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }

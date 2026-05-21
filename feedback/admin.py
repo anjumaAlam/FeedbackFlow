@@ -64,7 +64,7 @@ class CourseRegistrationAdmin(admin.ModelAdmin):
 
 @admin.register(FeedbackPeriod)
 class FeedbackPeriodAdmin(admin.ModelAdmin):
-    list_display = ['name', 'semester', 'period_type', 'start_date', 'end_date', 'is_active', 'is_open']
+    list_display = ['name', 'semester', 'period_type', 'start_date', 'is_active', 'is_open']
     list_filter = ['semester', 'period_type', 'is_active']
     search_fields = ['name', 'semester']
     list_editable = ['is_active']

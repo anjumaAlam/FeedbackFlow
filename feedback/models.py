@@ -152,7 +152,8 @@ class Feedback(models.Model):
         ordering = ['-submitted_at']
         verbose_name = 'Feedback'
         verbose_name_plural = 'Feedback'
-        unique_together = ['student', 'course', 'feedback_period']
+        # No unique_together — students may submit feedback on the same course
+        # multiple times once a feedback period has opened.
 
     def __str__(self):
         return f"Feedback by {self.student.email} for {self.course.course_code}"
@@ -173,15 +174,12 @@ class FeedbackPeriod(models.Model):
     """Defines when feedback can be submitted — 2-3 windows per semester."""
     PERIOD_CHOICES = (
         ('Mid-Term', 'Mid-Term Feedback'),
-        ('Final-Term', 'Final-Term Feedback'),
-        ('Special', 'Special Feedback Round'),
     )
 
     name = models.CharField(max_length=100, help_text='e.g. Spring 2026 Mid-Term')
     semester = models.CharField(max_length=50, help_text='e.g. Spring 2026')
     period_type = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='Mid-Term')
     start_date = models.DateField()
-    end_date = models.DateField()
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -191,13 +189,14 @@ class FeedbackPeriod(models.Model):
         verbose_name_plural = 'Feedback Periods'
 
     def __str__(self):
-        return f"{self.name} ({self.start_date} to {self.end_date})"
+        return f"{self.name} (from {self.start_date})"
 
     @property
     def is_open(self):
-        """Check if the feedback period is currently open."""
+        """Period is open once its start_date has been reached.
+        No end-date wall — students may submit feedback any time after opening."""
         today = timezone.localdate()
-        return self.is_active and self.start_date <= today <= self.end_date
+        return self.is_active and self.start_date <= today
 
     @property
     def status_display(self):
@@ -206,19 +205,18 @@ class FeedbackPeriod(models.Model):
             return "Inactive"
         if today < self.start_date:
             return "Upcoming"
-        if today > self.end_date:
-            return "Expired"
+        # Once start_date is reached the period stays open indefinitely
         return "Active & Open"
 
     @classmethod
     def get_current_period(cls):
-        """Return the currently open feedback period, if any."""
+        """Return the most recent open feedback period.
+        A period is open once its start_date is reached — no end-date cutoff."""
         today = timezone.localdate()
         return cls.objects.filter(
             is_active=True,
             start_date__lte=today,
-            end_date__gte=today,
-        ).first()
+        ).order_by('-start_date').first()
 
 
 class FeedbackResponse(models.Model):

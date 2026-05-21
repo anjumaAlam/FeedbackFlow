@@ -18,10 +18,10 @@ def submit_feedback(request):
         messages.error(request, 'Only students can submit feedback.')
         return redirect('student_dashboard')
 
-    # FR 4.1: Check if there is a currently open feedback period
+    # FR 4.1: Check if there is a currently open feedback period (started but not yet deactivated)
     current_period = FeedbackPeriod.get_current_period()
     if not current_period:
-        messages.warning(request, 'No feedback period is currently open. Feedback submission is only available during scheduled feedback periods.')
+        messages.warning(request, 'Feedback is not yet open. It becomes available once the Mid-Term feedback period has started.')
         return redirect('my_feedback')
 
     if request.method == 'POST':
@@ -33,16 +33,11 @@ def submit_feedback(request):
                 student=request.user, course=course, is_confirmed=True
             ).first()
             if reg:
-                if current_period.period_type == 'Mid-Term':
-                    min_attendance = 50.0
-                elif current_period.period_type == 'Special':
-                    min_attendance = 25.0
-                else:
-                    min_attendance = 75.0
+                min_attendance = 50.0  # Mid-Term threshold applies for all feedback periods
                 if reg.attendance_percentage < min_attendance:
                     messages.error(
                         request,
-                        f'You need at least {min_attendance:.0f}% attendance to submit {current_period.period_type} feedback for {course.course_code}. '
+                        f'You need at least {min_attendance:.0f}% attendance to submit feedback for {course.course_code}. '
                         f'Your current attendance: {reg.attendance_percentage:.0f}%.'
                     )
                     return redirect('submit_feedback')

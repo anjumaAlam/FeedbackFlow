@@ -28,7 +28,6 @@
                 <th>Name</th>
                 <th>Type</th>
                 <th>Start Date</th>
-                <th>End Date</th>
                 <th>Status</th>
                 <th>Actions</th>
             </tr>
@@ -39,14 +38,11 @@
                 <td><strong>{{ period.name }}</strong></td>
                 <td><span class="badge bg-secondary">{{ period.period_type }}</span></td>
                 <td>{{ period.start_date|date:"M d, Y" }}</td>
-                <td>{{ period.end_date|date:"M d, Y" }}</td>
                 <td>
                     {% if period.status_display == "Active & Open" %}
                         <span class="badge bg-success">{{ period.status_display }}</span>
                     {% elif period.status_display == "Upcoming" %}
                         <span class="badge bg-info text-dark">{{ period.status_display }}</span>
-                    {% elif period.status_display == "Expired" %}
-                        <span class="badge bg-warning text-dark">{{ period.status_display }}</span>
                     {% else %}
                         <span class="badge bg-danger">{{ period.status_display }}</span>
                     {% endif %}
@@ -65,7 +61,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="text-center text-muted py-4">
+                <td colspan="5" class="text-center text-muted py-4">
                     No feedback periods found. <a href="{% url 'admin_feedback_period_add' %}">Create one now</a>
                 </td>
             </tr>
