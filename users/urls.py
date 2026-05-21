@@ -71,6 +71,7 @@ urlpatterns = [
     path('timeline/', views.academic_timeline, name='academic_timeline'),
     path('appointment/<int:appointment_id>/notes/', views.appointment_notes, name='appointment_notes'),
     path('appointment/<int:appointment_id>/convert/', views.convert_to_complaint, name='convert_to_complaint'),
+    path('complaint/direct/', views.direct_complaint_view, name='direct_complaint'),
 ]
 
 

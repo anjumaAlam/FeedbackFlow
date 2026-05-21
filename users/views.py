@@ -1951,3 +1951,59 @@ def appointment_notes(request, appointment_id):
         'page_title':  f'Confidential Notes — {appointment.name}',
     }
     return render(request, 'users/appointment_notes.html', context)
+
+@login_required
+def direct_complaint_view(request):
+    if request.user.role != 'Student':
+        messages.error(request, 'Only students can file complaints.')
+        return redirect('student_dashboard')
+
+    from .forms import DirectComplaintForm
+
+    if request.method == 'POST':
+        form = DirectComplaintForm(request.POST)
+        if form.is_valid():
+            Appointment.objects.create(
+                student=request.user,
+                name=form.cleaned_data['name'],
+                roll_number=form.cleaned_data['roll_number'],
+                department=form.cleaned_data['department'],
+                appointment_with=form.cleaned_data['committee'],
+                incident_type=form.cleaned_data['incident_type'],
+                description=(
+                    f"SUBJECT: {form.cleaned_data['subject']}\n\n"
+                    f"{form.cleaned_data['description']}"
+                    + (f"\n\nAccused: {form.cleaned_data['accused_name']}"
+                       if form.cleaned_data.get('accused_name') else '')
+                ),
+                type='Direct Complaint',
+            )
+
+            # Notify all admins
+            for admin in User.objects.filter(role='Admin'):
+                Notification.objects.create(
+                    recipient=admin,
+                    title=f'New Direct Complaint from {request.user.full_name}',
+                    message=(
+                        f'{request.user.full_name} (ID: {request.user.student_id}) '
+                        f'has filed a direct complaint to the {form.cleaned_data["committee"]}. '
+                        f'Subject: {form.cleaned_data["subject"]}.'
+                    ),
+                    notification_type='appointment',
+                    link='/dashboard/appointments/',
+                )
+
+            messages.success(
+                request,
+                'Your complaint has been submitted successfully! '
+                'Admin will review and forward it to the committee.'
+            )
+            return redirect('my_appointments')
+    else:
+        form = DirectComplaintForm(initial={
+            'name':        request.user.full_name,
+            'roll_number': request.user.student_id,
+            'department':  request.user.department,
+        })
+
+    return render(request, 'users/direct_complaint.html', {'form': form})

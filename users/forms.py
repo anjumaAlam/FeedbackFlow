@@ -577,3 +577,80 @@ class ConvertToComplaintForm(forms.Form):
         required=False,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
     )
+
+class DirectComplaintForm(forms.Form):
+    name = forms.CharField(
+        label='Full Name',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Your full name'
+        })
+    )
+    roll_number = forms.CharField(
+        label='Student ID',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g. 23101164'
+        })
+    )
+    committee = forms.ChoiceField(
+        label='File Complaint With',
+        choices=[
+            ('', '---------'),
+            ('Harassment Committee', 'Harassment Committee'),
+            ('Proctorial Committee', 'Proctorial Committee'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    department = forms.ChoiceField(
+        label='Department',
+        choices=[
+            ('', '---------'),
+            ('DBA', 'Department of Business Administration (DBA)'),
+            ('CSE', 'Department of Computer Science and Engineering (CSE)'),
+            ('CE', 'Department of Civil Engineering (CE)'),
+            ('EEE', 'Department of Electrical and Electronic Engineering (EEE)'),
+            ('Pharmacy', 'Department of Pharmacy'),
+            ('Law', 'Department of Law and Human Rights'),
+            ('English', 'Department of English'),
+            ('Architecture', 'Department of Architecture'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    incident_type = forms.ChoiceField(
+        label='Type of Incident',
+        choices=[
+            ('', '---------'),
+            ('Harassment', 'Harassment'),
+            ('Bullying', 'Bullying'),
+            ('Discrimination', 'Discrimination'),
+            ('Faculty Misconduct', 'Faculty Misconduct'),
+            ('Mental Pressure', 'Mental Pressure'),
+            ('Abuse', 'Abuse'),
+            ('Other', 'Other'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    subject = forms.CharField(
+        label='Complaint Subject',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Brief title of your complaint'
+        })
+    )
+    description = forms.CharField(
+        label='Full Description',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 5,
+            'placeholder': 'Describe the incident in detail — what happened, when, where, who was involved...'
+        })
+    )
+    accused_name = forms.CharField(
+        label='Name of Accused Person (if applicable)',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Full name of the person you are complaining about'
+        })
+    )

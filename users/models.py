@@ -148,6 +148,18 @@ class Appointment(models.Model):
         related_name='from_appointment'
     )
 
+    TYPE_CHOICES = [
+        ('Appointment', 'Appointment'),
+        ('Direct Complaint', 'Direct Complaint'),
+    ]
+    type = models.CharField(
+        max_length=20,
+        choices=TYPE_CHOICES,
+        default='Appointment'
+    )
+
+
+
     status     = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
 

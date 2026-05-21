@@ -3,153 +3,403 @@
 
 {% block extra_css %}
 <style>
-    /* Fix all inputs, labels, text inside cards */
-    .card { background: #ffffff !important; }
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
 
-    .card .form-label,
-    .card label { color: #1f2937 !important; font-weight: 600; font-size: 13.5px; }
+    * { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; }
 
-    .card .form-control,
-    .card .form-select,
-    .card select,
-    .card input,
-    .card textarea {
-        color: #111827 !important;
-        background: #ffffff !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 8px !important;
-        padding: 10px 14px !important;
-        font-size: 14px !important;
+    .wrap { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+    .page-title  { font-family: 'DM Serif Display', serif; font-size: 2rem; color: #ffffff; margin-bottom: .25rem; }
+    .page-sub    { color: rgba(255,255,255,.5); font-size: 13.5px; }
+
+    /* ── Option selector ── */
+    .option-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
     }
+    @media (max-width: 560px) { .option-grid { grid-template-columns: 1fr; } }
 
-    .card .form-control:focus,
-    .card .form-select:focus,
-    .card select:focus,
-    .card input:focus,
-    .card textarea:focus {
-        border-color: #2563eb !important;
-        box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
-        outline: none !important;
-        color: #111827 !important;
-        background: #ffffff !important;
+    .option-card {
+        background: #ffffff;
+        border: 2px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1.4rem 1.25rem;
+        cursor: pointer;
+        transition: all .2s;
+        text-align: center;
+        position: relative;
     }
+    .option-card:hover { border-color: #3b82f6; box-shadow: 0 4px 16px rgba(59,130,246,.15); transform: translateY(-2px); }
+    .option-card.active-appt  { border-color: #2563eb; background: #eff6ff; box-shadow: 0 4px 16px rgba(37,99,235,.18); }
+    .option-card.active-complaint { border-color: #dc2626; background: #fef2f2; box-shadow: 0 4px 16px rgba(220,38,38,.15); }
 
-    .card .form-control::placeholder,
-    .card textarea::placeholder { color: #9ca3af !important; }
+    .option-icon { font-size: 2rem; margin-bottom: .5rem; display: block; }
+    .option-title { font-weight: 700; font-size: 15px; color: #111827; margin-bottom: .25rem; }
+    .option-desc  { font-size: 12.5px; color: #6b7280; line-height: 1.5; }
 
-    .card .text-danger { color: #ef4444 !important; }
-    .card .text-muted  { color: #6b7280 !important; }
+    .option-card.active-appt .option-title    { color: #1d4ed8; }
+    .option-card.active-complaint .option-title { color: #b91c1c; }
 
-    .card-header {
-        background: #f1f5ff !important;
-        color: #1e3a8a !important;
-        font-weight: 700 !important;
-        font-size: 15px;
+    .active-dot {
+        display: none;
+        position: absolute;
+        top: 12px; right: 12px;
+        width: 10px; height: 10px;
+        border-radius: 50%;
+    }
+    .option-card.active-appt .active-dot      { display: block; background: #2563eb; }
+    .option-card.active-complaint .active-dot { display: block; background: #dc2626; }
+
+    /* ── Alert boxes ── */
+    .info-alert {
+        background: #dbeafe;
+        border: 1px solid #93c5fd;
+        border-left: 4px solid #2563eb;
+        border-radius: 10px;
+        padding: .9rem 1.2rem;
+        font-size: 13.5px;
+        color: #1e3a8a;
+        margin-bottom: 1.5rem;
+    }
+    .info-alert strong { color: #1e40af; }
+
+    .danger-alert {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-left: 4px solid #ef4444;
+        border-radius: 10px;
+        padding: .9rem 1.2rem;
+        font-size: 13.5px;
+        color: #991b1b;
+        margin-bottom: 1.5rem;
+    }
+    .danger-alert strong { color: #991b1b; }
+
+    /* ── Form cards ── */
+    .form-section {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+    }
+    .form-section-header {
+        background: #f8fafc;
         border-bottom: 1px solid #e5e7eb;
-        padding: 14px 20px;
+        padding: .9rem 1.4rem;
+        font-weight: 700;
+        font-size: 13.5px;
+        color: #111827;
+        display: flex;
+        align-items: center;
+        gap: 7px;
     }
+    .form-section-body { padding: 1.4rem; }
 
-    .card-body { padding: 24px !important; }
-
-    .alert-info {
-        background: #dbeafe !important;
-        border-color: #93c5fd !important;
-        color: #1e3a8a !important;
+    /* ── Fields ── */
+    .field-row { margin-bottom: 1.1rem; }
+    .field-row:last-child { margin-bottom: 0; }
+    .field-label {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #374151;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        margin-bottom: 6px;
     }
-    .alert-info strong { color: #1e3a8a !important; }
+    .field-label .req { color: #ef4444; }
 
-    .page-title-text { color: #ffffff; }
-    .page-sub-text   { color: rgba(255,255,255,.6) !important; }
-
-    .btn-primary {
-        background: #2563eb !important;
+    .form-section input,
+    .form-section select,
+    .form-section textarea {
+        width: 100% !important;
+        background: #ffffff !important;
+        color: #111827 !important;
+        border: 1px solid #d1d5db !important;
+        border-radius: 9px !important;
+        padding: 10px 13px !important;
+        font-size: 14px !important;
+        font-family: 'DM Sans', sans-serif !important;
+        transition: border-color .15s, box-shadow .15s !important;
+        outline: none !important;
+    }
+    .form-section input:focus,
+    .form-section select:focus,
+    .form-section textarea:focus {
         border-color: #2563eb !important;
-        color: #fff !important;
-        font-weight: 600;
+        box-shadow: 0 0 0 3px rgba(37,99,235,.1) !important;
     }
-    .btn-primary:hover { background: #1d4ed8 !important; border-color: #1d4ed8 !important; }
-    .btn-outline-primary { color: #2563eb !important; border-color: #2563eb !important; background: transparent !important; }
-    .btn-outline-primary:hover { background: #2563eb !important; color: #fff !important; }
+    #complaint-panel input:focus,
+    #complaint-panel select:focus,
+    #complaint-panel textarea:focus {
+        border-color: #dc2626 !important;
+        box-shadow: 0 0 0 3px rgba(220,38,38,.1) !important;
+    }
+    .form-section input::placeholder,
+    .form-section textarea::placeholder { color: #9ca3af !important; }
+    .field-error { font-size: 12px; color: #ef4444; margin-top: 4px; }
+
+    /* ── Submit buttons ── */
+    .btn-submit-appt {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #fff; border: none; border-radius: 10px;
+        padding: 11px 26px; font-size: 14px; font-weight: 700;
+        font-family: 'DM Sans', sans-serif; cursor: pointer;
+        transition: all .15s; letter-spacing: .02em;
+    }
+    .btn-submit-appt:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: translateY(-1px);
+        box-shadow: 0 5px 16px rgba(37,99,235,.35);
+    }
+    .btn-submit-complaint {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: #fff; border: none; border-radius: 10px;
+        padding: 11px 26px; font-size: 14px; font-weight: 700;
+        font-family: 'DM Sans', sans-serif; cursor: pointer;
+        transition: all .15s; letter-spacing: .02em;
+    }
+    .btn-submit-complaint:hover {
+        background: linear-gradient(135deg, #b91c1c, #991b1b);
+        transform: translateY(-1px);
+        box-shadow: 0 5px 16px rgba(220,38,38,.35);
+    }
+    .submit-note { font-size: 12px; color: rgba(255,255,255,.4); font-style: italic; margin-top: .6rem; }
+
+    /* ── Panel toggle ── */
+    #complaint-panel { display: none; }
+    #appointment-panel { display: block; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5" style="max-width: 720px;">
+<div class="wrap">
 
     <div class="mb-4">
-        <h2 class="fw-bold page-title-text">📅 Book an Appointment</h2>
-        <p class="page-sub-text">Fill in the details below to request an appointment.</p>
-    </div>
-
-
-
-    <div class="alert alert-info mb-4" style="border-left: 4px solid #2563eb;">
-        <strong>Note:</strong> Your appointment request will be reviewed.
-        You will be notified once it is approved or rejected.
+        <h2 class="page-title">📋 Appointment </h2>
+        <p class="page-sub">Choose an option below — book an appointment or file a direct complaint.</p>
     </div>
 
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            <div class="alert alert-{{ message.tags }} mb-3">{{ message }}</div>
         {% endfor %}
     {% endif %}
 
-    <form method="POST" novalidate>
-        {% csrf_token %}
+    <!-- ── Option Selector ── -->
+    <div class="option-grid">
+        <div class="option-card active-appt" id="tab-appt" onclick="switchTab('appointment')">
+            <div class="active-dot"></div>
+            <span class="option-icon">📅</span>
+            <div class="option-title">Book an Appointment</div>
+            <div class="option-desc">Request a meeting with the committee first. Discuss your issue before filing a formal complaint.</div>
+        </div>
+        <div class="option-card" id="tab-complaint" onclick="switchTab('complaint')">
+            <div class="active-dot"></div>
+            <span class="option-icon">📋</span>
+            <div class="option-title">File a Direct Complaint</div>
+            <div class="option-desc">Skip the appointment and file a formal complaint directly to the Harassment or Proctorial Committee.</div>
+        </div>
+    </div>
 
-        <!-- Personal Info -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header">👤 Personal Information</div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                        {{ form.name }}
-                        {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors|join:", " }}</div>{% endif %}
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Student ID <span class="text-danger">*</span></label>
-                        {{ form.roll_number }}
-                        {% if form.roll_number.errors %}<div class="text-danger small mt-1">{{ form.roll_number.errors|join:", " }}</div>{% endif %}
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Book Appointment With <span class="text-danger">*</span></label>
-                        {{ form.appointment_with }}
-                        {% if form.appointment_with.errors %}<div class="text-danger small mt-1">{{ form.appointment_with.errors|join:", " }}</div>{% endif %}
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Department <span class="text-danger">*</span></label>
-                        {{ form.department }}
-                        {% if form.department.errors %}<div class="text-danger small mt-1">{{ form.department.errors|join:", " }}</div>{% endif %}
+    <!-- ══════════════════════════════════════
+         PANEL 1 — Book Appointment
+    ══════════════════════════════════════ -->
+    <div id="appointment-panel">
+
+        <div class="info-alert">
+            <strong>📌 Note:</strong> Your appointment request will be reviewed by admin and forwarded to the relevant committee.
+            You will be notified once it is processed.
+        </div>
+
+        <form method="POST" action="{% url 'appointment' %}" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="appointment">
+
+            <!-- Personal Info -->
+            <div class="form-section">
+                <div class="form-section-header">👤 Personal Information</div>
+                <div class="form-section-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="field-row">
+                                <label class="field-label">Full Name <span class="req">*</span></label>
+                                {{ form.name }}
+                                {% if form.name.errors %}<div class="field-error">{{ form.name.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="field-row">
+                                <label class="field-label">Student ID <span class="req">*</span></label>
+                                {{ form.roll_number }}
+                                {% if form.roll_number.errors %}<div class="field-error">{{ form.roll_number.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="field-row">
+                                <label class="field-label">Book Appointment With <span class="req">*</span></label>
+                                {{ form.appointment_with }}
+                                {% if form.appointment_with.errors %}<div class="field-error">{{ form.appointment_with.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="field-row">
+                                <label class="field-label">Department <span class="req">*</span></label>
+                                {{ form.department }}
+                                {% if form.department.errors %}<div class="field-error">{{ form.department.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Incident Details -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header">📋 Incident Details</div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label">Type of Incident <span class="text-danger">*</span></label>
+            <!-- Incident Details -->
+            <div class="form-section">
+                <div class="form-section-header">📋 Incident Details</div>
+                <div class="form-section-body">
+                    <div class="field-row">
+                        <label class="field-label">Type of Incident <span class="req">*</span></label>
                         {{ form.incident_type }}
-                        {% if form.incident_type.errors %}<div class="text-danger small mt-1">{{ form.incident_type.errors|join:", " }}</div>{% endif %}
+                        {% if form.incident_type.errors %}<div class="field-error">{{ form.incident_type.errors|join:", " }}</div>{% endif %}
                     </div>
-                    <div class="col-12">
-                        <label class="form-label">Description of Incident <span class="text-danger">*</span></label>
+                    <div class="field-row">
+                        <label class="field-label">Description <span class="req">*</span></label>
                         {{ form.description }}
-                        {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors|join:", " }}</div>{% endif %}
+                        {% if form.description.errors %}<div class="field-error">{{ form.description.errors|join:", " }}</div>{% endif %}
                     </div>
                 </div>
             </div>
+
+            <button type="submit" class="btn-submit-appt">📅 Submit Appointment</button>
+            <p class="submit-note">All fields marked * are required.</p>
+        </form>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PANEL 2 — Direct Complaint
+    ══════════════════════════════════════ -->
+    <div id="complaint-panel">
+
+        <div class="danger-alert">
+            <strong>⚠️ Important:</strong> Filing a direct complaint skips the appointment stage.
+            Admin will review and forward your complaint directly to the committee.
+            You may be asked to appear physically with proofs and witnesses.
         </div>
 
-        <div class="d-flex align-items-center gap-3">
-            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">📅 Submit Appointment</button>
-            <span style="color:rgba(255,255,255,.5);font-size:13px;">All fields marked * are required</span>
-        </div>
+        <form method="POST" action="{% url 'direct_complaint' %}" novalidate>
+            {% csrf_token %}
 
-    </form>
+            <!-- Personal Info -->
+            <div class="form-section">
+                <div class="form-section-header">👤 Personal Information</div>
+                <div class="form-section-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="field-row">
+                                <label class="field-label">Full Name <span class="req">*</span></label>
+                                <input type="text" name="name" value="{{ request.user.full_name }}" placeholder="Your full name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="field-row">
+                                <label class="field-label">Student ID <span class="req">*</span></label>
+                                <input type="text" name="roll_number" value="{{ request.user.student_id }}" placeholder="e.g. 23101164" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="field-row">
+                                <label class="field-label">File Complaint With <span class="req">*</span></label>
+                                <select name="committee" required>
+                                    <option value="">---------</option>
+                                    <option value="Harassment Committee">Harassment Committee</option>
+                                    <option value="Proctorial Committee">Proctorial Committee</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="field-row">
+                                <label class="field-label">Department <span class="req">*</span></label>
+                                <select name="department" required>
+                                    <option value="">---------</option>
+                                    <option value="DBA" {% if request.user.department == 'DBA' %}selected{% endif %}>Department of Business Administration (DBA)</option>
+                                    <option value="CSE" {% if request.user.department == 'CSE' %}selected{% endif %}>Department of Computer Science and Engineering (CSE)</option>
+                                    <option value="CE"  {% if request.user.department == 'CE'  %}selected{% endif %}>Department of Civil Engineering (CE)</option>
+                                    <option value="EEE" {% if request.user.department == 'EEE' %}selected{% endif %}>Department of Electrical and Electronic Engineering (EEE)</option>
+                                    <option value="Pharmacy"     {% if request.user.department == 'Pharmacy'     %}selected{% endif %}>Department of Pharmacy</option>
+                                    <option value="Law"          {% if request.user.department == 'Law'          %}selected{% endif %}>Department of Law and Human Rights</option>
+                                    <option value="English"      {% if request.user.department == 'English'      %}selected{% endif %}>Department of English</option>
+                                    <option value="Architecture" {% if request.user.department == 'Architecture' %}selected{% endif %}>Department of Architecture</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complaint Details -->
+            <div class="form-section">
+                <div class="form-section-header">📋 Complaint Details</div>
+                <div class="form-section-body">
+                    <div class="field-row">
+                        <label class="field-label">Type of Incident <span class="req">*</span></label>
+                        <select name="incident_type" required>
+                            <option value="">---------</option>
+                            <option value="Harassment">Harassment</option>
+                            <option value="Bullying">Bullying</option>
+                            <option value="Discrimination">Discrimination</option>
+                            <option value="Faculty Misconduct">Faculty Misconduct</option>
+                            <option value="Mental Pressure">Mental Pressure</option>
+                            <option value="Abuse">Abuse</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="field-row">
+                        <label class="field-label">Complaint Subject <span class="req">*</span></label>
+                        <input type="text" name="subject" placeholder="Brief title of your complaint" required>
+                    </div>
+                    <div class="field-row">
+                        <label class="field-label">Full Description <span class="req">*</span></label>
+                        <textarea name="description" rows="5" placeholder="Describe what happened, when, where, who was involved..." required></textarea>
+                    </div>
+                    <div class="field-row">
+                        <label class="field-label">Person Involved <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#9ca3af;">(optional)</span></label>
+                        <input type="text" name="accused_name" placeholder="Full name of the person you are complaining about">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit-complaint">📋 Submit Direct Complaint</button>
+            <p class="submit-note">Admin will review and forward this to the relevant committee.</p>
+        </form>
+    </div>
+
 </div>
+
+<script>
+function switchTab(tab) {
+    const apptPanel      = document.getElementById('appointment-panel');
+    const complaintPanel = document.getElementById('complaint-panel');
+    const tabAppt        = document.getElementById('tab-appt');
+    const tabComplaint   = document.getElementById('tab-complaint');
+
+    if (tab === 'appointment') {
+        apptPanel.style.display      = 'block';
+        complaintPanel.style.display = 'none';
+        tabAppt.className      = 'option-card active-appt';
+        tabComplaint.className = 'option-card';
+    } else {
+        apptPanel.style.display      = 'none';
+        complaintPanel.style.display = 'block';
+        tabAppt.className      = 'option-card';
+        tabComplaint.className = 'option-card active-complaint';
+    }
+}
+</script>
 {% endblock %}

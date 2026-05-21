@@ -5123,3 +5123,246 @@ ImportError: cannot import name 'CommitteeOutcomeForm' from 'users.forms' (C:\Us
 [2026-05-22 00:34:13,064] INFO django.server log "POST /login/ HTTP/1.1" 302 0
 [2026-05-22 00:34:13,316] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 37909
 [2026-05-22 00:53:22,763] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 00:53:28,518] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 00:53:28,917] INFO django.server log "GET /login/ HTTP/1.1" 302 0
+[2026-05-22 00:53:29,538] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 37370
+[2026-05-22 00:53:33,747] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 00:53:33,777] INFO django.server log "GET /login/ HTTP/1.1" 200 19115
+[2026-05-22 00:53:41,888] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 00:53:41,938] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 43075
+[2026-05-22 00:53:46,040] INFO django.server log "GET /appointment/ HTTP/1.1" 200 22279
+[2026-05-22 00:54:00,046] INFO django.server log "POST /appointment/ HTTP/1.1" 302 0
+[2026-05-22 00:54:00,127] INFO django.server log "GET /appointment/ HTTP/1.1" 200 23016
+[2026-05-22 00:54:01,803] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 00:54:01,823] INFO django.server log "GET /login/ HTTP/1.1" 200 19116
+[2026-05-22 00:54:08,038] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 00:54:08,077] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 44384
+[2026-05-22 00:54:11,359] INFO django.server log "GET /notifications/ HTTP/1.1" 200 30251
+[2026-05-22 00:54:12,775] INFO django.server log "GET /notifications/mark-read/176/ HTTP/1.1" 302 0
+[2026-05-22 00:54:12,812] INFO django.server log "GET /dashboard/appointments/ HTTP/1.1" 200 39940
+[2026-05-22 00:54:14,955] INFO django.server log "GET /dashboard/appointments/7/ HTTP/1.1" 200 29105
+[2026-05-22 00:54:53,620] INFO django.server log "POST /dashboard/appointments/7/ HTTP/1.1" 302 0
+[2026-05-22 00:54:53,730] INFO django.server log "GET /dashboard/appointments/7/ HTTP/1.1" 200 29317
+[2026-05-22 00:54:55,681] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 00:54:55,707] INFO django.server log "GET /login/ HTTP/1.1" 200 19117
+[2026-05-22 00:55:03,993] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 00:55:04,030] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 38939
+[2026-05-22 00:55:13,859] INFO django.server log "GET /committee/appointment/7/ HTTP/1.1" 200 23408
+[2026-05-22 00:55:32,758] INFO django.server log "POST /committee/appointment/7/ HTTP/1.1" 302 0
+[2026-05-22 00:55:32,791] INFO django.server log "GET /committee/appointment/7/ HTTP/1.1" 200 26441
+[2026-05-22 00:55:45,068] INFO django.server log "POST /committee/appointment/7/ HTTP/1.1" 302 0
+[2026-05-22 00:55:45,126] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 38984
+[2026-05-22 01:25:12,066] INFO django.server log "GET /committee/dashboard/ HTTP/1.1" 200 38398
+[2026-05-22 01:25:28,164] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 01:25:28,272] INFO django.server log "GET /login/ HTTP/1.1" 200 19115
+[2026-05-22 01:25:36,328] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 01:25:36,817] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 43023
+[2026-05-22 01:29:23,471] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 01:29:28,848] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 01:29:29,542] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 35873
+[2026-05-22 01:29:58,070] INFO django.server log "GET /feedback/submit/ HTTP/1.1" 200 32647
+[2026-05-22 01:30:27,255] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 35873
+[2026-05-22 01:30:31,235] ERROR django.request log Internal Server Error: /feedback/course-registration/
+Traceback (most recent call last):
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 359, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: feedback_courseregistration.class_section
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-fiamaniallah\feedback\views.py", line 435, in course_registration_view
+    reg, created = CourseRegistration.objects.get_or_create(
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        student=student,
+        ^^^^^^^^^^^^^^^^
+        course=course,
+        ^^^^^^^^^^^^^^
+        defaults={'is_confirmed': False, 'class_section': auto_section}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\query.py", line 987, in get_or_create
+    return self.get(**kwargs), False
+           ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\query.py", line 635, in get
+    num = len(clone)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\query.py", line 372, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\query.py", line 2000, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\query.py", line 95, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1624, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 359, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: feedback_courseregistration.class_section
+[2026-05-22 01:30:31,264] ERROR django.server log "GET /feedback/course-registration/ HTTP/1.1" 500 154846
+[2026-05-22 01:32:08,514] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 01:32:17,970] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 01:32:18,882] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42483
+[2026-05-22 01:32:25,182] ERROR django.request log Internal Server Error: /feedback/course-registration/
+Traceback (most recent call last):
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 359, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: feedback_courseregistration.class_section
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-fiamaniallah\feedback\views.py", line 435, in course_registration_view
+    reg, created = CourseRegistration.objects.get_or_create(
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        student=student,
+        ^^^^^^^^^^^^^^^^
+        course=course,
+        ^^^^^^^^^^^^^^
+        defaults={'is_confirmed': False, 'class_section': auto_section}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\query.py", line 987, in get_or_create
+    return self.get(**kwargs), False
+           ~~~~~~~~^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\query.py", line 635, in get
+    num = len(clone)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\query.py", line 372, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\query.py", line 2000, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\query.py", line 95, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1624, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\PycharmProjects\FeedbackFlow-baba\.venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 359, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: feedback_courseregistration.class_section
+[2026-05-22 01:32:25,208] ERROR django.server log "GET /feedback/course-registration/ HTTP/1.1" 500 154846
+[2026-05-22 01:47:55,414] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-fiamaniallah\users\forms.py changed, reloading.
+[2026-05-22 01:48:17,666] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 01:48:23,821] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 01:48:27,584] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42483
+[2026-05-22 01:49:48,345] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-fiamaniallah\users\views.py changed, reloading.
+[2026-05-22 01:49:56,893] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 01:50:02,185] INFO django.server log "GET /complaints/submit/ HTTP/1.1" 200 29043
+[2026-05-22 01:51:57,162] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-fiamaniallah\users\urls.py changed, reloading.
+[2026-05-22 01:52:02,855] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 02:00:45,423] INFO django.utils.autoreload autoreload C:\Users\User\PycharmProjects\FeedbackFlow-fiamaniallah\users\models.py changed, reloading.
+[2026-05-22 02:00:51,835] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 02:01:47,093] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 02:02:12,835] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 02:02:14,606] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42483
+[2026-05-22 02:02:19,392] INFO django.server log "GET /appointment/ HTTP/1.1" 200 35055
+[2026-05-22 02:02:56,433] INFO django.server log "POST /complaint/direct/ HTTP/1.1" 302 0
+[2026-05-22 02:02:56,720] INFO django.server log "GET /appointment/my/ HTTP/1.1" 200 51255
+[2026-05-22 02:03:00,905] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 02:03:00,924] INFO django.server log "GET /login/ HTTP/1.1" 200 19116
+[2026-05-22 02:03:08,676] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 02:03:08,772] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 44384
+[2026-05-22 02:03:10,711] INFO django.server log "GET /notifications/ HTTP/1.1" 200 32822
+[2026-05-22 02:03:12,622] INFO django.server log "GET /notifications/mark-read/186/ HTTP/1.1" 302 0
+[2026-05-22 02:03:12,696] INFO django.server log "GET /dashboard/appointments/ HTTP/1.1" 200 41300
+[2026-05-22 02:03:15,049] INFO django.server log "GET /dashboard/appointments/8/ HTTP/1.1" 200 29155
+[2026-05-22 02:03:22,016] INFO django.server log "GET /appointment/8/notes/ HTTP/1.1" 200 17608
+[2026-05-22 02:03:33,756] INFO django.server log "GET /dashboard/appointments/8/ HTTP/1.1" 200 29155
+[2026-05-22 02:04:13,228] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 02:04:13,247] INFO django.server log "GET /login/ HTTP/1.1" 200 19117
+[2026-05-22 02:04:24,019] INFO django.server log "GET /admin/ HTTP/1.1" 302 0
+[2026-05-22 02:04:24,188] INFO django.server log "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4091
+[2026-05-22 02:04:30,682] INFO django.server log "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+[2026-05-22 02:04:30,815] INFO django.server log "GET /admin/ HTTP/1.1" 200 16124
+[2026-05-22 02:04:34,209] INFO django.server basehttp - Broken pipe from ('127.0.0.1', 53232)
+[2026-05-22 02:04:34,332] INFO django.server log "GET /admin/users/user/ HTTP/1.1" 200 77468
+[2026-05-22 02:04:34,418] INFO django.server log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[2026-05-22 02:04:59,096] INFO django.server log "GET /admin/users/user/56/change/ HTTP/1.1" 200 25125
+[2026-05-22 02:04:59,137] INFO django.server log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+[2026-05-22 02:06:46,099] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 02:06:46,211] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43723
+[2026-05-22 02:06:50,998] INFO django.server log "GET /logout/ HTTP/1.1" 302 0
+[2026-05-22 02:06:51,030] INFO django.server log "GET /login/ HTTP/1.1" 200 19117
+[2026-05-22 02:06:58,633] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 02:06:58,763] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 43021
+[2026-05-22 02:07:08,096] INFO django.server log "GET /feedback/course-registration/ HTTP/1.1" 200 51470
+[2026-05-22 02:08:54,169] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 02:08:56,103] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42481
+[2026-05-22 02:08:59,749] INFO django.server log "GET /appointment/ HTTP/1.1" 200 35055
+[2026-05-22 02:11:16,672] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
