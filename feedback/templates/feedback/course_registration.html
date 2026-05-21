@@ -191,6 +191,23 @@
 
                                         </small>
 
+                                        <!-- Section selector -->
+                                        <div class="mt-2" onclick="event.stopPropagation()">
+                                            <label class="text-dark fw-semibold" style="font-size:0.85rem;">
+                                                🏷️ Your Section:
+                                            </label>
+                                            <select name="section_{{ reg.id }}"
+                                                    class="form-select form-select-sm d-inline-block ms-1"
+                                                    style="width:auto; min-width:130px;"
+                                                    onclick="event.stopPropagation()">
+                                                <option value="">— Select Section —</option>
+                                                <option value="A" {% if reg.class_section == "A" %}selected{% endif %}>Section A</option>
+                                                <option value="B" {% if reg.class_section == "B" %}selected{% endif %}>Section B</option>
+                                                <option value="C" {% if reg.class_section == "C" %}selected{% endif %}>Section C</option>
+                                                <option value="D" {% if reg.class_section == "D" %}selected{% endif %}>Section D</option>
+                                            </select>
+                                        </div>
+
                                     </div>
 
                                     <!-- Status Badge -->

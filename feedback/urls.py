@@ -32,4 +32,7 @@ urlpatterns = [
     path('admin/registrations/', views.admin_registration_list, name='admin_registration_list'),
     path('admin/registrations/add/', views.admin_registration_add, name='admin_registration_add'),
     path('admin/registrations/<int:reg_id>/delete/', views.admin_registration_delete, name='admin_registration_delete'),
+
+    # Faculty attendance management
+    path('faculty/attendance/', views.faculty_update_attendance, name='faculty_update_attendance'),
 ]

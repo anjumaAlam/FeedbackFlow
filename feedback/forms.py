@@ -202,10 +202,11 @@ class CourseRegistrationForm(forms.ModelForm):
     class Meta:
         from .models import CourseRegistration
         model = CourseRegistration
-        fields = ['student', 'course', 'is_confirmed', 'attendance_percentage', 'confirmed_at']
+        fields = ['student', 'course', 'class_section', 'is_confirmed', 'attendance_percentage', 'confirmed_at']
         widgets = {
             'student': forms.Select(attrs={'class': 'form-select'}),
             'course': forms.Select(attrs={'class': 'form-select'}),
+            'class_section': forms.Select(attrs={'class': 'form-select'}),
             'is_confirmed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'attendance_percentage': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'min': '0', 'max': '100'}),
             'confirmed_at': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})

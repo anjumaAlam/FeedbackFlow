@@ -241,6 +241,12 @@ class FeedbackResponse(models.Model):
     def __str__(self):
         return f"Response to {self.feedback.id} by {self.faculty.full_name}"
 class CourseRegistration(models.Model):
+    SECTION_CHOICES = (
+        ('A', 'Section A'),
+        ('B', 'Section B'),
+        ('C', 'Section C'),
+        ('D', 'Section D'),
+    )
     student      = models.ForeignKey(
                         settings.AUTH_USER_MODEL,
                         on_delete=models.CASCADE,
@@ -250,6 +256,12 @@ class CourseRegistration(models.Model):
                         Course,
                         on_delete=models.CASCADE,
                         related_name='registrations'
+                    )
+    class_section = models.CharField(
+                        max_length=1,
+                        choices=SECTION_CHOICES,
+                        null=True, blank=True,
+                        help_text='Section the student belongs to in this course'
                     )
     is_confirmed = models.BooleanField(default=False)
     attendance_percentage = models.FloatField(default=100.0, help_text='Student attendance percentage (0-100)')
@@ -262,9 +274,10 @@ class CourseRegistration(models.Model):
 
     def __str__(self):
         status = "Confirmed" if self.is_confirmed else "Pending"
-        return f"{self.student.full_name} → {self.course.course_code} [{status}]"
+        section = f" [Sec {self.class_section}]" if self.class_section else ""
+        return f"{self.student.full_name} → {self.course.course_code}{section} [{status}]"
 
     @property
     def meets_attendance_requirement(self):
-        """FR 4.3: Check if student meets minimum attendance requirement (75%)."""
-        return self.attendance_percentage >= 75.0
+        """FR 4.3: Check if student meets minimum attendance requirement (50%)."""
+        return self.attendance_percentage >= 50.0

@@ -44,7 +44,6 @@ def make_feedback(student, course, **kw):
                 semester="Spring 2025",
                 period_type="Mid-Term",
                 start_date=timezone.localdate() - timezone.timedelta(days=1),
-                end_date=timezone.localdate() + timezone.timedelta(days=7),
                 is_active=True
             )
         defaults['feedback_period'] = period
@@ -102,10 +101,10 @@ class CourseFeedbackModelTest(TestCase):
         self.assertEqual(fb.get_average_rating(), 4.0)
 
     def test_duplicate_submission_blocked(self):
-        """Same student cannot submit feedback twice for same course"""
+        """Same student can submit feedback multiple times for the same course as per user requirements"""
         make_feedback(self.student, self.course)
-        with self.assertRaises(Exception):
-            make_feedback(self.student, self.course)
+        make_feedback(self.student, self.course)
+        self.assertEqual(Feedback.objects.count(), 2)
 
     def test_feedback_str(self):
         """_str_ mentions student email and course code"""
@@ -148,7 +147,6 @@ class SubmitCourseFeedbackViewTest(TestCase):
                 'semester': "Spring 2025",
                 'period_type': "Mid-Term",
                 'start_date': timezone.localdate() - timezone.timedelta(days=1),
-                'end_date': timezone.localdate() + timezone.timedelta(days=7),
                 'is_active': True
             }
         )
@@ -549,7 +547,6 @@ class AnonymousFeedbackSubmissionViewTest(TestCase):
                 'semester': "Spring 2025",
                 'period_type': "Mid-Term",
                 'start_date': timezone.localdate() - timezone.timedelta(days=1),
-                'end_date': timezone.localdate() + timezone.timedelta(days=7),
                 'is_active': True
             }
         )

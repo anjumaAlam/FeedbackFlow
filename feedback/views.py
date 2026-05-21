@@ -424,11 +424,23 @@ def course_registration_view(request):
         is_active=True
     )
     for course in active_courses:
-        CourseRegistration.objects.get_or_create(
+        # Determine section: if the course has only one section assignment, auto-assign student to it
+        section_assignments = CourseAssignment.objects.filter(
+            course=course
+        ).exclude(class_section__isnull=True).exclude(class_section='')
+        auto_section = None
+        if section_assignments.count() == 1:
+            auto_section = section_assignments.first().class_section
+
+        reg, created = CourseRegistration.objects.get_or_create(
             student=student,
             course=course,
-            defaults={'is_confirmed': False}
+            defaults={'is_confirmed': False, 'class_section': auto_section}
         )
+        # If registration already exists but has no section set, patch it now
+        if not created and not reg.class_section and auto_section:
+            reg.class_section = auto_section
+            reg.save(update_fields=['class_section'])
 
     if request.method == 'POST':
         registrations = CourseRegistration.objects.filter(
@@ -437,8 +449,11 @@ def course_registration_view(request):
         )
         for reg in registrations:
             is_checked = request.POST.get(f'course_{reg.id}') == 'on'
+            section_val = request.POST.get(f'section_{reg.id}', '').strip()
             reg.is_confirmed = is_checked
             reg.confirmed_at = timezone.now() if is_checked else None
+            if section_val:
+                reg.class_section = section_val
             reg.save()
         messages.success(request, 'Course registration saved successfully!')
         return redirect('course_registration')
@@ -520,25 +535,6 @@ def admin_feedback_period_toggle(request, period_id):
 @user_passes_test(admin_required)
 def admin_registration_list(request):
     registrations = CourseRegistration.objects.select_related('student', 'course').all().order_by('-confirmed_at')
-    if request.method == 'POST':
-        if 'bulk_update' in request.POST:
-            for reg in registrations:
-                is_checked = request.POST.get(f'is_confirmed_{reg.id}') == 'on'
-                attendance = request.POST.get(f'attendance_{reg.id}')
-                if attendance is not None:
-                    try:
-                        reg.attendance_percentage = float(attendance)
-                    except ValueError:
-                        pass
-                if is_checked and not reg.is_confirmed:
-                    reg.confirmed_at = timezone.now()
-                elif not is_checked:
-                    reg.confirmed_at = None
-                reg.is_confirmed = is_checked
-                reg.save()
-            messages.success(request, 'Registrations updated successfully.')
-            return redirect('admin_registration_list')
-
     context = {
         'registrations': registrations,
         'page_title': 'Course Registrations'
@@ -582,3 +578,74 @@ def admin_registration_delete(request, reg_id):
         'page_title': 'Delete Registration'
     }
     return render(request, 'feedback/admin_registration_delete.html', context)
+
+
+# ── FACULTY: Update student attendance ────────────────────────────────────────
+
+@login_required
+def faculty_update_attendance(request):
+    """Faculty can update attendance % for students in their assigned section of each course."""
+    if request.user.role not in ['Faculty', 'HOD']:
+        messages.error(request, 'Access denied. Faculty only.')
+        return redirect('login')
+
+    from django.db.models import Q
+
+    # Get this faculty's section assignments: [{course, class_section}, ...]
+    my_assignments = CourseAssignment.objects.filter(
+        faculty=request.user,
+        course__is_active=True
+    ).select_related('course')
+
+    # Build a Q that matches: course=X AND (section=A OR section is null)
+    # NULL section means the student hasn't been assigned to a specific section yet
+    # — they should still be visible to the faculty teaching that course.
+    section_filter = Q()
+    seen_courses = set()
+    for ca in my_assignments:
+        if ca.course_id in seen_courses:
+            continue
+        if ca.class_section:
+            # Faculty assigned to a specific section: show that section + unassigned students
+            section_filter |= Q(course=ca.course, class_section=ca.class_section)
+            section_filter |= Q(course=ca.course, class_section__isnull=True)
+            section_filter |= Q(course=ca.course, class_section='')
+        else:
+            # No section restriction — show all students of this course
+            section_filter |= Q(course=ca.course)
+        seen_courses.add(ca.course_id)
+
+    if section_filter == Q():
+        registrations = CourseRegistration.objects.none()
+    else:
+        registrations = CourseRegistration.objects.filter(
+            section_filter,
+            is_confirmed=True
+        ).select_related('student', 'course').order_by('course__course_code', 'class_section', 'student__full_name')
+
+    if request.method == 'POST':
+        # Re-fetch after POST to ensure we iterate correct set
+        reg_ids = list(registrations.values_list('id', flat=True))
+        updated = 0
+        for reg_id in reg_ids:
+            val = request.POST.get(f'attendance_{reg_id}')
+            if val is not None:
+                try:
+                    new_pct = float(val)
+                    if 0 <= new_pct <= 100:
+                        CourseRegistration.objects.filter(id=reg_id).update(
+                            attendance_percentage=new_pct
+                        )
+                        updated += 1
+                except ValueError:
+                    pass
+        messages.success(request, f'Attendance updated for {updated} student(s).')
+        return redirect('faculty_update_attendance')
+
+    context = {
+        'registrations': registrations,
+        'my_assignments': my_assignments,
+        'page_title': 'Update Student Attendance',
+    }
+    return render(request, 'feedback/faculty_attendance_update.html', context)
+
