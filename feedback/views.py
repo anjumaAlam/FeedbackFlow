@@ -461,10 +461,25 @@ def course_registration_view(request):
         course__is_active=True
     ).select_related('course')
 
+    # Build section → faculty map for JS: {course_id: {section: faculty_name}}
+    import json as _json
+    course_ids = [r.course_id for r in registrations]
+    assignments = CourseAssignment.objects.filter(
+        course_id__in=course_ids
+    ).select_related('faculty')
+    section_faculty_map = {}
+    for a in assignments:
+        cid = str(a.course_id)
+        if cid not in section_faculty_map:
+            section_faculty_map[cid] = {}
+        sec = a.class_section or '__any__'
+        section_faculty_map[cid][sec] = a.faculty.full_name
+
     context = {
         'registrations': registrations,
         'confirmed_count': registrations.filter(is_confirmed=True).count(),
         'total_count': registrations.count(),
+        'section_faculty_map_json': _json.dumps(section_faculty_map),
         'page_title': 'Course Registration'
     }
     return render(request, 'feedback/course_registration.html', context)

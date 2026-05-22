@@ -178,34 +178,39 @@
                                                 {{ reg.course.department }}
                                             </strong>
 
-                                            {% with faculty=reg.course.get_primary_faculty %}
-                                            {% if faculty %}
-                                            &nbsp;|&nbsp;
-
-                                            Faculty:
-                                            <strong>
-                                                {{ faculty.full_name }}
+                                            &nbsp;|&nbsp; Faculty:
+                                            <strong id="faculty-label-{{ reg.id }}"
+                                                    data-course-id="{{ reg.course.id }}"
+                                                    data-default="{% with f=reg.course.get_primary_faculty %}{% if f %}{{ f.full_name }}{% else %}—{% endif %}{% endwith %}">
+                                                {% with faculty=reg.course.get_primary_faculty %}
+                                                {% if faculty %}{{ faculty.full_name }}{% else %}—{% endif %}
+                                                {% endwith %}
                                             </strong>
-                                            {% endif %}
-                                            {% endwith %}
 
                                         </small>
 
                                         <!-- Section selector -->
-                                        <div class="mt-2" onclick="event.stopPropagation()">
-                                            <label class="text-dark fw-semibold" style="font-size:0.85rem;">
+                                        <div class="mt-2 d-flex align-items-center gap-2" onclick="event.stopPropagation()">
+                                            <label class="text-dark fw-semibold mb-0" style="font-size:0.85rem;">
                                                 🏷️ Your Section:
                                             </label>
                                             <select name="section_{{ reg.id }}"
-                                                    class="form-select form-select-sm d-inline-block ms-1"
+                                                    id="section-select-{{ reg.id }}"
+                                                    class="form-select form-select-sm d-inline-block"
                                                     style="width:auto; min-width:130px;"
-                                                    onclick="event.stopPropagation()">
+                                                    data-reg-id="{{ reg.id }}"
+                                                    data-course-id="{{ reg.course.id }}"
+                                                    onclick="event.stopPropagation()"
+                                                    onchange="updateFaculty(this)">
                                                 <option value="">— Select Section —</option>
                                                 <option value="A" {% if reg.class_section == "A" %}selected{% endif %}>Section A</option>
                                                 <option value="B" {% if reg.class_section == "B" %}selected{% endif %}>Section B</option>
                                                 <option value="C" {% if reg.class_section == "C" %}selected{% endif %}>Section C</option>
                                                 <option value="D" {% if reg.class_section == "D" %}selected{% endif %}>Section D</option>
                                             </select>
+                                            <span id="section-faculty-{{ reg.id }}"
+                                                  class="badge bg-info text-dark"
+                                                  style="display:none; font-size:0.82rem;"></span>
                                         </div>
 
                                     </div>
@@ -275,4 +280,46 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const SECTION_FACULTY_MAP = {{ section_faculty_map_json|safe }};
+
+function updateFaculty(selectEl) {
+    const courseId = String(selectEl.dataset.courseId);
+    const regId    = selectEl.dataset.regId;
+    const section  = selectEl.value;
+
+    const labelEl  = document.getElementById('faculty-label-' + regId);
+    const badgeEl  = document.getElementById('section-faculty-' + regId);
+    const courseMap = SECTION_FACULTY_MAP[courseId] || {};
+
+    let facultyName = null;
+    if (section && courseMap[section]) {
+        facultyName = courseMap[section];
+    } else if (!section && courseMap['__any__']) {
+        facultyName = courseMap['__any__'];
+    }
+
+    if (facultyName) {
+        if (labelEl) labelEl.textContent = facultyName;
+        if (badgeEl) {
+            badgeEl.textContent = '👤 ' + facultyName;
+            badgeEl.style.display = 'inline';
+        }
+    } else {
+        // reset to default
+        if (labelEl) labelEl.textContent = labelEl.dataset.default || '—';
+        if (badgeEl) badgeEl.style.display = 'none';
+    }
+}
+
+// Run on page load to reflect already-selected sections
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('select[data-reg-id]').forEach(function (sel) {
+        if (sel.value) updateFaculty(sel);
+    });
+});
+</script>
 {% endblock %}
