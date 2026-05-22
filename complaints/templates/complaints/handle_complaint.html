@@ -4,627 +4,515 @@
 
 {% block extra_css %}
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+    .handle-form-card {
+        max-width: 1000px;
+        margin: 2rem auto;
+    }
 
-:root {
-    --gold:     #d4a96a;
-    --gold-lt:  #e8c98a;
-    --surface:  #1c2840;
-    --surface-2:#243150;
-    --surface-3:#2d3d62;
-    --border:   rgba(200,215,255,.1);
-    --text:     #dde6f5;
-    --muted:    #8a9bc0;
-    --white:    #f0f4ff;
-    --green:    #4ade80;
-    --red:      #f87171;
-    --amber:    #fbbf24;
-    --blue:     #60a5fa;
-}
+    .complaint-preview {
+        background: #f9fafb;
+        border-left: 4px solid #ef4444;
+        padding: 1.5rem;
+        border-radius: 8px;
+        color: #212529;
+    }
 
-body { font-family: 'Outfit', sans-serif; color: var(--text); }
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+        margin-top: 2rem;
+    }
 
-/* ── Page wrapper ── */
-.handle-form-card {
-    max-width: 1020px;
-    margin: 2rem auto;
-}
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e5e7eb;
+    }
 
-/* ── Main card ── */
-.main-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 8px 40px rgba(0,0,0,.35);
-}
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
 
-.main-card-header {
-    background: linear-gradient(135deg, #111e38 0%, #1a3a8a 60%, #1d4ed8 100%);
-    padding: 1.25rem 1.75rem;
-    display: flex; align-items: center; gap: .75rem;
-    border-bottom: 1px solid rgba(255,255,255,.08);
-}
-.main-card-header h4 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.4rem; font-weight: 700;
-    color: #ffffff; margin: 0;
-}
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -24px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #3b82f6;
+        border: 2px solid white;
+        box-shadow: 0 0 0 2px #3b82f6;
+    }
 
-.main-card-body { padding: 2rem 1.75rem; }
+    .update-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        padding: 1rem;
+        border-radius: 4px;
+        color: #212529;
+    }
 
-/* ── Section titles ── */
-.section-heading {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.15rem; font-weight: 700;
-    color: var(--gold-lt);
-    margin-bottom: 1rem;
-    padding-left: 12px;
-    position: relative;
-}
-.section-heading::before {
-    content: '';
-    position: absolute; left: 0; top: 15%; bottom: 15%;
-    width: 3px;
-    background: linear-gradient(180deg, var(--gold), var(--gold-lt));
-    border-radius: 4px;
-}
+    .update-card p,
+    .update-card strong,
+    .update-card small {
+        color: #212529;
+    }
 
-/* ── Complaint preview ── */
-.complaint-preview {
-    background: var(--surface-2);
-    border-left: 4px solid #ef4444;
-    border-radius: 12px;
-    padding: 1.5rem;
-    color: var(--text);
-}
-.complaint-preview p  { color: var(--text) !important; margin-bottom: .4rem; }
-.complaint-preview strong { color: var(--white) !important; }
-.complaint-preview hr { border-color: rgba(200,215,255,.12); margin: .85rem 0; }
+    .investigation-panel {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
 
-/* ── Meta label/value pairs ── */
-.meta-lbl { font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-.meta-val { font-size: .9rem; color: var(--text); font-weight: 500; }
+    .finding-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        color: #212529;
+    }
 
-/* ── Status / priority badges ── */
-.spill {
-    display: inline-block; border-radius: 50px;
-    padding: .22rem .7rem; font-size: .7rem; font-weight: 700; letter-spacing: .2px;
-}
-.spill-pending    { background:rgba(251,191,36,.18);  color:#fbbf24; border:1px solid rgba(251,191,36,.35); }
-.spill-invest     { background:rgba(56,189,248,.15);  color:#7dd3fc; border:1px solid rgba(56,189,248,.3); }
-.spill-findings   { background:rgba(99,102,241,.18);  color:#a5b4fc; border:1px solid rgba(99,102,241,.35); }
-.spill-resolved   { background:rgba(74,222,128,.15);  color:#6ee7a0; border:1px solid rgba(74,222,128,.3); }
-.spill-escalated  { background:rgba(248,113,113,.15); color:#fca5a5; border:1px solid rgba(248,113,113,.3); }
-.spill-low        { background:rgba(148,163,184,.15); color:#94a3b8; border:1px solid rgba(148,163,184,.3); }
-.spill-medium     { background:rgba(96,165,250,.15);  color:#93c5fd; border:1px solid rgba(96,165,250,.3); }
-.spill-high       { background:rgba(251,191,36,.18);  color:#fbbf24; border:1px solid rgba(251,191,36,.35); }
-.spill-urgent     { background:rgba(248,113,113,.18); color:#fca5a5; border:1px solid rgba(248,113,113,.3); }
+    .finding-card .verdict-badge {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+    .verdict-Proven   { background: #fee2e2; color: #991b1b; }
+    .verdict-Unproven { background: #dcfce7; color: #166534; }
+    .verdict-Needs    { background: #fef9c3; color: #854d0e; }
 
-/* ── Section divider ── */
-.section-divider { border: none; border-top: 1px solid rgba(200,215,255,.1); margin: 1.75rem 0; }
+    .card-body textarea,
+    .card-body input[type="text"],
+    .card-body select {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        -webkit-text-fill-color: #212529 !important;
+        border: 1px solid #ced4da !important;
+        opacity: 1 !important;
+    }
 
-/* ── Investigation panel ── */
-.investigation-panel {
-    background: rgba(37,99,235,.1);
-    border: 1px solid rgba(37,99,235,.25);
-    border-radius: 14px;
-    padding: 1.5rem;
-}
+    .card-body textarea::placeholder,
+    .card-body input::placeholder {
+        color: #6b7280 !important;
+    }
 
-/* ── Finding card ── */
-.finding-card {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1rem 1.1rem;
-    margin-bottom: .75rem;
-    color: var(--text);
-}
-.finding-card p, .finding-card strong, .finding-card small { color: var(--text) !important; }
-.finding-card small.text-muted { color: var(--muted) !important; }
+    .card-body .form-label,
+    .card-body label { color: #212529 !important; }
 
-.verdict-badge { font-size: .75rem; padding: .28rem .65rem; border-radius: 50px; font-weight: 700; }
-.verdict-Proven   { background:rgba(248,113,113,.2); color:#fca5a5; border:1px solid rgba(248,113,113,.3); }
-.verdict-Unproven { background:rgba(74,222,128,.2);  color:#6ee7a0; border:1px solid rgba(74,222,128,.3); }
-.verdict-Needs    { background:rgba(251,191,36,.2);  color:#fbbf24; border:1px solid rgba(251,191,36,.3); }
+    .card-body p,
+    .card-body strong,
+    .card-body h5 { color: #212529; }
 
-/* ── Clarification boxes ── */
-.clarification-box {
-    background: rgba(251,191,36,.08);
-    border: 1px solid rgba(251,191,36,.25);
-    border-radius: 10px;
-    padding: 1rem 1.1rem;
-    margin-top: .75rem;
-}
-.clarification-box p, .clarification-box strong, .clarification-box span:not(.badge) { color: #fde68a !important; }
+    .card-body small.text-muted,
+    .card-body .form-text { color: #6b7280 !important; }
 
-.clarification-status-sent {
-    background: rgba(74,222,128,.1);
-    border: 1px solid rgba(74,222,128,.25);
-    border-radius: 8px; padding: .6rem .85rem; margin-bottom: .5rem;
-    color: #86efac !important;
-}
-.clarification-status-waiting {
-    background: rgba(251,191,36,.1);
-    border: 1px solid rgba(251,191,36,.25);
-    border-radius: 8px; padding: .6rem .85rem; margin-bottom: .75rem;
-    color: #fde68a !important;
-}
-.clarification-status-done {
-    background: rgba(74,222,128,.1);
-    border: 1px solid rgba(74,222,128,.25);
-    border-radius: 8px; padding: .75rem; margin-bottom: .75rem;
-}
-.clarification-status-done strong, .clarification-status-done span:not(.badge) { color: #86efac !important; }
+    .alert-info {
+        background-color: #eff6ff !important;
+        border-color: #bfdbfe !important;
+        color: #1e3a5f !important;
+    }
 
-.response-status-row {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: .35rem; font-size: .85rem; color: var(--text);
-}
+    .alert-info li,
+    .alert-info strong,
+    .alert-info a { color: #1e3a5f !important; }
 
-/* ── Timeline ── */
-.timeline { position: relative; padding-left: 30px; margin-top: 1.5rem; }
-.timeline::before {
-    content: '';
-    position: absolute; left: 10px; top: 0; bottom: 0;
-    width: 2px; background: rgba(200,215,255,.12);
-}
-.timeline-item { position: relative; margin-bottom: 1.25rem; }
-.timeline-item::before {
-    content: '';
-    position: absolute; left: -24px; top: 6px;
-    width: 12px; height: 12px;
-    border-radius: 50%;
-    background: #3b82f6;
-    border: 2px solid var(--surface);
-    box-shadow: 0 0 0 2px #3b82f6;
-}
-
-.update-card {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1rem 1.2rem;
-}
-.update-card p, .update-card strong, .update-card small { color: var(--text) !important; }
-.update-card small.text-muted { color: var(--muted) !important; }
-
-/* ── Form fields — the key fix for visibility ── */
-.form-label, label { color: var(--white) !important; font-weight: 600; font-size: .88rem; }
-
-.form-control,
-.form-select,
-textarea.form-control,
-select.form-select,
-input.form-control {
-    background-color: var(--surface-2) !important;
-    color: #f0f4ff !important;
-    border: 1px solid rgba(200,215,255,.2) !important;
-    border-radius: 10px !important;
-    font-size: .9rem !important;
-    padding: .65rem .9rem !important;
-    transition: border-color .2s, box-shadow .2s !important;
-    -webkit-text-fill-color: #f0f4ff !important;
-    opacity: 1 !important;
-}
-.form-control:focus,
-.form-select:focus,
-textarea.form-control:focus {
-    background-color: var(--surface-3) !important;
-    border-color: var(--gold) !important;
-    box-shadow: 0 0 0 3px rgba(212,169,106,.2) !important;
-    color: #ffffff !important;
-    outline: none !important;
-}
-.form-control::placeholder,
-textarea.form-control::placeholder { color: var(--muted) !important; opacity: 1 !important; }
-
-/* Dropdown options */
-select.form-select option,
-select option {
-    background-color: #1c2840 !important;
-    color: #f0f4ff !important;
-}
-
-.form-text, small.form-text { color: var(--muted) !important; font-size: .78rem !important; }
-
-/* ── Alert info box ── */
-.alert-info-dark {
-    background: rgba(37,99,235,.12) !important;
-    border: 1px solid rgba(37,99,235,.3) !important;
-    border-radius: 12px;
-    padding: 1.1rem 1.3rem;
-    color: #93c5fd !important;
-}
-.alert-info-dark li, .alert-info-dark strong, .alert-info-dark a { color: #93c5fd !important; }
-.alert-info-dark ul { margin-bottom: 0; padding-left: 1.2rem; }
-.alert-info-dark li { margin-bottom: .3rem; font-size: .88rem; }
-
-/* ── Resolved banner ── */
-.resolved-banner {
-    background: rgba(74,222,128,.1);
-    border: 1px solid rgba(74,222,128,.3);
-    border-left: 4px solid #4ade80;
-    border-radius: 12px;
-    padding: 1.1rem 1.3rem;
-    color: #86efac;
-    font-weight: 500;
-}
-.resolved-banner strong { color: #4ade80; }
-.resolved-banner p { color: #86efac; margin-top: .5rem; margin-bottom: 0; }
-
-/* ── Buttons ── */
-.btn-gold {
-    background: linear-gradient(135deg, var(--gold), var(--gold-lt));
-    color: #0f1e3c !important; border: none;
-    font-weight: 700; font-size: .88rem;
-    padding: .6rem 1.5rem; border-radius: 10px;
-    transition: opacity .2s, transform .15s;
-    box-shadow: 0 2px 10px rgba(212,169,106,.3);
-}
-.btn-gold:hover { opacity: .9; transform: translateY(-1px); }
-
-.btn-outline-secondary {
-    border-color: rgba(200,215,255,.2) !important;
-    color: var(--muted) !important;
-}
-.btn-outline-secondary:hover {
-    background: rgba(200,215,255,.08) !important;
-    color: var(--white) !important;
-}
-
-/* Quick action buttons */
-.btn-outline-info    { color: #7dd3fc !important; border-color: rgba(56,189,248,.4) !important; }
-.btn-outline-info:hover { background: rgba(56,189,248,.15) !important; }
-.btn-outline-success { color: #6ee7a0 !important; border-color: rgba(74,222,128,.4) !important; }
-.btn-outline-success:hover { background: rgba(74,222,128,.15) !important; }
-.btn-outline-danger  { color: #fca5a5 !important; border-color: rgba(248,113,113,.4) !important; }
-.btn-outline-danger:hover  { background: rgba(248,113,113,.15) !important; }
-.btn-outline-primary { color: #93c5fd !important; border-color: rgba(96,165,250,.4) !important; }
-.btn-outline-primary:hover { background: rgba(96,165,250,.15) !important; }
-.btn-warning  { background: linear-gradient(135deg,#b45309,#f59e0b) !important; color: #fff !important; border: none !important; }
-.btn-success  { background: linear-gradient(135deg,#15803d,#22c55e) !important; color: #fff !important; border: none !important; }
-.btn-primary  { background: linear-gradient(135deg,#1d4ed8,#3b82f6) !important; color: #fff !important; border: none !important; }
-
-.badge.bg-secondary { background: rgba(148,163,184,.25) !important; color: #94a3b8 !important; border: 1px solid rgba(148,163,184,.3); }
-.badge.bg-info      { background: rgba(56,189,248,.2)   !important; color: #7dd3fc !important; }
-.badge.bg-warning   { background: rgba(251,191,36,.2)   !important; color: #fbbf24 !important; }
-.badge.bg-success   { background: rgba(74,222,128,.2)   !important; color: #6ee7a0 !important; }
-.badge.bg-primary   { background: rgba(96,165,250,.2)   !important; color: #93c5fd !important; }
+    .clarification-box {
+        background: #fef9c3;
+        border: 1px solid #fcd34d;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 0.75rem;
+    }
+    .clarification-status-sent {
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: 6px;
+        padding: 0.6rem 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    .clarification-status-waiting {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 6px;
+        padding: 0.6rem 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+    .clarification-status-done {
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    .response-status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.4rem;
+        font-size: 0.88rem;
+        color: #374151;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4 pb-5">
+<div class="container mt-4">
 
     <div class="mb-3">
         {% if request.user.role == 'HOD' %}
-            <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">← Back to Complaints</a>
+            <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">← Back to Complaints List</a>
         {% elif request.user.role == 'Staff' %}
-            <a href="{% url 'staff_task_list' %}" class="btn btn-outline-secondary">← Back to Complaints</a>
+            <a href="{% url 'staff_task_list' %}" class="btn btn-outline-secondary">← Back to Complaints List</a>
         {% elif request.user.role == 'DAO' %}
-            <a href="{% url 'dao_complaints_list' %}" class="btn btn-outline-secondary">← Back to Complaints</a>
+            <a href="{% url 'dao_complaints_list' %}" class="btn btn-outline-secondary">← Back to Complaints List</a>
         {% elif request.user.role == 'Admin' %}
-            <a href="{% url 'admin_complaints_list' %}" class="btn btn-outline-secondary">← Back to Complaints</a>
+            <a href="{% url 'admin_complaints_list' %}" class="btn btn-outline-secondary">← Back to Complaints List</a>
         {% endif %}
     </div>
 
-    <div class="handle-form-card">
-        <div class="main-card">
+    <div class="card handle-form-card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">✏️ Handle Complaint - {{ complaint.tracking_id }}</h4>
+        </div>
+        <div class="card-body p-4" style="background-color: #ffffff; color: #212529;">
 
-            <!-- Header -->
-            <div class="main-card-header">
-                <h4>✏️ Handle Complaint — {{ complaint.tracking_id }}</h4>
+            {# ── Complaint Details ── #}
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">Complaint Details</h5>
+                <div class="complaint-preview">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
+                            <p class="mb-1"><strong>Type:</strong> {{ complaint.get_complaint_type_display }}</p>
+                            <p class="mb-1"><strong>Subject:</strong> {{ complaint.subject }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Status:</strong>
+                                <span class="badge
+                                    {% if complaint.status == 'Pending' %}bg-warning text-dark
+                                    {% elif complaint.status == 'Under Investigation' %}bg-info
+                                    {% elif complaint.status == 'Findings Submitted' %}bg-primary
+                                    {% elif complaint.status == 'Resolved' %}bg-success
+                                    {% elif complaint.status == 'Escalated' %}bg-danger
+                                    {% endif %}">
+                                    {{ complaint.status }}
+                                </span>
+                            </p>
+                            <p class="mb-1"><strong>Priority:</strong>
+                                <span class="badge
+                                    {% if complaint.priority == 'Low' %}bg-secondary
+                                    {% elif complaint.priority == 'Medium' %}bg-primary
+                                    {% elif complaint.priority == 'High' %}bg-warning text-dark
+                                    {% elif complaint.priority == 'Urgent' %}bg-danger
+                                    {% endif %}">
+                                    {{ complaint.priority }}
+                                </span>
+                            </p>
+                            <p class="mb-1"><strong>Submitted:</strong> {{ complaint.submitted_at|date:"M d, Y - h:i A" }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <strong>Student:</strong>
+                        {% if complaint.is_anonymous and request.user.role != 'Admin' %}
+                            <span class="badge bg-secondary">Anonymous</span>
+                        {% else %}
+                            {{ complaint.student.full_name }} ({{ complaint.student.student_id }}) — {{ complaint.student.department }}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Description:</strong>
+                        <p class="mb-0 mt-2">{{ complaint.description }}</p>
+                    </div>
+                    {% if complaint.faculty_concerned %}
+                    <div class="mb-0">
+                        <strong>Faculty/Staff Concerned:</strong> {{ complaint.faculty_concerned.full_name }}
+                    </div>
+                    {% endif %}
+                </div>
             </div>
 
-            <div class="main-card-body">
-
-                <!-- ── Complaint Details ── -->
-                <div class="mb-4">
-                    <div class="section-heading">Complaint Details</div>
-                    <div class="complaint-preview">
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <div class="meta-lbl">Tracking ID</div>
-                                <div class="meta-val">{{ complaint.tracking_id }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="meta-lbl">Type</div>
-                                <div class="meta-val">{{ complaint.get_complaint_type_display }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="meta-lbl">Subject</div>
-                                <div class="meta-val">{{ complaint.subject }}</div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="meta-lbl">Status</div>
-                                <div class="meta-val mt-1">
-                                    <span class="spill
-                                        {% if complaint.status == 'Pending' %}spill-pending
-                                        {% elif complaint.status == 'Under Investigation' %}spill-invest
-                                        {% elif complaint.status == 'Findings Submitted' %}spill-findings
-                                        {% elif complaint.status == 'Resolved' %}spill-resolved
-                                        {% elif complaint.status == 'Escalated' %}spill-escalated
-                                        {% endif %}">
-                                        {{ complaint.status }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="meta-lbl">Priority</div>
-                                <div class="meta-val mt-1">
-                                    <span class="spill
-                                        {% if complaint.priority == 'Low' %}spill-low
-                                        {% elif complaint.priority == 'Medium' %}spill-medium
-                                        {% elif complaint.priority == 'High' %}spill-high
-                                        {% elif complaint.priority == 'Urgent' %}spill-urgent
-                                        {% endif %}">
-                                        {{ complaint.priority }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="meta-lbl">Submitted</div>
-                                <div class="meta-val">{{ complaint.submitted_at|date:"M d, Y - h:i A" }}</div>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="mb-3">
-                            <div class="meta-lbl mb-1">Student</div>
-                            {% if complaint.is_anonymous and request.user.role != 'Admin' %}
-                                <span class="spill spill-low">Anonymous</span>
-                            {% else %}
-                                <div class="meta-val">{{ complaint.student.full_name }} ({{ complaint.student.student_id }}) — {{ complaint.student.department }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3">
-                            <div class="meta-lbl mb-1">Description</div>
-                            <div class="meta-val" style="line-height:1.7;">{{ complaint.description }}</div>
-                        </div>
-                        {% if complaint.faculty_concerned %}
-                        <div>
-                            <div class="meta-lbl mb-1">Faculty / Staff Concerned</div>
-                            <div class="meta-val">{{ complaint.faculty_concerned.full_name }}</div>
-                        </div>
+            {# ── HOD Investigation Panel ── #}
+            {% if request.user.role == 'HOD' and complaint.complaint_type == 'Faculty' %}
+            <div class="investigation-panel mb-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                    <div>
+                        <h5 class="mb-1 text-primary">🔍 Investigation</h5>
+                        <p class="text-muted mb-0" style="font-size:0.9rem;">
+                            Assign faculty investigators to review this complaint.
+                        </p>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        {% if complaint.status not in 'Resolved,Escalated' %}
+                            <a href="{% url 'assign_investigation' complaint.id %}" class="btn btn-warning btn-sm">
+                                🔍 {% if investigation %}Re-assign Investigators{% else %}Assign Investigators{% endif %}
+                            </a>
+                        {% endif %}
+                        {% if complaint.status == 'Findings Submitted' or findings_with_status %}
+                            <a href="{% url 'hod_final_action' complaint.id %}" class="btn btn-success btn-sm">
+                                ⚖️ Take Final Action
+                            </a>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- ── HOD Investigation Panel ── -->
-                {% if request.user.role == 'HOD' and complaint.complaint_type == 'Faculty' %}
-                <hr class="section-divider">
-                <div class="investigation-panel mb-4">
-                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-                        <div>
-                            <div class="section-heading" style="padding-left:0;">🔍 Investigation</div>
-                            <p style="color:var(--muted);font-size:.87rem;margin:0;">Assign faculty investigators to review this complaint.</p>
-                        </div>
-                        <div class="d-flex gap-2 flex-wrap">
-                            {% if complaint.status not in 'Resolved,Escalated' %}
-                                <a href="{% url 'assign_investigation' complaint.id %}" class="btn btn-warning btn-sm">
-                                    🔍 {% if investigation %}Re-assign Investigators{% else %}Assign Investigators{% endif %}
-                                </a>
-                            {% endif %}
-                            {% if complaint.status == 'Findings Submitted' or findings_with_status %}
-                                <a href="{% url 'hod_final_action' complaint.id %}" class="btn btn-success btn-sm">⚖️ Take Final Action</a>
-                            {% endif %}
-                        </div>
-                    </div>
+                {% if investigation %}
+                    <p class="mb-2" style="font-size:0.9rem;">
+                        <strong>Assigned to:</strong>
+                        {% for inv in investigation.investigators.all %}
+                            <span class="badge bg-secondary me-1">{{ inv.full_name }}</span>
+                        {% endfor %}
+                        &nbsp;|&nbsp; <strong>Assigned on:</strong> {{ investigation.assigned_at|date:"M d, Y" }}
+                        {% if investigation.due_date %}
+                            &nbsp;|&nbsp; <strong>Due:</strong> {{ investigation.due_date|date:"M d, Y" }}
+                        {% endif %}
+                    </p>
 
-                    {% if investigation %}
-                        <p style="font-size:.87rem;color:var(--text);margin-bottom:.75rem;">
-                            <strong style="color:var(--white);">Assigned to:</strong>
-                            {% for inv in investigation.investigators.all %}
-                                <span class="badge bg-secondary ms-1">{{ inv.full_name }}</span>
-                            {% endfor %}
-                            &nbsp;·&nbsp;
-                            <strong style="color:var(--white);">On:</strong> {{ investigation.assigned_at|date:"M d, Y" }}
-                            {% if investigation.due_date %}
-                                &nbsp;·&nbsp; <strong style="color:var(--white);">Due:</strong> {{ investigation.due_date|date:"M d, Y" }}
+                    {% if findings_with_status %}
+                    <div class="mt-3">
+                        <strong class="d-block mb-2">Submitted Findings:</strong>
+
+                        {% for item in findings_with_status %}
+                        <div class="finding-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong>{{ item.finding.submitted_by.full_name }}</strong>
+                                <span class="verdict-badge
+                                    {% if item.finding.verdict == 'Proven' %}verdict-Proven
+                                    {% elif item.finding.verdict == 'Unproven' %}verdict-Unproven
+                                    {% else %}verdict-Needs
+                                    {% endif %}">
+                                    {{ item.finding.verdict }}
+                                </span>
+                            </div>
+                            {% if item.finding.findings %}
+                            <p class="mb-1" style="font-size:0.9rem;">{{ item.finding.findings }}</p>
                             {% endif %}
-                        </p>
+                            <small class="text-muted">{{ item.finding.submitted_at|date:"M d, Y - h:i A" }}</small>
 
-                        {% if findings_with_status %}
-                        <div class="mt-2">
-                            <strong style="color:var(--white);display:block;margin-bottom:.6rem;font-size:.88rem;">Submitted Findings:</strong>
+                            {# ── Clarification Panel (Needs More Info only) ── #}
+                            {% if item.finding.verdict == 'Needs More Info' %}
+                            <div class="clarification-box">
+                                <p style="color:#854d0e; font-weight:700; margin-bottom:0.5rem;">
+                                    🔍 Investigator Needs More Information
+                                </p>
+                                <p style="color:#854d0e; font-size:0.88rem; margin-bottom:0.5rem;">
+                                    <strong>Requested from:</strong>
+                                    {% if item.finding.needs_student_clarification %}
+                                        <span class="badge bg-info ms-1">Student</span>
+                                    {% endif %}
+                                    {% if item.finding.needs_faculty_statement %}
+                                        <span class="badge bg-warning text-dark ms-1">Accused Faculty</span>
+                                    {% endif %}
+                                </p>
+                                <p style="color:#854d0e; font-size:0.88rem; margin-bottom:0.75rem;">
+                                    <strong>Questions:</strong><br>
+                                    <span style="white-space:pre-line;">{{ item.finding.clarification_questions }}</span>
+                                </p>
 
-                            {% for item in findings_with_status %}
-                            <div class="finding-card">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <strong>{{ item.finding.submitted_by.full_name }}</strong>
-                                    <span class="verdict-badge
-                                        {% if item.finding.verdict == 'Proven' %}verdict-Proven
-                                        {% elif item.finding.verdict == 'Unproven' %}verdict-Unproven
-                                        {% else %}verdict-Needs{% endif %}">
-                                        {{ item.finding.verdict }}
+                                {# Step 1 — Not yet forwarded to student/faculty #}
+                                {% if not item.any_sent %}
+                                <div class="clarification-status-waiting">
+                                    ⚠️ <strong style="color:#9a3412;">Not yet forwarded.</strong>
+                                    <span style="color:#9a3412; font-size:0.85rem;">
+                                        Review the questions and forward to the relevant parties.
                                     </span>
                                 </div>
-                                {% if item.finding.findings %}
-                                <p style="font-size:.88rem;">{{ item.finding.findings }}</p>
-                                {% endif %}
-                                <small class="text-muted">{{ item.finding.submitted_at|date:"M d, Y - h:i A" }}</small>
+                                <a href="{% url 'hod_send_clarification' item.finding.id %}"
+                                   class="btn btn-warning btn-sm fw-bold">
+                                    📤 Forward Questions to
+                                    {% if item.finding.needs_student_clarification %}Student{% endif %}
+                                    {% if item.finding.needs_student_clarification and item.finding.needs_faculty_statement %} & {% endif %}
+                                    {% if item.finding.needs_faculty_statement %}Faculty{% endif %}
+                                </a>
 
-                                {% if item.finding.verdict == 'Needs More Info' %}
-                                <div class="clarification-box">
-                                    <p style="font-weight:700;margin-bottom:.5rem;">🔍 Investigator Needs More Information</p>
-                                    <p style="font-size:.85rem;margin-bottom:.5rem;">
-                                        <strong>Requested from:</strong>
-                                        {% if item.finding.needs_student_clarification %}<span class="badge bg-info ms-1">Student</span>{% endif %}
-                                        {% if item.finding.needs_faculty_statement %}<span class="badge bg-warning ms-1">Accused Faculty</span>{% endif %}
-                                    </p>
-                                    <p style="font-size:.85rem;margin-bottom:.75rem;">
-                                        <strong>Questions:</strong><br>
-                                        <span style="white-space:pre-line;">{{ item.finding.clarification_questions }}</span>
-                                    </p>
-
-                                    {% if not item.any_sent %}
-                                    <div class="clarification-status-waiting">
-                                        ⚠️ <strong>Not yet forwarded.</strong>
-                                        <span style="font-size:.83rem;"> Review and forward to relevant parties.</span>
+                                {# Step 2 — Forwarded but waiting for all responses #}
+                                {% elif not item.all_responded %}
+                                <div class="clarification-status-sent">
+                                    ✅ <strong style="color:#166534;">Clarification request sent.</strong>
+                                    <span style="color:#166534; font-size:0.85rem;">
+                                        Waiting for responses from the relevant parties.
+                                    </span>
+                                </div>
+                                <div style="margin-bottom:0.5rem;">
+                                    {% for c in item.clarifications %}
+                                    <div class="response-status-row">
+                                        <span>
+                                            {% if c.request_type == 'Student' %}👤 Student{% else %}👨‍🏫 Accused Faculty{% endif %}
+                                        </span>
+                                        <span class="badge {% if c.status == 'Responded' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                                            {{ c.status }}
+                                        </span>
                                     </div>
-                                    <a href="{% url 'hod_send_clarification' item.finding.id %}" class="btn btn-warning btn-sm fw-bold">
-                                        📤 Forward Questions to
-                                        {% if item.finding.needs_student_clarification %}Student{% endif %}
-                                        {% if item.finding.needs_student_clarification and item.finding.needs_faculty_statement %} & {% endif %}
-                                        {% if item.finding.needs_faculty_statement %}Faculty{% endif %}
-                                    </a>
+                                    {% endfor %}
+                                </div>
+                                <span class="badge bg-warning text-dark">⏳ Waiting for all responses</span>
 
-                                    {% elif not item.all_responded %}
-                                    <div class="clarification-status-sent">
-                                        ✅ <strong>Clarification request sent.</strong>
-                                        <span style="font-size:.83rem;"> Waiting for responses.</span>
-                                    </div>
-                                    <div style="margin-bottom:.5rem;">
+                                {# Step 3 — All responded, HOD can forward to investigator #}
+                                {% else %}
+                                <div class="clarification-status-done">
+                                    ✅ <strong style="color:#166534;">All parties have responded!</strong>
+                                    <div class="mt-2">
                                         {% for c in item.clarifications %}
                                         <div class="response-status-row">
-                                            <span>{% if c.request_type == 'Student' %}👤 Student{% else %}👨‍🏫 Accused Faculty{% endif %}</span>
-                                            <span class="badge {% if c.status == 'Responded' %}bg-success{% else %}bg-warning{% endif %}">{{ c.status }}</span>
+                                            <span>
+                                                {% if c.request_type == 'Student' %}👤 Student{% else %}👨‍🏫 Accused Faculty{% endif %}
+                                            </span>
+                                            <span class="badge bg-success">Responded ✓</span>
                                         </div>
                                         {% endfor %}
                                     </div>
-                                    <span class="badge bg-warning">⏳ Waiting for all responses</span>
-
-                                    {% else %}
-                                    <div class="clarification-status-done">
-                                        ✅ <strong>All parties have responded!</strong>
-                                        <div class="mt-2">
-                                            {% for c in item.clarifications %}
-                                            <div class="response-status-row">
-                                                <span>{% if c.request_type == 'Student' %}👤 Student{% else %}👨‍🏫 Accused Faculty{% endif %}</span>
-                                                <span class="badge bg-success">Responded ✓</span>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    <div class="d-flex gap-2 mt-2">
-                                        <a href="{% url 'view_clarification_responses' item.finding.id %}" class="btn btn-outline-primary btn-sm">👁 View Responses</a>
-                                        <form method="post" action="{% url 'hod_forward_to_investigator' item.finding.id %}" style="display:inline;">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-success btn-sm fw-bold">📤 Forward to Investigator</button>
-                                        </form>
-                                    </div>
-                                    {% endif %}
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'view_clarification_responses' item.finding.id %}"
+                                       class="btn btn-outline-primary btn-sm">
+                                        👁 View Responses
+                                    </a>
+                                    <form method="post"
+                                          action="{% url 'hod_forward_to_investigator' item.finding.id %}"
+                                          style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm fw-bold">
+                                            📤 Forward Responses to Investigator
+                                        </button>
+                                    </form>
                                 </div>
                                 {% endif %}
+
                             </div>
-                            {% endfor %}
-                        </div>
+                            {% endif %}
+                            {# ── End Clarification Panel ── #}
 
-                        {% else %}
-                        <p style="color:var(--muted);font-size:.87rem;margin:0;">⏳ Waiting for investigators to submit their findings.</p>
-                        {% endif %}
-
-                    {% else %}
-                    <p style="color:var(--muted);font-size:.87rem;margin:0;">No investigator assigned yet. Click "Assign Investigators" to get started.</p>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                <!-- ── Previous Updates ── -->
-                {% if updates %}
-                <hr class="section-divider">
-                <div class="mb-4">
-                    <div class="section-heading">Previous Updates</div>
-                    <div class="timeline">
-                        {% for update in updates %}
-                        <div class="timeline-item">
-                            <div class="update-card">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div>
-                                        <strong style="color:var(--white);">{{ update.updated_by.full_name }}</strong>
-                                        <span class="badge bg-secondary ms-2">{{ update.updated_by.role }}</span>
-                                    </div>
-                                    <small class="text-muted">{{ update.created_at|date:"M d, Y - h:i A" }}</small>
-                                </div>
-                                {% if update.status_changed_to %}
-                                <div class="mb-2">
-                                    <span class="badge bg-primary">Status → {{ update.status_changed_to }}</span>
-                                </div>
-                                {% endif %}
-                                <p class="mb-0" style="font-size:.88rem;line-height:1.65;">{{ update.comment }}</p>
-                            </div>
                         </div>
                         {% endfor %}
                     </div>
-                </div>
-                {% endif %}
 
-                <!-- ── Add Update Form ── -->
-                {% if complaint.status != 'Resolved' %}
-                <hr class="section-divider">
-                <div class="section-heading">Add Update</div>
-
-                <div class="alert-info-dark mb-4">
-                    <strong>💡 Guidelines</strong>
-                    <ul class="mt-2">
-                        <li>Provide clear updates on actions taken</li>
-                        <li>Change status when appropriate</li>
-                        <li>Be professional and empathetic in your response</li>
-                        {% if request.user.role == 'HOD' and complaint.complaint_type == 'Faculty' %}
-                        <li>Use <strong>Assign Investigators</strong> to delegate investigation to faculty</li>
-                        <li>Use <strong>Take Final Action</strong> after reviewing findings</li>
-                        {% endif %}
-                    </ul>
-                </div>
-
-                <form method="post">
-                    {% csrf_token %}
-
-                    <div class="mb-4">
-                        <label for="{{ form.comment.id_for_label }}" class="form-label">
-                            Your Update / Comment <span style="color:var(--muted);font-weight:400;">(optional)</span>
-                        </label>
-                        {{ form.comment }}
-                        {% if form.comment.errors %}
-                            <div style="color:#fca5a5;font-size:.8rem;margin-top:.3rem;">{{ form.comment.errors }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="{{ form.status_changed_to.id_for_label }}" class="form-label">
-                            Change Status <span style="color:var(--muted);font-weight:400;">(optional)</span>
-                        </label>
-                        {{ form.status_changed_to }}
-                        <small class="form-text">Leave blank if you don't want to change the status</small>
-                        {% if form.status_changed_to.errors %}
-                            <div style="color:#fca5a5;font-size:.8rem;margin-top:.3rem;">{{ form.status_changed_to.errors }}</div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-4">
-                        <p style="color:var(--white);font-weight:600;font-size:.88rem;margin-bottom:.6rem;">Quick Actions</p>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <button type="button" class="btn btn-outline-info btn-sm" onclick="setStatus('Under Investigation')">🔍 Start Investigation</button>
-                            <button type="button" class="btn btn-outline-success btn-sm" onclick="setStatus('Resolved')">✅ Mark Resolved</button>
-                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="setStatus('Escalated')">⬆️ Escalate</button>
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button type="submit" class="btn-gold btn">💬 Submit Update</button>
-                        {% if request.user.role == 'HOD' %}
-                            <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary">Cancel</a>
-                        {% elif request.user.role == 'Staff' %}
-                            <a href="{% url 'staff_complaints_list' %}" class="btn btn-outline-secondary">Cancel</a>
-                        {% elif request.user.role == 'Admin' %}
-                            <a href="{% url 'admin_complaints_list' %}" class="btn btn-outline-secondary">Cancel</a>
-                        {% endif %}
-                    </div>
-                </form>
+                    {% else %}
+                        <p class="text-muted mb-0" style="font-size:0.9rem;">
+                            ⏳ Waiting for investigators to submit their findings.
+                        </p>
+                    {% endif %}
 
                 {% else %}
-                <hr class="section-divider">
-                <div class="resolved-banner">
-                    ✅ This complaint has been <strong>resolved</strong> and is now closed.
-                    {% if complaint.final_action_note %}
-                    <p><strong>Note sent to student:</strong> {{ complaint.final_action_note }}</p>
+                    <p class="text-muted mb-0" style="font-size:0.9rem;">
+                        No investigator assigned yet. Click "Assign Investigators" to get started.
+                    </p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {# ── Previous Updates ── #}
+            {% if updates %}
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">Previous Updates</h5>
+                <div class="timeline">
+                    {% for update in updates %}
+                    <div class="timeline-item">
+                        <div class="update-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <strong>{{ update.updated_by.full_name }}</strong>
+                                    <span class="badge bg-secondary ms-2">{{ update.updated_by.role }}</span>
+                                </div>
+                                <small class="text-muted">{{ update.created_at|date:"M d, Y - h:i A" }}</small>
+                            </div>
+                            {% if update.status_changed_to %}
+                            <div class="mb-2">
+                                <span class="badge bg-primary">Status Changed to: {{ update.status_changed_to }}</span>
+                            </div>
+                            {% endif %}
+                            <p class="mb-0">{{ update.comment }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {# ── Add Update Form ── #}
+            {% if complaint.status != 'Resolved' %}
+            <div class="alert alert-info">
+                <strong>💡 Guidelines:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Provide clear updates on actions taken</li>
+                    <li>Change status when appropriate</li>
+                    <li>Be professional and empathetic in your response</li>
+                    {% if request.user.role == 'HOD' and complaint.complaint_type == 'Faculty' %}
+                    <li>Use <strong>Assign Investigators</strong> to delegate investigation to faculty</li>
+                    <li>Use <strong>Take Final Action</strong> after reviewing findings</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="{{ form.comment.id_for_label }}" class="form-label">
+                        <strong>Your Update/Comment</strong> <span class="text-muted">(optional)</span>
+                    </label>
+                    {{ form.comment }}
+                    {% if form.comment.errors %}
+                        <div class="text-danger small mt-1">{{ form.comment.errors }}</div>
                     {% endif %}
                 </div>
-                {% endif %}
 
-            </div><!-- /main-card-body -->
-        </div><!-- /main-card -->
+                <div class="mb-4">
+                    <label for="{{ form.status_changed_to.id_for_label }}" class="form-label">
+                        <strong>Change Status (Optional)</strong>
+                    </label>
+                    {{ form.status_changed_to }}
+                    <small class="form-text text-muted d-block">Leave blank if you don't want to change the status</small>
+                    {% if form.status_changed_to.errors %}
+                        <div class="text-danger small mt-1">{{ form.status_changed_to.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <p class="mb-2"><strong>Quick Actions:</strong></p>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-info btn-sm" onclick="setStatus('Under Investigation')">
+                            🔍 Start Investigation
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="setStatus('Resolved')">
+                            ✅ Mark Resolved
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="setStatus('Escalated')">
+                            ⬆️ Escalate
+                        </button>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">💬 Submit Update</button>
+                    {% if request.user.role == 'HOD' %}
+                        <a href="{% url 'hod_complaints_list' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    {% elif request.user.role == 'Staff' %}
+                        <a href="{% url 'staff_complaints_list' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    {% elif request.user.role == 'Admin' %}
+                        <a href="{% url 'admin_complaints_list' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    {% endif %}
+                </div>
+            </form>
+            {% else %}
+            <div class="alert" style="background:#065f46;border:1px solid #34d399;color:#ffffff;font-weight:500;">
+                ✅ This complaint has been <strong>resolved</strong> and is now closed.
+                {% if complaint.final_action_note %}
+                <p class="mb-0 mt-2"><strong>Note sent to student:</strong> {{ complaint.final_action_note }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </div>
     </div>
 
 </div>
