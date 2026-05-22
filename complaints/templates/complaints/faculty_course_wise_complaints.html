@@ -214,5 +214,93 @@
     .border-left {
         border-left: 4px solid !important;
     }
+
+    /* ── GLOBAL: force dark text everywhere on this page ── */
+    body, .container, .container * {
+        color: #1a1a2e;
+    }
+
+    /* Top page title + subtitle keep white (sit on dark bg) */
+    .container > .mb-4 > h2,
+    .container > .mb-4 > p {
+        color: #ffffff !important;
+    }
+
+    /* Card body always white bg + dark text */
+    .card-body,
+    .card-body * {
+        background-color: #ffffff !important;
+        color: #1a1a2e !important;
+    }
+
+    /* Stat numbers keep their semantic colours */
+    .card-body h4.text-danger  { color: #c0392b !important; }
+    .card-body h4.text-warning { color: #b8860b !important; }
+    .card-body h4.text-info    { color: #117a8b !important; }
+    .card-body h4.text-success { color: #1e7e34 !important; }
+
+    /* Table: header + body rows */
+    .table thead,
+    .table thead tr,
+    .table thead th {
+        background-color: #e9ecef !important;
+        color: #1a1a2e !important;
+    }
+    .table tbody tr,
+    .table tbody td {
+        background-color: #ffffff !important;
+        color: #1a1a2e !important;
+    }
+    .table-hover tbody tr:hover td {
+        background-color: #f5f5f5 !important;
+        color: #1a1a2e !important;
+    }
+
+    /* ── BADGES: keep colour bg but use dark readable text ── */
+    .badge {
+        color: #1a1a2e !important;
+    }
+    /* Override specific badge colours for readability */
+    .badge-info    { background-color: #a8d8ea !important; }
+    .badge-warning { background-color: #ffe08a !important; }
+    .badge-danger  { background-color: #f5a5a8 !important; }
+    .badge-success { background-color: #a8d5b5 !important; }
+    .badge-secondary { background-color: #d0d3d8 !important; }
+    .badge-light   { background-color: #f0f0f0 !important; }
+    .badge-primary { background-color: #b3c6f7 !important; }
+
+    /* Section heading "All Complaints for this Course" */
+    .container h6,
+    .container h5,
+    .container h4,
+    .container h3,
+    .container h2 {
+        color: #1a1a2e !important;
+    }
+
+    /* text-muted stays visible */
+    .text-muted {
+        color: #555555 !important;
+    }
+
+    /* Alert */
+    .alert-info {
+        color: #0c5460 !important;
+        background-color: #d1ecf1 !important;
+    }
+
+    /* Card header rows keep their coloured bg + white text (intentional) */
+    .card-header {
+        color: #ffffff !important;
+    }
+    .card-header * {
+        color: #ffffff !important;
+        background-color: transparent !important;
+    }
+    /* Badge inside card header stays readable */
+    .card-header .badge {
+        color: #1a1a2e !important;
+        background-color: #f0f0f0 !important;
+    }
 </style>
 {% endblock %}

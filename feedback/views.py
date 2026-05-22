@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
 
 from .models import Feedback, Course, CourseAssignment, FeedbackResponse
 from .forms import FeedbackSubmissionForm, FeedbackResponseForm, CourseAssignmentForm, CourseForm
@@ -352,9 +352,7 @@ def admin_course_list(request):
 
     if search:
         courses = courses.filter(
-            course_code__icontains=search
-        ) | courses.filter(
-            course_name__icontains=search
+            Q(course_code__icontains=search) | Q(course_name__icontains=search)
         )
 
     if department:

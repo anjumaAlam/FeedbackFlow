@@ -5798,3 +5798,84 @@ django.db.utils.OperationalError: no such column: feedback_courseregistration.cl
 [2026-05-22 14:05:17,007] INFO django.server basehttp "GET /notifications/ HTTP/1.1" 200 57844
 [2026-05-22 14:05:20,852] INFO django.server basehttp "GET /logout/ HTTP/1.1" 302 0
 [2026-05-22 14:05:20,857] INFO django.server basehttp "GET /login/ HTTP/1.1" 200 19119
+[2026-05-22 14:27:18,241] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 14:27:22,343] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 14:27:22,690] INFO django.server log "GET /dao/dashboard/ HTTP/1.1" 302 0
+[2026-05-22 14:27:22,711] INFO django.server log "GET /login/ HTTP/1.1" 302 0
+[2026-05-22 14:27:22,809] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 44849
+[2026-05-22 14:27:22,916] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 45393
+[2026-05-22 14:27:23,521] WARNING django.request log Not Found: /favicon.ico
+[2026-05-22 14:27:23,524] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 15678
+[2026-05-22 14:27:50,738] INFO django.server log "GET /notifications/ HTTP/1.1" 200 26863
+[2026-05-22 14:27:53,211] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 14:27:53,280] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 44729
+[2026-05-22 14:27:59,443] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-22 14:28:02,991] INFO django.server log "GET /login/ HTTP/1.1" 200 18805
+[2026-05-22 14:28:17,888] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-22 14:28:18,885] WARNING django.request log Not Found: /favicon.ico
+[2026-05-22 14:28:18,887] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 15678
+[2026-05-22 14:28:24,287] INFO django.server log "GET / HTTP/1.1" 200 37093
+[2026-05-22 14:28:53,560] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 14:28:53,641] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39702
+[2026-05-22 14:28:57,991] INFO django.server log "GET /complaints/hod/list/?mode=pending HTTP/1.1" 200 74379
+[2026-05-22 14:29:01,388] INFO django.server log "GET /complaints/hod/handle/20/ HTTP/1.1" 200 28670
+[2026-05-22 14:29:09,649] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 14:29:09,699] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39162
+[2026-05-22 14:29:24,489] INFO django.server log "GET /login/ HTTP/1.1" 200 18805
+[2026-05-22 14:29:37,739] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 14:29:37,819] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 44384
+[2026-05-22 14:29:46,449] INFO django.server log "GET /login/ HTTP/1.1" 200 18805
+[2026-05-22 14:30:01,642] INFO django.server log "POST /login/ HTTP/1.1" 302 0
+[2026-05-22 14:30:01,715] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 42885
+[2026-05-22 15:29:19,578] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 15:29:29,930] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 15:29:30,239] INFO django.server log "GET /student/dashboard/ HTTP/1.1" 200 44729
+[2026-05-22 15:29:48,360] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39162
+[2026-05-22 15:29:52,864] INFO django.server log "GET /complaints/hod/faculty-complaint-summary/ HTTP/1.1" 200 19494
+[2026-05-22 15:29:57,630] INFO django.server log "GET /complaints/hod/faculty-complaint-summary/?faculty_id=15 HTTP/1.1" 200 37903
+[2026-05-22 15:30:03,109] INFO django.server log "GET /complaints/hod/faculty-course-wise/15/ HTTP/1.1" 200 86072
+[2026-05-22 15:30:33,443] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 15:30:33,480] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39162
+[2026-05-22 15:31:12,102] INFO django.server log "GET /complaints/hod/faculty-complaint-summary/ HTTP/1.1" 200 19494
+[2026-05-22 15:31:16,086] INFO django.server log "GET /complaints/hod/faculty-complaint-summary/?faculty_id=15 HTTP/1.1" 200 37903
+[2026-05-22 15:32:42,425] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 15:32:42,459] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39162
+[2026-05-22 15:32:46,453] INFO django.server log "GET /dashboard/feedback-analytics/ HTTP/1.1" 200 68965
+[2026-05-22 15:32:50,798] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 15:32:50,828] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39162
+[2026-05-22 15:33:09,725] INFO django.server log "GET /feedback/admin/courses/ HTTP/1.1" 200 92910
+[2026-05-22 15:34:12,654] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 15:34:18,735] INFO django.server log "GET /complaints/hod/faculty-complaint-summary/ HTTP/1.1" 200 19494
+[2026-05-22 15:34:22,259] INFO django.server log "GET /complaints/hod/faculty-complaint-summary/?faculty_id=15 HTTP/1.1" 200 37903
+[2026-05-22 15:34:26,606] INFO django.server log "GET /complaints/hod/faculty-course-wise/15/ HTTP/1.1" 200 87466
+[2026-05-22 15:36:05,254] INFO django.server log "GET /complaints/hod/faculty-course-wise/15/ HTTP/1.1" 200 87145
+[2026-05-22 15:37:51,003] INFO django.server log "GET /complaints/hod/faculty-course-wise/15/ HTTP/1.1" 302 0
+[2026-05-22 15:37:51,026] INFO django.server log "GET /login/?next=/complaints/hod/faculty-course-wise/15/ HTTP/1.1" 200 18805
+[2026-05-22 15:37:51,216] WARNING django.request log Not Found: /favicon.ico
+[2026-05-22 15:37:51,216] WARNING django.server log "GET /favicon.ico HTTP/1.1" 404 15678
+[2026-05-22 15:38:49,780] INFO django.server log "GET /complaints/hod/faculty-course-wise/15/ HTTP/1.1" 200 88698
+[2026-05-22 15:42:18,363] INFO django.server log "GET /complaints/hod/faculty-course-wise/15/ HTTP/1.1" 200 87145
+[2026-05-22 15:43:47,755] INFO django.server log "GET /complaints/hod/faculty-course-wise/15/ HTTP/1.1" 200 88565
+[2026-05-22 15:44:04,520] INFO django.server log "GET /complaints/detail/25/ HTTP/1.1" 200 37367
+[2026-05-22 15:44:08,775] INFO django.server log "GET /complaints/hod/handle/25/ HTTP/1.1" 200 33388
+[2026-05-22 15:44:25,261] INFO django.server log "GET /complaints/hod/faculty-course-wise/15/ HTTP/1.1" 200 88729
+[2026-05-22 15:44:31,567] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 15:44:31,610] INFO django.server log "GET /hod/dashboard/ HTTP/1.1" 200 39162
+[2026-05-22 15:46:28,086] INFO django.server log "GET /feedback/admin/courses/ HTTP/1.1" 200 92910
+[2026-05-22 15:47:27,796] INFO django.utils.autoreload autoreload C:\Users\fairo\Music\PythonProject_feedback_newupdate22\FeedbackFlow\feedback\views.py changed, reloading.
+[2026-05-22 15:47:29,040] INFO django.utils.autoreload autoreload Watching for file changes with StatReloader
+[2026-05-22 15:47:49,850] INFO django.server log "GET /feedback/admin/courses/ HTTP/1.1" 200 92910
+[2026-05-22 15:48:16,018] INFO django.server log "GET /feedback/admin/courses/ HTTP/1.1" 200 92910
+[2026-05-22 15:48:30,285] INFO django.server log "GET /feedback/admin/courses/?search=ARCH101&department=Architecture&active=active HTTP/1.1" 200 36533
+[2026-05-22 15:48:35,804] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 15:48:35,849] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43843
+[2026-05-22 15:48:41,890] INFO django.server log "GET /feedback/admin/courses/ HTTP/1.1" 200 92910
+[2026-05-22 15:49:03,808] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 15:49:03,844] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43843
+[2026-05-22 15:49:12,796] INFO django.server log "GET /complaints/admin/list/ HTTP/1.1" 200 60177
+[2026-05-22 15:49:24,301] INFO django.server log "GET /dashboard/appointments/ HTTP/1.1" 200 41420
+[2026-05-22 15:49:31,211] INFO django.server log "GET /dashboard/feedback-reports/ HTTP/1.1" 200 99459
+[2026-05-22 15:49:35,241] INFO django.server log "GET /dashboard/users/ HTTP/1.1" 200 124814
+[2026-05-22 15:49:44,527] INFO django.server log "GET /notifications/ HTTP/1.1" 200 35487
+[2026-05-22 15:49:46,448] INFO django.server log "GET / HTTP/1.1" 302 0
+[2026-05-22 15:49:46,469] INFO django.server log "GET /dashboard/admin/ HTTP/1.1" 200 43723
